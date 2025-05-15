@@ -1,6 +1,7 @@
 #include "api/init.h"
 #include "api/seed.h"
 #include "lib/config.h"
+#include "lib/error.h"
 #include "lib/logger.h"
 #include <arpa/inet.h>
 #include <sqlite3.h>
@@ -80,4 +81,30 @@ int main(int argc, char *argv[]) {
 	}
 
 	info("starting luna application\n");
+
+	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
+		fatal("failed to create socket because %s\n", errno_str());
+		exit(1);
+	}
+
+	if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, (int[]){1}, sizeof(int)) == -1) {
+		fatal("failed to set socket reuse address because %s\n", errno_str());
+		exit(1);
+	}
+
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = inet_addr(address);
+	server_addr.sin_port = htons(port);
+
+	if (bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+		fatal("failed to bind to socket because %s\n", errno_str());
+		exit(1);
+	}
+
+	if (listen(server_sock, backlog) == -1) {
+		fatal("failed to listen on socket because %s\n", errno_str());
+		exit(1);
+	}
+
+	info("listening on %s:%d...\n", inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
 }

@@ -8,6 +8,8 @@ extern const char *name;
 extern const char *address;
 extern uint16_t port;
 
+extern uint8_t backlog;
+
 extern const char *database_file;
 extern uint16_t database_timeout;
 

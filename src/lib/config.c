@@ -9,6 +9,8 @@ const char *name = "luna";
 const char *address = "0.0.0.0";
 uint16_t port = 2254;
 
+uint8_t backlog = 16;
+
 const char *database_file = "luna.sqlite";
 uint16_t database_timeout = 500;
 
@@ -43,6 +45,28 @@ int parse_bool(const char *arg, const char *key, bool *value) {
 		return 1;
 	}
 
+	return 0;
+}
+
+int parse_uint8(const char *arg, const char *key, const uint8_t min, const uint8_t max, uint8_t *value) {
+	if (arg == NULL) {
+		error("please provide a value for %s\n", key);
+		return 1;
+	}
+
+	char *arg_end;
+	const uint64_t new_value = strtoul(arg, &arg_end, 10);
+	if (*arg_end != '\0') {
+		error("%s must be an unsigned integer\n", key);
+		return 1;
+	}
+
+	if (new_value < min || new_value > max) {
+		error("%s must be between %hhu and %hhu\n", key, min, max);
+		return 1;
+	}
+
+	*value = (uint8_t)new_value;
 	return 0;
 }
 
@@ -150,6 +174,9 @@ int configure(int argc, char *argv[]) {
 		} else if (match_arg(flag, "--port", "-p")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint16(value, "port", 0, 65535, &port);
+		} else if (match_arg(flag, "--backlog", "-b")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "backlog", 0, 255, &backlog);
 		} else if (match_arg(flag, "--database-file", "-df")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "database file", 4, 64, &database_file);
