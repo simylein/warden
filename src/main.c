@@ -1,4 +1,5 @@
 #include "api/init.h"
+#include "api/seed.h"
 #include "lib/config.h"
 #include "lib/logger.h"
 #include <sqlite3.h>
@@ -29,6 +30,26 @@ int main(int argc, char *argv[]) {
 
 		if (init(database) != 0) {
 			fatal("failed to initialise database\n");
+			exit(1);
+		}
+
+		if (sqlite3_close_v2(database) != SQLITE_OK) {
+			fatal("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
+			exit(1);
+		}
+
+		exit(0);
+	}
+
+	if (argc >= 2 && (strcmp(argv[1], "--seed") == 0 || strcmp(argv[1], "-s") == 0)) {
+		sqlite3 *database;
+		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
+			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
+			exit(1);
+		}
+
+		if (seed(database) != 0) {
+			fatal("failed to seed database\n");
 			exit(1);
 		}
 
