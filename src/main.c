@@ -2,10 +2,14 @@
 #include "api/seed.h"
 #include "lib/config.h"
 #include "lib/logger.h"
+#include <arpa/inet.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+int server_sock;
+struct sockaddr_in server_addr;
 
 int main(int argc, char *argv[]) {
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
@@ -62,16 +66,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
-		info("luna version %hhu.%hhu.%hhu %s\n", major, minor, patch, commit);
+		info("luna version %s %s\n", version, commit);
 		info("written by simylein in c\n");
 		exit(0);
 	}
 
-	info("starting luna application\n");
+	info("parsing command line flags\n");
 
 	int cf_errors = configure(argc, argv);
 	if (cf_errors != 0) {
 		fatal("config contains %d errors\n", cf_errors);
 		exit(1);
 	}
+
+	info("starting luna application\n");
 }

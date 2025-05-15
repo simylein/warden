@@ -9,14 +9,10 @@ objects = $(patsubst $(src)/%,$(obj)/%,$(sources:.c=.o))
 
 target = luna
 
-major = 0
-minor = 0
-patch = 1
+version = 0.0.1
 commit = $(shell git rev-parse --short HEAD 2> /dev/null || echo unknown)
 
-flags += -Dmajor=$(major)
-flags += -Dminor=$(minor)
-flags += -Dpatch=$(patch)
+flags += -Dversion=\"$(version)\"
 flags += -Dcommit=\"$(commit)\"
 
 $(obj)/%.o: $(src)/%.c
