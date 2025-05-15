@@ -1,7 +1,7 @@
 #include "../lib/logger.h"
-#include "device/device.h"
-#include "user-device/user-device.h"
-#include "user/user.h"
+#include "device.h"
+#include "user-device.h"
+#include "user.h"
 #include <sqlite3.h>
 #include <stdlib.h>
 
