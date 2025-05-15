@@ -3,6 +3,7 @@
 #include "lib/config.h"
 #include "lib/error.h"
 #include "lib/logger.h"
+#include "lib/thread.h"
 #include <arpa/inet.h>
 #include <sqlite3.h>
 #include <stdio.h>
@@ -86,6 +87,27 @@ int main(int argc, char *argv[]) {
 
 	info("starting luna application\n");
 
+	queue.tasks = malloc(queue_size * sizeof(*queue.tasks));
+	if (queue.tasks == NULL) {
+		fatal("failed to allocate %zu bytes for tasks because %s\n", queue_size * sizeof(*queue.tasks), errno_str());
+		exit(1);
+	}
+
+	thread_pool.workers = malloc(most_workers * sizeof(*thread_pool.workers));
+	if (thread_pool.workers == NULL) {
+		fatal("failed to allocate %zu bytes for workers because %s\n", most_workers * sizeof(*thread_pool.workers), errno_str());
+		exit(1);
+	}
+
+	for (uint8_t index = 0; index < least_workers; index++) {
+		if (spawn(&thread_pool.workers[index], thread_pool.size, &thread, &fatal) == -1) {
+			exit(1);
+		}
+		thread_pool.size++;
+	}
+
+	info("spawned %hhu worker threads\n", least_workers);
+
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		fatal("failed to create socket because %s\n", errno_str());
 		exit(1);
@@ -110,5 +132,48 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	info("listening on %s:%d...\n", inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
+	info("listening on %s:%d\n", inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
+
+	while (true) {
+		pthread_mutex_lock(&queue.lock);
+
+		while (queue.size >= queue_size) {
+			warn("waiting for queue size %hhu to decrease\n", queue.size);
+			pthread_cond_wait(&queue.available, &queue.lock);
+		}
+
+		pthread_mutex_unlock(&queue.lock);
+
+		pthread_mutex_lock(&thread_pool.lock);
+
+		if (thread_pool.load >= thread_pool.size) {
+			debug("all worker threads currently busy\n");
+			uint8_t new_size = thread_pool.size + 1;
+			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
+				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
+				thread_pool.size = new_size;
+			}
+		}
+
+		pthread_mutex_unlock(&thread_pool.lock);
+
+		struct sockaddr_in client_addr;
+		int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &(socklen_t){sizeof(client_addr)});
+
+		if (client_sock == -1) {
+			error("failed to accept client because %s\n", errno_str());
+			continue;
+		}
+
+		pthread_mutex_lock(&queue.lock);
+
+		queue.tasks[queue.tail].client_sock = client_sock;
+		memcpy(&queue.tasks[queue.tail].client_addr, &client_addr, sizeof(client_addr));
+		queue.tail = (uint8_t)((queue.tail + 1) % queue_size);
+		queue.size++;
+		trace("main thread increased queue size to %hhu\n", queue.size);
+
+		pthread_cond_signal(&queue.filled);
+		pthread_mutex_unlock(&queue.lock);
+	}
 }
