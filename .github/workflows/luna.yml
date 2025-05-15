@@ -15,3 +15,20 @@ jobs:
         run: ./luna --init
       - name: luna seed
         run: ./luna --seed
+      - name: luna start
+        run: |
+          address=0.0.0.0
+          port=2254
+          ./luna --address $address --port $port >luna.log 2>&1 &
+          for i in {1..8}; do
+            if nc -z $address $port; then
+              echo "listening on $address $port"
+              break
+            fi
+            echo "waiting for listening socket"
+            sleep 1
+          done
+          if ! nc -z $address $port; then
+            echo "$address $port timed out"
+            exit 1
+          fi
