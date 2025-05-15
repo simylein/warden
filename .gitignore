@@ -1,0 +1,17 @@
+# operating system
+.DS_Store
+
+# vscode
+.vscode
+
+# objects
+obj
+
+# executable
+luna
+
+# database
+luna.sqlite
+
+# logs
+*.log
