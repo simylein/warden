@@ -1,0 +1,17 @@
+name: luna
+on:
+  push:
+    branches: [main, develop, feature/*, refactor/*, bugfix/*, hotfix/*]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make release
+        run: make release
+      - name: luna version
+        run: ./luna --version
+      - name: luna init
+        run: ./luna --init
+      - name: luna seed
+        run: ./luna --seed
