@@ -15,14 +15,18 @@ struct sockaddr_in server_addr;
 int main(int argc, char *argv[]) {
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
 		info("available command line flags\n");
-		info("--name              -n   name of application            (%s)\n", name);
-		info("--address           -a   ip address to bind             (%s)\n", address);
-		info("--port              -p   port to listen on              (%hu)\n", port);
-		info("--database-file     -df  path to sqlite database file   (%s)\n", database_file);
-		info("--database-timeout  -dt  milliseconds to wait for lock  (%hu)\n", database_timeout);
-		info("--log-level         -ll  logging verbosity to print     (%s)\n", human_log_level(log_level));
-		info("--log-requests      -lq  log incoming requests          (%s)\n", human_bool(log_requests));
-		info("--log-responses     -ls  log outgoing response          (%s)\n", human_bool(log_responses));
+		info("--name              -n   name of application             (%s)\n", name);
+		info("--address           -a   ip address to bind              (%s)\n", address);
+		info("--port              -p   port to listen on               (%hu)\n", port);
+		info("--backlog           -b   backlog allowed on socket       (%hhu)\n", backlog);
+		info("--queue-size        -qs  size of clients in queue        (%hhu)\n", queue_size);
+		info("--least-workers     -lw  least amount of worker threads  (%hhu)\n", least_workers);
+		info("--most-workers      -mw  most amount of worker threads   (%hhu)\n", most_workers);
+		info("--database-file     -df  path to sqlite database file    (%s)\n", database_file);
+		info("--database-timeout  -dt  milliseconds to wait for lock   (%hu)\n", database_timeout);
+		info("--log-level         -ll  logging verbosity to print      (%s)\n", human_log_level(log_level));
+		info("--log-requests      -lq  log incoming requests           (%s)\n", human_bool(log_requests));
+		info("--log-responses     -ls  log outgoing response           (%s)\n", human_bool(log_responses));
 		exit(0);
 	}
 

@@ -9,6 +9,9 @@ extern const char *address;
 extern uint16_t port;
 
 extern uint8_t backlog;
+extern uint8_t queue_size;
+extern uint8_t least_workers;
+extern uint8_t most_workers;
 
 extern const char *database_file;
 extern uint16_t database_timeout;

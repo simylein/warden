@@ -10,6 +10,9 @@ const char *address = "0.0.0.0";
 uint16_t port = 2254;
 
 uint8_t backlog = 16;
+uint8_t queue_size = 8;
+uint8_t least_workers = 4;
+uint8_t most_workers = 64;
 
 const char *database_file = "luna.sqlite";
 uint16_t database_timeout = 500;
@@ -177,6 +180,15 @@ int configure(int argc, char *argv[]) {
 		} else if (match_arg(flag, "--backlog", "-b")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "backlog", 0, 255, &backlog);
+		} else if (match_arg(flag, "--queue-size", "-qs")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "queue size", 1, 127, &queue_size);
+		} else if (match_arg(flag, "--least-workers", "-lw")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "least-workers", 1, 63, &least_workers);
+		} else if (match_arg(flag, "--most-workers", "-mw")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "most-workers", 3, 255, &most_workers);
 		} else if (match_arg(flag, "--database-file", "-df")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "database file", 4, 64, &database_file);
