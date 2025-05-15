@@ -142,29 +142,29 @@ int configure(int argc, char *argv[]) {
 	for (int ind = 1; ind < argc; ind++) {
 		const char *flag = argv[ind];
 		if (match_arg(flag, "--name", "-n")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_str(arg, "name", 2, 8, &name);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "name", 2, 8, &name);
 		} else if (match_arg(flag, "--address", "-a")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_str(arg, "address", 4, 16, &address);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "address", 4, 16, &address);
 		} else if (match_arg(flag, "--port", "-p")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_uint16(arg, "port", 0, 65535, &port);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint16(value, "port", 0, 65535, &port);
 		} else if (match_arg(flag, "--database-file", "-df")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_str(arg, "database file", 4, 64, &database_file);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "database file", 4, 64, &database_file);
 		} else if (match_arg(flag, "--database-timeout", "-dt")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_uint16(arg, "database timeout", 0, 8000, &database_timeout);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint16(value, "database timeout", 0, 8000, &database_timeout);
 		} else if (match_arg(flag, "--log-level", "-ll")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_log_level(arg, &log_level);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_log_level(value, &log_level);
 		} else if (match_arg(flag, "--log-requests", "-lq")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_bool(arg, "log requests", &log_requests);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_bool(value, "log requests", &log_requests);
 		} else if (match_arg(flag, "--log-responses", "-ls")) {
-			const char *arg = next_arg(argc, argv, &ind);
-			errors += parse_bool(arg, "log responses", &log_responses);
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_bool(value, "log responses", &log_responses);
 		} else {
 			errors++;
 			error("unknown argument %s\n", flag);

@@ -11,7 +11,7 @@ target = luna
 
 major = 0
 minor = 0
-patch = 0
+patch = 1
 commit = $(shell git rev-parse --short HEAD 2> /dev/null || echo unknown)
 
 flags += -Dmajor=$(major)
