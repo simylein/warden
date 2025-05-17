@@ -1,3 +1,4 @@
+#include "../api/router.h"
 #include "config.h"
 #include "error.h"
 #include "logger.h"
@@ -96,6 +97,8 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	request(request_buffer, (size_t)bytes_received, &reqs, &resp);
 	trace("method %hhub pathname %hhub search %hub header %hub body %zub\n", reqs.method_len, reqs.pathname_len, reqs.search_len,
 				reqs.header_len, reqs.body_len);
+
+	route(database, &reqs, &resp);
 
 	size_t response_length = response(response_buffer, &reqs, &resp);
 
