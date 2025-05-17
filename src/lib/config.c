@@ -17,6 +17,11 @@ uint8_t most_workers = 64;
 const char *database_file = "luna.sqlite";
 uint16_t database_timeout = 500;
 
+uint8_t receive_timeout = 60;
+uint8_t send_timeout = 60;
+uint8_t receive_packets = 16;
+uint8_t send_packets = 16;
+
 uint8_t log_level = 4;
 bool log_requests = true;
 bool log_responses = true;
@@ -194,7 +199,19 @@ int configure(int argc, char *argv[]) {
 			errors += parse_str(value, "database file", 4, 64, &database_file);
 		} else if (match_arg(flag, "--database-timeout", "-dt")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint16(value, "database timeout", 0, 8000, &database_timeout);
+			errors += parse_uint16(value, "database timeout", 10, 10000, &database_timeout);
+		} else if (match_arg(flag, "--receive-timeout", "-rt")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "receive timeout", 2, 240, &receive_timeout);
+		} else if (match_arg(flag, "--send-timeout", "-st")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "send timeout", 2, 240, &send_timeout);
+		} else if (match_arg(flag, "--receive-packets", "-rp")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "receive packets", 1, 128, &receive_packets);
+		} else if (match_arg(flag, "--send-packets", "-sp")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "send packets", 1, 128, &send_packets);
 		} else if (match_arg(flag, "--log-level", "-ll")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_log_level(value, &log_level);
