@@ -25,6 +25,10 @@ int main(int argc, char *argv[]) {
 		info("--most-workers      -mw  most amount of worker threads   (%hhu)\n", most_workers);
 		info("--database-file     -df  path to sqlite database file    (%s)\n", database_file);
 		info("--database-timeout  -dt  milliseconds to wait for lock   (%hu)\n", database_timeout);
+		info("--receive-timeout   -rt  seconds to wait for receiving   (%hhu)\n", receive_timeout);
+		info("--send-timeout      -st  seconds to wait for sending     (%hhu)\n", send_timeout);
+		info("--receive-packets   -rp  most packets allowed to receive (%hhu)\n", receive_packets);
+		info("--send-packets      -sp  most packets allowed to send    (%hhu)\n", send_packets);
 		info("--log-level         -ll  logging verbosity to print      (%s)\n", human_log_level(log_level));
 		info("--log-requests      -lq  log incoming requests           (%s)\n", human_bool(log_requests));
 		info("--log-responses     -ls  log outgoing response           (%s)\n", human_bool(log_responses));
