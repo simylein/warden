@@ -24,6 +24,8 @@ int main(int argc, char *argv[]) {
 		info("--queue-size        -qs  size of clients in queue        (%hhu)\n", queue_size);
 		info("--least-workers     -lw  least amount of worker threads  (%hhu)\n", least_workers);
 		info("--most-workers      -mw  most amount of worker threads   (%hhu)\n", most_workers);
+		info("--bwt-key           -bk  random bytes for bwt signing    (%s)\n", bwt_key);
+		info("--bwt-ttl           -bt  time to live for bwt expiry     (%u)\n", bwt_ttl);
 		info("--database-file     -df  path to sqlite database file    (%s)\n", database_file);
 		info("--database-timeout  -dt  milliseconds to wait for lock   (%hu)\n", database_timeout);
 		info("--receive-timeout   -rt  seconds to wait for receiving   (%hhu)\n", receive_timeout);

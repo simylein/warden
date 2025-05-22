@@ -14,6 +14,9 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
+const char *bwt_key = "l2u2n5a4";
+uint32_t bwt_ttl = 2764800;
+
 const char *database_file = "luna.sqlite";
 uint16_t database_timeout = 500;
 
@@ -100,6 +103,28 @@ int parse_uint16(const char *arg, const char *key, const uint16_t min, const uin
 	return 0;
 }
 
+int parse_uint32(const char *arg, const char *key, const uint32_t min, const uint32_t max, uint32_t *value) {
+	if (arg == NULL) {
+		error("please provide a value for %s\n", key);
+		return 1;
+	}
+
+	char *arg_end;
+	const uint64_t new_value = strtoul(arg, &arg_end, 10);
+	if (*arg_end != '\0') {
+		error("%s must be an unsigned integer\n", key);
+		return 1;
+	}
+
+	if (new_value < min || new_value > max) {
+		error("%s must be between %hu and %hu\n", key, min, max);
+		return 1;
+	}
+
+	*value = (uint32_t)new_value;
+	return 0;
+}
+
 int parse_str(const char *arg, const char *key, size_t min, size_t max, const char **value) {
 	if (arg == NULL) {
 		error("please provide a value for %s\n", key);
@@ -168,6 +193,12 @@ int configure(int argc, char *argv[]) {
 		} else if (match_arg(flag, "--most-workers", "-mw")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "most-workers", 3, 255, &most_workers);
+		} else if (match_arg(flag, "--bwt-key", "-bk")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "bwt key", 16, 64, &bwt_key);
+		} else if (match_arg(flag, "--bwt-ttl", "-bt")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint32(value, "bwt ttl", 3600, 15768000, &bwt_ttl);
 		} else if (match_arg(flag, "--database-file", "-df")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "database file", 4, 64, &database_file);
