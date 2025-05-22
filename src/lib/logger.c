@@ -38,6 +38,28 @@ void print(FILE *file, const char *time, const char *level, const char *color, c
 	funlockfile(file);
 }
 
+void req(const char *message, ...) {
+	if (log_requests == true) {
+		char buffer[9];
+		timestamp(&buffer);
+		va_list args;
+		va_start(args, message);
+		print(stdout, buffer, "req", bold, message, args);
+		va_end(args);
+	}
+}
+
+void res(const char *message, ...) {
+	if (log_responses == true) {
+		char buffer[9];
+		timestamp(&buffer);
+		va_list args;
+		va_start(args, message);
+		print(stdout, buffer, "res", bold, message, args);
+		va_end(args);
+	}
+}
+
 void trace(const char *message, ...) {
 	if (log_level >= 6) {
 		char buffer[9];
