@@ -1,6 +1,7 @@
 #include "../api/router.h"
 #include "config.h"
 #include "error.h"
+#include "format.h"
 #include "logger.h"
 #include "request.h"
 #include "response.h"
@@ -94,9 +95,13 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	request_init(&reqs);
 	response_init(&resp, response_buffer);
 
+	char bytes_buffer[8];
+	human_bytes(&bytes_buffer, (size_t)bytes_received);
+
 	request(request_buffer, (size_t)bytes_received, &reqs, &resp);
 	trace("method %hhub pathname %hhub search %hub header %hub body %zub\n", reqs.method_len, reqs.pathname_len, reqs.search_len,
 				reqs.header_len, reqs.body_len);
+	req("%.*s %.*s %s\n", (int)reqs.method_len, reqs.method, (int)reqs.pathname_len, reqs.pathname, bytes_buffer);
 
 	route(database, &reqs, &resp);
 
@@ -105,6 +110,11 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	struct timespec stop;
 	clock_gettime(CLOCK_MONOTONIC, &stop);
 
+	char duration_buffer[8];
+	human_duration(&duration_buffer, &start, &stop);
+	human_bytes(&bytes_buffer, response_length);
+
+	res("%d %s %s\n", resp.status, duration_buffer, bytes_buffer);
 	trace("head %hhub header %hub body %zub\n", resp.head_len, resp.header_len, resp.body_len);
 
 	uint8_t packets_sent = 0;
