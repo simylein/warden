@@ -2,6 +2,7 @@
 #include "api/seed.h"
 #include "lib/config.h"
 #include "lib/error.h"
+#include "lib/format.h"
 #include "lib/logger.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>

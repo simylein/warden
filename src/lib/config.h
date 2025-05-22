@@ -26,6 +26,3 @@ extern bool log_requests;
 extern bool log_responses;
 
 int configure(int argc, char *argv[]);
-
-const char *human_bool(bool val);
-const char *human_log_level(uint8_t level);
