@@ -67,3 +67,15 @@ void human_duration(char (*buffer)[8], struct timespec *start, struct timespec *
 		sprintf(*buffer, "%zus", nanoseconds / 1000000000);
 	}
 }
+
+void human_time(char (*buffer)[8], time_t seconds) {
+	if (seconds < 60) {
+		sprintf(*buffer, "%zus", seconds);
+	} else if (seconds < 3600) {
+		sprintf(*buffer, "%zum", seconds / 60);
+	} else if (seconds < 86400) {
+		sprintf(*buffer, "%zuh", seconds / 3600);
+	} else {
+		sprintf(*buffer, "%zud", seconds / 86400);
+	}
+}
