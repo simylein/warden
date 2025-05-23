@@ -8,10 +8,10 @@
 obj
 
 # executable
-luna
+warden
 
 # database
-luna.sqlite
+warden.sqlite
 
 # logs
 *.log

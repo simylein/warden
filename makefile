@@ -7,7 +7,7 @@ obj = obj
 sources = $(shell find $(src) -name "*.c")
 objects = $(patsubst $(src)/%,$(obj)/%,$(sources:.c=.o))
 
-target = luna
+target = warden
 
 version = 0.1.0
 commit = $(shell git rev-parse --short HEAD 2> /dev/null || echo unknown)
@@ -21,7 +21,7 @@ $(obj)/%.o: $(src)/%.c
 	@$(cc) $(flags) -c $< -o $@
 
 all:
-	@echo "available build options for luna"
+	@echo "available build options for warden"
 	@echo "make clean      clean compiled assets"
 	@echo "make develop    address sanitized"
 	@echo "make release    performance optimized"

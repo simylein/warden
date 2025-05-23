@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
-		info("luna version %s %s\n", version, commit);
+		info("warden version %s %s\n", version, commit);
 		info("written by simylein in c\n");
 		exit(0);
 	}
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	info("starting luna application\n");
+	info("starting warden application\n");
 
 	queue.tasks = malloc(queue_size * sizeof(*queue.tasks));
 	if (queue.tasks == NULL) {

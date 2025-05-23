@@ -1,4 +1,4 @@
-name: luna
+name: warden
 on:
   push:
     branches: [main, develop, feature/*, refactor/*, bugfix/*, hotfix/*]
@@ -9,17 +9,17 @@ jobs:
       - uses: actions/checkout@v4
       - name: make release
         run: make release
-      - name: luna version
-        run: ./luna --version
-      - name: luna init
-        run: ./luna --init
-      - name: luna seed
-        run: ./luna --seed
-      - name: luna start
+      - name: warden version
+        run: ./warden --version
+      - name: warden init
+        run: ./warden --init
+      - name: warden seed
+        run: ./warden --seed
+      - name: warden start
         run: |
           address=0.0.0.0
           port=2254
-          ./luna --address $address --port $port >luna.log 2>&1 &
+          ./warden --address $address --port $port >warden.log 2>&1 &
           for i in {1..8}; do
             if nc -z $address $port; then
               echo "listening on $address $port"

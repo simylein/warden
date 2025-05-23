@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *name = "luna";
+const char *name = "warden";
 
 const char *address = "0.0.0.0";
 uint16_t port = 2254;
@@ -17,7 +17,7 @@ uint8_t most_workers = 64;
 const char *bwt_key = "l2u2n5a4";
 uint32_t bwt_ttl = 2764800;
 
-const char *database_file = "luna.sqlite";
+const char *database_file = "warden.sqlite";
 uint16_t database_timeout = 500;
 
 uint8_t receive_timeout = 60;
