@@ -1,6 +1,7 @@
 #include "bwt.h"
 #include "base32.h"
 #include "config.h"
+#include "endian.h"
 #include "format.h"
 #include "logger.h"
 #include "request.h"
@@ -12,9 +13,9 @@
 
 int bwt_sign(char (*buffer)[103], const uint8_t (*id)[16]) {
 	const time_t iat = time(NULL);
-	const uint64_t n_iat = htonll((uint64_t)iat);
+	const uint64_t n_iat = hton64((uint64_t)iat);
 	const time_t exp = iat + bwt_ttl;
-	const uint64_t n_exp = htonll((uint64_t)exp);
+	const uint64_t n_exp = hton64((uint64_t)exp);
 
 	const size_t offset = sizeof(*id) + sizeof(n_iat) + sizeof(n_exp);
 
@@ -65,8 +66,8 @@ int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 		return -1;
 	}
 
-	bwt->iat = (time_t)ntohll(n_iat);
-	bwt->exp = (time_t)ntohll(n_exp);
+	bwt->iat = (time_t)ntoh64(n_iat);
+	bwt->exp = (time_t)ntoh64(n_exp);
 
 	time_t now = time(NULL);
 	if (bwt->exp < now) {
