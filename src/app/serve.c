@@ -1,6 +1,7 @@
 #include "../lib/logger.h"
 #include "../lib/response.h"
 #include "file.h"
+#include "hydrate.h"
 #include <stdio.h>
 
 file_t signin = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/signin.html"};
@@ -18,6 +19,13 @@ file_t http_version_not_supported = {.fd = -1, .ptr = NULL, .len = 0, .path = ".
 
 void serve(file_t *asset, response_t *response) {
 	if (file(asset) == -1) {
+		response->status = 500;
+		return;
+	}
+
+	class_t classes[128];
+	uint8_t classes_len = 0;
+	if (extract(asset, &classes, &classes_len) == -1) {
 		response->status = 500;
 		return;
 	}
