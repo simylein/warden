@@ -19,5 +19,8 @@ typedef struct user_t {
 extern const char *user_table;
 extern const char *user_schema;
 
+uint16_t user_insert(sqlite3 *database, user_t *user);
+uint16_t user_update(sqlite3 *database, user_t *user);
+
 void user_signup(sqlite3 *database, request_t *request, response_t *response);
 void user_signin(sqlite3 *database, request_t *request, response_t *response);
