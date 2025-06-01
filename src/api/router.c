@@ -84,4 +84,32 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (request->pathname_len >= 5 && memcmp(request->pathname, "/api/", 5) == 0) {
 		return;
 	}
+
+	if (response->status == 400) {
+		serve(&bad_request, response);
+	}
+	if (response->status == 401) {
+		serve(&unauthorized, response);
+	}
+	if (response->status == 403) {
+		serve(&forbidden, response);
+	}
+	if (response->status == 404) {
+		serve(&not_found, response);
+	}
+	if (response->status == 405) {
+		serve(&method_not_allowed, response);
+	}
+	if (response->status == 414) {
+		serve(&uri_too_long, response);
+	}
+	if (response->status == 431) {
+		serve(&request_header_fields_too_large, response);
+	}
+	if (response->status == 500) {
+		serve(&internal_server_error, response);
+	}
+	if (response->status == 505) {
+		serve(&http_version_not_supported, response);
+	}
 }
