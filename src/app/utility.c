@@ -83,17 +83,16 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 													 {.ptr = "pt-", .len = 3, .val = "padding-top"},		{.ptr = "pr-", .len = 3, .val = "padding-right"},
 													 {.ptr = "pb-", .len = 3, .val = "padding-bottom"}, {.ptr = "pl-", .len = 3, .val = "padding-left"}};
 
-	keymap_t mappings[21] = {{.ptr = "0", .len = 1, .val = "0px"},		{.ptr = "1", .len = 1, .val = "4px"},
-													 {.ptr = "2", .len = 1, .val = "8px"},		{.ptr = "3", .len = 1, .val = "12px"},
-													 {.ptr = "4", .len = 1, .val = "16px"},		{.ptr = "5", .len = 1, .val = "20px"},
-													 {.ptr = "6", .len = 1, .val = "24px"},		{.ptr = "7", .len = 1, .val = "28px"},
-													 {.ptr = "8", .len = 1, .val = "32px"},		{.ptr = "10", .len = 2, .val = "40px"},
-													 {.ptr = "12", .len = 2, .val = "48px"},	{.ptr = "14", .len = 2, .val = "56px"},
-													 {.ptr = "16", .len = 2, .val = "64px"},	{.ptr = "20", .len = 2, .val = "80px"},
-													 {.ptr = "24", .len = 2, .val = "96px"},	{.ptr = "28", .len = 2, .val = "112px"},
-													 {.ptr = "32", .len = 2, .val = "128px"}, {.ptr = "48", .len = 2, .val = "192px"},
-													 {.ptr = "64", .len = 2, .val = "256px"}, {.ptr = "80", .len = 2, .val = "320px"},
-													 {.ptr = "96", .len = 2, .val = "384px"}};
+	keymap_t mappings[25] = {
+			{.ptr = "0", .len = 1, .val = "0px"},		 {.ptr = "1", .len = 1, .val = "4px"},		{.ptr = "2", .len = 1, .val = "8px"},
+			{.ptr = "3", .len = 1, .val = "12px"},	 {.ptr = "4", .len = 1, .val = "16px"},		{.ptr = "5", .len = 1, .val = "20px"},
+			{.ptr = "6", .len = 1, .val = "24px"},	 {.ptr = "7", .len = 1, .val = "28px"},		{.ptr = "8", .len = 1, .val = "32px"},
+			{.ptr = "9", .len = 1, .val = "36px"},	 {.ptr = "10", .len = 2, .val = "40px"},	{.ptr = "11", .len = 2, .val = "44px"},
+			{.ptr = "12", .len = 2, .val = "48px"},	 {.ptr = "13", .len = 2, .val = "52px"},	{.ptr = "14", .len = 2, .val = "56px"},
+			{.ptr = "15", .len = 2, .val = "60px"},	 {.ptr = "16", .len = 2, .val = "64px"},	{.ptr = "20", .len = 2, .val = "80px"},
+			{.ptr = "24", .len = 2, .val = "96px"},	 {.ptr = "28", .len = 2, .val = "112px"}, {.ptr = "32", .len = 2, .val = "128px"},
+			{.ptr = "48", .len = 2, .val = "192px"}, {.ptr = "64", .len = 2, .val = "256px"}, {.ptr = "80", .len = 2, .val = "320px"},
+			{.ptr = "96", .len = 2, .val = "384px"}};
 
 	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
 		if (cls->len > variants[index].len && memcmp(cls->ptr, variants[index].ptr, variants[index].len) == 0) {
@@ -102,6 +101,7 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 				if (cls->len - variants[index].len == mappings[ind].len &&
 						memcmp(&cls->ptr[variants[index].len], mappings[ind].ptr, mappings[ind].len) == 0) {
 					mapping = &mappings[ind];
+					break;
 				}
 			}
 			if (mapping == NULL) {
@@ -129,12 +129,14 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 													{.ptr = "max-w-", .len = 6, .val = "max-width"},	{.ptr = "h-", .len = 2, .val = "height"},
 													{.ptr = "min-h-", .len = 6, .val = "min-height"}, {.ptr = "max-h-", .len = 6, .val = "max-height"}};
 
-	keymap_t mappings[26] = {{.ptr = "0", .len = 1, .val = "0px"},			{.ptr = "1", .len = 1, .val = "4px"},
+	keymap_t mappings[30] = {{.ptr = "0", .len = 1, .val = "0px"},			{.ptr = "1", .len = 1, .val = "4px"},
 													 {.ptr = "2", .len = 1, .val = "8px"},			{.ptr = "3", .len = 1, .val = "12px"},
 													 {.ptr = "4", .len = 1, .val = "16px"},			{.ptr = "5", .len = 1, .val = "20px"},
 													 {.ptr = "6", .len = 1, .val = "24px"},			{.ptr = "7", .len = 1, .val = "28px"},
-													 {.ptr = "8", .len = 1, .val = "32px"},			{.ptr = "10", .len = 2, .val = "40px"},
-													 {.ptr = "12", .len = 2, .val = "48px"},		{.ptr = "14", .len = 2, .val = "56px"},
+													 {.ptr = "8", .len = 1, .val = "32px"},			{.ptr = "9", .len = 1, .val = "36px"},
+													 {.ptr = "10", .len = 2, .val = "40px"},		{.ptr = "11", .len = 2, .val = "44px"},
+													 {.ptr = "12", .len = 2, .val = "48px"},		{.ptr = "13", .len = 2, .val = "52px"},
+													 {.ptr = "14", .len = 2, .val = "56px"},		{.ptr = "15", .len = 2, .val = "60px"},
 													 {.ptr = "16", .len = 2, .val = "64px"},		{.ptr = "20", .len = 2, .val = "80px"},
 													 {.ptr = "24", .len = 2, .val = "96px"},		{.ptr = "28", .len = 2, .val = "112px"},
 													 {.ptr = "32", .len = 2, .val = "128px"},		{.ptr = "48", .len = 2, .val = "192px"},
@@ -150,6 +152,7 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 				if (cls->len - variants[index].len == mappings[ind].len &&
 						memcmp(&cls->ptr[variants[index].len], mappings[ind].ptr, mappings[ind].len) == 0) {
 					mapping = &mappings[ind];
+					break;
 				}
 			}
 			if (mapping == NULL) {
