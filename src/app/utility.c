@@ -167,3 +167,52 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 		}
 	}
 }
+
+void text(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
+		return;
+	}
+
+	keymap_t texts[8] = {
+			{.ptr = "text-xs", .len = 7, .val = "font-size:12px"},	 {.ptr = "text-sm", .len = 7, .val = "font-size:14px"},
+			{.ptr = "text-base", .len = 9, .val = "font-size:16px"}, {.ptr = "text-lg", .len = 7, .val = "font-size:18px"},
+			{.ptr = "text-xl", .len = 7, .val = "font-size:20px"},	 {.ptr = "text-2xl", .len = 8, .val = "font-size:24px"},
+			{.ptr = "text-3xl", .len = 8, .val = "font-size:30px"},	 {.ptr = "text-4xl", .len = 8, .val = "font-size:36px"},
+	};
+
+	for (uint8_t index = 0; index < sizeof(texts) / sizeof(keymap_t); index++) {
+		if (cls->len == texts[index].len && memcmp(cls->ptr, texts[index].ptr, texts[index].len) == 0) {
+			if (*buffer_len < sizeof(*buffer) - 64) {
+				*buffer_len +=
+						sprintf(&(*buffer)[*buffer_len], ".%.*s%.*s{%s}", pfx->len, pfx->ptr, cls->len, cls->ptr, texts[index].val);
+			}
+		}
+	}
+}
+
+void font(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
+		return;
+	}
+
+	keymap_t fonts[9] = {
+			{.ptr = "font-thin", .len = 9, .val = "font-weight:100"},
+			{.ptr = "font-extralight", .len = 15, .val = "font-weight:200"},
+			{.ptr = "font-light", .len = 10, .val = "font-weight:300"},
+			{.ptr = "font-normal", .len = 11, .val = "font-weight:400"},
+			{.ptr = "font-medium", .len = 11, .val = "font-weight:500"},
+			{.ptr = "font-semibold", .len = 13, .val = "font-weight:600"},
+			{.ptr = "font-bold", .len = 10, .val = "font-weight:700"},
+			{.ptr = "font-extrabold", .len = 14, .val = "font-weight:800"},
+			{.ptr = "font-black", .len = 11, .val = "font-weight:900"},
+	};
+
+	for (uint8_t index = 0; index < sizeof(fonts) / sizeof(keymap_t); index++) {
+		if (cls->len == fonts[index].len && memcmp(cls->ptr, fonts[index].ptr, fonts[index].len) == 0) {
+			if (*buffer_len < sizeof(*buffer) - 64) {
+				*buffer_len +=
+						sprintf(&(*buffer)[*buffer_len], ".%.*s%.*s{%s}", pfx->len, pfx->ptr, cls->len, cls->ptr, fonts[index].val);
+			}
+		}
+	}
+}

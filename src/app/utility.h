@@ -13,3 +13,5 @@ void position(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer
 void display(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void text(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void font(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);

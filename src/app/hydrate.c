@@ -143,6 +143,8 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		sizing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		sizing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		sizing(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		text(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		font(&pfx, &cls, &global, &global_len, &global_breakpoint);
 	}
 
 	size_t len = file->len + global_len + small_len + medium_len + large_len;
