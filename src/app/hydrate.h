@@ -8,4 +8,15 @@ typedef struct class_t {
 	uint8_t len;
 } class_t;
 
+typedef struct breakpoint_t {
+	const char *tag;
+	const uint8_t tag_len;
+	const char *prefix;
+	const uint8_t prefix_len;
+	const char *suffix;
+	const uint8_t suffix_len;
+} breakpoint_t;
+
 int extract(file_t *file, class_t (*classes)[128], uint8_t *classes_len);
+
+int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdio.h>
 
 typedef struct file_t {
@@ -7,6 +8,7 @@ typedef struct file_t {
 	char *ptr;
 	size_t len;
 	const char *path;
+	bool hydrated;
 } file_t;
 
 const char *type(const char *path);
