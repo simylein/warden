@@ -1,11 +1,13 @@
 #pragma once
 
 #include "file.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct class_t {
 	char *ptr;
 	uint8_t len;
+	bool known;
 } class_t;
 
 typedef struct breakpoint_t {

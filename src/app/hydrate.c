@@ -82,22 +82,54 @@ int extract(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 	char global[2048];
 	uint16_t global_len = 0;
-	breakpoint_t global_breakpoint = {.tag = "", .tag_len = 0};
+	breakpoint_t global_breakpoint = {
+			.tag = "",
+			.tag_len = 0,
+	};
 
 	char small[2048];
 	uint16_t small_len = 0;
 	breakpoint_t small_breakpoint = {
-			.tag = "sm", .tag_len = 2, .prefix = "@media (min-width:640px){", .prefix_len = 25, .suffix = "}", .suffix_len = 1};
+			.tag = "sm",
+			.tag_len = 2,
+			.prefix = "@media (min-width:640px){",
+			.prefix_len = 25,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
 
 	char medium[2048];
 	uint16_t medium_len = 0;
 	breakpoint_t medium_breakpoint = {
-			.tag = "md", .tag_len = 2, .prefix = "@media (min-width:768px){", .prefix_len = 25, .suffix = "}", .suffix_len = 1};
+			.tag = "md",
+			.tag_len = 2,
+			.prefix = "@media (min-width:768px){",
+			.prefix_len = 25,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
 
 	char large[2048];
 	uint16_t large_len = 0;
 	breakpoint_t large_breakpoint = {
-			.tag = "lg", .tag_len = 2, .prefix = "@media (min-width:1024px){", .prefix_len = 26, .suffix = "}", .suffix_len = 1};
+			.tag = "lg",
+			.tag_len = 2,
+			.prefix = "@media (min-width:1024px){",
+			.prefix_len = 26,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
+
+	char dark[2048];
+	uint16_t dark_len = 0;
+	breakpoint_t dark_breakpoint = {
+			.tag = "dark",
+			.tag_len = 4,
+			.prefix = "@media (prefers-color-scheme:dark){",
+			.prefix_len = 35,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
 
 	debug("hydrating file %s\n", file->path);
 	for (uint8_t index = 0; index < *classes_len; index++) {
@@ -125,16 +157,18 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 
 		cls.len = 0;
 		cls.ptr = &(*classes)[index].ptr[ind];
+		cls.known = false;
 		while (stg == 1 && ind < (*classes)[index].len) {
 			cls.len++;
 			ind++;
 		}
 
-		// printf("pfx %.*s cls %.*s\n", pfx.len, pfx.ptr, cls.len, cls.ptr);
-
-		common(&pfx, &cls, &global, &global_len, &global_breakpoint);
-		position(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		common(&cls, &global, &global_len);
+		position(&cls, &global, &global_len);
 		display(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		display(&pfx, &cls, &small, &small_len, &small_breakpoint);
+		display(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
+		display(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		spacing(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		spacing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		spacing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
@@ -143,11 +177,22 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		sizing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		sizing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		sizing(&pfx, &cls, &large, &large_len, &large_breakpoint);
-		text(&pfx, &cls, &global, &global_len, &global_breakpoint);
-		font(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		flex(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		flex(&pfx, &cls, &small, &small_len, &small_breakpoint);
+		flex(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
+		flex(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		text(&cls, &global, &global_len);
+		font(&cls, &global, &global_len);
+		color(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		color(&pfx, &cls, &dark, &dark_len, &dark_breakpoint);
+		cursor(&cls, &global, &global_len);
+
+		if (cls.known == false) {
+			warn("unknown class %.*s\n", (*classes)[index].len, (*classes)[index].ptr);
+		}
 	}
 
-	size_t len = file->len + global_len + small_len + medium_len + large_len;
+	size_t len = file->len + global_len + small_len + medium_len + large_len + dark_len;
 	if (small_len > 0) {
 		len += small_breakpoint.prefix_len;
 		len += small_breakpoint.suffix_len;
@@ -159,6 +204,10 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 	if (large_len > 0) {
 		len += large_breakpoint.prefix_len;
 		len += large_breakpoint.suffix_len;
+	}
+	if (dark_len > 0) {
+		len += dark_breakpoint.prefix_len;
+		len += dark_breakpoint.suffix_len;
 	}
 	char *ptr = malloc(len);
 	if (ptr == NULL) {
@@ -214,6 +263,15 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		ptr_ind += large_len;
 		memcpy(&ptr[ptr_ind], large_breakpoint.suffix, large_breakpoint.suffix_len);
 		ptr_ind += large_breakpoint.suffix_len;
+	}
+
+	if (dark_len != 0) {
+		memcpy(&ptr[ptr_ind], dark_breakpoint.prefix, dark_breakpoint.prefix_len);
+		ptr_ind += dark_breakpoint.prefix_len;
+		memcpy(&ptr[ptr_ind], dark, dark_len);
+		ptr_ind += dark_len;
+		memcpy(&ptr[ptr_ind], dark_breakpoint.suffix, dark_breakpoint.suffix_len);
+		ptr_ind += dark_breakpoint.suffix_len;
 	}
 
 	memcpy(&ptr[ptr_ind], &file->ptr[file_ind], file->len - file_ind);

@@ -3,15 +3,19 @@
 #include "hydrate.h"
 
 typedef struct keymap_t {
-	char *ptr;
-	uint8_t len;
+	const char *key;
+	const uint8_t key_len;
 	const char *val;
+	const uint8_t val_len;
 } keymap_t;
 
-void common(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
-void position(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void common(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len);
+void position(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len);
 void display(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
-void text(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
-void font(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void flex(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void text(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len);
+void font(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len);
+void color(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void cursor(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len);
