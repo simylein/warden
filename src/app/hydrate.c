@@ -43,7 +43,18 @@ int extract(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 
 	(*classes)[*classes_len].len = 0;
 
-	for (size_t index = 0; index < file->len; index++) {
+	uint8_t stage = 0;
+	size_t index = 0;
+
+	while (stage == 0 && index < file->len) {
+		if (index > 11 && memcmp(&file->ptr[index - 5], "<body", 5) == 0) {
+			tag = true;
+			stage = 1;
+		}
+		index++;
+	}
+
+	while (stage == 1 && index < file->len) {
 		char *byte = &file->ptr[index];
 		if (*byte == '<' && !tag && !quote) {
 			tag = true;
@@ -73,7 +84,37 @@ int extract(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 			} else {
 				(*classes)[*classes_len].len++;
 			}
+		} else if (index > 13 && memcmp(&file->ptr[index - 8], "<script>", 8) == 0) {
+			stage = 2;
 		}
+		index++;
+	}
+
+	while (stage == 2 && index < file->len) {
+		char *byte = &file->ptr[index];
+		if (*byte == '(' && !tag && !class) {
+			if (index > 19 && memcmp(&file->ptr[index - 13], "classList.add", 13) == 0) {
+				tag = true;
+			}
+		} else if (*byte == ')' && tag && !quote) {
+			tag = false;
+		} else if (*byte == '\'' && tag && !quote) {
+			quote = true;
+			if (append(classes, classes_len, &file->ptr[index + 1]) == -1) {
+				return -1;
+			}
+		} else if (*byte == '\'' && tag && quote) {
+			quote = false;
+		} else if (tag && quote) {
+			if (*byte == ',') {
+				if (append(classes, classes_len, &file->ptr[index + 1]) == -1) {
+					return -1;
+				}
+			} else {
+				(*classes)[*classes_len].len++;
+			}
+		}
+		index++;
 	}
 
 	return 0;
@@ -177,6 +218,10 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		sizing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		sizing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		sizing(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		border(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		border(&pfx, &cls, &small, &small_len, &small_breakpoint);
+		border(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
+		border(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		flex(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		flex(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		flex(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);

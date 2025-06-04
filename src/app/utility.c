@@ -125,6 +125,10 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 			{.key = "pr-", .key_len = 3, .val = "padding-right", .val_len = 13},
 			{.key = "pb-", .key_len = 3, .val = "padding-bottom", .val_len = 14},
 			{.key = "pl-", .key_len = 3, .val = "padding-left", .val_len = 12},
+			{.key = "top-", .key_len = 4, .val = "top", .val_len = 3},
+			{.key = "right-", .key_len = 6, .val = "right", .val_len = 5},
+			{.key = "bottom-", .key_len = 7, .val = "bottom", .val_len = 6},
+			{.key = "left-", .key_len = 5, .val = "left", .val_len = 4},
 	};
 
 	const keymap_t mappings[] = {
@@ -193,6 +197,44 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 			{.key = "96", .key_len = 2, .val = "384px", .val_len = 5},	 {.key = "full", .key_len = 4, .val = "100%", .val_len = 4},
 			{.key = "vh", .key_len = 2, .val = "100vh", .val_len = 5},	 {.key = "svh", .key_len = 3, .val = "100svh", .val_len = 6},
 			{.key = "lvh", .key_len = 3, .val = "100lvh", .val_len = 6}, {.key = "dvh", .key_len = 3, .val = "100dvh", .val_len = 6},
+	};
+
+	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
+		if (cls->len > variants[index].key_len && memcmp(cls->ptr, variants[index].key, variants[index].key_len) == 0) {
+			const keymap_t *mapping = NULL;
+			for (uint8_t ind = 0; ind < sizeof(mappings) / sizeof(keymap_t); ind++) {
+				if (cls->len - variants[index].key_len == mappings[ind].key_len &&
+						memcmp(&cls->ptr[variants[index].key_len], mappings[ind].key, mappings[ind].key_len) == 0) {
+					mapping = &mappings[ind];
+					break;
+				}
+			}
+			if (mapping == NULL) {
+				return;
+			}
+
+			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+		}
+	}
+}
+
+void border(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
+		return;
+	}
+
+	const keymap_t variants[] = {
+			{.key = "border-", .key_len = 7, .val = "border-width", .val_len = 12},
+			{.key = "border-t-", .key_len = 9, .val = "border-top-width", .val_len = 16},
+			{.key = "border-r-", .key_len = 9, .val = "border-right-width", .val_len = 18},
+			{.key = "border-b-", .key_len = 9, .val = "border-bottom-width", .val_len = 19},
+			{.key = "border-l-", .key_len = 9, .val = "border-left-width", .val_len = 17},
+	};
+
+	const keymap_t mappings[] = {
+			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3}, {.key = "2", .key_len = 1, .val = "2px", .val_len = 3},
+			{.key = "4", .key_len = 1, .val = "4px", .val_len = 3}, {.key = "6", .key_len = 1, .val = "6px", .val_len = 3},
+			{.key = "8", .key_len = 1, .val = "8px", .val_len = 3},
 	};
 
 	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
