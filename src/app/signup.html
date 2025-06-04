@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="Signup for an account" />
+		<title>Warden signup</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black">
+		<main class="min-h-dvh flex items-center justify-center">
+			<div id="notifications" class="top-0 right-0 fixed m-2 md:m-4"></div>
+			<div class="box-border w-full max-w-96 m-4 sm:m-8 lg:m-16 pt-8 pr-8 pb-4 pl-8 background-neutral-100 dark:background-neutral-900">
+				<form class="flex flex-col items-center" onsubmit="handleSubmit(event)">
+					<h1 class="m-0 mb-4 text-2xl font-medium">Signup</h1>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="username" class="mb-2 text-base font-normal">Username</label>
+						<input
+							id="username"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="username"
+							autofocus
+							onchange="setValue('username', event.target.value)"
+							onblur="setTouched('username', true)"
+						/>
+						<p id="username-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="password" class="mb-2 text-base font-normal">Password</label>
+						<input
+							id="password"
+							type="password"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="password"
+							onchange="setValue('password', event.target.value)"
+							onblur="setTouched('password', true)"
+						/>
+						<p id="password-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<button
+						id="signup-button"
+						type="submit"
+						class="min-w-32 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 cursor-pointer"
+					>
+						Signup
+					</button>
+					<div class="flex items-center gap-2 mt-4">
+						<p class="m-0 text-base font-normal">Have an account?</p>
+						<a href="/signin" class="no-underline text-base font-normal text-blue-600 dark:text-blue-400">signin</a>
+					</div>
+				</form>
+			</div>
+		</main>
+	</body>
+	<script>
+		const formik = (elements, schema, submit) => {
+			const [values, errors, touched] = [{}, {}, {}];
+			const validate = (all) => {
+				if (all) Object.keys(schema).forEach((key) => (touched[key] = true));
+				Object.keys(touched).forEach((key) => {
+					if (touched[key]) errors[key] = schema[key](values[key]);
+				});
+				Object.keys(errors).forEach((key) => {
+					Object.keys(elements)
+						.filter((element) => element === key)
+						.forEach((element) => {
+							if (errors[key]) {
+								elements[element].innerText = errors[key];
+								elements[element].classList.remove('hidden');
+							} else {
+								elements[element].innerText = '';
+								elements[element].classList.add('hidden');
+							}
+						});
+				});
+				const valid = Object.keys(errors).every((key) => !errors[key]);
+				if (valid) {
+					elements.button.disabled = false;
+					elements.button.classList.add('background-blue-300', 'dark:background-blue-700', 'cursor-pointer');
+					elements.button.classList.remove('background-neutral-300', 'dark:background-neutral-700', 'cursor-not-allowed');
+				} else if (all) {
+					elements.button.disabled = true;
+					elements.button.classList.add('background-neutral-300', 'dark:background-neutral-700', 'cursor-not-allowed');
+					elements.button.classList.remove('background-blue-300', 'dark:background-blue-700', 'cursor-pointer');
+				}
+				return valid;
+			};
+			const setValue = (key, value) => {
+				values[key] = value;
+				validate();
+			};
+			const setTouched = (key, value) => {
+				touched[key] = value;
+				validate();
+			};
+			const handleSubmit = async (event) => {
+				event.preventDefault();
+				if (!validate(true)) return;
+				const store = elements.button.innerText;
+				elements.button.innerText = 'loading...';
+				elements.button.disabled = true;
+				elements.button.classList.add('cursor-progress');
+				elements.button.classList.remove('cursor-pointer');
+				await submit(values);
+				elements.button.innerText = store;
+				elements.button.disabled = false;
+				elements.button.classList.add('cursor-pointer');
+				elements.button.classList.remove('cursor-progress');
+			};
+			return { values, errors, touched, validate, setValue, setTouched, handleSubmit };
+		};
+		const notifications = document.getElementById('notifications');
+		const kind = (type) => {
+			switch (type) {
+				case 'info':
+					return 'Info';
+				case 'success':
+					return 'Success';
+				case 'warning':
+					return 'Warning';
+				case 'error':
+					return 'Error';
+			}
+		};
+		const color = (element, type) => {
+			switch (type) {
+				case 'info':
+					return element.classList.add('background-blue-200', 'dark:background-blue-800');
+				case 'success':
+					return element.classList.add('background-green-200', 'dark:background-green-800');
+				case 'warning':
+					return element.classList.add('background-amber-200', 'dark:background-amber-800');
+				case 'error':
+					return element.classList.add('background-red-200', 'dark:background-red-800');
+			}
+		};
+		const duration = (type) => {
+			switch (type) {
+				case 'info':
+					return 4000;
+				case 'success':
+					return 3000;
+				case 'warning':
+					return 6000;
+				case 'error':
+					return 8000;
+			}
+		};
+		const notification = (type, message) => {
+			const element = document.createElement('div');
+			element.classList.add('p-4');
+			color(element, type);
+			const head = document.createElement('h2');
+			head.classList.add('m-0', 'mb-1', 'font-semibold');
+			const text = document.createElement('p');
+			text.classList.add('m-0', 'font-normal');
+			element.appendChild(head);
+			element.appendChild(text);
+			element.children[0].innerText = kind(type);
+			element.children[1].innerText = message;
+			if (notifications.children.length > 0) {
+				notifications.children[0].remove();
+			}
+			notifications.appendChild(element);
+			setTimeout(() => element.remove(), duration(type));
+		};
+		const { setValue, setTouched, handleSubmit } = formik(
+			{
+				button: document.getElementById('signup-button'),
+				username: document.getElementById('username-validation'),
+				password: document.getElementById('password-validation'),
+			},
+			{
+				username: (value) => {
+					if (!value) return 'username is required';
+					if (value.length < 4) return 'username is too short';
+					if (value.length > 16) return 'username is too long';
+					if (!value.match(/^[a-z]+$/)) return 'username must be lowercase letters';
+				},
+				password: (value) => {
+					if (!value) return 'password is required';
+					if (value.length < 8) return 'password is too short';
+					if (value.length > 64) return 'password is too long';
+					if (!value.match(/[0-9]/)) return 'password must include digits';
+					if (!value.match(/[a-z]/)) return 'password must include lowercase letters';
+					if (!value.match(/[A-Z]/)) return 'password must include uppercase letters';
+				},
+			},
+			async (values) => {
+				const data = new Blob([values.username, '\0', values.password, '\0']);
+				try {
+					if (window.localStorage.getItem('develop')) {
+						await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 800));
+						if (Math.random() < 0.1) {
+							throw {
+								status: Math.floor(Math.random() * 200) + 400,
+								statusText: 'Develop',
+							};
+						}
+					}
+					const response = await fetch('/api/signup', {
+						method: 'post',
+						body: data,
+						headers: { 'content-type': 'application/octet-stream' },
+					});
+					if (response.status >= 200 && response.status <= 299) {
+						notification('success', `Successfully signed up as ${values.username}`);
+						const memo = document.cookie.match(/memo=([^;]*)/);
+						window.location.href = memo?.[1] ?? `/${values.username}`;
+						return;
+					}
+					throw response;
+				} catch (err) {
+					if (err instanceof TypeError) {
+						return notification('info', 'Seems like you might be offline');
+					}
+					const message = `Request failed with ${err.status ?? 0} ${err.statusText ?? null}`;
+					if (err.status < 500) {
+						return notification('warning', message);
+					}
+					return notification('error', message);
+				}
+			}
+		);
+	</script>
+</html>
