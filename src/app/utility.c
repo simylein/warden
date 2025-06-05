@@ -223,16 +223,32 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 		return;
 	}
 
+	const keymap_t borders[] = {
+			{.key = "border-solid", .key_len = 12, .val = "border-style:solid", .val_len = 18},
+			{.key = "border-dashed", .key_len = 13, .val = "border-style:dashed", .val_len = 19},
+			{.key = "border-dotted", .key_len = 13, .val = "border-style:dotted", .val_len = 19},
+			{.key = "border-double", .key_len = 13, .val = "border-style:double", .val_len = 20},
+			{.key = "border-hidden", .key_len = 13, .val = "border-style:hidden", .val_len = 19},
+			{.key = "border-none", .key_len = 11, .val = "border-style:none", .val_len = 17},
+	};
+
+	for (uint8_t index = 0; index < sizeof(borders) / sizeof(keymap_t); index++) {
+		if (cls->len == borders[index].key_len && memcmp(cls->ptr, borders[index].key, borders[index].key_len) == 0) {
+			cls->known = stamp(pfx, cls, &borders[index], NULL, buffer, buffer_len);
+		}
+	}
+
 	const keymap_t variants[] = {
-			{.key = "border-", .key_len = 7, .val = "border-width", .val_len = 12},
 			{.key = "border-t-", .key_len = 9, .val = "border-top-width", .val_len = 16},
 			{.key = "border-r-", .key_len = 9, .val = "border-right-width", .val_len = 18},
 			{.key = "border-b-", .key_len = 9, .val = "border-bottom-width", .val_len = 19},
 			{.key = "border-l-", .key_len = 9, .val = "border-left-width", .val_len = 17},
+			{.key = "border-", .key_len = 7, .val = "border-width", .val_len = 12},
 	};
 
 	const keymap_t mappings[] = {
-			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3}, {.key = "2", .key_len = 1, .val = "2px", .val_len = 3},
+			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3}, {.key = "1", .key_len = 1, .val = "1px", .val_len = 3},
+			{.key = "2", .key_len = 1, .val = "2px", .val_len = 3}, {.key = "3", .key_len = 1, .val = "3px", .val_len = 3},
 			{.key = "4", .key_len = 1, .val = "4px", .val_len = 3}, {.key = "6", .key_len = 1, .val = "6px", .val_len = 3},
 			{.key = "8", .key_len = 1, .val = "8px", .val_len = 3},
 	};
@@ -304,6 +320,10 @@ void text(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
 			{.key = "text-justify", .key_len = 12, .val = "text-align:justify", .val_len = 18},
 			{.key = "text-start", .key_len = 10, .val = "text-align:start", .val_len = 16},
 			{.key = "text-end", .key_len = 8, .val = "text-align:end", .val_len = 14},
+			{.key = "text-wrap", .key_len = 9, .val = "text-wrap:wrap", .val_len = 14},
+			{.key = "text-nowrap", .key_len = 11, .val = "text-wrap:nowrap", .val_len = 16},
+			{.key = "text-balance", .key_len = 12, .val = "text-wrap:balance", .val_len = 17},
+			{.key = "text-pretty", .key_len = 11, .val = "text-wrap:pretty", .val_len = 16},
 			{.key = "underline", .key_len = 9, .val = "text-decoration-line:underline", .val_len = 30},
 			{.key = "overline", .key_len = 8, .val = "text-decoration-line:overline", .val_len = 29},
 			{.key = "line-through", .key_len = 12, .val = "text-decoration-line:line-through", .val_len = 33},
@@ -344,6 +364,10 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_le
 
 	const keymap_t variants[] = {
 			{.key = "text-", .key_len = 5, .val = "color", .val_len = 5},
+			{.key = "border-t-", .key_len = 9, .val = "border-top-color", .val_len = 16},
+			{.key = "border-r-", .key_len = 9, .val = "border-right-color", .val_len = 18},
+			{.key = "border-b-", .key_len = 9, .val = "border-bottom-color", .val_len = 19},
+			{.key = "border-l-", .key_len = 9, .val = "border-left-color", .val_len = 17},
 			{.key = "border-", .key_len = 7, .val = "border-color", .val_len = 12},
 			{.key = "background-", .key_len = 11, .val = "background-color", .val_len = 16},
 	};
