@@ -5,7 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
+
+time_t mtime(struct stat *file_stat) {
+#ifdef __APPLE__
+	return file_stat->st_mtimespec.tv_sec;
+#elif __linux__
+	return file_stat->st_mtim.tv_sec;
+#else
+#error "unsupported platform"
+#endif
+}
 
 const char *type(const char *path) {
 	const char *extension = strrchr(path, '.');
@@ -40,7 +51,8 @@ int file(file_t *file) {
 		return -1;
 	}
 
-	if (file->ptr == NULL) {
+	time_t modified = mtime(&file_stat);
+	if (file->ptr == NULL || file->modified != modified) {
 		debug("reading file %s\n", file->path);
 
 		file->ptr = realloc(file->ptr, (size_t)file_stat.st_size);
@@ -61,6 +73,8 @@ int file(file_t *file) {
 		}
 
 		file->len = (size_t)file_stat.st_size;
+		file->modified = modified;
+		file->hydrated = false;
 	}
 
 	return 0;

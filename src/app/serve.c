@@ -5,18 +5,21 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-file_t signin = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/signin.html", .hydrated = false};
-file_t signup = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/signup.html", .hydrated = false};
+file_t signin = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/signin.html", .modified = 0, .hydrated = false};
+file_t signup = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/signup.html", .modified = 0, .hydrated = false};
 
-file_t bad_request = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/400.html", .hydrated = false};
-file_t unauthorized = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/401.html", .hydrated = false};
-file_t forbidden = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/403.html", .hydrated = false};
-file_t not_found = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/404.html", .hydrated = false};
-file_t method_not_allowed = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/405.html", .hydrated = false};
-file_t uri_too_long = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/414.html", .hydrated = false};
-file_t request_header_fields_too_large = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/431.html", .hydrated = false};
-file_t internal_server_error = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/500.html", .hydrated = false};
-file_t http_version_not_supported = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/505.html", .hydrated = false};
+file_t bad_request = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/400.html", .modified = 0, .hydrated = false};
+file_t unauthorized = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/401.html", .modified = 0, .hydrated = false};
+file_t forbidden = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/403.html", .modified = 0, .hydrated = false};
+file_t not_found = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/404.html", .modified = 0, .hydrated = false};
+file_t method_not_allowed = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/405.html", .modified = 0, .hydrated = false};
+file_t uri_too_long = {.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/414.html", .modified = 0, .hydrated = false};
+file_t request_header_fields_too_large = {
+		.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/431.html", .modified = 0, .hydrated = false};
+file_t internal_server_error = {
+		.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/500.html", .modified = 0, .hydrated = false};
+file_t http_version_not_supported = {
+		.fd = -1, .ptr = NULL, .len = 0, .path = "./src/app/505.html", .modified = 0, .hydrated = false};
 
 void serve(file_t *asset, response_t *response) {
 	if (file(asset) == -1) {
