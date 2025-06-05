@@ -1,20 +1,66 @@
 #include "api/init.h"
 #include "api/seed.h"
+#include "app/serve.h"
 #include "lib/config.h"
 #include "lib/error.h"
 #include "lib/format.h"
 #include "lib/logger.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
+#include <signal.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 int server_sock;
 struct sockaddr_in server_addr;
 
+void stop(int sig) {
+	signal(sig, SIG_DFL);
+	trace("received signal %d\n", sig);
+
+	if (close(server_sock) == -1) {
+		error("failed to close socket because %s\n", errno_str());
+	}
+
+	pthread_mutex_lock(&thread_pool.lock);
+
+	if (thread_pool.load > 0) {
+		info("waiting for %hhu threads...\n", thread_pool.load);
+	}
+	while (thread_pool.load > 0) {
+		trace("waiting for %hhu connections to close\n", thread_pool.load);
+		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
+	}
+
+	pthread_mutex_unlock(&thread_pool.lock);
+
+	free(queue.tasks);
+	free(thread_pool.workers);
+
+	free(signin.ptr);
+	free(signup.ptr);
+
+	free(bad_request.ptr);
+	free(unauthorized.ptr);
+	free(forbidden.ptr);
+	free(not_found.ptr);
+	free(method_not_allowed.ptr);
+	free(uri_too_long.ptr);
+	free(request_header_fields_too_large.ptr);
+	free(internal_server_error.ptr);
+	free(http_version_not_supported.ptr);
+
+	info("graceful shutdown complete\n");
+	exit(0);
+}
+
 int main(int argc, char *argv[]) {
+	signal(SIGINT, &stop);
+	signal(SIGTERM, &stop);
+
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
 		info("available command line flags\n");
 		info("--name              -n   name of application             (%s)\n", name);
