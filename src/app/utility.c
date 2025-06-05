@@ -19,8 +19,14 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 			}
 		}
 
-		memcpy(&(*buffer)[*buffer_len], cls->ptr, cls->len);
-		*buffer_len += cls->len;
+		for (uint8_t ind = 0; ind < cls->len; ind++) {
+			if (cls->ptr[ind] == '.') {
+				(*buffer)[*buffer_len] = '\\';
+				*buffer_len += 1;
+			}
+			(*buffer)[*buffer_len] = cls->ptr[ind];
+			*buffer_len += 1;
+		}
 
 		(*buffer)[*buffer_len] = '{';
 		*buffer_len += 1;
@@ -132,10 +138,14 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 	};
 
 	const keymap_t mappings[] = {
-			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},		 {.key = "1", .key_len = 1, .val = "4px", .val_len = 3},
-			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},		 {.key = "3", .key_len = 1, .val = "12px", .val_len = 4},
-			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},	 {.key = "5", .key_len = 1, .val = "20px", .val_len = 4},
-			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},	 {.key = "7", .key_len = 1, .val = "28px", .val_len = 4},
+			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},		 {.key = "0.5", .key_len = 3, .val = "2px", .val_len = 3},
+			{.key = "1", .key_len = 1, .val = "4px", .val_len = 3},		 {.key = "1.5", .key_len = 3, .val = "6px", .val_len = 3},
+			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},		 {.key = "2.5", .key_len = 3, .val = "10px", .val_len = 4},
+			{.key = "3", .key_len = 1, .val = "12px", .val_len = 4},	 {.key = "3.5", .key_len = 3, .val = "14px", .val_len = 4},
+			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},	 {.key = "4.5", .key_len = 3, .val = "18px", .val_len = 4},
+			{.key = "5", .key_len = 1, .val = "20px", .val_len = 4},	 {.key = "5.5", .key_len = 3, .val = "22px", .val_len = 4},
+			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},	 {.key = "6.5", .key_len = 3, .val = "26px", .val_len = 4},
+			{.key = "7", .key_len = 1, .val = "28px", .val_len = 4},	 {.key = "7.5", .key_len = 3, .val = "30px", .val_len = 4},
 			{.key = "8", .key_len = 1, .val = "32px", .val_len = 4},	 {.key = "9", .key_len = 1, .val = "36px", .val_len = 4},
 			{.key = "10", .key_len = 2, .val = "40px", .val_len = 4},	 {.key = "11", .key_len = 2, .val = "44px", .val_len = 4},
 			{.key = "12", .key_len = 2, .val = "48px", .val_len = 4},	 {.key = "13", .key_len = 2, .val = "52px", .val_len = 4},
@@ -182,10 +192,14 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 	};
 
 	const keymap_t mappings[] = {
-			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},			 {.key = "1", .key_len = 1, .val = "4px", .val_len = 3},
-			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},			 {.key = "3", .key_len = 1, .val = "12px", .val_len = 4},
-			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},		 {.key = "5", .key_len = 1, .val = "20px", .val_len = 4},
-			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},		 {.key = "7", .key_len = 1, .val = "28px", .val_len = 4},
+			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},			 {.key = "0.5", .key_len = 3, .val = "2px", .val_len = 3},
+			{.key = "1", .key_len = 1, .val = "4px", .val_len = 3},			 {.key = "1.5", .key_len = 3, .val = "6px", .val_len = 3},
+			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},			 {.key = "2.5", .key_len = 3, .val = "10px", .val_len = 4},
+			{.key = "3", .key_len = 1, .val = "12px", .val_len = 4},		 {.key = "3.5", .key_len = 3, .val = "14px", .val_len = 4},
+			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},		 {.key = "4.5", .key_len = 3, .val = "18px", .val_len = 4},
+			{.key = "5", .key_len = 1, .val = "20px", .val_len = 4},		 {.key = "5.5", .key_len = 3, .val = "22px", .val_len = 4},
+			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},		 {.key = "6.5", .key_len = 3, .val = "26px", .val_len = 4},
+			{.key = "7", .key_len = 1, .val = "28px", .val_len = 4},		 {.key = "7.5", .key_len = 3, .val = "30px", .val_len = 4},
 			{.key = "8", .key_len = 1, .val = "32px", .val_len = 4},		 {.key = "9", .key_len = 1, .val = "36px", .val_len = 4},
 			{.key = "10", .key_len = 2, .val = "40px", .val_len = 4},		 {.key = "11", .key_len = 2, .val = "44px", .val_len = 4},
 			{.key = "12", .key_len = 2, .val = "48px", .val_len = 4},		 {.key = "13", .key_len = 2, .val = "52px", .val_len = 4},
