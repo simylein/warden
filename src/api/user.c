@@ -7,6 +7,8 @@
 #include "../lib/response.h"
 #include "../lib/sha256.h"
 #include <sqlite3.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
