@@ -121,14 +121,14 @@ int extract(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 }
 
 int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
-	char global[2048];
+	char global[4096];
 	uint16_t global_len = 0;
 	breakpoint_t global_breakpoint = {
 			.tag = "",
 			.tag_len = 0,
 	};
 
-	char small[2048];
+	char small[4096];
 	uint16_t small_len = 0;
 	breakpoint_t small_breakpoint = {
 			.tag = "sm",
@@ -139,7 +139,7 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char medium[2048];
+	char medium[4096];
 	uint16_t medium_len = 0;
 	breakpoint_t medium_breakpoint = {
 			.tag = "md",
@@ -150,7 +150,7 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char large[2048];
+	char large[4096];
 	uint16_t large_len = 0;
 	breakpoint_t large_breakpoint = {
 			.tag = "lg",
@@ -161,7 +161,7 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char dark[2048];
+	char dark[4096];
 	uint16_t dark_len = 0;
 	breakpoint_t dark_breakpoint = {
 			.tag = "dark",

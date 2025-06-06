@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *mapping, char (*buffer)[2048],
+bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *mapping, char (*buffer)[4096],
 					 uint16_t *buffer_len) {
 	if (*buffer_len < sizeof(*buffer) - 64) {
 		(*buffer)[*buffer_len] = '.';
@@ -50,7 +50,7 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 	return false;
 }
 
-void common(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
+void common(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t commons[] = {
 			{.key = "font-sans",
 			 .key_len = 9,
@@ -78,7 +78,7 @@ void common(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
 	}
 }
 
-void position(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
+void position(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t positions[] = {
 			{.key = "static", .key_len = 6, .val = "position:static", .val_len = 15},
 			{.key = "relative", .key_len = 8, .val = "position:relative", .val_len = 17},
@@ -94,7 +94,7 @@ void position(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
 	}
 }
 
-void display(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void display(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -115,7 +115,7 @@ void display(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 	}
 }
 
-void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void spacing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -176,7 +176,7 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_
 	}
 }
 
-void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void sizing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -192,25 +192,47 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 	};
 
 	const keymap_t mappings[] = {
-			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},			 {.key = "0.5", .key_len = 3, .val = "2px", .val_len = 3},
-			{.key = "1", .key_len = 1, .val = "4px", .val_len = 3},			 {.key = "1.5", .key_len = 3, .val = "6px", .val_len = 3},
-			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},			 {.key = "2.5", .key_len = 3, .val = "10px", .val_len = 4},
-			{.key = "3", .key_len = 1, .val = "12px", .val_len = 4},		 {.key = "3.5", .key_len = 3, .val = "14px", .val_len = 4},
-			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},		 {.key = "4.5", .key_len = 3, .val = "18px", .val_len = 4},
-			{.key = "5", .key_len = 1, .val = "20px", .val_len = 4},		 {.key = "5.5", .key_len = 3, .val = "22px", .val_len = 4},
-			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},		 {.key = "6.5", .key_len = 3, .val = "26px", .val_len = 4},
-			{.key = "7", .key_len = 1, .val = "28px", .val_len = 4},		 {.key = "7.5", .key_len = 3, .val = "30px", .val_len = 4},
-			{.key = "8", .key_len = 1, .val = "32px", .val_len = 4},		 {.key = "9", .key_len = 1, .val = "36px", .val_len = 4},
-			{.key = "10", .key_len = 2, .val = "40px", .val_len = 4},		 {.key = "11", .key_len = 2, .val = "44px", .val_len = 4},
-			{.key = "12", .key_len = 2, .val = "48px", .val_len = 4},		 {.key = "13", .key_len = 2, .val = "52px", .val_len = 4},
-			{.key = "14", .key_len = 2, .val = "56px", .val_len = 4},		 {.key = "15", .key_len = 2, .val = "60px", .val_len = 4},
-			{.key = "16", .key_len = 2, .val = "64px", .val_len = 4},		 {.key = "20", .key_len = 2, .val = "80px", .val_len = 4},
-			{.key = "24", .key_len = 2, .val = "96px", .val_len = 4},		 {.key = "28", .key_len = 2, .val = "112px", .val_len = 5},
-			{.key = "32", .key_len = 2, .val = "128px", .val_len = 5},	 {.key = "48", .key_len = 2, .val = "192px", .val_len = 5},
-			{.key = "64", .key_len = 2, .val = "256px", .val_len = 5},	 {.key = "80", .key_len = 2, .val = "320px", .val_len = 5},
-			{.key = "96", .key_len = 2, .val = "384px", .val_len = 5},	 {.key = "full", .key_len = 4, .val = "100%", .val_len = 4},
-			{.key = "vh", .key_len = 2, .val = "100vh", .val_len = 5},	 {.key = "svh", .key_len = 3, .val = "100svh", .val_len = 6},
-			{.key = "lvh", .key_len = 3, .val = "100lvh", .val_len = 6}, {.key = "dvh", .key_len = 3, .val = "100dvh", .val_len = 6},
+			{.key = "0", .key_len = 1, .val = "0px", .val_len = 3},
+			{.key = "0.5", .key_len = 3, .val = "2px", .val_len = 3},
+			{.key = "1", .key_len = 1, .val = "4px", .val_len = 3},
+			{.key = "1.5", .key_len = 3, .val = "6px", .val_len = 3},
+			{.key = "2", .key_len = 1, .val = "8px", .val_len = 3},
+			{.key = "2.5", .key_len = 3, .val = "10px", .val_len = 4},
+			{.key = "3", .key_len = 1, .val = "12px", .val_len = 4},
+			{.key = "3.5", .key_len = 3, .val = "14px", .val_len = 4},
+			{.key = "4", .key_len = 1, .val = "16px", .val_len = 4},
+			{.key = "4.5", .key_len = 3, .val = "18px", .val_len = 4},
+			{.key = "5", .key_len = 1, .val = "20px", .val_len = 4},
+			{.key = "5.5", .key_len = 3, .val = "22px", .val_len = 4},
+			{.key = "6", .key_len = 1, .val = "24px", .val_len = 4},
+			{.key = "6.5", .key_len = 3, .val = "26px", .val_len = 4},
+			{.key = "7", .key_len = 1, .val = "28px", .val_len = 4},
+			{.key = "7.5", .key_len = 3, .val = "30px", .val_len = 4},
+			{.key = "8", .key_len = 1, .val = "32px", .val_len = 4},
+			{.key = "9", .key_len = 1, .val = "36px", .val_len = 4},
+			{.key = "10", .key_len = 2, .val = "40px", .val_len = 4},
+			{.key = "11", .key_len = 2, .val = "44px", .val_len = 4},
+			{.key = "12", .key_len = 2, .val = "48px", .val_len = 4},
+			{.key = "13", .key_len = 2, .val = "52px", .val_len = 4},
+			{.key = "14", .key_len = 2, .val = "56px", .val_len = 4},
+			{.key = "15", .key_len = 2, .val = "60px", .val_len = 4},
+			{.key = "16", .key_len = 2, .val = "64px", .val_len = 4},
+			{.key = "20", .key_len = 2, .val = "80px", .val_len = 4},
+			{.key = "24", .key_len = 2, .val = "96px", .val_len = 4},
+			{.key = "28", .key_len = 2, .val = "112px", .val_len = 5},
+			{.key = "32", .key_len = 2, .val = "128px", .val_len = 5},
+			{.key = "48", .key_len = 2, .val = "192px", .val_len = 5},
+			{.key = "64", .key_len = 2, .val = "256px", .val_len = 5},
+			{.key = "80", .key_len = 2, .val = "320px", .val_len = 5},
+			{.key = "96", .key_len = 2, .val = "384px", .val_len = 5},
+			{.key = "full", .key_len = 4, .val = "100%", .val_len = 4},
+			{.key = "vh", .key_len = 2, .val = "100vh", .val_len = 5},
+			{.key = "svh", .key_len = 3, .val = "100svh", .val_len = 6},
+			{.key = "lvh", .key_len = 3, .val = "100lvh", .val_len = 6},
+			{.key = "dvh", .key_len = 3, .val = "100dvh", .val_len = 6},
+			{.key = "min", .key_len = 3, .val = "min-content", .val_len = 11},
+			{.key = "max", .key_len = 3, .val = "max-content", .val_len = 11},
+			{.key = "fit", .key_len = 3, .val = "fit-content", .val_len = 11},
 	};
 
 	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
@@ -232,7 +254,7 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 	}
 }
 
-void border(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -286,7 +308,7 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_l
 	}
 }
 
-void flex(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -318,7 +340,7 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len
 	}
 }
 
-void text(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
+void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t texts[] = {
 			{.key = "text-xs", .key_len = 7, .val = "font-size:12px", .val_len = 14},
 			{.key = "text-sm", .key_len = 7, .val = "font-size:14px", .val_len = 14},
@@ -351,7 +373,7 @@ void text(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
 	}
 }
 
-void font(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
+void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t fonts[] = {
 			{.key = "font-thin", .key_len = 9, .val = "font-weight:100", .val_len = 15},
 			{.key = "font-extralight", .key_len = 15, .val = "font-weight:200", .val_len = 15},
@@ -371,7 +393,7 @@ void font(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
 	}
 }
 
-void color(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -652,7 +674,7 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[2048], uint16_t *buffer_le
 	}
 }
 
-void cursor(class_t *cls, char (*buffer)[2048], uint16_t *buffer_len) {
+void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t texts[] = {
 			{.key = "cursor-auto", .key_len = 11, .val = "cursor:auto", .val_len = 11},
 			{.key = "cursor-default", .key_len = 14, .val = "cursor:default", .val_len = 14},
