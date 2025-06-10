@@ -207,7 +207,7 @@
 					if (response.status >= 200 && response.status <= 299) {
 						notification('success', `Successfully signed up as ${values.username}`);
 						const memo = document.cookie.match(/memo=([^;]*)/);
-						window.location.href = memo?.[1] ?? `/${values.username}`;
+						window.location.href = memo?.[1] ?? '/';
 						return;
 					}
 					throw response;
