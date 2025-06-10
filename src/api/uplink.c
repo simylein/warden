@@ -1,0 +1,15 @@
+const char *uplink_table = "uplink";
+const char *uplink_schema = "create table uplink ("
+														"id blob primary key, "
+														"kind integer not null, "
+														"data blob not null, "
+														"airtime real not null, "
+														"frequency integer not null, "
+														"bandwidth integer not null, "
+														"rssi integer not null, "
+														"snr real not null, "
+														"sf integer not null, "
+														"received_at datetime not null, "
+														"device_id blob not null, "
+														"foreign key (device_id) references device(id) on delete cascade"
+														")";
