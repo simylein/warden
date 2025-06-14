@@ -9,7 +9,7 @@ objects = $(patsubst $(src)/%,$(obj)/%,$(sources:.c=.o))
 
 target = warden
 
-version = 0.1.7
+version = 0.1.8
 commit = $(shell git rev-parse --short HEAD 2> /dev/null || echo unknown)
 
 flags += -Dversion=\"$(version)\"

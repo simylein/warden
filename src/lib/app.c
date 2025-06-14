@@ -13,8 +13,8 @@
 #include <unistd.h>
 
 void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr) {
-	char request_buffer[16384];
-	char response_buffer[16384];
+	char request_buffer[65536];
+	char response_buffer[65536];
 
 	if (setsockopt(*client_sock, SOL_SOCKET, SO_RCVTIMEO, &(struct timeval){.tv_sec = receive_timeout, .tv_usec = 0},
 								 sizeof(struct timeval)) == -1) {

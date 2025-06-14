@@ -11,7 +11,7 @@ void response_init(response_t *response, char *buffer) {
 	response->head_len = 0;
 	response->header = (char (*)[2048])(&buffer[128]);
 	response->header_len = 0;
-	response->body = (char (*)[14208])(&buffer[128 + 2048]);
+	response->body = (char (*)[63360])(&buffer[128 + 2048]);
 	response->body_len = 0;
 }
 

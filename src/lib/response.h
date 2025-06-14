@@ -11,7 +11,7 @@ typedef struct response_t {
 	uint8_t head_len;
 	char (*header)[2048];
 	uint16_t header_len;
-	char (*body)[14208];
+	char (*body)[63360];
 	size_t body_len;
 } response_t;
 
