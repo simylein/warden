@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest uplinks of your devices" />
+		<title>Warden uplinks</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadUplinks()">
+		<main class="m-4 sm:m-8 lg:m-16">
+			<div class="overflow-x-scroll">
+				<table style="border-collapse: collapse" class="w-full text-nowrap">
+					<thead>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600">
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Timestamp</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Device id</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Kind</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Data</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Rssi</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Snr</th>
+							<th class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-semibold">Sf</th>
+						</tr>
+					</thead>
+					<tbody id="uplinks">
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-5 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-56 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-9 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200"></p>
+							</td>
+							<td class="p-0 pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200"></p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+	</body>
+	<script>
+		let uplinksRetries = 0;
+		let uplinksTimeout = null;
+		let uplinksController = null;
+		const uplinks = document.getElementById('uplinks');
+		const array = (length) => {
+			return Array(length)
+				.fill(null)
+				.map((__, ind) => ind);
+		};
+		const resize = (element, length) => {
+			let index = 0;
+			while (element.children.length !== length) {
+				const diff = element.children.length - length;
+				if (diff < 0) {
+					const copy = element.children[0].cloneNode(true);
+					element.appendChild(copy);
+				} else if (diff > 0 && element.children.length > 0) {
+					element.children[element.children.length - 1].remove();
+				}
+				index++;
+			}
+		};
+		const timestamp = (time) => {
+			const date = new Date(Number(time) * 1000);
+			const year = date.getFullYear();
+			const month = (date.getMonth() + 1).toString().padStart(2, '0');
+			const day = date.getDate().toString().padStart(2, '0');
+			const hour = date.getHours().toString().padStart(2, '0');
+			const minute = date.getMinutes().toString().padStart(2, '0');
+			const second = date.getSeconds().toString().padStart(2, '0');
+			return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+		};
+		const loading = (element, add, remove, text, height, width) => {
+			element.classList.add(...add, 'background-neutral-200', 'dark:background-neutral-800');
+			element.classList.remove('w-fit', 'background-red-200', 'dark:background-red-800', ...remove);
+			if (text !== undefined && text !== null) {
+				element.innerText = text;
+			}
+			if (height !== undefined && height !== null) {
+				element.style.height = `${height}%`;
+			}
+			if (width !== undefined && width !== null) {
+				element.style.width = `${width}%`;
+			}
+		};
+		const paint = (element, add, remove, text, height, width) => {
+			element.classList.add('w-fit', ...add);
+			element.classList.remove('background-neutral-200', 'dark:background-neutral-800', ...remove);
+			if (text !== undefined && text !== null) {
+				element.innerText = text;
+			}
+			if (height !== undefined && height !== null) {
+				element.style.height = `${height}%`;
+			}
+			if (width !== undefined && width !== null) {
+				element.style.width = `${width}%`;
+			}
+		};
+		const error = (element) => {
+			element.classList.add('background-red-200', 'dark:background-red-800');
+			element.classList.remove('background-neutral-200', 'dark:background-neutral-800');
+		};
+		const colorRssi = (element, rssi) => {
+			switch (true) {
+				case rssi < -125:
+					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
+				case rssi >= -125 && rssi < -115:
+					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
+				case rssi >= -115 && rssi < -100:
+					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
+				case rssi >= -100 && rssi < -80:
+					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
+				case rssi >= -80 && rssi < -60:
+					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
+				case rssi >= -60:
+					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
+			}
+		};
+		const colorSnr = (element, snr) => {
+			switch (true) {
+				case snr < -15:
+					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
+				case snr >= -15 && snr < -10:
+					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
+				case snr >= -10 && snr < -5:
+					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
+				case snr >= -5 && snr < 0:
+					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
+				case snr >= 0 && snr < 5:
+					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
+				case snr >= 5:
+					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
+			}
+		};
+		const colorSf = (element, sf) => {
+			switch (true) {
+				case sf == 7:
+					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
+				case sf == 8:
+					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
+				case sf == 9:
+					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
+				case sf == 10:
+					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
+				case sf == 11:
+					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
+				case sf == 12:
+					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
+			}
+		};
+		const loadingUplinks = () => {
+			array(uplinks.children.length).forEach((ind) => {
+				loading(uplinks.children[ind].children[0].children[0], ['w-40', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[1].children[0], ['w-10', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[2].children[0], ['w-5', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[3].children[0], ['w-56', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[4].children[0], ['w-9', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
+				loading(uplinks.children[ind].children[6].children[0], ['w-4', 'h-4.5'], []);
+			});
+		};
+		const paintUplinks = (data) => {
+			resize(uplinks, data.length);
+			array(uplinks.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(uplinks.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
+					paint(uplinks.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
+					paint(uplinks.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
+					paint(uplinks.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					paint(uplinks.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
+					colorRssi(uplinks.children[ind].children[4].children[0], data[ind].rssi);
+					paint(uplinks.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].snr);
+					colorSnr(uplinks.children[ind].children[5].children[0], data[ind].snr);
+					paint(uplinks.children[ind].children[6].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					colorSf(uplinks.children[ind].children[6].children[0], data[ind].sf);
+				}
+			});
+		};
+		const errorUplinks = () => {
+			array(uplinks.children.length).forEach((ind) => {
+				error(uplinks.children[ind].children[0].children[0]);
+				error(uplinks.children[ind].children[1].children[0]);
+				error(uplinks.children[ind].children[2].children[0]);
+				error(uplinks.children[ind].children[3].children[0]);
+				error(uplinks.children[ind].children[4].children[0]);
+				error(uplinks.children[ind].children[5].children[0]);
+				error(uplinks.children[ind].children[6].children[0]);
+			});
+		};
+		const parseUplinks = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const data = new DataView(buffer);
+			let byteOffset = 0;
+			const uplinks = [];
+			while (byteOffset < buffer.byteLength) {
+				const uplink = { id: '', kind: null, data: '', rssi: null, snr: null, sf: null, receivedAt: null, deviceId: '' };
+				for (let index = 0; index < 16; index++) {
+					const byte = data.getUint8(byteOffset);
+					byteOffset += 1;
+					uplink.id += byte.toString(16).padStart(2, '0');
+				}
+				uplink.kind = data.getUint8(byteOffset);
+				byteOffset += 1;
+				const dataLength = data.getUint8(byteOffset);
+				byteOffset += 1;
+				for (let index = 0; index < dataLength; index++) {
+					const byte = data.getUint8(byteOffset);
+					byteOffset += 1;
+					uplink.data += byte.toString(16).padStart(2, '0');
+				}
+				uplink.rssi = data.getInt16(byteOffset);
+				byteOffset += 2;
+				uplink.snr = data.getInt8(byteOffset) / 4;
+				byteOffset += 1;
+				uplink.sf = data.getUint8(byteOffset);
+				byteOffset += 1;
+				uplink.receivedAt = data.getBigUint64(byteOffset);
+				byteOffset += 8;
+				for (let index = 0; index < 16; index++) {
+					const byte = data.getUint8(byteOffset);
+					byteOffset += 1;
+					uplink.deviceId += byte.toString(16).padStart(2, '0');
+				}
+				uplinks.push(uplink);
+			}
+			return uplinks;
+		};
+		const loadUplinks = async () => {
+			if (uplinksTimeout) {
+				clearTimeout(uplinksTimeout);
+				uplinksTimeout = null;
+			}
+			if (uplinksController) {
+				uplinksController.abort();
+			}
+			uplinksController = new AbortController();
+			window.requestAnimationFrame(() => loadingUplinks());
+			try {
+				if (window.localStorage.getItem('develop')) {
+					await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 800));
+					if (Math.random() < 0.1) {
+						throw { status: Math.floor(Math.random() * 200) + 400, statusText: 'Develop' };
+					}
+				}
+				const response = await fetch('/api/uplinks', { signal: uplinksController.signal });
+				if (response.status < 200 || response.status > 299) {
+					throw Error(response);
+				}
+				const data = await parseUplinks(response);
+				window.requestAnimationFrame(() => paintUplinks(data.length > 0 ? data : [null]));
+			} catch (err) {
+				if (err?.name !== 'AbortError') {
+					window.requestAnimationFrame(() => errorUplinks());
+					if (uplinksRetries < 4) {
+						uplinksTimeout = setTimeout(() => {
+							uplinksRetries++;
+							loadUplinks();
+						}, 2 ** uplinksRetries * 1000);
+					}
+				}
+			}
+		};
+	</script>
+</html>
