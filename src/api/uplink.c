@@ -26,6 +26,111 @@ const char *uplink_schema = "create table uplink ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
+int uplink_parse(uplink_t *uplink, request_t *request) {
+	uint16_t index = 0;
+
+	if (request->body_len < index + sizeof(uplink->kind)) {
+		return -1;
+	}
+	uplink->kind = (uint8_t)request->body[index];
+	index += sizeof(uplink->kind);
+
+	if (request->body_len < index + sizeof(uplink->data_len)) {
+		return -1;
+	}
+	uplink->data_len = (uint8_t)request->body[index];
+	index += sizeof(uplink->data_len);
+
+	if (request->body_len < index + uplink->data_len) {
+		return -1;
+	}
+	uplink->data = (uint8_t *)&request->body[index];
+	index += uplink->data_len;
+
+	if (request->body_len < index + sizeof(uplink->airtime)) {
+		return -1;
+	}
+	memcpy(&uplink->airtime, &request->body[index], sizeof(uplink->airtime));
+	uplink->airtime = ntoh16(uplink->airtime);
+	index += sizeof(uplink->airtime);
+
+	if (request->body_len < index + sizeof(uplink->frequency)) {
+		return -1;
+	}
+	memcpy(&uplink->frequency, &request->body[index], sizeof(uplink->frequency));
+	uplink->frequency = ntoh32(uplink->frequency);
+	index += sizeof(uplink->frequency);
+
+	if (request->body_len < index + sizeof(uplink->bandwidth)) {
+		return -1;
+	}
+	memcpy(&uplink->bandwidth, &request->body[index], sizeof(uplink->bandwidth));
+	uplink->bandwidth = ntoh32(uplink->bandwidth);
+	index += sizeof(uplink->bandwidth);
+
+	if (request->body_len < index + sizeof(uplink->rssi)) {
+		return -1;
+	}
+	memcpy(&uplink->rssi, &request->body[index], sizeof(uplink->rssi));
+	uplink->rssi = (int16_t)ntoh16((uint16_t)uplink->rssi);
+	index += sizeof(uplink->rssi);
+
+	if (request->body_len < index + sizeof(uplink->snr)) {
+		return -1;
+	}
+	uplink->snr = (int8_t)request->body[index];
+	index += sizeof(uplink->snr);
+
+	if (request->body_len < index + sizeof(uplink->sf)) {
+		return -1;
+	}
+	uplink->sf = (uint8_t)request->body[index];
+	index += sizeof(uplink->sf);
+
+	if (request->body_len < index + sizeof(uplink->received_at)) {
+		return -1;
+	}
+	memcpy(&uplink->received_at, &request->body[index], sizeof(uplink->received_at));
+	uplink->received_at = (time_t)ntoh64((uint64_t)uplink->received_at);
+	index += sizeof(uplink->received_at);
+
+	if (request->body_len < index + sizeof(*uplink->device_id)) {
+		return -1;
+	}
+	uplink->device_id = (uint8_t (*)[16])(&request->body[index]);
+	index += sizeof(*uplink->device_id);
+
+	if (request->body_len != index) {
+		return -1;
+	}
+
+	return 0;
+}
+
+int uplink_validate(uplink_t *uplink) {
+	if (uplink->frequency < 400 * 1000 * 1000 || uplink->frequency > 500 * 1000 * 1000) {
+		return -1;
+	}
+
+	if (uplink->bandwidth < 7800 || uplink->bandwidth > 500 * 1000) {
+		return -1;
+	}
+
+	if (uplink->rssi < -192 || uplink->rssi > 16) {
+		return -1;
+	}
+
+	if (uplink->snr < -96 || uplink->snr > 48) {
+		return -1;
+	}
+
+	if (uplink->sf < 6 || uplink->sf > 12) {
+		return -1;
+	}
+
+	return 0;
+}
+
 uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -170,4 +275,27 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	append_header(response, "content-length:%zu\r\n", response->body_len);
 	info("found %hhu uplinks\n", uplinks_len);
 	response->status = 200;
+}
+
+void uplink_create(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	uplink_t uplink = {.id = &id};
+	if (request->body_len == 0 || uplink_parse(&uplink, request) == -1 || uplink_validate(&uplink) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = uplink_insert(database, &uplink);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created uplink %04x\n", *(uint32_t *)(uplink.id));
+	response->status = 201;
 }
