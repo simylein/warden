@@ -5,6 +5,8 @@
 
 extern file_t signin;
 extern file_t signup;
+extern file_t devices;
+extern file_t uplinks;
 
 extern file_t bad_request;
 extern file_t unauthorized;

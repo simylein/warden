@@ -1,4 +1,5 @@
 #include "../app/serve.h"
+#include "../lib/bwt.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "user.h"
@@ -54,6 +55,27 @@ bool endpoint(request_t *request, const char *method, const char *pathname, bool
 	return false;
 }
 
+bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *response) {
+	const char *cookie = find_header(request, "cookie:");
+	if (cookie == NULL) {
+		if (redirect == true) {
+			response->status = 307;
+			append_header(response, "location:/signin\r\n");
+			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname_len, request->pathname);
+		} else {
+			response->status = 401;
+		}
+		return false;
+	}
+
+	if (bwt_verify(cookie, request->header_len - (size_t)(cookie - (const char *)request->header), bwt) == -1) {
+		response->status = 401;
+		return false;
+	}
+
+	return true;
+}
+
 void route(sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
@@ -64,6 +86,20 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/signup", &method_found, &pathname_found) == true) {
 		serve(&signup, response);
+	}
+
+	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&devices, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/uplinks", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&uplinks, response);
+		}
 	}
 
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
