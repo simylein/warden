@@ -20,6 +20,11 @@ typedef struct uplink_t {
 	uint8_t (*device_id)[16];
 } uplink_t;
 
+typedef struct uplink_query_t {
+	uint8_t limit;
+	uint32_t offset;
+} uplink_query_t;
+
 extern const char *uplink_table;
 extern const char *uplink_schema;
 

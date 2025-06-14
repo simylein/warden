@@ -26,13 +26,15 @@ const char *uplink_schema = "create table uplink ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint8_t *uplinks_len) {
+uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select id, kind, data, rssi, snr, sf, received_at, uplink.device_id from uplink "
 										"join user_device on uplink.device_id = user_device.device_id "
-										"where user_device.user_id = ?";
+										"where user_device.user_id = ? "
+										"order by received_at desc "
+										"limit ? offset ?";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -42,6 +44,8 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 	}
 
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 2, query->limit);
+	sqlite3_bind_int(stmt, 3, (int)query->offset);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -149,13 +153,14 @@ cleanup:
 }
 
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uplink_query_t query = {.limit = 16, .offset = 0};
 	if (request->search_len != 0) {
 		response->status = 400;
 		return;
 	}
 
 	uint8_t uplinks_len;
-	uint16_t status = uplink_select(database, bwt, response, &uplinks_len);
+	uint16_t status = uplink_select(database, bwt, &query, response, &uplinks_len);
 	if (status != 0) {
 		response->status = status;
 		return;
