@@ -15,6 +15,7 @@ void display(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_
 void spacing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void sizing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
 void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);

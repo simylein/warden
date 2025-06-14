@@ -314,6 +314,44 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 	}
 }
 
+void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
+		return;
+	}
+
+	const keymap_t variants[] = {
+			{.key = "overflow-x-", .key_len = 11, .val = "overflow-x", .val_len = 10},
+			{.key = "overflow-y-", .key_len = 11, .val = "overflow-y", .val_len = 10},
+			{.key = "overflow-", .key_len = 9, .val = "overflow", .val_len = 8},
+	};
+
+	const keymap_t mappings[] = {
+			{.key = "auto", .key_len = 4, .val = "auto", .val_len = 4},
+			{.key = "hidden", .key_len = 6, .val = "hidden", .val_len = 6},
+			{.key = "clip", .key_len = 4, .val = "clip", .val_len = 4},
+			{.key = "visible", .key_len = 7, .val = "visible", .val_len = 7},
+			{.key = "scroll", .key_len = 6, .val = "scroll", .val_len = 6},
+	};
+
+	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
+		if (cls->len > variants[index].key_len && memcmp(cls->ptr, variants[index].key, variants[index].key_len) == 0) {
+			const keymap_t *mapping = NULL;
+			for (uint8_t ind = 0; ind < sizeof(mappings) / sizeof(keymap_t); ind++) {
+				if (cls->len - variants[index].key_len == mappings[ind].key_len &&
+						memcmp(&cls->ptr[variants[index].key_len], mappings[ind].key, mappings[ind].key_len) == 0) {
+					mapping = &mappings[ind];
+					break;
+				}
+			}
+			if (mapping == NULL) {
+				return;
+			}
+
+			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+		}
+	}
+}
+
 void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;

@@ -222,6 +222,10 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		border(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		border(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		border(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		overflow(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		overflow(&pfx, &cls, &small, &small_len, &small_breakpoint);
+		overflow(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
+		overflow(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		flex(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		flex(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		flex(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
