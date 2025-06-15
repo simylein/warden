@@ -34,7 +34,7 @@ int base32_encode(char *buf, const size_t buf_len, const void *bin, const size_t
 			block_len++;
 		}
 
-		uint8_t chars = (block_len * 8 + 4) / 5;
+		uint8_t chars = (uint8_t)((block_len * 8 + 4) / 5);
 		uint64_t penta = ((uint64_t)block[0] << 32) | ((uint64_t)block[1] << 24) | ((uint64_t)block[2] << 16) |
 										 ((uint64_t)block[3] << 8) | (uint64_t)block[4];
 
@@ -65,7 +65,7 @@ int base32_decode(void *bin, const size_t bin_len, const char *buf, const size_t
 			block_len++;
 		}
 
-		uint8_t bytes = (block_len * 5) / 8;
+		uint8_t bytes = (uint8_t)((block_len * 5) / 8);
 		uint64_t octa = ((uint64_t)block[0] << 35) | ((uint64_t)block[1] << 30) | ((uint64_t)block[2] << 25) |
 										((uint64_t)block[3] << 20) | ((uint64_t)block[4] << 15) | ((uint64_t)block[5] << 10) |
 										((uint64_t)block[6] << 5) | (uint64_t)block[7];
