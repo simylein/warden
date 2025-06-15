@@ -19,8 +19,8 @@ uint16_t reading_insert(sqlite3 *database, reading_t *reading) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into reading (id, temperature, humidity, captured_at) "
-										"values (randomblob(16), ?, ?, ?) returning id";
+	const char *sql = "insert into reading (id, temperature, humidity, captured_at, uplink_id) "
+										"values (randomblob(16), ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -32,6 +32,7 @@ uint16_t reading_insert(sqlite3 *database, reading_t *reading) {
 	sqlite3_bind_double(stmt, 1, reading->temperature);
 	sqlite3_bind_double(stmt, 2, reading->humidity);
 	sqlite3_bind_int64(stmt, 3, reading->captured_at);
+	sqlite3_bind_blob(stmt, 4, reading->uplink_id, sizeof(*reading->uplink_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
@@ -45,7 +46,7 @@ uint16_t reading_insert(sqlite3 *database, reading_t *reading) {
 		memcpy(reading->id, id, id_len);
 		status = 0;
 	} else if (result == SQLITE_CONSTRAINT) {
-		warn("reading %04x is conflicting\n", *(uint32_t *)(*reading->id));
+		warn("reading is conflicting because %s\n", sqlite3_errmsg(database));
 		status = 409;
 		goto cleanup;
 	} else {
