@@ -137,8 +137,7 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, res
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select id, kind, data, rssi, snr, sf, received_at, uplink.device_id from uplink "
-										"join user_device on uplink.device_id = user_device.device_id "
-										"where user_device.user_id = ? "
+										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"order by received_at desc "
 										"limit ? offset ?";
 	debug("%s\n", sql);
