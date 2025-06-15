@@ -2,6 +2,7 @@
 #include "../lib/bwt.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "device.h"
 #include "uplink.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -109,6 +110,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "post", "/api/signup", &method_found, &pathname_found) == true) {
 		user_signup(database, request, response);
+	}
+
+	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			device_find(database, &bwt, request, response);
+		}
 	}
 
 	if (endpoint(request, "get", "/api/uplinks", &method_found, &pathname_found) == true) {
