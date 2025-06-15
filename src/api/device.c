@@ -26,20 +26,17 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select device.id, device.name, device.created_at, device.updated_at, "
+	const char *sql = "select "
+										"device.id, device.name, device.created_at, device.updated_at, "
 										"uplink.id, uplink.received_at, "
 										"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
 										"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
 										"from device "
-										"join user_device on device.id = user_device.device_id "
-										"left join uplink on uplink.id = ("
-										"select id from uplink "
-										"where device_id = device.id "
-										"order by received_at desc limit 1"
-										") "
+										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+										"left join uplink on uplink.id = "
+										"(select id from uplink where device_id = device.id order by received_at desc limit 1) "
 										"left join reading on reading.uplink_id = uplink.id "
-										"left join metric on metric.uplink_id = uplink.id "
-										"where user_device.user_id = ?"
+										"left join metric on  metric.uplink_id = uplink.id "
 										"order by device.name asc";
 	debug("%s\n", sql);
 
@@ -217,7 +214,7 @@ void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 		return;
 	}
 
-	uint8_t devices_len;
+	uint8_t devices_len = 0;
 	uint16_t status = device_select(database, bwt, response, &devices_len);
 	if (status != 0) {
 		response->status = status;
