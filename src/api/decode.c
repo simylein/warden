@@ -22,13 +22,16 @@ int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	return 0;
 }
 
-int decode(uplink_t *uplink) {
+int decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x\n", uplink->kind);
 	switch (uplink->kind) {
 	case 0x01: {
 		reading_t reading;
 		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading)) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
+			return -1;
+		}
+		if (reading_insert(database, &reading) != 0) {
 			return -1;
 		}
 		return 0;

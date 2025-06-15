@@ -1,5 +1,6 @@
 #pragma once
 
 #include "uplink.h"
+#include <sqlite3.h>
 
-int decode(uplink_t *uplink);
+int decode(sqlite3 *database, uplink_t *uplink);

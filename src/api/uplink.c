@@ -297,7 +297,7 @@ void uplink_create(sqlite3 *database, request_t *request, response_t *response) 
 		return;
 	}
 
-	if (decode(&uplink) == -1) {
+	if (decode(database, &uplink) == -1) {
 		response->status = 500;
 		return;
 	}
