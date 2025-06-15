@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, uint8_t (*uplink_id)[16], reading_t *reading) {
+int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading) {
 	if (data_len != 4) {
 		error("uplink data len must be 4 bytes\n");
 		return -1;
@@ -17,7 +17,6 @@ int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, uint8_t 
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
 	reading->captured_at = received_at;
-	reading->uplink_id = uplink_id;
 
 	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
 	return 0;
@@ -27,8 +26,9 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x\n", uplink->kind);
 	switch (uplink->kind) {
 	case 0x01: {
-		reading_t reading;
-		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, uplink->id, &reading)) {
+		uint8_t id[16];
+		reading_t reading = {.id = &id, .uplink_id = uplink->id};
+		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading)) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
