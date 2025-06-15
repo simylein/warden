@@ -10,7 +10,7 @@
 #include <string.h>
 
 int append(class_t (*classes)[128], uint8_t *classes_len, char *next_ptr) {
-	if (*classes_len + 1 > sizeof(*classes) / sizeof(class_t)) {
+	if ((size_t)*classes_len + 1 > sizeof(*classes) / sizeof(class_t)) {
 		error("can not handle more than %zu classes\n", sizeof(*classes) / sizeof(class_t));
 		return -1;
 	}
