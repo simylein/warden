@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <time.h>
 
-int bwt_sign(char (*buffer)[103], const uint8_t (*id)[16]) {
+int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 	const time_t iat = time(NULL);
 	const uint64_t n_iat = hton64((uint64_t)iat);
 	const time_t exp = iat + bwt_ttl;
