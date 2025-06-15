@@ -4,6 +4,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "decode.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -293,6 +294,11 @@ void uplink_create(sqlite3 *database, request_t *request, response_t *response) 
 	uint16_t status = uplink_insert(database, &uplink);
 	if (status != 0) {
 		response->status = status;
+		return;
+	}
+
+	if (decode(&uplink) == -1) {
+		response->status = 500;
 		return;
 	}
 
