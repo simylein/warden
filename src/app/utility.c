@@ -9,7 +9,7 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 		(*buffer)[*buffer_len] = '.';
 		*buffer_len += 1;
 
-		if (mapping != NULL) {
+		if (pfx != NULL) {
 			if (pfx->len > 0) {
 				memcpy(&(*buffer)[*buffer_len], pfx->ptr, pfx->len);
 				*buffer_len += pfx->len;
