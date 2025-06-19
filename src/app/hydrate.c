@@ -161,6 +161,17 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
+	char giant[4096];
+	uint16_t giant_len = 0;
+	breakpoint_t giant_breakpoint = {
+			.tag = "xl",
+			.tag_len = 2,
+			.prefix = "@media (min-width:1280px){",
+			.prefix_len = 26,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
+
 	char dark[4096];
 	uint16_t dark_len = 0;
 	breakpoint_t dark_breakpoint = {
@@ -210,26 +221,32 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		display(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		display(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		display(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		display(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		spacing(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		spacing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		spacing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		spacing(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		spacing(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		sizing(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		sizing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		sizing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		sizing(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		sizing(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		border(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		border(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		border(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		border(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		border(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		overflow(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		overflow(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		overflow(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		overflow(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		overflow(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		flex(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		flex(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		flex(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		flex(&pfx, &cls, &large, &large_len, &large_breakpoint);
+		flex(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		text(&cls, &global, &global_len);
 		font(&cls, &global, &global_len);
 		color(&pfx, &cls, &global, &global_len, &global_breakpoint);
@@ -241,7 +258,7 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		}
 	}
 
-	size_t len = file->len + global_len + small_len + medium_len + large_len + dark_len;
+	size_t len = file->len + global_len + small_len + medium_len + large_len + giant_len + dark_len;
 	if (small_len > 0) {
 		len += small_breakpoint.prefix_len;
 		len += small_breakpoint.suffix_len;
@@ -253,6 +270,10 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 	if (large_len > 0) {
 		len += large_breakpoint.prefix_len;
 		len += large_breakpoint.suffix_len;
+	}
+	if (giant_len > 0) {
+		len += giant_breakpoint.prefix_len;
+		len += giant_breakpoint.suffix_len;
 	}
 	if (dark_len > 0) {
 		len += dark_breakpoint.prefix_len;
@@ -312,6 +333,15 @@ int hydrate(file_t *file, class_t (*classes)[128], uint8_t *classes_len) {
 		ptr_ind += large_len;
 		memcpy(&ptr[ptr_ind], large_breakpoint.suffix, large_breakpoint.suffix_len);
 		ptr_ind += large_breakpoint.suffix_len;
+	}
+
+	if (giant_len != 0) {
+		memcpy(&ptr[ptr_ind], giant_breakpoint.prefix, giant_breakpoint.prefix_len);
+		ptr_ind += giant_breakpoint.prefix_len;
+		memcpy(&ptr[ptr_ind], giant, giant_len);
+		ptr_ind += giant_len;
+		memcpy(&ptr[ptr_ind], giant_breakpoint.suffix, giant_breakpoint.suffix_len);
+		ptr_ind += giant_breakpoint.suffix_len;
 	}
 
 	if (dark_len != 0) {
