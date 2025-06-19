@@ -124,11 +124,11 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			}
 			append_body(response, (char[]){reading_temperature_type != SQLITE_NULL}, sizeof(char));
 			if (reading_temperature_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(reading_temperature * 100))}, sizeof(int16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(reading_temperature * 100))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){reading_humidity_type != SQLITE_NULL}, sizeof(char));
 			if (reading_humidity_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(reading_humidity * 100))}, sizeof(int16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(reading_humidity * 100))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){reading_captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (reading_captured_at_type != SQLITE_NULL) {
