@@ -358,6 +358,10 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len
 	}
 
 	const keymap_t flexes[] = {
+			{.key = "flex-1", .key_len = 6, .val = "flex:1 1 0%", .val_len = 11},
+			{.key = "flex-auto", .key_len = 9, .val = "flex:1 1 auto", .val_len = 13},
+			{.key = "flex-initial", .key_len = 12, .val = "flex:0 1 auto", .val_len = 13},
+			{.key = "flex-none", .key_len = 9, .val = "flex:none", .val_len = 9},
 			{.key = "flex-row", .key_len = 8, .val = "flex-direction:row", .val_len = 18},
 			{.key = "flex-row-reverse", .key_len = 16, .val = "flex-direction:row-reverse", .val_len = 26},
 			{.key = "flex-col", .key_len = 8, .val = "flex-direction:column", .val_len = 21},
