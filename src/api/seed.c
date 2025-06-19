@@ -29,14 +29,14 @@ int seed_user(sqlite3 *database) {
 
 int seed_device(sqlite3 *database) {
 	device_t devices[] = {
-			{.id = &device_ids[0], .name = "outside north", .name_len = 13},
-			{.id = &device_ids[1], .name = "outside east", .name_len = 12},
-			{.id = &device_ids[2], .name = "outside south", .name_len = 13},
-			{.id = &device_ids[3], .name = "outside west", .name_len = 12},
-			{.id = &device_ids[4], .name = "basement", .name_len = 8},
-			{.id = &device_ids[5], .name = "living room", .name_len = 11},
-			{.id = &device_ids[6], .name = "kitchen", .name_len = 7},
-			{.id = &device_ids[7], .name = "bathroom", .name_len = 8},
+			{.id = &device_ids[0], .name = "outside north", .name_len = 13, .type = "outdoor", .type_len = 7},
+			{.id = &device_ids[1], .name = "outside east", .name_len = 12, .type = "outdoor", .type_len = 7},
+			{.id = &device_ids[2], .name = "outside south", .name_len = 13, .type = "outdoor", .type_len = 7},
+			{.id = &device_ids[3], .name = "outside west", .name_len = 12, .type = "outdoor", .type_len = 7},
+			{.id = &device_ids[4], .name = "basement", .name_len = 8, .type = "indoor", .type_len = 6},
+			{.id = &device_ids[5], .name = "living room", .name_len = 11, .type = "indoor", .type_len = 6},
+			{.id = &device_ids[6], .name = "kitchen", .name_len = 7, .type = "indoor", .type_len = 6},
+			{.id = &device_ids[7], .name = "bathroom", .name_len = 8, .type = "indoor", .type_len = 6},
 	};
 
 	for (uint8_t index = 0; index < sizeof(devices) / sizeof(device_t); index++) {

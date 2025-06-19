@@ -11,6 +11,8 @@ typedef struct device_t {
 	uint8_t (*id)[16];
 	char *name;
 	uint8_t name_len;
+	char *type;
+	uint8_t type_len;
 	time_t *created_at;
 	time_t *updated_at;
 } device_t;

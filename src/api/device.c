@@ -18,6 +18,7 @@ const char *device_table = "device";
 const char *device_schema = "create table device ("
 														"id blob primary key, "
 														"name text not null unique, "
+														"type text not null, "
 														"created_at datetime not null, "
 														"updated_at datetime"
 														")";
@@ -169,8 +170,8 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into device (id, name, created_at) "
-										"values (randomblob(16), ?, ?) returning id";
+	const char *sql = "insert into device (id, name, type, created_at) "
+										"values (randomblob(16), ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -180,7 +181,8 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 	}
 
 	sqlite3_bind_text(stmt, 1, device->name, device->name_len, SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 2, time(NULL));
+	sqlite3_bind_text(stmt, 2, device->type, device->type_len, SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 3, time(NULL));
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
