@@ -55,6 +55,7 @@
 	</body>
 	<script>
 		// @inject ./src/app/formik.js
+		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/notification.js
 		const { setValue, setTouched, handleSubmit } = formik(
 			{
@@ -81,27 +82,10 @@
 			async (values) => {
 				const data = new Blob([values.username, '\0', values.password, '\0']);
 				try {
-					if (window.localStorage.getItem('develop')) {
-						await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 800));
-						if (Math.random() < 0.1) {
-							throw {
-								status: Math.floor(Math.random() * 200) + 400,
-								statusText: 'Develop',
-							};
-						}
-					}
-					const response = await fetch('/api/signup', {
-						method: 'post',
-						body: data,
-						headers: { 'content-type': 'application/octet-stream' },
-					});
-					if (response.status >= 200 && response.status <= 299) {
-						notification('success', `Successfully signed up as ${values.username}`);
-						const memo = document.cookie.match(/memo=([^;]*)/);
-						window.location.href = memo?.[1] ?? '/';
-						return;
-					}
-					throw response;
+					const response = await fetcher('post', '/api/signup', data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully signed up as ${values.username}`);
+					const memo = document.cookie.match(/memo=([^;]*)/);
+					window.location.href = memo?.[1] ?? '/';
 				} catch (err) {
 					if (err instanceof TypeError) {
 						return notification('info', 'Seems like you might be offline');
