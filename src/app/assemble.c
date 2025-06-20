@@ -74,6 +74,8 @@ int assemble(file_t *asset) {
 		asset_index += 1;
 	}
 
+	free(asset->ptr);
+
 	asset->ptr = assemble_ptr;
 	asset->len = assemble_len;
 
