@@ -34,8 +34,8 @@ uint16_t user_device_insert(sqlite3 *database, user_device_t *user_device) {
 	if (result == SQLITE_DONE) {
 		status = 0;
 	} else if (result == SQLITE_CONSTRAINT) {
-		warn("user %04x device %04x are conflicting\n", *(uint32_t *)(*user_device->user_id),
-				 *(uint32_t *)(*user_device->device_id));
+		warn("user %02x%02x device %02x%02x are conflicting\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
+				 (*user_device->device_id)[0], (*user_device->device_id)[1]);
 		status = 409;
 		goto cleanup;
 	} else {

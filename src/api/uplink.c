@@ -243,7 +243,7 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 		memcpy(uplink->id, id, id_len);
 		status = 0;
 	} else if (result == SQLITE_CONSTRAINT) {
-		warn("uplink from device %04x is conflicting\n", *(uint32_t *)(*uplink->device_id));
+		warn("uplink from device %02x%02x is conflicting\n", (*uplink->device_id)[0], (*uplink->device_id)[1]);
 		status = 409;
 		goto cleanup;
 	} else {
@@ -301,6 +301,6 @@ void uplink_create(sqlite3 *database, request_t *request, response_t *response) 
 		return;
 	}
 
-	info("created uplink %04x\n", *(uint32_t *)(uplink.id));
+	info("created uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
 	response->status = 201;
 }
