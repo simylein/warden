@@ -37,7 +37,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 										"left join uplink on uplink.id = "
 										"(select id from uplink where device_id = device.id order by received_at desc limit 1) "
 										"left join reading on reading.uplink_id = uplink.id "
-										"left join metric on  metric.uplink_id = uplink.id "
+										"left join metric on metric.uplink_id = uplink.id "
 										"order by device.name asc";
 	debug("%s\n", sql);
 
