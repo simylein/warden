@@ -358,154 +358,16 @@
 		</main>
 	</body>
 	<script>
+		// @inject ./src/app/array.js
+		// @inject ./src/app/resize.js
+		// @inject ./src/app/state.js
+		// @inject ./src/app/color-reading.js
+		// @inject ./src/app/color-metric.js
+		// @inject ./src/app/fetcher.js
 		let devicesRetries = 0;
 		let devicesTimeout = null;
 		let devicesController = null;
 		const devices = document.getElementById('devices');
-		const array = (length) => {
-			return Array(length)
-				.fill(null)
-				.map((__, ind) => ind);
-		};
-		const resize = (element, length) => {
-			let index = 0;
-			while (element.children.length !== length) {
-				const diff = element.children.length - length;
-				if (diff < 0) {
-					const copy = element.children[0].cloneNode(true);
-					element.appendChild(copy);
-				} else if (diff > 0 && element.children.length > 0) {
-					element.children[element.children.length - 1].remove();
-				}
-				index++;
-			}
-		};
-		const loading = (element, add, remove, text, height, width) => {
-			element.classList.add(...add, 'background-neutral-200', 'dark:background-neutral-800');
-			element.classList.remove('w-fit', 'background-red-200', 'dark:background-red-800', ...remove);
-			if (text !== undefined && text !== null) {
-				element.innerText = text;
-			}
-			if (height !== undefined && height !== null) {
-				element.style.height = `${height}%`;
-			}
-			if (width !== undefined && width !== null) {
-				element.style.width = `${width}%`;
-			}
-		};
-		const paint = (element, add, remove, text, height, width) => {
-			element.classList.add('w-fit', ...add);
-			element.classList.remove('background-neutral-200', 'dark:background-neutral-800', ...remove);
-			if (text !== undefined && text !== null) {
-				element.innerText = text;
-			}
-			if (height !== undefined && height !== null) {
-				element.style.height = `${height}%`;
-			}
-			if (width !== undefined && width !== null) {
-				element.style.width = `${width}%`;
-			}
-		};
-		const error = (element) => {
-			element.classList.add('background-red-200', 'dark:background-red-800');
-			element.classList.remove('background-neutral-200', 'dark:background-neutral-800');
-		};
-		const colorTemperature = (element, temperature) => {
-			switch (true) {
-				case temperature < -20:
-					return element.classList.add('text-fuchsia-600', 'dark:text-fuchsia-400', 'background-fuchsia-50', 'dark:background-fuchsia-950');
-				case temperature >= -20 && temperature < -16:
-					return element.classList.add('text-purple-600', 'dark:text-purple-400', 'background-purple-50', 'dark:background-purple-950');
-				case temperature >= -16 && temperature < -12:
-					return element.classList.add('text-violet-600', 'dark:text-violet-400', 'background-violet-50', 'dark:background-violet-950');
-				case temperature >= -12 && temperature < -8:
-					return element.classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-50', 'dark:background-indigo-950');
-				case temperature >= -8 && temperature < -4:
-					return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
-				case temperature >= -4 && temperature < 0:
-					return element.classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-50', 'dark:background-sky-950');
-				case temperature >= 0 && temperature < 4:
-					return element.classList.add('text-cyan-600', 'dark:text-cyan-400', 'background-cyan-50', 'dark:background-cyan-950');
-				case temperature >= 4 && temperature < 8:
-					return element.classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-50', 'dark:background-teal-950');
-				case temperature >= 8 && temperature < 12:
-					return element.classList.add('text-emerald-600', 'dark:text-emerald-400', 'background-emerald-50', 'dark:background-emerald-950');
-				case temperature >= 12 && temperature < 16:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-				case temperature >= 16 && temperature < 20:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case temperature >= 20 && temperature < 24:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case temperature >= 24 && temperature < 28:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case temperature >= 28 && temperature < 32:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case temperature >= 32 && temperature < 36:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-				case temperature >= 36:
-					return element.classList.add('text-rose-600', 'dark:text-rose-400', 'background-rose-50', 'dark:background-rose-950');
-			}
-		};
-		const colorHumidity = (element, humidity) => {
-			switch (true) {
-				case humidity < 20:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-				case humidity >= 20 && humidity < 30:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case humidity >= 30 && humidity < 35:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case humidity >= 35 && humidity < 40:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case humidity >= 40 && humidity < 45:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case humidity >= 45 && humidity < 50:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-				case humidity >= 50 && humidity < 55:
-					return element.classList.add('text-emerald-600', 'dark:text-emerald-400', 'background-emerald-50', 'dark:background-emerald-950');
-				case humidity >= 55 && humidity < 60:
-					return element.classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-50', 'dark:background-teal-950');
-				case humidity >= 60 && humidity < 65:
-					return element.classList.add('text-cyan-600', 'dark:text-cyan-400', 'background-cyan-50', 'dark:background-cyan-950');
-				case humidity >= 65 && humidity < 70:
-					return element.classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-50', 'dark:background-sky-950');
-				case humidity >= 70 && humidity < 80:
-					return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
-				case humidity >= 80:
-					return element.classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-50', 'dark:background-indigo-950');
-			}
-		};
-		colorPhotovoltaic = (element, photovoltaic) => {
-			switch (true) {
-				case photovoltaic < 0.5:
-					return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
-				case photovoltaic >= 0.5 && photovoltaic < 1.0:
-					return element.classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-50', 'dark:background-sky-950');
-				case photovoltaic >= 1.0 && photovoltaic < 1.5:
-					return element.classList.add('text-cyan-600', 'dark:text-cyan-400', 'background-cyan-50', 'dark:background-cyan-950');
-				case photovoltaic >= 1.5 && photovoltaic < 2.0:
-					return element.classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-50', 'dark:background-teal-950');
-				case photovoltaic >= 2.0 && photovoltaic < 3.0:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case photovoltaic >= 3.0:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-			}
-		};
-		const colorBattery = (element, battery) => {
-			switch (true) {
-				case battery < 3.5:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-				case battery >= 3.5 && battery < 3.6:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case battery >= 3.6 && battery < 3.7:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case battery >= 3.7 && battery < 3.78:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case battery >= 3.78 && battery < 3.85:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case battery >= 3.85:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-			}
-		};
 		const loadingDevices = () => {
 			array(devices.children.length).forEach((ind) => {
 				loading(devices.children[ind].children[0].children[0], ['w-10', 'h-4.5'], []);
@@ -651,16 +513,7 @@
 			devicesController = new AbortController();
 			window.requestAnimationFrame(() => loadingDevices());
 			try {
-				if (window.localStorage.getItem('develop')) {
-					await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 800));
-					if (Math.random() < 0.1) {
-						throw { status: Math.floor(Math.random() * 200) + 400, statusText: 'Develop' };
-					}
-				}
-				const response = await fetch('/api/devices', { signal: devicesController.signal });
-				if (response.status < 200 || response.status > 299) {
-					throw Error(response);
-				}
+				const response = await fetcher('get', '/api/devices', null, { controller: devicesController });
 				const data = await parseDevices(response);
 				window.requestAnimationFrame(() => paintDevices(data.length > 0 ? data : [null]));
 			} catch (err) {
