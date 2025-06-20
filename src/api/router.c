@@ -82,14 +82,6 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
-	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
-		serve(&signin, response);
-	}
-
-	if (endpoint(request, "get", "/signup", &method_found, &pathname_found) == true) {
-		serve(&signup, response);
-	}
-
 	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
@@ -104,12 +96,12 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
-	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
-		user_signin(database, request, response);
+	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
+		serve(&signin, response);
 	}
 
-	if (endpoint(request, "post", "/api/signup", &method_found, &pathname_found) == true) {
-		user_signup(database, request, response);
+	if (endpoint(request, "get", "/signup", &method_found, &pathname_found) == true) {
+		serve(&signup, response);
 	}
 
 	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
@@ -129,6 +121,14 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "post", "/api/uplink", &method_found, &pathname_found) == true) {
 		// FIXME authenticate and authorize this endpoint for nexus only
 		uplink_create(database, request, response);
+	}
+
+	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
+		user_signin(database, request, response);
+	}
+
+	if (endpoint(request, "post", "/api/signup", &method_found, &pathname_found) == true) {
+		user_signup(database, request, response);
 	}
 
 	if (response->status == 0 && pathname_found == false && method_found == false) {
