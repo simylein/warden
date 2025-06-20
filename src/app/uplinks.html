@@ -407,116 +407,16 @@
 		</main>
 	</body>
 	<script>
+		// @inject ./src/app/array.js
+		// @inject ./src/app/resize.js
+		// @inject ./src/app/timestamp.js
+		// @inject ./src/app/state.js
+		// @inject ./src/app/color-uplink.js
+		// @inject ./src/app/fetcher.js
 		let uplinksRetries = 0;
 		let uplinksTimeout = null;
 		let uplinksController = null;
 		const uplinks = document.getElementById('uplinks');
-		const array = (length) => {
-			return Array(length)
-				.fill(null)
-				.map((__, ind) => ind);
-		};
-		const resize = (element, length) => {
-			let index = 0;
-			while (element.children.length !== length) {
-				const diff = element.children.length - length;
-				if (diff < 0) {
-					const copy = element.children[0].cloneNode(true);
-					element.appendChild(copy);
-				} else if (diff > 0 && element.children.length > 0) {
-					element.children[element.children.length - 1].remove();
-				}
-				index++;
-			}
-		};
-		const timestamp = (time) => {
-			const date = new Date(Number(time) * 1000);
-			const year = date.getFullYear();
-			const month = (date.getMonth() + 1).toString().padStart(2, '0');
-			const day = date.getDate().toString().padStart(2, '0');
-			const hour = date.getHours().toString().padStart(2, '0');
-			const minute = date.getMinutes().toString().padStart(2, '0');
-			const second = date.getSeconds().toString().padStart(2, '0');
-			return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-		};
-		const loading = (element, add, remove, text, height, width) => {
-			element.classList.add(...add, 'background-neutral-200', 'dark:background-neutral-800');
-			element.classList.remove('w-fit', 'background-red-200', 'dark:background-red-800', ...remove);
-			if (text !== undefined && text !== null) {
-				element.innerText = text;
-			}
-			if (height !== undefined && height !== null) {
-				element.style.height = `${height}%`;
-			}
-			if (width !== undefined && width !== null) {
-				element.style.width = `${width}%`;
-			}
-		};
-		const paint = (element, add, remove, text, height, width) => {
-			element.classList.add('w-fit', ...add);
-			element.classList.remove('background-neutral-200', 'dark:background-neutral-800', ...remove);
-			if (text !== undefined && text !== null) {
-				element.innerText = text;
-			}
-			if (height !== undefined && height !== null) {
-				element.style.height = `${height}%`;
-			}
-			if (width !== undefined && width !== null) {
-				element.style.width = `${width}%`;
-			}
-		};
-		const error = (element) => {
-			element.classList.add('background-red-200', 'dark:background-red-800');
-			element.classList.remove('background-neutral-200', 'dark:background-neutral-800');
-		};
-		const colorRssi = (element, rssi) => {
-			switch (true) {
-				case rssi < -125:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-				case rssi >= -125 && rssi < -115:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case rssi >= -115 && rssi < -100:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case rssi >= -100 && rssi < -80:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case rssi >= -80 && rssi < -60:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case rssi >= -60:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-			}
-		};
-		const colorSnr = (element, snr) => {
-			switch (true) {
-				case snr < -15:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-				case snr >= -15 && snr < -10:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case snr >= -10 && snr < -5:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case snr >= -5 && snr < 0:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case snr >= 0 && snr < 5:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case snr >= 5:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-			}
-		};
-		const colorSf = (element, sf) => {
-			switch (true) {
-				case sf == 7:
-					return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
-				case sf == 8:
-					return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
-				case sf == 9:
-					return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
-				case sf == 10:
-					return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
-				case sf == 11:
-					return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
-				case sf == 12:
-					return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
-			}
-		};
 		const loadingUplinks = () => {
 			array(uplinks.children.length).forEach((ind) => {
 				loading(uplinks.children[ind].children[0].children[0], ['w-40', 'h-4.5'], []);
@@ -605,16 +505,7 @@
 			uplinksController = new AbortController();
 			window.requestAnimationFrame(() => loadingUplinks());
 			try {
-				if (window.localStorage.getItem('develop')) {
-					await new Promise((resolve) => setTimeout(resolve, 400 + Math.random() * 800));
-					if (Math.random() < 0.1) {
-						throw { status: Math.floor(Math.random() * 200) + 400, statusText: 'Develop' };
-					}
-				}
-				const response = await fetch('/api/uplinks', { signal: uplinksController.signal });
-				if (response.status < 200 || response.status > 299) {
-					throw Error(response);
-				}
+				const response = await fetcher('get', '/api/uplinks', null, { controller: uplinksController });
 				const data = await parseUplinks(response);
 				window.requestAnimationFrame(() => paintUplinks(data.length > 0 ? data : [null]));
 			} catch (err) {
