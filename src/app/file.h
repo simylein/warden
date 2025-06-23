@@ -1,5 +1,6 @@
 #pragma once
 
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
@@ -11,6 +12,7 @@ typedef struct file_t {
 	const char *path;
 	time_t modified;
 	bool hydrated;
+	pthread_rwlock_t lock;
 } file_t;
 
 const char *type(const char *path);
