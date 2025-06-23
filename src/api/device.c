@@ -28,7 +28,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"device.id, device.name, device.created_at, device.updated_at, "
+										"device.id, device.name, device.type, device.created_at, device.updated_at, "
 										"uplink.id, uplink.received_at, "
 										"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
 										"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
@@ -61,49 +61,53 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			}
 			const uint8_t *name = sqlite3_column_text(stmt, 1);
 			const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const uint64_t created_at = (uint64_t)sqlite3_column_int64(stmt, 2);
-			const uint64_t updated_at = (uint64_t)sqlite3_column_int64(stmt, 3);
-			const int updated_at_type = sqlite3_column_type(stmt, 3);
-			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 4);
-			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 4);
-			const int uplink_id_type = sqlite3_column_type(stmt, 4);
+			const uint8_t *type = sqlite3_column_text(stmt, 2);
+			const size_t type_len = (size_t)sqlite3_column_bytes(stmt, 2);
+			const uint64_t created_at = (uint64_t)sqlite3_column_int64(stmt, 3);
+			const uint64_t updated_at = (uint64_t)sqlite3_column_int64(stmt, 4);
+			const int updated_at_type = sqlite3_column_type(stmt, 4);
+			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 5);
+			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 5);
+			const int uplink_id_type = sqlite3_column_type(stmt, 5);
 			if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
 				error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
 				status = 500;
 				goto cleanup;
 			}
-			const uint64_t uplink_received_at = (uint64_t)sqlite3_column_int64(stmt, 5);
-			const int uplink_received_at_type = sqlite3_column_type(stmt, 5);
-			const uint8_t *reading_id = sqlite3_column_blob(stmt, 6);
-			const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 6);
-			const int reading_id_type = sqlite3_column_type(stmt, 6);
+			const uint64_t uplink_received_at = (uint64_t)sqlite3_column_int64(stmt, 6);
+			const int uplink_received_at_type = sqlite3_column_type(stmt, 6);
+			const uint8_t *reading_id = sqlite3_column_blob(stmt, 7);
+			const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
+			const int reading_id_type = sqlite3_column_type(stmt, 7);
 			if (reading_id_type != SQLITE_NULL && reading_id_len != sizeof(*((reading_t *)0)->id)) {
 				error("reading id length %zu does not match buffer length %zu\n", reading_id_len, sizeof(*((reading_t *)0)->id));
 				status = 500;
 				goto cleanup;
 			}
-			const double reading_temperature = sqlite3_column_double(stmt, 7);
-			const int reading_temperature_type = sqlite3_column_type(stmt, 7);
-			const double reading_humidity = sqlite3_column_double(stmt, 8);
-			const int reading_humidity_type = sqlite3_column_type(stmt, 8);
-			const uint64_t reading_captured_at = (uint64_t)sqlite3_column_int64(stmt, 9);
-			const int reading_captured_at_type = sqlite3_column_type(stmt, 9);
-			const uint8_t *metric_id = sqlite3_column_blob(stmt, 10);
-			const size_t metric_id_len = (size_t)sqlite3_column_bytes(stmt, 10);
-			const int metric_id_type = sqlite3_column_type(stmt, 10);
+			const double reading_temperature = sqlite3_column_double(stmt, 8);
+			const int reading_temperature_type = sqlite3_column_type(stmt, 8);
+			const double reading_humidity = sqlite3_column_double(stmt, 9);
+			const int reading_humidity_type = sqlite3_column_type(stmt, 9);
+			const uint64_t reading_captured_at = (uint64_t)sqlite3_column_int64(stmt, 10);
+			const int reading_captured_at_type = sqlite3_column_type(stmt, 10);
+			const uint8_t *metric_id = sqlite3_column_blob(stmt, 11);
+			const size_t metric_id_len = (size_t)sqlite3_column_bytes(stmt, 11);
+			const int metric_id_type = sqlite3_column_type(stmt, 11);
 			if (metric_id_type != SQLITE_NULL && metric_id_len != sizeof(*((metric_t *)0)->id)) {
 				error("metric id length %zu does not match buffer length %zu\n", metric_id_len, sizeof(*((metric_t *)0)->id));
 				status = 500;
 				goto cleanup;
 			}
-			const double metric_photovoltaic = sqlite3_column_double(stmt, 11);
-			const int metric_photovoltaic_type = sqlite3_column_type(stmt, 11);
-			const double metric_battery = sqlite3_column_double(stmt, 12);
-			const int metric_battery_type = sqlite3_column_type(stmt, 12);
-			const uint64_t metric_captured_at = (uint64_t)sqlite3_column_int64(stmt, 13);
-			const int metric_captured_at_type = sqlite3_column_type(stmt, 13);
+			const double metric_photovoltaic = sqlite3_column_double(stmt, 12);
+			const int metric_photovoltaic_type = sqlite3_column_type(stmt, 12);
+			const double metric_battery = sqlite3_column_double(stmt, 13);
+			const int metric_battery_type = sqlite3_column_type(stmt, 13);
+			const uint64_t metric_captured_at = (uint64_t)sqlite3_column_int64(stmt, 14);
+			const int metric_captured_at_type = sqlite3_column_type(stmt, 14);
 			append_body(response, id, id_len);
 			append_body(response, name, name_len);
+			append_body(response, (char[]){0x00}, sizeof(char));
+			append_body(response, type, type_len);
 			append_body(response, (char[]){0x00}, sizeof(char));
 			append_body(response, (uint64_t[]){hton64(created_at)}, sizeof(created_at));
 			append_body(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
