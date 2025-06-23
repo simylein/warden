@@ -43,13 +43,9 @@ int assemble(file_t *asset) {
 				path_len += 1;
 				asset_index += 1;
 			}
+
 			sprintf(path, "%.*s", path_len, start);
-
-			file_t assemble;
-			assemble.fd = -1;
-			assemble.ptr = NULL;
-			assemble.path = path;
-
+			file_t assemble = {.fd = -1, .ptr = NULL, .path = path};
 			if (file(&assemble) == -1) {
 				return -1;
 			}
