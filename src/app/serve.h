@@ -3,6 +3,7 @@
 #include "../lib/response.h"
 #include "file.h"
 
+extern file_t home;
 extern file_t devices;
 extern file_t uplinks;
 extern file_t signin;

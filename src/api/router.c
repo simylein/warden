@@ -82,6 +82,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
+	if (endpoint(request, "get", "/", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&home, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {

@@ -7,6 +7,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+file_t home = {.fd = -1,
+							 .ptr = NULL,
+							 .len = 0,
+							 .path = "./src/app/home.html",
+							 .modified = 0,
+							 .hydrated = false,
+							 .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t devices = {.fd = -1,
 									.ptr = NULL,
 									.len = 0,
