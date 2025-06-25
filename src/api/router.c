@@ -3,6 +3,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include "recap.h"
 #include "uplink.h"
 #include "user.h"
 #include <sqlite3.h>
@@ -109,6 +110,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/signup", &method_found, &pathname_found) == true) {
 		serve(&signup, response);
+	}
+
+	if (endpoint(request, "get", "/api/recap", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			recap_find(database, &bwt, request, response);
+		}
 	}
 
 	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
