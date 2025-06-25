@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View key statistics of your devices" />
+		<title>Warden home</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadRecap()">
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-8 lg:pr-16 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-8 lg:pl-16 text-lg font-normal overflow-x-scroll"
+			>
+				<a href="/" class="no-underline text-blue-600 dark:text-blue-400">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+			</nav>
+		</header>
+		<main class="flex flex-col gap-2 sm:gap-4 lg:gap-8 m-4 sm:m-8 lg:m-16">
+			<div class="flex flex-col lg:flex-row gap-2 sm:gap-4 lg:gap-8">
+				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1">
+						<h2 class="m-0 text-base font-normal">Temperature indoor</h2>
+						<p id="indoor-temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800">
+							<span></span><span></span><span></span>
+						</p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="indoor-temperature-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="indoor-temperature-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 2%"></div>
+										<div style="height: 56%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 42%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 4%"></div>
+										<div style="height: 62%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 34%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 8%"></div>
+										<div style="height: 78%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 14%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 28%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 24%"></div>
+										<div style="height: 50%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 26%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 20%"></div>
+										<div style="height: 40%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 40%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 16%"></div>
+										<div style="height: 36%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 48%"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="indoor-temperature-label" class="w-full flex justify-around text-xs">
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1">
+						<h2 class="m-0 text-base font-normal">Humidity indoor</h2>
+						<p id="indoor-humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="indoor-humidity-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="indoor-humidity-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 40%"></div>
+										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 30%"></div>
+										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 6%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 12%"></div>
+										<div style="height: 72%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 16%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 2%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 28%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 24%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 6%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 32%"></div>
+										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 4%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 40%"></div>
+										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="indoor-humidity-label" class="w-full flex justify-around text-xs">
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-col lg:flex-row gap-2 sm:gap-4 lg:gap-8">
+				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1">
+						<h2 class="m-0 text-base font-normal">Temperature outdoor</h2>
+						<p id="outdoor-temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800">
+							<span></span><span></span><span></span>
+						</p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="outdoor-temperature-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="outdoor-temperature-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 2%"></div>
+										<div style="height: 56%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 42%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 4%"></div>
+										<div style="height: 62%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 34%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 8%"></div>
+										<div style="height: 78%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 14%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 28%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 24%"></div>
+										<div style="height: 50%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 26%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 20%"></div>
+										<div style="height: 40%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 40%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 16%"></div>
+										<div style="height: 36%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-fuchsia-400 dark:background-fuchsia-600"></div>
+										<div class="background-purple-400 dark:background-purple-600"></div>
+										<div class="background-violet-400 dark:background-violet-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-rose-400 dark:background-rose-600"></div>
+										<div style="height: 48%"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="outdoor-temperature-label" class="w-full flex justify-around text-xs">
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1">
+						<h2 class="m-0 text-base font-normal">Humidity outdoor</h2>
+						<p id="outdoor-humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="outdoor-humidity-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<div class="absolute w-full h-full">
+								<div id="outdoor-humidity-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 40%"></div>
+										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 30%"></div>
+										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 6%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 12%"></div>
+										<div style="height: 72%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 16%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 2%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 28%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 24%"></div>
+										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 6%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 32%"></div>
+										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 4%"></div>
+									</div>
+									<div class="flex flex-col-reverse w-full h-full">
+										<div style="height: 40%"></div>
+										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
+										<div class="background-red-400 dark:background-red-600"></div>
+										<div class="background-orange-400 dark:background-orange-600"></div>
+										<div class="background-amber-400 dark:background-amber-600"></div>
+										<div class="background-yellow-400 dark:background-yellow-600"></div>
+										<div class="background-lime-400 dark:background-lime-600"></div>
+										<div class="background-green-400 dark:background-green-600"></div>
+										<div class="background-emerald-400 dark:background-emerald-600"></div>
+										<div class="background-teal-400 dark:background-teal-600"></div>
+										<div class="background-cyan-400 dark:background-cyan-600"></div>
+										<div class="background-sky-400 dark:background-sky-600"></div>
+										<div class="background-blue-400 dark:background-blue-600"></div>
+										<div class="background-indigo-400 dark:background-indigo-600"></div>
+										<div style="height: 2%"></div>
+									</div>
+								</div>
+							</div>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="outdoor-humidity-label" class="w-full flex justify-around text-xs">
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+	<script>
+		// @inject ./src/app/array.js
+		// @inject ./src/app/state.js
+		// @inject ./src/app/color-reading.js
+		// @inject ./src/app/fetcher.js
+		let recapRetries = 0;
+		let recapTimeout = null;
+		let recapController = null;
+		const indoorTemperatureRange = document.getElementById('indoor-temperature-range');
+		const indoorTemperatureScale = document.getElementById('indoor-temperature-scale');
+		const indoorTemperatureGraph = document.getElementById('indoor-temperature-graph');
+		const indoorTemperatureLabel = document.getElementById('indoor-temperature-label');
+		const indoorHumidityRange = document.getElementById('indoor-humidity-range');
+		const indoorHumidityScale = document.getElementById('indoor-humidity-scale');
+		const indoorHumidityGraph = document.getElementById('indoor-humidity-graph');
+		const indoorHumidityLabel = document.getElementById('indoor-humidity-label');
+		const outdoorTemperatureRange = document.getElementById('outdoor-temperature-range');
+		const outdoorTemperatureScale = document.getElementById('outdoor-temperature-scale');
+		const outdoorTemperatureGraph = document.getElementById('outdoor-temperature-graph');
+		const outdoorTemperatureLabel = document.getElementById('outdoor-temperature-label');
+		const outdoorHumidityRange = document.getElementById('outdoor-humidity-range');
+		const outdoorHumidityScale = document.getElementById('outdoor-humidity-scale');
+		const outdoorHumidityGraph = document.getElementById('outdoor-humidity-graph');
+		const outdoorHumidityLabel = document.getElementById('outdoor-humidity-label');
+		const temperatureSkeleton = [
+			[2, 56, 42],
+			[4, 62, 34],
+			[8, 78, 14],
+			[28, 70, 2],
+			[24, 50, 26],
+			[20, 40, 40],
+			[16, 36, 48],
+		];
+		const humiditySkeleton = [
+			[40, 58, 2],
+			[30, 64, 6],
+			[12, 72, 16],
+			[2, 70, 28],
+			[24, 70, 6],
+			[32, 64, 4],
+			[40, 58, 2],
+		];
+		const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+		const loadingTemperatureIndoor = () => {
+			array(indoorTemperatureLabel.children.length).forEach((ind) => {
+				loading(indoorTemperatureLabel.children[ind], ['w-6'], [], '');
+			});
+			loading(indoorTemperatureRange, ['w-28', 'h-4.5'], []);
+			array(indoorTemperatureScale.children.length).forEach((ind) => {
+				loading(indoorTemperatureScale.children[ind], [], [], '');
+			});
+			array(indoorTemperatureGraph.children.length).forEach((ind) => {
+				indoorTemperatureGraph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
+				loading(indoorTemperatureGraph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
+				indoorTemperatureGraph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
+			});
+		};
+		const paintTemperatureIndoor = (temperature) => {
+			const now = new Date();
+			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			array(indoorTemperatureLabel.children.length).forEach((ind) => {
+				const date = new Date(now);
+				date.setUTCDate(today.getUTCDate() - ind);
+				paint(indoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			});
+			if (temperature.min.abs !== null && temperature.max.abs !== null) {
+				paint(indoorTemperatureRange, [], ['w-28', 'h-4.5']);
+				paint(indoorTemperatureRange.children[0], [], [], temperature.min.abs.toFixed(2));
+				colorTemperature(indoorTemperatureRange.children[0], temperature.min.abs);
+				paint(indoorTemperatureRange.children[1], [], [], ' - ');
+				paint(indoorTemperatureRange.children[2], [], [], temperature.max.abs.toFixed(2));
+				colorTemperature(indoorTemperatureRange.children[2], temperature.max.abs);
+			}
+			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
+				const scaleLength = indoorTemperatureScale.children.length;
+				const interval = (temperature.max.ceil - temperature.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(indoorTemperatureScale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			array(indoorTemperatureGraph.children.length).forEach((ind) => {
+				if (temperature.days[ind] !== null) {
+					const dayMin = temperature.days[ind].min;
+					const dayMax = temperature.days[ind].max;
+					const range = temperature.max.ceil - temperature.min.floor;
+					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
+					indoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					indoorTemperatureGraph.children[ind].children[1].style.height = null;
+					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
+					indoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(indoorTemperatureGraph.children[ind].children.length).forEach((i) => {
+						if (i >= 3 && i <= 16) {
+							const height = ((Math.min(dayMax, -28 + i * 4) - Math.max(dayMin, -32 + i * 4)) / range) * 100;
+							indoorTemperatureGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+					});
+					const catchCeil = ((Math.min(dayMax, temperature.max.ceil) - Math.max(dayMin, 36)) / range) * 100;
+					indoorTemperatureGraph.children[ind].children[17].style.height = `${catchCeil}%`;
+					const paddingTop = ((temperature.max.ceil - dayMax) / range) * 100;
+					indoorTemperatureGraph.children[ind].children[18].style.height = `${paddingTop}%`;
+				}
+			});
+		};
+		const errorTemperatureIndoor = () => {
+			array(indoorTemperatureLabel.children.length).forEach((ind) => {
+				error(indoorTemperatureLabel.children[ind]);
+			});
+			error(indoorTemperatureRange);
+			array(indoorTemperatureScale.children.length).forEach((ind) => {
+				error(indoorTemperatureScale.children[ind]);
+			});
+			array(indoorTemperatureGraph.children.length).forEach((ind) => {
+				error(indoorTemperatureGraph.children[ind].children[1]);
+			});
+		};
+		const loadingHumidityIndoor = () => {
+			array(indoorHumidityLabel.children.length).forEach((ind) => {
+				loading(indoorHumidityLabel.children[ind], ['w-6'], [], '');
+			});
+			loading(indoorHumidityRange, ['w-28', 'h-4.5'], []);
+			array(indoorHumidityScale.children.length).forEach((ind) => {
+				loading(indoorHumidityScale.children[ind], [], [], '');
+			});
+			array(indoorHumidityGraph.children.length).forEach((ind) => {
+				indoorHumidityGraph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
+				loading(indoorHumidityGraph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
+				indoorHumidityGraph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+			});
+		};
+		const paintHumidityIndoor = (humidity) => {
+			const now = new Date();
+			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			array(indoorHumidityLabel.children.length).forEach((ind) => {
+				const date = new Date(now);
+				date.setUTCDate(today.getUTCDate() - ind);
+				paint(indoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			});
+			if (humidity.min.abs !== null && humidity.max.abs !== null) {
+				paint(indoorHumidityRange, [], ['w-28', 'h-4.5']);
+				paint(indoorHumidityRange.children[0], [], [], humidity.min.abs.toFixed(2));
+				colorHumidity(indoorHumidityRange.children[0], humidity.min.abs);
+				paint(indoorHumidityRange.children[1], [], [], ' - ');
+				paint(indoorHumidityRange.children[2], [], [], humidity.max.abs.toFixed(2));
+				colorHumidity(indoorHumidityRange.children[2], humidity.max.abs);
+			}
+			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
+				const scaleLength = indoorHumidityScale.children.length;
+				const interval = (humidity.max.ceil - humidity.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(indoorHumidityScale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			array(indoorHumidityGraph.children.length).forEach((ind) => {
+				if (humidity.days[ind] !== null) {
+					const dayMin = humidity.days[ind].min;
+					const dayMax = humidity.days[ind].max;
+					const range = humidity.max.ceil - humidity.min.floor;
+					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
+					indoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					indoorHumidityGraph.children[ind].children[1].style.height = null;
+					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
+					indoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(indoorHumidityGraph.children[ind].children.length).forEach((i) => {
+						if (i === 3) {
+							const height = ((Math.min(dayMax, 30) - Math.max(dayMin, 20)) / range) * 100;
+							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+						if (i >= 4 && i <= 11) {
+							const height = ((Math.min(dayMax, 15 + i * 5) - Math.max(dayMin, 10 + i * 5)) / range) * 100;
+							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+						if (i === 12) {
+							const height = ((Math.min(dayMax, 80) - Math.max(dayMin, 70)) / range) * 100;
+							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+					});
+					const catchCeil = ((Math.min(dayMax, humidity.max.ceil) - Math.max(dayMin, 80)) / range) * 100;
+					indoorHumidityGraph.children[ind].children[13].style.height = `${catchCeil}%`;
+					const paddingTop = ((humidity.max.ceil - dayMax) / range) * 100;
+					indoorHumidityGraph.children[ind].children[14].style.height = `${paddingTop}%`;
+				}
+			});
+		};
+		const errorHumidityIndoor = () => {
+			array(indoorHumidityLabel.children.length).forEach((ind) => {
+				error(indoorHumidityLabel.children[ind]);
+			});
+			error(indoorHumidityRange);
+			array(indoorHumidityScale.children.length).forEach((ind) => {
+				error(indoorHumidityScale.children[ind]);
+			});
+			array(indoorHumidityGraph.children.length).forEach((ind) => {
+				error(indoorHumidityGraph.children[ind].children[1]);
+			});
+		};
+		const loadingTemperatureOutdoor = () => {
+			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
+				loading(outdoorTemperatureLabel.children[ind], ['w-6'], [], '');
+			});
+			loading(outdoorTemperatureRange, ['w-28', 'h-4.5'], []);
+			array(outdoorTemperatureScale.children.length).forEach((ind) => {
+				loading(outdoorTemperatureScale.children[ind], [], [], '');
+			});
+			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
+				outdoorTemperatureGraph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
+				loading(outdoorTemperatureGraph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
+				outdoorTemperatureGraph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
+			});
+		};
+		const paintTemperatureOutdoor = (temperature) => {
+			const now = new Date();
+			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
+				const date = new Date(now);
+				date.setUTCDate(today.getUTCDate() - ind);
+				paint(outdoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			});
+			if (temperature.min.abs !== null && temperature.max.abs !== null) {
+				paint(outdoorTemperatureRange, [], ['w-28', 'h-4.5']);
+				paint(outdoorTemperatureRange.children[0], [], [], temperature.min.abs.toFixed(2));
+				colorTemperature(outdoorTemperatureRange.children[0], temperature.min.abs);
+				paint(outdoorTemperatureRange.children[1], [], [], ' - ');
+				paint(outdoorTemperatureRange.children[2], [], [], temperature.max.abs.toFixed(2));
+				colorTemperature(outdoorTemperatureRange.children[2], temperature.max.abs);
+			}
+			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
+				const scaleLength = outdoorTemperatureScale.children.length;
+				const interval = (temperature.max.ceil - temperature.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(outdoorTemperatureScale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
+				if (temperature.days[ind] !== null) {
+					const dayMin = temperature.days[ind].min;
+					const dayMax = temperature.days[ind].max;
+					const range = temperature.max.ceil - temperature.min.floor;
+					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
+					outdoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					outdoorTemperatureGraph.children[ind].children[1].style.height = null;
+					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
+					outdoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(outdoorTemperatureGraph.children[ind].children.length).forEach((i) => {
+						if (i >= 3 && i <= 16) {
+							const height = ((Math.min(dayMax, -28 + i * 4) - Math.max(dayMin, -32 + i * 4)) / range) * 100;
+							outdoorTemperatureGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+					});
+					const catchCeil = ((Math.min(dayMax, temperature.max.ceil) - Math.max(dayMin, 36)) / range) * 100;
+					outdoorTemperatureGraph.children[ind].children[17].style.height = `${catchCeil}%`;
+					const paddingTop = ((temperature.max.ceil - dayMax) / range) * 100;
+					outdoorTemperatureGraph.children[ind].children[18].style.height = `${paddingTop}%`;
+				}
+			});
+		};
+		const errorTemperatureOutdoor = () => {
+			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
+				error(outdoorTemperatureLabel.children[ind]);
+			});
+			error(outdoorTemperatureRange);
+			array(outdoorTemperatureScale.children.length).forEach((ind) => {
+				error(outdoorTemperatureScale.children[ind]);
+			});
+			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
+				error(outdoorTemperatureGraph.children[ind].children[1]);
+			});
+		};
+		const loadingHumidityOutdoor = () => {
+			array(outdoorHumidityLabel.children.length).forEach((ind) => {
+				loading(outdoorHumidityLabel.children[ind], ['w-6'], [], '');
+			});
+			loading(outdoorHumidityRange, ['w-28', 'h-4.5'], []);
+			array(outdoorHumidityScale.children.length).forEach((ind) => {
+				loading(outdoorHumidityScale.children[ind], [], [], '');
+			});
+			array(outdoorHumidityGraph.children.length).forEach((ind) => {
+				outdoorHumidityGraph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
+				loading(outdoorHumidityGraph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
+				outdoorHumidityGraph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+			});
+		};
+		const paintHumidityOutdoor = (humidity) => {
+			const now = new Date();
+			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			array(outdoorHumidityLabel.children.length).forEach((ind) => {
+				const date = new Date(now);
+				date.setUTCDate(today.getUTCDate() - ind);
+				paint(outdoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			});
+			if (humidity.min.abs !== null && humidity.max.abs !== null) {
+				paint(outdoorHumidityRange, [], ['w-28', 'h-4.5']);
+				paint(outdoorHumidityRange.children[0], [], [], humidity.min.abs.toFixed(2));
+				colorHumidity(outdoorHumidityRange.children[0], humidity.min.abs);
+				paint(outdoorHumidityRange.children[1], [], [], ' - ');
+				paint(outdoorHumidityRange.children[2], [], [], humidity.max.abs.toFixed(2));
+				colorHumidity(outdoorHumidityRange.children[2], humidity.max.abs);
+			}
+			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
+				const scaleLength = outdoorHumidityScale.children.length;
+				const interval = (humidity.max.ceil - humidity.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(outdoorHumidityScale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			array(outdoorHumidityGraph.children.length).forEach((ind) => {
+				if (humidity.days[ind] !== null) {
+					const dayMin = humidity.days[ind].min;
+					const dayMax = humidity.days[ind].max;
+					const range = humidity.max.ceil - humidity.min.floor;
+					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
+					outdoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					outdoorHumidityGraph.children[ind].children[1].style.height = null;
+					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
+					outdoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(outdoorHumidityGraph.children[ind].children.length).forEach((i) => {
+						if (i === 3) {
+							const height = ((Math.min(dayMax, 30) - Math.max(dayMin, 20)) / range) * 100;
+							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+						if (i >= 4 && i <= 11) {
+							const height = ((Math.min(dayMax, 15 + i * 5) - Math.max(dayMin, 10 + i * 5)) / range) * 100;
+							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+						if (i === 12) {
+							const height = ((Math.min(dayMax, 80) - Math.max(dayMin, 70)) / range) * 100;
+							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+						}
+					});
+					const catchCeil = ((Math.min(dayMax, humidity.max.ceil) - Math.max(dayMin, 80)) / range) * 100;
+					outdoorHumidityGraph.children[ind].children[13].style.height = `${catchCeil}%`;
+					const paddingTop = ((humidity.max.ceil - dayMax) / range) * 100;
+					outdoorHumidityGraph.children[ind].children[14].style.height = `${paddingTop}%`;
+				}
+			});
+		};
+		const errorHumidityOutdoor = () => {
+			array(outdoorHumidityLabel.children.length).forEach((ind) => {
+				error(outdoorHumidityLabel.children[ind]);
+			});
+			error(outdoorHumidityRange);
+			array(outdoorHumidityScale.children.length).forEach((ind) => {
+				error(outdoorHumidityScale.children[ind]);
+			});
+			array(outdoorHumidityGraph.children.length).forEach((ind) => {
+				error(outdoorHumidityGraph.children[ind].children[1]);
+			});
+		};
+		const collectRecap = (recap, device, reading, today) => {
+			if (device[reading] !== null && device.capturedAt !== null) {
+				const date = new Date(Number(device.capturedAt) * 1000);
+				const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+				const diff = Math.floor((today - day) / (1000 * 60 * 60 * 24));
+				if (diff >= 0 && diff < 7) {
+					if (recap[device.type][reading].days[6 - diff] === null) {
+						recap[device.type][reading].days[6 - diff] = { min: [], max: [] };
+					}
+					recap[device.type][reading].days[6 - diff].min.push(device[reading].min);
+					recap[device.type][reading].days[6 - diff].max.push(device[reading].max);
+				}
+			}
+		};
+		const summarizeRecap = (recap, type, reading, ind) => {
+			const target = recap[type][reading];
+			target.days[ind].min = target.days[ind].min.reduce((accumulator, value) => accumulator + value) / target.days[ind].min.length;
+			target.days[ind].max = target.days[ind].max.reduce((accumulator, value) => accumulator + value) / target.days[ind].max.length;
+			if (target.min.abs === null || target.days[ind].min < target.min.abs) {
+				target.min.abs = target.days[ind].min;
+				target.min.floor = Math.floor(target.days[ind].min);
+			}
+			if (target.max.abs === null || target.days[ind].max > target.max.abs) {
+				target.max.abs = target.days[ind].max;
+				target.max.ceil = Math.ceil(target.days[ind].max);
+			}
+		};
+		const calculateRecap = (data, days) => {
+			const recap = {
+				indoor: {
+					temperature: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
+					humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
+				},
+				outdoor: {
+					temperature: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
+					humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
+				},
+			};
+			const now = new Date();
+			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			data.forEach((device) => {
+				collectRecap(recap, device, 'temperature', today);
+				collectRecap(recap, device, 'humidity', today);
+			});
+			array(days).forEach((ind) => {
+				if (recap.indoor.temperature.days[ind] !== null) {
+					summarizeRecap(recap, 'indoor', 'temperature', ind);
+				}
+				if (recap.indoor.humidity.days[ind] !== null) {
+					summarizeRecap(recap, 'indoor', 'humidity', ind);
+				}
+				if (recap.outdoor.temperature.days[ind] !== null) {
+					summarizeRecap(recap, 'outdoor', 'temperature', ind);
+				}
+				if (recap.outdoor.humidity.days[ind] !== null) {
+					summarizeRecap(recap, 'outdoor', 'humidity', ind);
+				}
+			});
+			return recap;
+		};
+		const parseRecap = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const data = new DataView(buffer);
+			let byteOffset = 0;
+			const readInt = (bits) => {
+				const unsigned = readUint(bits);
+				const signBit = 1n << BigInt(bits - 1);
+				return unsigned & signBit ? unsigned - (1n << BigInt(bits)) : unsigned;
+			};
+			const readUint = (bits) => {
+				let result = 0n;
+				const bytes = bits / 8;
+				for (let i = 0; i < bytes; i++) {
+					const byte = BigInt(data.getUint8(byteOffset++));
+					result = (result << 8n) | byte;
+				}
+				return result;
+			};
+			const devices = [];
+			while (byteOffset < buffer.byteLength) {
+				const device = { id: '', name: '', type: '', temperature: null, humidity: null, capturedAt: null };
+				for (let index = 0; index < 16; index++) {
+					const byte = Number(readUint(8));
+					device.id += byte.toString(16).padStart(2, '0');
+				}
+				while (true) {
+					const byte = Number(readUint(8));
+					if (byte == 0) {
+						break;
+					}
+					device.name += String.fromCharCode(byte);
+				}
+				while (true) {
+					const byte = Number(readUint(8));
+					if (byte == 0) {
+						break;
+					}
+					device.type += String.fromCharCode(byte);
+				}
+				const temperatureMinNull = Number(readUint(8));
+				if (temperatureMinNull != 0) {
+					device.temperature = {};
+					device.temperature.min = Number(readInt(16)) / 100;
+				}
+				const temperatureMaxNull = Number(readUint(8));
+				if (temperatureMaxNull != 0) {
+					device.temperature.max = Number(readInt(16)) / 100;
+				}
+				const humidityMinNull = Number(readUint(8));
+				if (humidityMinNull != 0) {
+					device.humidity = {};
+					device.humidity.min = Number(readUint(16)) / 100;
+				}
+				const humidityMaxNull = Number(readUint(8));
+				if (humidityMaxNull != 0) {
+					device.humidity.max = Number(readUint(16)) / 100;
+				}
+				const capturedAtNull = Number(readUint(8));
+				if (capturedAtNull != 0) {
+					device.capturedAt = readUint(64);
+				}
+				devices.push(device);
+			}
+			return devices;
+		};
+		const loadRecap = async () => {
+			if (recapTimeout) {
+				clearTimeout(recapTimeout);
+				recapTimeout = null;
+			}
+			if (recapController) {
+				recapController.abort();
+			}
+			recapController = new AbortController();
+			window.requestAnimationFrame(() => loadingTemperatureIndoor());
+			window.requestAnimationFrame(() => loadingHumidityIndoor());
+			window.requestAnimationFrame(() => loadingTemperatureOutdoor());
+			window.requestAnimationFrame(() => loadingHumidityOutdoor());
+			try {
+				const response = await fetcher('get', '/api/recap', null, { controller: recapController });
+				const data = await parseRecap(response);
+				const recap = calculateRecap(data, 7);
+				window.requestAnimationFrame(() => paintTemperatureIndoor(recap.indoor.temperature));
+				window.requestAnimationFrame(() => paintHumidityIndoor(recap.indoor.humidity));
+				window.requestAnimationFrame(() => paintTemperatureOutdoor(recap.outdoor.temperature));
+				window.requestAnimationFrame(() => paintHumidityOutdoor(recap.outdoor.humidity));
+			} catch (err) {
+				if (err?.name !== 'AbortError') {
+					window.requestAnimationFrame(() => errorTemperatureIndoor());
+					window.requestAnimationFrame(() => errorHumidityIndoor());
+					window.requestAnimationFrame(() => errorTemperatureOutdoor());
+					window.requestAnimationFrame(() => errorHumidityOutdoor());
+					if (recapRetries < 4) {
+						recapTimeout = setTimeout(() => {
+							recapRetries++;
+							loadRecap();
+						}, 2 ** recapRetries * 1000);
+					}
+				}
+			}
+		};
+	</script>
+</html>
