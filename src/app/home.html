@@ -793,13 +793,13 @@
 				});
 			}
 			array(indoorTemperatureGraph.children.length).forEach((ind) => {
+				indoorTemperatureGraph.children[ind].children[1].style.height = null;
 				if (temperature.days[ind] !== null) {
 					const dayMin = temperature.days[ind].min;
 					const dayMax = temperature.days[ind].max;
 					const range = temperature.max.ceil - temperature.min.floor;
 					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
 					indoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					indoorTemperatureGraph.children[ind].children[1].style.height = null;
 					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
 					indoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
 					array(indoorTemperatureGraph.children[ind].children.length).forEach((i) => {
@@ -865,13 +865,13 @@
 				});
 			}
 			array(indoorHumidityGraph.children.length).forEach((ind) => {
+				indoorHumidityGraph.children[ind].children[1].style.height = null;
 				if (humidity.days[ind] !== null) {
 					const dayMin = humidity.days[ind].min;
 					const dayMax = humidity.days[ind].max;
 					const range = humidity.max.ceil - humidity.min.floor;
 					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
 					indoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					indoorHumidityGraph.children[ind].children[1].style.height = null;
 					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
 					indoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
 					array(indoorHumidityGraph.children[ind].children.length).forEach((i) => {
@@ -945,13 +945,13 @@
 				});
 			}
 			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
+				outdoorTemperatureGraph.children[ind].children[1].style.height = null;
 				if (temperature.days[ind] !== null) {
 					const dayMin = temperature.days[ind].min;
 					const dayMax = temperature.days[ind].max;
 					const range = temperature.max.ceil - temperature.min.floor;
 					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
 					outdoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					outdoorTemperatureGraph.children[ind].children[1].style.height = null;
 					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
 					outdoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
 					array(outdoorTemperatureGraph.children[ind].children.length).forEach((i) => {
@@ -1017,13 +1017,13 @@
 				});
 			}
 			array(outdoorHumidityGraph.children.length).forEach((ind) => {
+				outdoorHumidityGraph.children[ind].children[1].style.height = null;
 				if (humidity.days[ind] !== null) {
 					const dayMin = humidity.days[ind].min;
 					const dayMax = humidity.days[ind].max;
 					const range = humidity.max.ceil - humidity.min.floor;
 					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
 					outdoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					outdoorHumidityGraph.children[ind].children[1].style.height = null;
 					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
 					outdoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
 					array(outdoorHumidityGraph.children[ind].children.length).forEach((i) => {
