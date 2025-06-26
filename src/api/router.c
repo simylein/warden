@@ -134,8 +134,11 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	if (endpoint(request, "post", "/api/uplink", &method_found, &pathname_found) == true) {
-		// FIXME authenticate and authorize this endpoint for nexus only
-		uplink_create(database, request, response);
+		// FIXME authorize this endpoint for nexus only
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			uplink_create(database, request, response);
+		}
 	}
 
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
