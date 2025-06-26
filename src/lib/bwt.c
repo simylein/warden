@@ -15,16 +15,18 @@ int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 	const time_t iat = time(NULL);
 	const time_t exp = iat + bwt_ttl;
 
-	const size_t offset = sizeof(*id) + sizeof(iat) + sizeof(exp);
-
 	uint8_t binary[64];
-	memcpy(binary, id, sizeof(*id));
-	memcpy(binary + sizeof(*id), &(uint64_t[]){hton64((uint64_t)iat)}, sizeof(iat));
-	memcpy(binary + sizeof(*id) + sizeof(iat), &(uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
+	size_t offset = 0;
+	memcpy(&binary[offset], id, sizeof(*id));
+	offset += sizeof(*id);
+	memcpy(&binary[offset], &(uint64_t[]){hton64((uint64_t)iat)}, sizeof(iat));
+	offset += sizeof(iat);
+	memcpy(&binary[offset], &(uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
+	offset += sizeof(exp);
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
-	memcpy(binary + offset, hmac, offset);
+	memcpy(&binary[offset], hmac, offset);
 
 	if (base32_encode((char *)buffer, sizeof(*buffer), binary, sizeof(binary)) == -1) {
 		error("failed to encode bwt in base 32\n");
@@ -48,11 +50,13 @@ int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 		return -1;
 	}
 
-	memcpy(bwt->id, binary, sizeof(bwt->id));
-	memcpy(&bwt->iat, binary + sizeof(bwt->id), sizeof(bwt->iat));
-	memcpy(&bwt->exp, binary + sizeof(bwt->id) + sizeof(bwt->iat), sizeof(bwt->exp));
-
-	const size_t offset = sizeof(bwt->id) + sizeof(bwt->iat) + sizeof(bwt->exp);
+	size_t offset = 0;
+	memcpy(bwt->id, &binary[offset], sizeof(bwt->id));
+	offset += sizeof(bwt->id);
+	memcpy(&bwt->iat, &binary[offset], sizeof(bwt->iat));
+	offset += sizeof(bwt->iat);
+	memcpy(&bwt->exp, &binary[offset], sizeof(bwt->exp));
+	offset += sizeof(bwt->exp);
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
