@@ -13,16 +13,14 @@
 
 int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 	const time_t iat = time(NULL);
-	const uint64_t n_iat = hton64((uint64_t)iat);
 	const time_t exp = iat + bwt_ttl;
-	const uint64_t n_exp = hton64((uint64_t)exp);
 
-	const size_t offset = sizeof(*id) + sizeof(n_iat) + sizeof(n_exp);
+	const size_t offset = sizeof(*id) + sizeof(iat) + sizeof(exp);
 
 	uint8_t binary[64];
 	memcpy(binary, id, sizeof(*id));
-	memcpy(binary + sizeof(*id), &n_iat, sizeof(n_iat));
-	memcpy(binary + sizeof(*id) + sizeof(n_iat), &n_exp, sizeof(n_exp));
+	memcpy(binary + sizeof(*id), &(uint64_t[]){hton64((uint64_t)iat)}, sizeof(iat));
+	memcpy(binary + sizeof(*id) + sizeof(iat), &(uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
@@ -50,13 +48,11 @@ int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 		return -1;
 	}
 
-	uint64_t n_iat;
-	uint64_t n_exp;
 	memcpy(bwt->id, binary, sizeof(bwt->id));
-	memcpy(&n_iat, binary + sizeof(bwt->id), sizeof(n_iat));
-	memcpy(&n_exp, binary + sizeof(bwt->id) + sizeof(n_iat), sizeof(n_exp));
+	memcpy(&bwt->iat, binary + sizeof(bwt->id), sizeof(bwt->iat));
+	memcpy(&bwt->exp, binary + sizeof(bwt->id) + sizeof(bwt->iat), sizeof(bwt->exp));
 
-	const size_t offset = sizeof(bwt->id) + sizeof(n_iat) + sizeof(n_exp);
+	const size_t offset = sizeof(bwt->id) + sizeof(bwt->iat) + sizeof(bwt->exp);
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
@@ -66,8 +62,8 @@ int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 		return -1;
 	}
 
-	bwt->iat = (time_t)ntoh64(n_iat);
-	bwt->exp = (time_t)ntoh64(n_exp);
+	bwt->iat = (time_t)ntoh64((uint64_t)bwt->iat);
+	bwt->exp = (time_t)ntoh64((uint64_t)bwt->exp);
 
 	time_t now = time(NULL);
 	if (bwt->exp < now) {
