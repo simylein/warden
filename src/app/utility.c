@@ -751,3 +751,19 @@ void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 		}
 	}
 }
+
+void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+	const keymap_t layouts[] = {
+			{.key = "z-0", .key_len = 3, .val = "z-index:0", .val_len = 9},
+			{.key = "z-4", .key_len = 3, .val = "z-index:4", .val_len = 9},
+			{.key = "z-8", .key_len = 3, .val = "z-index:8", .val_len = 9},
+			{.key = "z-12", .key_len = 4, .val = "z-index:12", .val_len = 10},
+			{.key = "z-16", .key_len = 4, .val = "z-index:16", .val_len = 10},
+	};
+
+	for (uint8_t index = 0; index < sizeof(layouts) / sizeof(keymap_t); index++) {
+		if (cls->len == layouts[index].key_len && memcmp(cls->ptr, layouts[index].key, layouts[index].key_len) == 0) {
+			cls->known = stamp(NULL, cls, &layouts[index], NULL, buffer, buffer_len);
+		}
+	}
+}

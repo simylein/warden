@@ -252,6 +252,7 @@ int hydrate(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
 		color(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		color(&pfx, &cls, &dark, &dark_len, &dark_breakpoint);
 		cursor(&cls, &global, &global_len);
+		layout(&cls, &global, &global_len);
 
 		if (cls.known == false) {
 			warn("unknown class %.*s\n", (*classes)[index].len, (*classes)[index].ptr);
