@@ -1,10 +1,18 @@
 #pragma once
 
+#include <sqlite3.h>
 #include <stdint.h>
+#include <time.h>
 
 typedef struct metric_t {
 	uint8_t (*id)[16];
+	float photovoltaic;
+	float battery;
+	time_t captured_at;
+	uint8_t (*uplink_id)[16];
 } metric_t;
 
 extern const char *metric_table;
 extern const char *metric_schema;
+
+uint16_t metric_insert(sqlite3 *database, metric_t *metric);
