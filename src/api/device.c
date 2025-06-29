@@ -36,8 +36,12 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
 										"left join uplink on uplink.id = "
 										"(select id from uplink where device_id = device.id order by received_at desc limit 1) "
-										"left join reading on reading.uplink_id = uplink.id "
-										"left join metric on metric.uplink_id = uplink.id "
+										"left join reading on reading.id = "
+										"(select reading.id from reading join uplink on uplink.id = reading.uplink_id "
+										"where uplink.device_id = device.id order by reading.captured_at desc limit 1) "
+										"left join metric on metric.id = "
+										"(select metric.id from metric join uplink on uplink.id = metric.uplink_id "
+										"where uplink.device_id = device.id order by metric.captured_at desc limit 1) "
 										"order by device.name asc";
 	debug("%s\n", sql);
 
@@ -144,11 +148,11 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			}
 			append_body(response, (char[]){metric_photovoltaic_type != SQLITE_NULL}, sizeof(char));
 			if (metric_photovoltaic_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(metric_photovoltaic * 1000))}, sizeof(int16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){metric_battery_type != SQLITE_NULL}, sizeof(char));
 			if (metric_battery_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(metric_battery * 1000))}, sizeof(int16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(metric_battery * 1000))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){metric_captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (metric_captured_at_type != SQLITE_NULL) {
