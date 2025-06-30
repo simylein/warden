@@ -39,7 +39,7 @@ bool endpoint(request_t *request, const char *method, const char *pathname, bool
 		return false;
 	}
 
-	if (pathcmp(pathname, (uint8_t)strlen(pathname), request->pathname, request->pathname_len) == true) {
+	if (pathcmp(pathname, (uint8_t)strlen(pathname), *request->pathname, request->pathname_len) == true) {
 		*pathname_found = true;
 
 		if (strcmp(method, "get") == 0 && request->method_len == 4 && memcmp(request->method, "head", request->method_len) == 0) {
@@ -64,7 +64,7 @@ bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *res
 		if (redirect == true) {
 			response->status = 307;
 			append_header(response, "location:/signin\r\n");
-			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname_len, request->pathname);
+			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname_len, *request->pathname);
 		} else {
 			response->status = 401;
 		}

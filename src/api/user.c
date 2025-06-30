@@ -28,7 +28,7 @@ int user_parse(user_t *user, request_t *request) {
 	user->username_len = 0;
 	const uint8_t username_index = index;
 	while (stage == 0 && user->username_len < 16 && index < request->body_len) {
-		char *byte = &request->body[index];
+		char *byte = &(*request->body)[index];
 		if (*byte == '\0') {
 			stage = 1;
 		} else {
@@ -36,7 +36,7 @@ int user_parse(user_t *user, request_t *request) {
 		}
 		index++;
 	}
-	user->username = &request->body[username_index];
+	user->username = &(*request->body)[username_index];
 	if (stage != 1) {
 		debug("found username with %hhu bytes\n", user->username_len);
 		return -1;
@@ -45,7 +45,7 @@ int user_parse(user_t *user, request_t *request) {
 	user->password_len = 0;
 	const uint8_t password_index = index;
 	while (stage == 1 && user->password_len < 64 && index < request->body_len) {
-		char *byte = &request->body[index];
+		char *byte = &(*request->body)[index];
 		if (*byte == '\0') {
 			stage = 2;
 		} else {
@@ -53,7 +53,7 @@ int user_parse(user_t *user, request_t *request) {
 		}
 		index++;
 	}
-	user->password = &request->body[password_index];
+	user->password = &(*request->body)[password_index];
 	if (stage != 2) {
 		debug("found password with %hhu bytes\n", user->password_len);
 		return -1;

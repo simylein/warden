@@ -4,17 +4,17 @@
 #include <stdint.h>
 
 typedef struct request_t {
-	char *method;
+	char (*method)[8];
 	uint8_t method_len;
-	char *pathname;
+	char (*pathname)[128];
 	uint8_t pathname_len;
-	char *search;
+	char (*search)[256];
 	uint16_t search_len;
-	char *protocol;
+	char (*protocol)[16];
 	uint8_t protocol_len;
-	char *header;
+	char (*header)[2048];
 	uint16_t header_len;
-	char *body;
+	char (*body)[128616];
 	size_t body_len;
 } request_t;
 

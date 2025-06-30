@@ -15,15 +15,15 @@ void response_init(response_t *response, char *buffer) {
 	response->body_len = 0;
 }
 
-size_t response(char *buffer, request_t *req, response_t *res) {
+size_t response(request_t *req, response_t *res, char *buffer) {
 	res->head_len += (uint8_t)sprintf(*res->head, "HTTP/1.1 %hu %s\r\n", res->status, status_text(res->status));
 	if (res->header_len > 0) {
-		memcpy(buffer + res->head_len, res->header, res->header_len);
+		memcpy(&buffer[res->head_len], res->header, res->header_len);
 	}
-	memcpy(buffer + res->head_len + res->header_len, "\r\n", 2);
+	memcpy(&buffer[res->head_len] + res->header_len, "\r\n", 2);
 	res->header_len += 2;
 	if (!(req->method_len == 4 && memcmp(req->method, "head", req->method_len) == 0) && res->body_len > 0) {
-		memcpy(buffer + res->head_len + res->header_len, res->body, res->body_len);
+		memcpy(&buffer[res->head_len] + res->header_len, res->body, res->body_len);
 	}
 	return res->head_len + res->header_len + res->body_len;
 }

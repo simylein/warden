@@ -18,7 +18,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 	size_t index = 0;
 
 	const size_t method_index = index;
-	while (stage == 0 && req->method_len < 8 && index < length) {
+	while (stage == 0 && req->method_len < sizeof(*req->method) && index < length) {
 		char *byte = &buffer[index];
 		if (*byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
@@ -33,14 +33,14 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		}
 		index++;
 	}
-	req->method = &buffer[method_index];
+	req->method = (char (*)[sizeof(*req->method)])(&buffer[method_index]);
 	if (stage == 0 || req->method_len == 0) {
 		res->status = 501;
 		return;
 	}
 
 	const size_t pathname_index = index;
-	while (stage == 1 && req->pathname_len < 128 && index < length) {
+	while (stage == 1 && req->pathname_len < sizeof(*req->pathname) && index < length) {
 		char *byte = &buffer[index];
 		if (*byte == '?') {
 			stage = 2;
@@ -54,14 +54,14 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		}
 		index++;
 	}
-	req->pathname = &buffer[pathname_index];
+	req->pathname = (char (*)[sizeof(*req->pathname)])(&buffer[pathname_index]);
 	if (stage == 1 || req->pathname_len == 0) {
 		res->status = 414;
 		return;
 	}
 
 	const size_t search_index = index;
-	while (stage == 2 && req->search_len < 256 && index < length) {
+	while (stage == 2 && req->search_len < sizeof(*req->search) && index < length) {
 		char *byte = &buffer[index];
 		if (*byte == ' ') {
 			stage = 3;
@@ -73,14 +73,14 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		}
 		index++;
 	}
-	req->search = &buffer[search_index];
+	req->search = (char (*)[sizeof(*req->search)])(&buffer[search_index]);
 	if (stage == 2) {
 		res->status = 414;
 		return;
 	}
 
 	const size_t protocol_index = index;
-	while ((stage == 3 || stage == 4) && req->protocol_len < 16 && index < length) {
+	while ((stage == 3 || stage == 4) && req->protocol_len < sizeof(*req->protocol) && index < length) {
 		char *byte = &buffer[index];
 		if (*byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
@@ -97,7 +97,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		}
 		index++;
 	}
-	req->protocol = &buffer[protocol_index];
+	req->protocol = (char (*)[sizeof(*req->protocol)])(&buffer[protocol_index]);
 	if (stage == 3 || req->protocol_len == 0) {
 		res->status = 505;
 		return;
@@ -109,7 +109,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 
 	bool header_key = true;
 	const size_t header_index = index;
-	while ((stage >= 5 && stage <= 8) && req->header_len < 2048 && index < length) {
+	while ((stage >= 5 && stage <= 8) && req->header_len < sizeof(*req->header) && index < length) {
 		char *byte = &buffer[index];
 		if (header_key == true && *byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
@@ -129,7 +129,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		req->header_len++;
 		index++;
 	}
-	req->header = &buffer[header_index];
+	req->header = (char (*)[sizeof(*req->header)])(&buffer[header_index]);
 	if (stage >= 5 && stage <= 7) {
 		res->status = 431;
 		return;
@@ -140,11 +140,11 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 	}
 
 	req->body_len = length - index;
-	req->body = &buffer[index];
+	req->body = (char (*)[sizeof(*req->body)])(&buffer[index]);
 }
 
 const char *find_header(request_t *request, const char *key) {
-	const char *header = strncasestrn(request->header, request->header_len, key, strlen(key));
+	const char *header = strncasestrn(*request->header, request->header_len, key, strlen(key));
 	if (header != NULL) {
 		header += strlen(key);
 		if (header[0] == ' ') {

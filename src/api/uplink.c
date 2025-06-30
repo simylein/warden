@@ -33,72 +33,72 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	if (request->body_len < index + sizeof(uplink->kind)) {
 		return -1;
 	}
-	uplink->kind = (uint8_t)request->body[index];
+	uplink->kind = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->kind);
 
 	if (request->body_len < index + sizeof(uplink->data_len)) {
 		return -1;
 	}
-	uplink->data_len = (uint8_t)request->body[index];
+	uplink->data_len = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->data_len);
 
 	if (request->body_len < index + uplink->data_len) {
 		return -1;
 	}
-	uplink->data = (uint8_t *)&request->body[index];
+	uplink->data = (uint8_t *)&(*request->body)[index];
 	index += uplink->data_len;
 
 	if (request->body_len < index + sizeof(uplink->airtime)) {
 		return -1;
 	}
-	memcpy(&uplink->airtime, &request->body[index], sizeof(uplink->airtime));
+	memcpy(&uplink->airtime, &(*request->body)[index], sizeof(uplink->airtime));
 	uplink->airtime = ntoh16(uplink->airtime);
 	index += sizeof(uplink->airtime);
 
 	if (request->body_len < index + sizeof(uplink->frequency)) {
 		return -1;
 	}
-	memcpy(&uplink->frequency, &request->body[index], sizeof(uplink->frequency));
+	memcpy(&uplink->frequency, &(*request->body)[index], sizeof(uplink->frequency));
 	uplink->frequency = ntoh32(uplink->frequency);
 	index += sizeof(uplink->frequency);
 
 	if (request->body_len < index + sizeof(uplink->bandwidth)) {
 		return -1;
 	}
-	memcpy(&uplink->bandwidth, &request->body[index], sizeof(uplink->bandwidth));
+	memcpy(&uplink->bandwidth, &(*request->body)[index], sizeof(uplink->bandwidth));
 	uplink->bandwidth = ntoh32(uplink->bandwidth);
 	index += sizeof(uplink->bandwidth);
 
 	if (request->body_len < index + sizeof(uplink->rssi)) {
 		return -1;
 	}
-	memcpy(&uplink->rssi, &request->body[index], sizeof(uplink->rssi));
+	memcpy(&uplink->rssi, &(*request->body)[index], sizeof(uplink->rssi));
 	uplink->rssi = (int16_t)ntoh16((uint16_t)uplink->rssi);
 	index += sizeof(uplink->rssi);
 
 	if (request->body_len < index + sizeof(uplink->snr)) {
 		return -1;
 	}
-	uplink->snr = (int8_t)request->body[index];
+	uplink->snr = (int8_t)(*request->body)[index];
 	index += sizeof(uplink->snr);
 
 	if (request->body_len < index + sizeof(uplink->sf)) {
 		return -1;
 	}
-	uplink->sf = (uint8_t)request->body[index];
+	uplink->sf = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->sf);
 
 	if (request->body_len < index + sizeof(uplink->received_at)) {
 		return -1;
 	}
-	memcpy(&uplink->received_at, &request->body[index], sizeof(uplink->received_at));
+	memcpy(&uplink->received_at, &(*request->body)[index], sizeof(uplink->received_at));
 	uplink->received_at = (time_t)ntoh64((uint64_t)uplink->received_at);
 	index += sizeof(uplink->received_at);
 
 	if (request->body_len < index + sizeof(*uplink->device_id)) {
 		return -1;
 	}
-	uplink->device_id = (uint8_t (*)[16])(&request->body[index]);
+	uplink->device_id = (uint8_t (*)[16])(&(*request->body)[index]);
 	index += sizeof(*uplink->device_id);
 
 	if (request->body_len != index) {
