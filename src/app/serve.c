@@ -146,6 +146,12 @@ void serve(file_t *asset, response_t *response) {
 	if (asset->ptr != NULL) {
 		info("sending file %s\n", asset->path);
 
+		if (asset->len > sizeof(*response->body)) {
+			error("file length %zu exceeds buffer length %zu\n", asset->len, sizeof(*response->body));
+			response->status = 500;
+			goto cleanup;
+		}
+
 		if (response->status == 0) {
 			response->status = 200;
 		}
