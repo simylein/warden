@@ -149,7 +149,8 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 			break;
 		}
 
-		ssize_t sent_further = send(*client_sock, &response_buffer[sent_bytes], sizeof(response_buffer) - sent_bytes, MSG_NOSIGNAL);
+		ssize_t sent_further = send(*client_sock, &resp.body[sent_bytes - resp.head_len - resp.header_len],
+																resp.body_len - (sent_bytes - resp.head_len - resp.header_len), MSG_NOSIGNAL);
 
 		if (sent_further == -1) {
 			error("failed to send further data to client because %s\n", errno_str());

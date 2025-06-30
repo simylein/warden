@@ -20,10 +20,10 @@ size_t response(request_t *req, response_t *res, char *buffer) {
 	if (res->header_len > 0) {
 		memcpy(&buffer[res->head_len], res->header, res->header_len);
 	}
-	memcpy(&buffer[res->head_len] + res->header_len, "\r\n", 2);
+	memcpy(&buffer[res->head_len + res->header_len], "\r\n", 2);
 	res->header_len += 2;
-	if (!(req->method_len == 4 && memcmp(req->method, "head", req->method_len) == 0) && res->body_len > 0) {
-		memcpy(&buffer[res->head_len] + res->header_len, res->body, res->body_len);
+	if (req->method_len == 4 && memcmp(req->method, "head", req->method_len) == 0) {
+		res->body_len = 0;
 	}
 	return res->head_len + res->header_len + res->body_len;
 }
