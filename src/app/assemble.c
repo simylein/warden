@@ -45,7 +45,7 @@ int assemble(file_t *asset) {
 			}
 
 			sprintf(path, "%.*s", path_len, start);
-			file_t assemble = {.fd = -1, .ptr = NULL, .path = path};
+			file_t assemble = {.fd = -1, .ptr = NULL, .path = path, .lock = PTHREAD_RWLOCK_INITIALIZER};
 			if (file(&assemble) == -1) {
 				return -1;
 			}

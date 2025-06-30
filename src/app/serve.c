@@ -108,13 +108,12 @@ file_t http_version_not_supported = {.fd = -1,
 																		 .lock = PTHREAD_RWLOCK_INITIALIZER};
 
 void serve(file_t *asset, response_t *response) {
-	pthread_rwlock_rdlock(&asset->lock);
-
 	if (file(asset) == -1) {
 		response->status = 500;
-		goto cleanup;
+		return;
 	}
 
+	pthread_rwlock_rdlock(&asset->lock);
 	if (asset->hydrated == false) {
 		pthread_rwlock_unlock(&asset->lock);
 		pthread_rwlock_wrlock(&asset->lock);
