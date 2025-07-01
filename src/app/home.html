@@ -771,10 +771,9 @@
 		};
 		const paintTemperatureIndoor = (temperature) => {
 			const now = new Date();
-			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 			array(indoorTemperatureLabel.children.length).forEach((ind) => {
-				const date = new Date(now);
-				date.setUTCDate(today.getUTCDate() - ind);
+				const date = new Date(today.getTime() - (indoorTemperatureLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
 				paint(indoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
@@ -843,10 +842,9 @@
 		};
 		const paintHumidityIndoor = (humidity) => {
 			const now = new Date();
-			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 			array(indoorHumidityLabel.children.length).forEach((ind) => {
-				const date = new Date(now);
-				date.setUTCDate(today.getUTCDate() - ind);
+				const date = new Date(today.getTime() - (indoorHumidityLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
 				paint(indoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
@@ -923,10 +921,9 @@
 		};
 		const paintTemperatureOutdoor = (temperature) => {
 			const now = new Date();
-			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
-				const date = new Date(now);
-				date.setUTCDate(today.getUTCDate() - ind);
+				const date = new Date(today.getTime() - (outdoorTemperatureLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
 				paint(outdoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
@@ -995,10 +992,9 @@
 		};
 		const paintHumidityOutdoor = (humidity) => {
 			const now = new Date();
-			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 			array(outdoorHumidityLabel.children.length).forEach((ind) => {
-				const date = new Date(now);
-				date.setUTCDate(today.getUTCDate() - ind);
+				const date = new Date(today.getTime() - (outdoorHumidityLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
 				paint(outdoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
@@ -1098,7 +1094,7 @@
 				},
 			};
 			const now = new Date();
-			const today = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 			data.forEach((device) => {
 				collectRecap(recap, device, 'temperature', today);
 				collectRecap(recap, device, 'humidity', today);
