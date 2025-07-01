@@ -37,6 +37,12 @@ void stop(int sig) {
 
 	pthread_mutex_unlock(&thread_pool.lock);
 
+	for (uint8_t index = 0; index < thread_pool.size; index++) {
+		if (sqlite3_close_v2(thread_pool.workers[index].arg.database) != SQLITE_OK) {
+			error("failed to close %s because %s\n", database_file, sqlite3_errmsg(thread_pool.workers[index].arg.database));
+		}
+	}
+
 	free(queue.tasks);
 	free(thread_pool.workers);
 
