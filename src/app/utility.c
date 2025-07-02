@@ -3,8 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *mapping, char (*buffer)[4096],
-					 uint16_t *buffer_len) {
+bool stamp(class_t *pfx, class_t *cls, const keymap_t *variant, const keymap_t *mapping, const keymap_t *suffix,
+					 char (*buffer)[4096], uint16_t *buffer_len) {
 	if (*buffer_len < sizeof(*buffer) - 64) {
 		(*buffer)[*buffer_len] = '.';
 		*buffer_len += 1;
@@ -20,7 +20,7 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 		}
 
 		for (uint8_t ind = 0; ind < cls->len; ind++) {
-			if (cls->ptr[ind] == '.') {
+			if (cls->ptr[ind] == '.' || cls->ptr[ind] == '/') {
 				(*buffer)[*buffer_len] = '\\';
 				*buffer_len += 1;
 			}
@@ -31,8 +31,8 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 		(*buffer)[*buffer_len] = '{';
 		*buffer_len += 1;
 
-		memcpy(&(*buffer)[*buffer_len], keymap->val, keymap->val_len);
-		*buffer_len += keymap->val_len;
+		memcpy(&(*buffer)[*buffer_len], variant->val, variant->val_len);
+		*buffer_len += variant->val_len;
 
 		if (mapping != NULL) {
 			(*buffer)[*buffer_len] = ':';
@@ -40,6 +40,11 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *keymap, const keymap_t *m
 
 			memcpy(&(*buffer)[*buffer_len], mapping->val, mapping->val_len);
 			*buffer_len += mapping->val_len;
+		}
+
+		if (suffix != NULL) {
+			memcpy(&(*buffer)[*buffer_len], suffix->val, suffix->val_len);
+			*buffer_len += suffix->val_len;
 		}
 
 		(*buffer)[*buffer_len] = '}';
@@ -73,7 +78,7 @@ void common(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(commons) / sizeof(keymap_t); index++) {
 		if (cls->len == commons[index].key_len && memcmp(cls->ptr, commons[index].key, commons[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &commons[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &commons[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -89,7 +94,7 @@ void position(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(positions) / sizeof(keymap_t); index++) {
 		if (cls->len == positions[index].key_len && memcmp(cls->ptr, positions[index].key, positions[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &positions[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &positions[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -110,7 +115,7 @@ void display(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_
 
 	for (uint8_t index = 0; index < sizeof(displays) / sizeof(keymap_t); index++) {
 		if (cls->len == displays[index].key_len && memcmp(cls->ptr, displays[index].key, displays[index].key_len) == 0) {
-			cls->known = stamp(pfx, cls, &displays[index], NULL, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &displays[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -173,7 +178,7 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_
 				return;
 			}
 
-			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &variants[index], mapping, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -255,7 +260,7 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 				return;
 			}
 
-			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &variants[index], mapping, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -276,7 +281,7 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 
 	for (uint8_t index = 0; index < sizeof(borders) / sizeof(keymap_t); index++) {
 		if (cls->len == borders[index].key_len && memcmp(cls->ptr, borders[index].key, borders[index].key_len) == 0) {
-			cls->known = stamp(pfx, cls, &borders[index], NULL, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &borders[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 
@@ -309,7 +314,7 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 				return;
 			}
 
-			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &variants[index], mapping, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -347,7 +352,7 @@ void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer
 				return;
 			}
 
-			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &variants[index], mapping, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -383,7 +388,7 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len
 
 	for (uint8_t index = 0; index < sizeof(flexes) / sizeof(keymap_t); index++) {
 		if (cls->len == flexes[index].key_len && memcmp(cls->ptr, flexes[index].key, flexes[index].key_len) == 0) {
-			cls->known = stamp(pfx, cls, &flexes[index], NULL, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &flexes[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -416,7 +421,7 @@ void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(texts) / sizeof(keymap_t); index++) {
 		if (cls->len == texts[index].key_len && memcmp(cls->ptr, texts[index].key, texts[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &texts[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &texts[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -436,7 +441,7 @@ void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(fonts) / sizeof(keymap_t); index++) {
 		if (cls->len == fonts[index].key_len && memcmp(cls->ptr, fonts[index].key, fonts[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &fonts[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &fonts[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -703,12 +708,33 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 			{.key = "rose-950", .key_len = 8, .val = "#4c0519", .val_len = 7},
 	};
 
+	const keymap_t alphas[] = {
+			{.key = "/5", .key_len = 2, .val = "0d", .val_len = 2},	 {.key = "/10", .key_len = 3, .val = "1a", .val_len = 2},
+			{.key = "/15", .key_len = 3, .val = "26", .val_len = 2}, {.key = "/20", .key_len = 3, .val = "33", .val_len = 2},
+			{.key = "/25", .key_len = 3, .val = "40", .val_len = 2}, {.key = "/30", .key_len = 3, .val = "4d", .val_len = 2},
+			{.key = "/35", .key_len = 3, .val = "59", .val_len = 2}, {.key = "/40", .key_len = 3, .val = "66", .val_len = 2},
+			{.key = "/45", .key_len = 3, .val = "73", .val_len = 2}, {.key = "/50", .key_len = 3, .val = "80", .val_len = 2},
+			{.key = "/55", .key_len = 3, .val = "8c", .val_len = 2}, {.key = "/60", .key_len = 3, .val = "99", .val_len = 2},
+			{.key = "/65", .key_len = 3, .val = "a6", .val_len = 2}, {.key = "/70", .key_len = 3, .val = "b3", .val_len = 2},
+			{.key = "/75", .key_len = 3, .val = "bf", .val_len = 2}, {.key = "/80", .key_len = 3, .val = "cc", .val_len = 2},
+			{.key = "/85", .key_len = 3, .val = "d9", .val_len = 2}, {.key = "/90", .key_len = 3, .val = "e6", .val_len = 2},
+			{.key = "/95", .key_len = 3, .val = "f2", .val_len = 2},
+	};
+
 	for (uint8_t index = 0; index < sizeof(variants) / sizeof(keymap_t); index++) {
 		if (cls->len > variants[index].key_len && memcmp(cls->ptr, variants[index].key, variants[index].key_len) == 0) {
 			const keymap_t *mapping = NULL;
+			const keymap_t *alpha = NULL;
 			for (uint8_t ind = 0; ind < sizeof(mappings) / sizeof(keymap_t); ind++) {
-				if (cls->len - variants[index].key_len == mappings[ind].key_len &&
+				if (cls->len - variants[index].key_len >= mappings[ind].key_len &&
 						memcmp(&cls->ptr[variants[index].key_len], mappings[ind].key, mappings[ind].key_len) == 0) {
+					for (uint8_t i = 0; i < sizeof(alphas) / sizeof(keymap_t); i++) {
+						if (cls->len - variants[index].key_len - mappings[ind].key_len == alphas[i].key_len &&
+								memcmp(&cls->ptr[variants[index].key_len + mappings[ind].key_len], alphas[i].key, alphas[i].key_len) == 0) {
+							alpha = &alphas[i];
+							break;
+						}
+					}
 					mapping = &mappings[ind];
 					break;
 				}
@@ -716,8 +742,11 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 			if (mapping == NULL) {
 				return;
 			}
+			if (cls->len > variants[index].key_len + mapping->key_len && alpha == NULL) {
+				return;
+			}
 
-			cls->known = stamp(pfx, cls, &variants[index], mapping, buffer, buffer_len);
+			cls->known = stamp(pfx, cls, &variants[index], mapping, alpha, buffer, buffer_len);
 		}
 	}
 }
@@ -747,7 +776,7 @@ void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(texts) / sizeof(keymap_t); index++) {
 		if (cls->len == texts[index].key_len && memcmp(cls->ptr, texts[index].key, texts[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &texts[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &texts[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
@@ -763,7 +792,7 @@ void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 
 	for (uint8_t index = 0; index < sizeof(layouts) / sizeof(keymap_t); index++) {
 		if (cls->len == layouts[index].key_len && memcmp(cls->ptr, layouts[index].key, layouts[index].key_len) == 0) {
-			cls->known = stamp(NULL, cls, &layouts[index], NULL, buffer, buffer_len);
+			cls->known = stamp(NULL, cls, &layouts[index], NULL, NULL, buffer, buffer_len);
 		}
 	}
 }
