@@ -7,11 +7,11 @@
 
 void response_init(response_t *response, char *buffer) {
 	response->status = 0;
-	response->head = (char (*)[128])buffer;
+	response->head = (char (*)[sizeof(*response->head)])buffer;
 	response->head_len = 0;
-	response->header = (char (*)[2048])(&buffer[128]);
+	response->header = (char (*)[sizeof(*response->header)])(&buffer[sizeof(*response->head)]);
 	response->header_len = 0;
-	response->body = (char (*)[128896])(&buffer[128 + 2048]);
+	response->body = (char (*)[sizeof(*response->body)])(&buffer[sizeof(*response->head) + sizeof(*response->header)]);
 	response->body_len = 0;
 }
 
