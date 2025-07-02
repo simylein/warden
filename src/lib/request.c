@@ -14,7 +14,7 @@ void request_init(request_t *request) {
 }
 
 void request(char *buffer, size_t length, request_t *req, response_t *res) {
-	int stage = 0;
+	uint8_t stage = 0;
 	size_t index = 0;
 
 	const size_t method_index = index;
@@ -85,10 +85,8 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 		if (*byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
 		}
-		if (*byte == '\r') {
-			stage = 4;
-		} else if (*byte == '\n') {
-			stage = 7;
+		if (*byte == '\r' || *byte == '\n') {
+			stage += 1;
 		} else if (*byte <= '\037') {
 			res->status = 400;
 			return;
@@ -109,7 +107,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 
 	bool header_key = true;
 	const size_t header_index = index;
-	while ((stage >= 5 && stage <= 8) && req->header_len < sizeof(*req->header) && index < length) {
+	while ((stage >= 3 && stage <= 6) && req->header_len < sizeof(*req->header) && index < length) {
 		char *byte = &buffer[index];
 		if (header_key == true && *byte >= 'A' && *byte <= 'Z') {
 			*byte += 32;
@@ -124,17 +122,17 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 			res->status = 400;
 			return;
 		} else {
-			stage = 5;
+			stage = 3;
 		}
 		req->header_len++;
 		index++;
 	}
 	req->header = (char (*)[sizeof(*req->header)])(&buffer[header_index]);
-	if (stage >= 5 && stage <= 7) {
+	if (stage >= 3 && stage <= 5) {
 		res->status = 431;
 		return;
 	}
-	if (stage == 8) {
+	if (stage == 6) {
 		res->status = 400;
 		return;
 	}
