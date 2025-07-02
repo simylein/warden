@@ -2,6 +2,7 @@
 #include "response.h"
 #include "utils.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 void request_init(request_t *request) {
