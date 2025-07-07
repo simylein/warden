@@ -29,10 +29,10 @@ int decode_kind_02(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 		return -1;
 	}
 
-	int16_t photovoltaic_raw = (int16_t)(data[0] << 8) | (int16_t)data[1];
+	uint16_t photovoltaic_raw = (uint16_t)(data[0] << 8) | (uint16_t)data[1];
 	metric->photovoltaic = ((4.096f * photovoltaic_raw) / 32768.0f) * 1;
 
-	int16_t battery_raw = (int16_t)(data[2] << 8) | (int16_t)data[3];
+	uint16_t battery_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	metric->battery = ((4.096f * battery_raw) / 32768.0f) * 1;
 
 	metric->captured_at = received_at;

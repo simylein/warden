@@ -148,11 +148,11 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			}
 			append_body(response, (char[]){metric_photovoltaic_type != SQLITE_NULL}, sizeof(char));
 			if (metric_photovoltaic_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){metric_battery_type != SQLITE_NULL}, sizeof(char));
 			if (metric_battery_type != SQLITE_NULL) {
-				append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(metric_battery * 1000))}, sizeof(uint16_t));
+				append_body(response, (uint16_t[]){hton16((uint16_t)(metric_battery * 1000))}, sizeof(uint16_t));
 			}
 			append_body(response, (char[]){metric_captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (metric_captured_at_type != SQLITE_NULL) {
