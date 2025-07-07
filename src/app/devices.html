@@ -416,53 +416,50 @@
 		// @inject ./src/app/color-metric.js
 		// @inject ./src/app/binary.js
 		// @inject ./src/app/fetcher.js
-		let devicesRetries = 0;
-		let devicesTimeout = null;
-		let devicesController = null;
-		const devices = document.getElementById('devices');
-		const loadingDevices = () => {
-			array(devices.children.length).forEach((ind) => {
-				loading(devices.children[ind].children[0].children[0], ['w-10', 'h-4.5'], []);
-				loading(devices.children[ind].children[1].children[0], ['w-32', 'h-4.5'], []);
-				loading(devices.children[ind].children[2].children[0], ['w-16', 'h-4.5'], []);
-				loading(devices.children[ind].children[3].children[0], ['w-12', 'h-4.5'], []);
-				loading(devices.children[ind].children[4].children[0], ['w-12', 'h-4.5'], []);
-				loading(devices.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
-				loading(devices.children[ind].children[6].children[0], ['w-12', 'h-4.5'], []);
+		const devices = { retries: 0, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
+		const loadingDevices = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], []);
+				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], []);
+				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], []);
+				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], []);
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], []);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
+				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], []);
 			});
 		};
-		const paintDevices = (data) => {
-			resize(devices, data.length);
-			array(devices.children.length).forEach((ind) => {
+		const paintDevices = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
-					paint(devices.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
-					paint(devices.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
-					paint(devices.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
-					colorDevice(devices.children[ind].children[2].children[0], data[ind].type);
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
+					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
+					colorDevice(element.children[ind].children[2].children[0], data[ind].type);
 					if (data[ind].reading !== null) {
-						paint(devices.children[ind].children[3].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.temperature.toFixed(2));
-						colorTemperature(devices.children[ind].children[3].children[0], data[ind].reading.temperature);
-						paint(devices.children[ind].children[4].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.humidity.toFixed(2));
-						colorHumidity(devices.children[ind].children[4].children[0], data[ind].reading.humidity);
+						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.temperature.toFixed(2));
+						colorTemperature(element.children[ind].children[3].children[0], data[ind].reading.temperature);
+						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.humidity.toFixed(2));
+						colorHumidity(element.children[ind].children[4].children[0], data[ind].reading.humidity);
 					}
 					if (data[ind].metric !== null) {
-						paint(devices.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.photovoltaic.toFixed(3));
-						colorPhotovoltaic(devices.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
-						paint(devices.children[ind].children[6].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.battery.toFixed(3));
-						colorBattery(devices.children[ind].children[6].children[0], data[ind].metric.battery);
+						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.photovoltaic.toFixed(3));
+						colorPhotovoltaic(element.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
+						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.battery.toFixed(3));
+						colorBattery(element.children[ind].children[6].children[0], data[ind].metric.battery);
 					}
 				}
 			});
 		};
-		const errorDevices = () => {
-			array(devices.children.length).forEach((ind) => {
-				error(devices.children[ind].children[0].children[0]);
-				error(devices.children[ind].children[1].children[0]);
-				error(devices.children[ind].children[2].children[0]);
-				error(devices.children[ind].children[3].children[0]);
-				error(devices.children[ind].children[4].children[0]);
-				error(devices.children[ind].children[5].children[0]);
-				error(devices.children[ind].children[6].children[0]);
+		const errorDevices = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0]);
+				error(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[2].children[0]);
+				error(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[6].children[0]);
 			});
 		};
 		const parseDevices = async (response) => {
@@ -516,27 +513,27 @@
 			return devices;
 		};
 		const loadDevices = async () => {
-			if (devicesTimeout) {
-				clearTimeout(devicesTimeout);
-				devicesTimeout = null;
+			if (devices.timeout) {
+				clearTimeout(devices.timeout);
+				devices.timeout = null;
 			}
-			if (devicesController) {
-				devicesController.abort();
+			if (devices.controller) {
+				devices.controller.abort();
 			}
-			devicesController = new AbortController();
-			window.requestAnimationFrame(() => loadingDevices());
+			devices.controller = new AbortController();
+			window.requestAnimationFrame(() => loadingDevices(devices.element));
 			try {
-				const response = await fetcher('get', '/api/devices', null, { controller: devicesController });
-				const data = await parseDevices(response);
-				window.requestAnimationFrame(() => paintDevices(data.length > 0 ? data : [null]));
+				const response = await fetcher('get', '/api/devices', null, { controller: devices.controller });
+				devices.data = await parseDevices(response);
+				window.requestAnimationFrame(() => paintDevices(devices.element, devices.data));
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorDevices());
-					if (devicesRetries < 4) {
-						devicesTimeout = setTimeout(() => {
-							devicesRetries++;
+					window.requestAnimationFrame(() => errorDevices(devices.element));
+					if (devices.retries < 4) {
+						devices.timeout = setTimeout(() => {
+							devices.retries++;
 							loadDevices();
-						}, 2 ** devicesRetries * 1000);
+						}, 2 ** devices.retries * 1000);
 					}
 				}
 			}

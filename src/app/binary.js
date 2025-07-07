@@ -45,6 +45,14 @@ class Binary {
 			return value;
 		}
 	}
+	hex(length) {
+		const chars = [];
+		while (chars.length < length) {
+			const byte = this.data.getUint8(this.offset++);
+			chars.push(byte.toString(16).padStart(2, '0'));
+		}
+		return chars.join('');
+	}
 	uuid() {
 		const chars = [];
 		for (let i = 0; i < 16; i++) {

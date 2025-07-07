@@ -414,109 +414,87 @@
 		// @inject ./src/app/state.js
 		// @inject ./src/app/color-uplink.js
 		// @inject ./src/app/fetcher.js
-		let uplinksRetries = 0;
-		let uplinksTimeout = null;
-		let uplinksController = null;
-		const uplinks = document.getElementById('uplinks');
-		const loadingUplinks = () => {
-			array(uplinks.children.length).forEach((ind) => {
-				loading(uplinks.children[ind].children[0].children[0], ['w-40', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[1].children[0], ['w-10', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[2].children[0], ['w-5', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[3].children[0], ['w-56', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[4].children[0], ['w-9', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
-				loading(uplinks.children[ind].children[6].children[0], ['w-4', 'h-4.5'], []);
+		// @inject ./src/app/binary.js
+		const uplinks = { retries: 0, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
+		const loadingUplinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], []);
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], []);
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], []);
+				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], []);
+				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], []);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
+				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], []);
 			});
 		};
-		const paintUplinks = (data) => {
-			resize(uplinks, data.length);
-			array(uplinks.children.length).forEach((ind) => {
+		const paintUplinks = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
-					paint(uplinks.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
-					paint(uplinks.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
-					paint(uplinks.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
-					paint(uplinks.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
-					paint(uplinks.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
-					colorRssi(uplinks.children[ind].children[4].children[0], data[ind].rssi);
-					paint(uplinks.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].snr);
-					colorSnr(uplinks.children[ind].children[5].children[0], data[ind].snr);
-					paint(uplinks.children[ind].children[6].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
-					colorSf(uplinks.children[ind].children[6].children[0], data[ind].sf);
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
+					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
+					paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
+					colorRssi(element.children[ind].children[4].children[0], data[ind].rssi);
+					paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].snr);
+					colorSnr(element.children[ind].children[5].children[0], data[ind].snr);
+					paint(element.children[ind].children[6].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					colorSf(element.children[ind].children[6].children[0], data[ind].sf);
 				}
 			});
 		};
-		const errorUplinks = () => {
-			array(uplinks.children.length).forEach((ind) => {
-				error(uplinks.children[ind].children[0].children[0]);
-				error(uplinks.children[ind].children[1].children[0]);
-				error(uplinks.children[ind].children[2].children[0]);
-				error(uplinks.children[ind].children[3].children[0]);
-				error(uplinks.children[ind].children[4].children[0]);
-				error(uplinks.children[ind].children[5].children[0]);
-				error(uplinks.children[ind].children[6].children[0]);
+		const errorUplinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0]);
+				error(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[2].children[0]);
+				error(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[6].children[0]);
 			});
 		};
 		const parseUplinks = async (response) => {
 			const buffer = await response.arrayBuffer();
-			const data = new DataView(buffer);
-			let byteOffset = 0;
+			const binary = new Binary(buffer);
 			const uplinks = [];
-			while (byteOffset < buffer.byteLength) {
-				const uplink = { id: '', kind: null, data: '', rssi: null, snr: null, sf: null, receivedAt: null, deviceId: '' };
-				for (let index = 0; index < 16; index++) {
-					const byte = data.getUint8(byteOffset);
-					byteOffset += 1;
-					uplink.id += byte.toString(16).padStart(2, '0');
-				}
-				uplink.kind = data.getUint8(byteOffset);
-				byteOffset += 1;
-				const dataLength = data.getUint8(byteOffset);
-				byteOffset += 1;
-				for (let index = 0; index < dataLength; index++) {
-					const byte = data.getUint8(byteOffset);
-					byteOffset += 1;
-					uplink.data += byte.toString(16).padStart(2, '0');
-				}
-				uplink.rssi = data.getInt16(byteOffset);
-				byteOffset += 2;
-				uplink.snr = data.getInt8(byteOffset) / 4;
-				byteOffset += 1;
-				uplink.sf = data.getUint8(byteOffset);
-				byteOffset += 1;
-				uplink.receivedAt = data.getBigUint64(byteOffset);
-				byteOffset += 8;
-				for (let index = 0; index < 16; index++) {
-					const byte = data.getUint8(byteOffset);
-					byteOffset += 1;
-					uplink.deviceId += byte.toString(16).padStart(2, '0');
-				}
+			while (binary.offset < buffer.byteLength) {
+				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, receivedAt: null, deviceId: null };
+				uplink.id = binary.uuid();
+				uplink.kind = binary.byte();
+				uplink.data = binary.hex(binary.byte());
+				uplink.rssi = binary.int(16);
+				uplink.snr = binary.int(8) / 4;
+				uplink.sf = binary.int(8);
+				uplink.receivedAt = binary.uint(64);
+				uplink.deviceId = binary.uuid();
 				uplinks.push(uplink);
 			}
 			return uplinks;
 		};
 		const loadUplinks = async () => {
-			if (uplinksTimeout) {
-				clearTimeout(uplinksTimeout);
-				uplinksTimeout = null;
+			if (uplinks.timeout) {
+				clearTimeout(uplinks.timeout);
+				uplinks.timeout = null;
 			}
-			if (uplinksController) {
-				uplinksController.abort();
+			if (uplinks.controller) {
+				uplinks.controller.abort();
 			}
-			uplinksController = new AbortController();
-			window.requestAnimationFrame(() => loadingUplinks());
+			uplinks.controller = new AbortController();
+			window.requestAnimationFrame(() => loadingUplinks(uplinks.element));
 			try {
-				const response = await fetcher('get', '/api/uplinks', null, { controller: uplinksController });
-				const data = await parseUplinks(response);
-				window.requestAnimationFrame(() => paintUplinks(data.length > 0 ? data : [null]));
+				const response = await fetcher('get', '/api/uplinks', null, { controller: uplinks.controller });
+				uplinks.data = await parseUplinks(response);
+				window.requestAnimationFrame(() => paintUplinks(uplinks.element, uplinks.data));
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorUplinks());
-					if (uplinksRetries < 4) {
-						uplinksTimeout = setTimeout(() => {
-							uplinksRetries++;
+					window.requestAnimationFrame(() => errorUplinks(uplinks.element));
+					if (uplinks.retries < 4) {
+						uplinks.timeout = setTimeout(() => {
+							uplinks.retries++;
 							loadUplinks();
-						}, 2 ** uplinksRetries * 1000);
+						}, 2 ** uplinks.retries * 1000);
 					}
 				}
 			}
