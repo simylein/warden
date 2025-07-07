@@ -717,6 +717,7 @@
 		// @inject ./src/app/state.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/binary.js
 		let recapRetries = 0;
 		let recapTimeout = null;
 		let recapController = null;
@@ -1117,64 +1118,29 @@
 		};
 		const parseRecap = async (response) => {
 			const buffer = await response.arrayBuffer();
-			const data = new DataView(buffer);
-			let byteOffset = 0;
-			const readInt = (bits) => {
-				const unsigned = readUint(bits);
-				const signBit = 1n << BigInt(bits - 1);
-				return unsigned & signBit ? unsigned - (1n << BigInt(bits)) : unsigned;
-			};
-			const readUint = (bits) => {
-				let result = 0n;
-				const bytes = bits / 8;
-				for (let i = 0; i < bytes; i++) {
-					const byte = BigInt(data.getUint8(byteOffset++));
-					result = (result << 8n) | byte;
-				}
-				return result;
-			};
+			const binary = new Binary(buffer);
 			const devices = [];
-			while (byteOffset < buffer.byteLength) {
-				const device = { id: '', name: '', type: '', temperature: null, humidity: null, capturedAt: null };
-				for (let index = 0; index < 16; index++) {
-					const byte = Number(readUint(8));
-					device.id += byte.toString(16).padStart(2, '0');
-				}
-				while (true) {
-					const byte = Number(readUint(8));
-					if (byte == 0) {
-						break;
-					}
-					device.name += String.fromCharCode(byte);
-				}
-				while (true) {
-					const byte = Number(readUint(8));
-					if (byte == 0) {
-						break;
-					}
-					device.type += String.fromCharCode(byte);
-				}
-				const temperatureMinNull = Number(readUint(8));
-				if (temperatureMinNull != 0) {
+			while (binary.offset < buffer.byteLength) {
+				const device = { id: null, name: null, type: null, temperature: null, humidity: null, capturedAt: null };
+				device.id = binary.uuid();
+				device.name = binary.string();
+				device.type = binary.string();
+				if (binary.byte() !== 0) {
 					device.temperature = {};
-					device.temperature.min = Number(readInt(16)) / 100;
+					device.temperature.min = binary.int(16) / 100;
 				}
-				const temperatureMaxNull = Number(readUint(8));
-				if (temperatureMaxNull != 0) {
-					device.temperature.max = Number(readInt(16)) / 100;
+				if (binary.byte() !== 0) {
+					device.temperature.max = binary.int(16) / 100;
 				}
-				const humidityMinNull = Number(readUint(8));
-				if (humidityMinNull != 0) {
+				if (binary.byte() !== 0) {
 					device.humidity = {};
-					device.humidity.min = Number(readUint(16)) / 100;
+					device.humidity.min = binary.uint(16) / 100;
 				}
-				const humidityMaxNull = Number(readUint(8));
-				if (humidityMaxNull != 0) {
-					device.humidity.max = Number(readUint(16)) / 100;
+				if (binary.byte() !== 0) {
+					device.humidity.max = binary.uint(16) / 100;
 				}
-				const capturedAtNull = Number(readUint(8));
-				if (capturedAtNull != 0) {
-					device.capturedAt = readUint(64);
+				if (binary.byte() !== 0) {
+					device.capturedAt = binary.uint(64);
 				}
 				devices.push(device);
 			}

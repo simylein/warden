@@ -414,6 +414,7 @@
 		// @inject ./src/app/color-device.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/color-metric.js
+		// @inject ./src/app/binary.js
 		// @inject ./src/app/fetcher.js
 		let devicesRetries = 0;
 		let devicesTimeout = null;
@@ -438,13 +439,13 @@
 					paint(devices.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
 					paint(devices.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
 					colorDevice(devices.children[ind].children[2].children[0], data[ind].type);
-					if (data[ind].reading != null) {
+					if (data[ind].reading !== null) {
 						paint(devices.children[ind].children[3].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.temperature.toFixed(2));
 						colorTemperature(devices.children[ind].children[3].children[0], data[ind].reading.temperature);
 						paint(devices.children[ind].children[4].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.humidity.toFixed(2));
 						colorHumidity(devices.children[ind].children[4].children[0], data[ind].reading.humidity);
 					}
-					if (data[ind].metric != null) {
+					if (data[ind].metric !== null) {
 						paint(devices.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.photovoltaic.toFixed(3));
 						colorPhotovoltaic(devices.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
 						paint(devices.children[ind].children[6].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.battery.toFixed(3));
@@ -466,99 +467,49 @@
 		};
 		const parseDevices = async (response) => {
 			const buffer = await response.arrayBuffer();
-			const data = new DataView(buffer);
-			let byteOffset = 0;
-			const readInt = (bits) => {
-				const unsigned = readUint(bits);
-				const signBit = 1n << BigInt(bits - 1);
-				return unsigned & signBit ? unsigned - (1n << BigInt(bits)) : unsigned;
-			};
-			const readUint = (bits) => {
-				let result = 0n;
-				const bytes = bits / 8;
-				for (let i = 0; i < bytes; i++) {
-					const byte = BigInt(data.getUint8(byteOffset++));
-					result = (result << 8n) | byte;
-				}
-				return result;
-			};
+			const binary = new Binary(buffer);
 			const devices = [];
-			while (byteOffset < buffer.byteLength) {
-				const device = { id: '', name: '', type: '', createdAt: null, updatedAt: null, uplink: null, reading: null, metric: null };
-				for (let index = 0; index < 16; index++) {
-					const byte = Number(readUint(8));
-					device.id += byte.toString(16).padStart(2, '0');
+			while (binary.offset < buffer.byteLength) {
+				const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null, reading: null, metric: null };
+				device.id = binary.uuid();
+				device.name = binary.string();
+				device.type = binary.string();
+				device.createdAt = binary.uint(64);
+				if (binary.byte() !== 0) {
+					device.updatedAt = binary.uint(64);
 				}
-				while (true) {
-					const byte = Number(readUint(8));
-					if (byte == 0) {
-						break;
-					}
-					device.name += String.fromCharCode(byte);
+				if (binary.byte() !== 0) {
+					device.uplink = {};
+					device.uplink.id = binary.uuid();
 				}
-				while (true) {
-					const byte = Number(readUint(8));
-					if (byte == 0) {
-						break;
-					}
-					device.type += String.fromCharCode(byte);
+				if (binary.byte() !== 0) {
+					device.uplink.receivedAt = binary.uint(64);
 				}
-				device.createdAt = readUint(64);
-				const updatedAtNull = Number(readUint(8));
-				if (updatedAtNull != 0) {
-					device.updatedAt = readUint(64);
+				if (binary.byte() !== 0) {
+					device.reading = {};
+					device.reading.id = binary.uuid();
 				}
-				const uplinkIdNull = Number(readUint(8));
-				if (uplinkIdNull != 0) {
-					device.uplink = { id: '' };
-					for (let index = 0; index < 16; index++) {
-						const byte = Number(readUint(8));
-						device.uplink.id += byte.toString(16).padStart(2, '0');
-					}
+				if (binary.byte() !== 0) {
+					device.reading.temperature = binary.int(16) / 100;
 				}
-				const uplinkReceivedAtNull = Number(readUint(8));
-				if (uplinkReceivedAtNull != 0) {
-					device.uplink.receivedAt = readUint(64);
+				if (binary.byte() !== 0) {
+					device.reading.humidity = binary.uint(16) / 100;
 				}
-				const readingIdNull = Number(readUint(8));
-				if (readingIdNull != 0) {
-					device.reading = { id: '' };
-					for (let index = 0; index < 16; index++) {
-						const byte = Number(readUint(8));
-						device.reading.id += byte.toString(16).padStart(2, '0');
-					}
+				if (binary.byte() !== 0) {
+					device.reading.capturedAt = binary.uint(64);
 				}
-				const readingTemperatureNull = Number(readUint(8));
-				if (readingTemperatureNull != 0) {
-					device.reading.temperature = Number(readInt(16)) / 100;
+				if (binary.byte() !== 0) {
+					device.metric = {};
+					device.metric.id = binary.uuid();
 				}
-				const readingHumidityNull = Number(readUint(8));
-				if (readingHumidityNull != 0) {
-					device.reading.humidity = Number(readUint(16)) / 100;
+				if (binary.byte() !== 0) {
+					device.metric.photovoltaic = binary.uint(16) / 1000;
 				}
-				const readingCapturedAtNull = Number(readUint(8));
-				if (readingCapturedAtNull != 0) {
-					device.reading.capturedAt = readUint(64);
+				if (binary.byte() !== 0) {
+					device.metric.battery = binary.uint(16) / 1000;
 				}
-				const metricIdNull = Number(readUint(8));
-				if (metricIdNull != 0) {
-					device.metric = { id: '' };
-					for (let index = 0; index < 16; index++) {
-						const byte = Number(readUint(8));
-						device.metric.id += byte.toString(16).padStart(2, '0');
-					}
-				}
-				const metricPhotovoltaicNull = Number(readUint(8));
-				if (metricPhotovoltaicNull != 0) {
-					device.metric.photovoltaic = Number(readUint(16)) / 1000;
-				}
-				const metricBatteryNull = Number(readUint(8));
-				if (metricBatteryNull != 0) {
-					device.metric.battery = Number(readUint(16)) / 1000;
-				}
-				const metricCapturedAtNull = Number(readUint(8));
-				if (metricCapturedAtNull != 0) {
-					device.metric.capturedAt = readUint(64);
+				if (binary.byte() !== 0) {
+					device.metric.capturedAt = binary.uint(64);
 				}
 				devices.push(device);
 			}
