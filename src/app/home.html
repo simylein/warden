@@ -718,25 +718,31 @@
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
-		let recapRetries = 0;
-		let recapTimeout = null;
-		let recapController = null;
-		const indoorTemperatureRange = document.getElementById('indoor-temperature-range');
-		const indoorTemperatureScale = document.getElementById('indoor-temperature-scale');
-		const indoorTemperatureGraph = document.getElementById('indoor-temperature-graph');
-		const indoorTemperatureLabel = document.getElementById('indoor-temperature-label');
-		const indoorHumidityRange = document.getElementById('indoor-humidity-range');
-		const indoorHumidityScale = document.getElementById('indoor-humidity-scale');
-		const indoorHumidityGraph = document.getElementById('indoor-humidity-graph');
-		const indoorHumidityLabel = document.getElementById('indoor-humidity-label');
-		const outdoorTemperatureRange = document.getElementById('outdoor-temperature-range');
-		const outdoorTemperatureScale = document.getElementById('outdoor-temperature-scale');
-		const outdoorTemperatureGraph = document.getElementById('outdoor-temperature-graph');
-		const outdoorTemperatureLabel = document.getElementById('outdoor-temperature-label');
-		const outdoorHumidityRange = document.getElementById('outdoor-humidity-range');
-		const outdoorHumidityScale = document.getElementById('outdoor-humidity-scale');
-		const outdoorHumidityGraph = document.getElementById('outdoor-humidity-graph');
-		const outdoorHumidityLabel = document.getElementById('outdoor-humidity-label');
+		const recap = { retries: 0, timeout: null, controller: null };
+		const indoorTemperature = {
+			range: document.getElementById('indoor-temperature-range'),
+			scale: document.getElementById('indoor-temperature-scale'),
+			graph: document.getElementById('indoor-temperature-graph'),
+			label: document.getElementById('indoor-temperature-label'),
+		};
+		const indoorHumidity = {
+			range: document.getElementById('indoor-humidity-range'),
+			scale: document.getElementById('indoor-humidity-scale'),
+			graph: document.getElementById('indoor-humidity-graph'),
+			label: document.getElementById('indoor-humidity-label'),
+		};
+		const outdoorTemperature = {
+			range: document.getElementById('outdoor-temperature-range'),
+			scale: document.getElementById('outdoor-temperature-scale'),
+			graph: document.getElementById('outdoor-temperature-graph'),
+			label: document.getElementById('outdoor-temperature-label'),
+		};
+		const outdoorHumidity = {
+			range: document.getElementById('outdoor-humidity-range'),
+			scale: document.getElementById('outdoor-humidity-scale'),
+			graph: document.getElementById('outdoor-humidity-graph'),
+			label: document.getElementById('outdoor-humidity-label'),
+		};
 		const temperatureSkeleton = [
 			[2, 56, 42],
 			[4, 62, 34],
@@ -756,304 +762,154 @@
 			[40, 58, 2],
 		];
 		const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		const loadingTemperatureIndoor = () => {
-			array(indoorTemperatureLabel.children.length).forEach((ind) => {
-				loading(indoorTemperatureLabel.children[ind], ['w-6'], [], '');
+		const loadingTemperature = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-6'], [], '');
 			});
-			loading(indoorTemperatureRange, ['w-28', 'h-4.5'], []);
-			array(indoorTemperatureScale.children.length).forEach((ind) => {
-				loading(indoorTemperatureScale.children[ind], [], [], '');
+			loading(element.range, ['w-28', 'h-4.5'], []);
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], [], [], '');
 			});
-			array(indoorTemperatureGraph.children.length).forEach((ind) => {
-				indoorTemperatureGraph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
-				loading(indoorTemperatureGraph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
-				indoorTemperatureGraph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
+			array(element.graph.children.length).forEach((ind) => {
+				element.graph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
+				loading(element.graph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
+				element.graph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
 			});
 		};
-		const paintTemperatureIndoor = (temperature) => {
+		const paintTemperature = (element, temperature) => {
 			const now = new Date();
 			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(indoorTemperatureLabel.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (indoorTemperatureLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(indoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			array(element.label.children.length).forEach((ind) => {
+				const date = new Date(today.getTime() - (element.label.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
+				paint(element.label.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
-				paint(indoorTemperatureRange, [], ['w-28', 'h-4.5']);
-				paint(indoorTemperatureRange.children[0], [], [], temperature.min.abs.toFixed(2));
-				colorTemperature(indoorTemperatureRange.children[0], temperature.min.abs);
-				paint(indoorTemperatureRange.children[1], [], [], ' - ');
-				paint(indoorTemperatureRange.children[2], [], [], temperature.max.abs.toFixed(2));
-				colorTemperature(indoorTemperatureRange.children[2], temperature.max.abs);
+				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
+				colorTemperature(element.range.children[0], temperature.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], temperature.max.abs.toFixed(2));
+				colorTemperature(element.range.children[2], temperature.max.abs);
 			}
 			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
-				const scaleLength = indoorTemperatureScale.children.length;
+				const scaleLength = element.scale.children.length;
 				const interval = (temperature.max.ceil - temperature.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(indoorTemperatureScale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			array(indoorTemperatureGraph.children.length).forEach((ind) => {
-				indoorTemperatureGraph.children[ind].children[1].style.height = null;
+			array(element.graph.children.length).forEach((ind) => {
+				element.graph.children[ind].children[1].style.height = null;
 				if (temperature.days[ind] !== null) {
 					const dayMin = temperature.days[ind].min;
 					const dayMax = temperature.days[ind].max;
 					const range = temperature.max.ceil - temperature.min.floor;
 					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
-					indoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					element.graph.children[ind].children[0].style.height = `${paddingBottom}%`;
 					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
-					indoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(indoorTemperatureGraph.children[ind].children.length).forEach((i) => {
+					element.graph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(element.graph.children[ind].children.length).forEach((i) => {
 						if (i >= 3 && i <= 16) {
 							const height = ((Math.min(dayMax, -28 + i * 4) - Math.max(dayMin, -32 + i * 4)) / range) * 100;
-							indoorTemperatureGraph.children[ind].children[i].style.height = `${height}%`;
+							element.graph.children[ind].children[i].style.height = `${height}%`;
 						}
 					});
 					const catchCeil = ((Math.min(dayMax, temperature.max.ceil) - Math.max(dayMin, 36)) / range) * 100;
-					indoorTemperatureGraph.children[ind].children[17].style.height = `${catchCeil}%`;
+					element.graph.children[ind].children[17].style.height = `${catchCeil}%`;
 					const paddingTop = ((temperature.max.ceil - dayMax) / range) * 100;
-					indoorTemperatureGraph.children[ind].children[18].style.height = `${paddingTop}%`;
+					element.graph.children[ind].children[18].style.height = `${paddingTop}%`;
 				}
 			});
 		};
-		const errorTemperatureIndoor = () => {
-			array(indoorTemperatureLabel.children.length).forEach((ind) => {
-				error(indoorTemperatureLabel.children[ind]);
+		const errorTemperature = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind]);
 			});
-			error(indoorTemperatureRange);
-			array(indoorTemperatureScale.children.length).forEach((ind) => {
-				error(indoorTemperatureScale.children[ind]);
+			error(element.range);
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind]);
 			});
-			array(indoorTemperatureGraph.children.length).forEach((ind) => {
-				error(indoorTemperatureGraph.children[ind].children[1]);
-			});
-		};
-		const loadingHumidityIndoor = () => {
-			array(indoorHumidityLabel.children.length).forEach((ind) => {
-				loading(indoorHumidityLabel.children[ind], ['w-6'], [], '');
-			});
-			loading(indoorHumidityRange, ['w-28', 'h-4.5'], []);
-			array(indoorHumidityScale.children.length).forEach((ind) => {
-				loading(indoorHumidityScale.children[ind], [], [], '');
-			});
-			array(indoorHumidityGraph.children.length).forEach((ind) => {
-				indoorHumidityGraph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
-				loading(indoorHumidityGraph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
-				indoorHumidityGraph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+			array(element.graph.children.length).forEach((ind) => {
+				error(element.graph.children[ind].children[1]);
 			});
 		};
-		const paintHumidityIndoor = (humidity) => {
+		const loadingHumidity = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-6'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4.5'], []);
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], [], [], '');
+			});
+			array(element.graph.children.length).forEach((ind) => {
+				element.graph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
+				loading(element.graph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
+				element.graph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+			});
+		};
+		const paintHumidity = (element, humidity) => {
 			const now = new Date();
 			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(indoorHumidityLabel.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (indoorHumidityLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(indoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
+			array(element.label.children.length).forEach((ind) => {
+				const date = new Date(today.getTime() - (element.label.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
+				paint(element.label.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
 			});
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
-				paint(indoorHumidityRange, [], ['w-28', 'h-4.5']);
-				paint(indoorHumidityRange.children[0], [], [], humidity.min.abs.toFixed(2));
-				colorHumidity(indoorHumidityRange.children[0], humidity.min.abs);
-				paint(indoorHumidityRange.children[1], [], [], ' - ');
-				paint(indoorHumidityRange.children[2], [], [], humidity.max.abs.toFixed(2));
-				colorHumidity(indoorHumidityRange.children[2], humidity.max.abs);
+				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
+				colorHumidity(element.range.children[0], humidity.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], humidity.max.abs.toFixed(2));
+				colorHumidity(element.range.children[2], humidity.max.abs);
 			}
 			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
-				const scaleLength = indoorHumidityScale.children.length;
+				const scaleLength = element.scale.children.length;
 				const interval = (humidity.max.ceil - humidity.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(indoorHumidityScale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			array(indoorHumidityGraph.children.length).forEach((ind) => {
-				indoorHumidityGraph.children[ind].children[1].style.height = null;
+			array(element.graph.children.length).forEach((ind) => {
+				element.graph.children[ind].children[1].style.height = null;
 				if (humidity.days[ind] !== null) {
 					const dayMin = humidity.days[ind].min;
 					const dayMax = humidity.days[ind].max;
 					const range = humidity.max.ceil - humidity.min.floor;
 					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
-					indoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
+					element.graph.children[ind].children[0].style.height = `${paddingBottom}%`;
 					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
-					indoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(indoorHumidityGraph.children[ind].children.length).forEach((i) => {
+					element.graph.children[ind].children[2].style.height = `${catchFloor}%`;
+					array(element.graph.children[ind].children.length).forEach((i) => {
 						if (i === 3) {
 							const height = ((Math.min(dayMax, 30) - Math.max(dayMin, 20)) / range) * 100;
-							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+							element.graph.children[ind].children[i].style.height = `${height}%`;
 						}
 						if (i >= 4 && i <= 11) {
 							const height = ((Math.min(dayMax, 15 + i * 5) - Math.max(dayMin, 10 + i * 5)) / range) * 100;
-							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+							element.graph.children[ind].children[i].style.height = `${height}%`;
 						}
 						if (i === 12) {
 							const height = ((Math.min(dayMax, 80) - Math.max(dayMin, 70)) / range) * 100;
-							indoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
+							element.graph.children[ind].children[i].style.height = `${height}%`;
 						}
 					});
 					const catchCeil = ((Math.min(dayMax, humidity.max.ceil) - Math.max(dayMin, 80)) / range) * 100;
-					indoorHumidityGraph.children[ind].children[13].style.height = `${catchCeil}%`;
+					element.graph.children[ind].children[13].style.height = `${catchCeil}%`;
 					const paddingTop = ((humidity.max.ceil - dayMax) / range) * 100;
-					indoorHumidityGraph.children[ind].children[14].style.height = `${paddingTop}%`;
+					element.graph.children[ind].children[14].style.height = `${paddingTop}%`;
 				}
 			});
 		};
-		const errorHumidityIndoor = () => {
-			array(indoorHumidityLabel.children.length).forEach((ind) => {
-				error(indoorHumidityLabel.children[ind]);
+		const errorHumidity = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind]);
 			});
-			error(indoorHumidityRange);
-			array(indoorHumidityScale.children.length).forEach((ind) => {
-				error(indoorHumidityScale.children[ind]);
+			error(element.range);
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind]);
 			});
-			array(indoorHumidityGraph.children.length).forEach((ind) => {
-				error(indoorHumidityGraph.children[ind].children[1]);
-			});
-		};
-		const loadingTemperatureOutdoor = () => {
-			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
-				loading(outdoorTemperatureLabel.children[ind], ['w-6'], [], '');
-			});
-			loading(outdoorTemperatureRange, ['w-28', 'h-4.5'], []);
-			array(outdoorTemperatureScale.children.length).forEach((ind) => {
-				loading(outdoorTemperatureScale.children[ind], [], [], '');
-			});
-			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
-				outdoorTemperatureGraph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
-				loading(outdoorTemperatureGraph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
-				outdoorTemperatureGraph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
-			});
-		};
-		const paintTemperatureOutdoor = (temperature) => {
-			const now = new Date();
-			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (outdoorTemperatureLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(outdoorTemperatureLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
-			});
-			if (temperature.min.abs !== null && temperature.max.abs !== null) {
-				paint(outdoorTemperatureRange, [], ['w-28', 'h-4.5']);
-				paint(outdoorTemperatureRange.children[0], [], [], temperature.min.abs.toFixed(2));
-				colorTemperature(outdoorTemperatureRange.children[0], temperature.min.abs);
-				paint(outdoorTemperatureRange.children[1], [], [], ' - ');
-				paint(outdoorTemperatureRange.children[2], [], [], temperature.max.abs.toFixed(2));
-				colorTemperature(outdoorTemperatureRange.children[2], temperature.max.abs);
-			}
-			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
-				const scaleLength = outdoorTemperatureScale.children.length;
-				const interval = (temperature.max.ceil - temperature.min.floor) / scaleLength;
-				array(scaleLength).forEach((ind) => {
-					paint(outdoorTemperatureScale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
-				});
-			}
-			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
-				outdoorTemperatureGraph.children[ind].children[1].style.height = null;
-				if (temperature.days[ind] !== null) {
-					const dayMin = temperature.days[ind].min;
-					const dayMax = temperature.days[ind].max;
-					const range = temperature.max.ceil - temperature.min.floor;
-					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
-					outdoorTemperatureGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
-					outdoorTemperatureGraph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(outdoorTemperatureGraph.children[ind].children.length).forEach((i) => {
-						if (i >= 3 && i <= 16) {
-							const height = ((Math.min(dayMax, -28 + i * 4) - Math.max(dayMin, -32 + i * 4)) / range) * 100;
-							outdoorTemperatureGraph.children[ind].children[i].style.height = `${height}%`;
-						}
-					});
-					const catchCeil = ((Math.min(dayMax, temperature.max.ceil) - Math.max(dayMin, 36)) / range) * 100;
-					outdoorTemperatureGraph.children[ind].children[17].style.height = `${catchCeil}%`;
-					const paddingTop = ((temperature.max.ceil - dayMax) / range) * 100;
-					outdoorTemperatureGraph.children[ind].children[18].style.height = `${paddingTop}%`;
-				}
-			});
-		};
-		const errorTemperatureOutdoor = () => {
-			array(outdoorTemperatureLabel.children.length).forEach((ind) => {
-				error(outdoorTemperatureLabel.children[ind]);
-			});
-			error(outdoorTemperatureRange);
-			array(outdoorTemperatureScale.children.length).forEach((ind) => {
-				error(outdoorTemperatureScale.children[ind]);
-			});
-			array(outdoorTemperatureGraph.children.length).forEach((ind) => {
-				error(outdoorTemperatureGraph.children[ind].children[1]);
-			});
-		};
-		const loadingHumidityOutdoor = () => {
-			array(outdoorHumidityLabel.children.length).forEach((ind) => {
-				loading(outdoorHumidityLabel.children[ind], ['w-6'], [], '');
-			});
-			loading(outdoorHumidityRange, ['w-28', 'h-4.5'], []);
-			array(outdoorHumidityScale.children.length).forEach((ind) => {
-				loading(outdoorHumidityScale.children[ind], [], [], '');
-			});
-			array(outdoorHumidityGraph.children.length).forEach((ind) => {
-				outdoorHumidityGraph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
-				loading(outdoorHumidityGraph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
-				outdoorHumidityGraph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
-			});
-		};
-		const paintHumidityOutdoor = (humidity) => {
-			const now = new Date();
-			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(outdoorHumidityLabel.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (outdoorHumidityLabel.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(outdoorHumidityLabel.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
-			});
-			if (humidity.min.abs !== null && humidity.max.abs !== null) {
-				paint(outdoorHumidityRange, [], ['w-28', 'h-4.5']);
-				paint(outdoorHumidityRange.children[0], [], [], humidity.min.abs.toFixed(2));
-				colorHumidity(outdoorHumidityRange.children[0], humidity.min.abs);
-				paint(outdoorHumidityRange.children[1], [], [], ' - ');
-				paint(outdoorHumidityRange.children[2], [], [], humidity.max.abs.toFixed(2));
-				colorHumidity(outdoorHumidityRange.children[2], humidity.max.abs);
-			}
-			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
-				const scaleLength = outdoorHumidityScale.children.length;
-				const interval = (humidity.max.ceil - humidity.min.floor) / scaleLength;
-				array(scaleLength).forEach((ind) => {
-					paint(outdoorHumidityScale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
-				});
-			}
-			array(outdoorHumidityGraph.children.length).forEach((ind) => {
-				outdoorHumidityGraph.children[ind].children[1].style.height = null;
-				if (humidity.days[ind] !== null) {
-					const dayMin = humidity.days[ind].min;
-					const dayMax = humidity.days[ind].max;
-					const range = humidity.max.ceil - humidity.min.floor;
-					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
-					outdoorHumidityGraph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
-					outdoorHumidityGraph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(outdoorHumidityGraph.children[ind].children.length).forEach((i) => {
-						if (i === 3) {
-							const height = ((Math.min(dayMax, 30) - Math.max(dayMin, 20)) / range) * 100;
-							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
-						}
-						if (i >= 4 && i <= 11) {
-							const height = ((Math.min(dayMax, 15 + i * 5) - Math.max(dayMin, 10 + i * 5)) / range) * 100;
-							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
-						}
-						if (i === 12) {
-							const height = ((Math.min(dayMax, 80) - Math.max(dayMin, 70)) / range) * 100;
-							outdoorHumidityGraph.children[ind].children[i].style.height = `${height}%`;
-						}
-					});
-					const catchCeil = ((Math.min(dayMax, humidity.max.ceil) - Math.max(dayMin, 80)) / range) * 100;
-					outdoorHumidityGraph.children[ind].children[13].style.height = `${catchCeil}%`;
-					const paddingTop = ((humidity.max.ceil - dayMax) / range) * 100;
-					outdoorHumidityGraph.children[ind].children[14].style.height = `${paddingTop}%`;
-				}
-			});
-		};
-		const errorHumidityOutdoor = () => {
-			array(outdoorHumidityLabel.children.length).forEach((ind) => {
-				error(outdoorHumidityLabel.children[ind]);
-			});
-			error(outdoorHumidityRange);
-			array(outdoorHumidityScale.children.length).forEach((ind) => {
-				error(outdoorHumidityScale.children[ind]);
-			});
-			array(outdoorHumidityGraph.children.length).forEach((ind) => {
-				error(outdoorHumidityGraph.children[ind].children[1]);
+			array(element.graph.children.length).forEach((ind) => {
+				error(element.graph.children[ind].children[1]);
 			});
 		};
 		const collectRecap = (recap, device, reading, today) => {
@@ -1147,37 +1003,37 @@
 			return devices;
 		};
 		const loadRecap = async () => {
-			if (recapTimeout) {
-				clearTimeout(recapTimeout);
-				recapTimeout = null;
+			if (recap.timeout) {
+				clearTimeout(recap.timeout);
+				recap.timeout = null;
 			}
-			if (recapController) {
-				recapController.abort();
+			if (recap.controller) {
+				recap.controller.abort();
 			}
-			recapController = new AbortController();
-			window.requestAnimationFrame(() => loadingTemperatureIndoor());
-			window.requestAnimationFrame(() => loadingHumidityIndoor());
-			window.requestAnimationFrame(() => loadingTemperatureOutdoor());
-			window.requestAnimationFrame(() => loadingHumidityOutdoor());
+			recap.controller = new AbortController();
+			window.requestAnimationFrame(() => loadingTemperature(indoorTemperature));
+			window.requestAnimationFrame(() => loadingHumidity(indoorHumidity));
+			window.requestAnimationFrame(() => loadingTemperature(outdoorTemperature));
+			window.requestAnimationFrame(() => loadingHumidity(outdoorHumidity));
 			try {
-				const response = await fetcher('get', '/api/recap', null, { controller: recapController });
+				const response = await fetcher('get', '/api/recap', null, { controller: recap.controller });
 				const data = await parseRecap(response);
-				const recap = calculateRecap(data, 7);
-				window.requestAnimationFrame(() => paintTemperatureIndoor(recap.indoor.temperature));
-				window.requestAnimationFrame(() => paintHumidityIndoor(recap.indoor.humidity));
-				window.requestAnimationFrame(() => paintTemperatureOutdoor(recap.outdoor.temperature));
-				window.requestAnimationFrame(() => paintHumidityOutdoor(recap.outdoor.humidity));
+				const summary = calculateRecap(data, 7);
+				window.requestAnimationFrame(() => paintTemperature(indoorTemperature, summary.indoor.temperature));
+				window.requestAnimationFrame(() => paintHumidity(indoorHumidity, summary.indoor.humidity));
+				window.requestAnimationFrame(() => paintTemperature(outdoorTemperature, summary.outdoor.temperature));
+				window.requestAnimationFrame(() => paintHumidity(outdoorHumidity, summary.outdoor.humidity));
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorTemperatureIndoor());
-					window.requestAnimationFrame(() => errorHumidityIndoor());
-					window.requestAnimationFrame(() => errorTemperatureOutdoor());
-					window.requestAnimationFrame(() => errorHumidityOutdoor());
-					if (recapRetries < 4) {
-						recapTimeout = setTimeout(() => {
-							recapRetries++;
+					window.requestAnimationFrame(() => errorTemperature(indoorTemperature));
+					window.requestAnimationFrame(() => errorHumidity(indoorHumidity));
+					window.requestAnimationFrame(() => errorTemperature(outdoorTemperature));
+					window.requestAnimationFrame(() => errorHumidity(outdoorHumidity));
+					if (recap.retries < 4) {
+						recap.timeout = setTimeout(() => {
+							recap.retries++;
 							loadRecap();
-						}, 2 ** recapRetries * 1000);
+						}, 2 ** recap.retries * 1000);
 					}
 				}
 			}
