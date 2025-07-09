@@ -4,15 +4,15 @@
 #include <stdio.h>
 #include <time.h>
 
-const char *purple = "\x1b[35m";
-const char *blue = "\x1b[34m";
-const char *cyan = "\x1b[36m";
-const char *green = "\x1b[32m";
-const char *yellow = "\x1b[33m";
-const char *red = "\x1b[31m";
-const char *bold = "\x1b[1m";
-const char *normal = "\x1b[22m";
-const char *reset = "\x1b[39m";
+static const char *purple = "\x1b[35m";
+static const char *blue = "\x1b[34m";
+static const char *cyan = "\x1b[36m";
+static const char *green = "\x1b[32m";
+static const char *yellow = "\x1b[33m";
+static const char *red = "\x1b[31m";
+static const char *bold = "\x1b[1m";
+static const char *normal = "\x1b[22m";
+static const char *reset = "\x1b[39m";
 
 void timestamp(char (*buffer)[9]) {
 	time_t now = time(NULL);
