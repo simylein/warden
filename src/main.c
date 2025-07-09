@@ -1,6 +1,6 @@
 #include "api/init.h"
 #include "api/seed.h"
-#include "app/serve.h"
+#include "app/page.h"
 #include "lib/config.h"
 #include "lib/error.h"
 #include "lib/format.h"
@@ -46,29 +46,8 @@ void stop(int sig) {
 	free(queue.tasks);
 	free(thread_pool.workers);
 
-	close(signin.fd);
-	free(signin.ptr);
-	close(signup.fd);
-	free(signup.ptr);
-
-	close(bad_request.fd);
-	free(bad_request.ptr);
-	close(unauthorized.fd);
-	free(unauthorized.ptr);
-	close(forbidden.fd);
-	free(forbidden.ptr);
-	close(not_found.fd);
-	free(not_found.ptr);
-	close(method_not_allowed.fd);
-	free(method_not_allowed.ptr);
-	close(uri_too_long.fd);
-	free(uri_too_long.ptr);
-	close(request_header_fields_too_large.fd);
-	free(request_header_fields_too_large.ptr);
-	close(internal_server_error.fd);
-	free(internal_server_error.ptr);
-	close(http_version_not_supported.fd);
-	free(http_version_not_supported.ptr);
+	page_close();
+	page_free();
 
 	info("graceful shutdown complete\n");
 	exit(0);

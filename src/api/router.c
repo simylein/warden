@@ -1,3 +1,4 @@
+#include "../app/page.h"
 #include "../app/serve.h"
 #include "../lib/bwt.h"
 #include "../lib/request.h"
@@ -90,30 +91,30 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&home, response);
+			serve(&page_home, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&devices, response);
+			serve(&page_devices, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&uplinks, response);
+			serve(&page_uplinks, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
-		serve(&signin, response);
+		serve(&page_signin, response);
 	}
 
 	if (endpoint(request, "get", "/signup", &method_found, &pathname_found) == true) {
-		serve(&signup, response);
+		serve(&page_signup, response);
 	}
 
 	if (endpoint(request, "get", "/api/recap", &method_found, &pathname_found) == true) {
@@ -166,30 +167,30 @@ respond:
 	}
 
 	if (response->status == 400) {
-		serve(&bad_request, response);
+		serve(&page_bad_request, response);
 	}
 	if (response->status == 401) {
-		serve(&unauthorized, response);
+		serve(&page_unauthorized, response);
 	}
 	if (response->status == 403) {
-		serve(&forbidden, response);
+		serve(&page_forbidden, response);
 	}
 	if (response->status == 404) {
-		serve(&not_found, response);
+		serve(&page_not_found, response);
 	}
 	if (response->status == 405) {
-		serve(&method_not_allowed, response);
+		serve(&page_method_not_allowed, response);
 	}
 	if (response->status == 414) {
-		serve(&uri_too_long, response);
+		serve(&page_uri_too_long, response);
 	}
 	if (response->status == 431) {
-		serve(&request_header_fields_too_large, response);
+		serve(&page_request_header_fields_too_large, response);
 	}
 	if (response->status == 500) {
-		serve(&internal_server_error, response);
+		serve(&page_internal_server_error, response);
 	}
 	if (response->status == 505) {
-		serve(&http_version_not_supported, response);
+		serve(&page_http_version_not_supported, response);
 	}
 }
