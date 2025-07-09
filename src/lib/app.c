@@ -97,6 +97,10 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	trace("received %zu bytes in %hhu packets from %s:%d\n", received_bytes, received_packets, inet_ntoa(client_addr->sin_addr),
 				ntohs(client_addr->sin_port));
 
+	if (shutdown(*client_sock, SHUT_RD) == -1) {
+		error("failed to shutdown client socket reading because %s\n", errno_str());
+	}
+
 	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 
@@ -167,6 +171,10 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 
 	trace("sent %zu bytes in %hhu packets to %s:%d\n", sent_bytes, sent_packets, inet_ntoa(client_addr->sin_addr),
 				ntohs(client_addr->sin_port));
+
+	if (shutdown(*client_sock, SHUT_WR) == -1) {
+		error("failed to shutdown client socket writing because %s\n", errno_str());
+	}
 
 cleanup:
 	if (close(*client_sock) == -1) {
