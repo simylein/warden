@@ -83,6 +83,10 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
+	if (response->status != 0) {
+		goto respond;
+	}
+
 	if (endpoint(request, "get", "/", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
@@ -149,6 +153,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		user_signup(database, request, response);
 	}
 
+respond:
 	if (response->status == 0 && pathname_found == false && method_found == false) {
 		response->status = 404;
 	}
