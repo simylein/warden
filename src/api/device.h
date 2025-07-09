@@ -20,6 +20,8 @@ typedef struct device_t {
 extern const char *device_table;
 extern const char *device_schema;
 
+uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device);
+
 uint16_t device_insert(sqlite3 *database, device_t *device);
 
 void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

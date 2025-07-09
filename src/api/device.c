@@ -23,6 +23,58 @@ const char *device_schema = "create table device ("
 														"updated_at datetime"
 														")";
 
+uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"device.id,  "
+										"user_device.device_id "
+										"from device "
+										"left join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+										"where device.id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result == SQLITE_ROW) {
+		const uint8_t *id = sqlite3_column_blob(stmt, 0);
+		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+		if (id_len != sizeof(*device->id)) {
+			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*device->id));
+			status = 500;
+			goto cleanup;
+		}
+		const int user_device_device_id_type = sqlite3_column_type(stmt, 1);
+		if (user_device_device_id_type == SQLITE_NULL) {
+			status = 403;
+			goto cleanup;
+		}
+		memcpy(device->id, id, id_len);
+		status = 0;
+	} else if (result == SQLITE_DONE) {
+		warn("device %02x%02x not found\n", *device->id[0], *device->id[1]);
+		status = 404;
+		goto cleanup;
+	} else {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;

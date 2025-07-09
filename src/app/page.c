@@ -21,6 +21,15 @@ file_t page_devices = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_device = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/device.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_uplinks = {
 		.fd = -1,
 		.ptr = NULL,
@@ -134,6 +143,7 @@ file_t page_http_version_not_supported = {
 void page_close(void) {
 	close(page_home.fd);
 	close(page_devices.fd);
+	close(page_device.fd);
 	close(page_uplinks.fd);
 	close(page_signin.fd);
 	close(page_signup.fd);
@@ -152,6 +162,7 @@ void page_close(void) {
 void page_free(void) {
 	free(page_home.ptr);
 	free(page_devices.ptr);
+	free(page_device.ptr);
 	free(page_uplinks.ptr);
 	free(page_signin.ptr);
 	free(page_signup.ptr);
