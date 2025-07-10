@@ -69,6 +69,24 @@ cleanup:
 	pthread_rwlock_unlock(&asset->lock);
 }
 
+void serve_home(request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	serve(&page_home, response);
+}
+
+void serve_devices(request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	serve(&page_devices, response);
+}
+
 void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search_len != 0) {
 		response->status = 400;
@@ -98,4 +116,13 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 	}
 
 	serve(&page_device, response);
+}
+
+void serve_uplinks(request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	serve(&page_uplinks, response);
 }

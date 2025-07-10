@@ -91,14 +91,14 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&page_home, response);
+			serve_home(request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&page_devices, response);
+			serve_devices(request, response);
 		}
 	}
 
@@ -112,7 +112,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve(&page_uplinks, response);
+			serve_uplinks(request, response);
 		}
 	}
 
