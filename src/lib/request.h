@@ -21,4 +21,5 @@ typedef struct request_t {
 void request_init(request_t *request);
 void request(char *buffer, size_t length, request_t *req, response_t *res);
 
+const char *find_param(request_t *request, uint8_t offset, uint8_t *length);
 const char *find_header(request_t *request, const char *key);

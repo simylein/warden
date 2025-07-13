@@ -142,6 +142,21 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 	req->body = (char (*)[sizeof(*req->body)])(&buffer[index]);
 }
 
+const char *find_param(request_t *request, uint8_t offset, uint8_t *length) {
+	if (request->pathname_len < offset) {
+		return NULL;
+	}
+
+	while (offset + *length < request->pathname_len) {
+		if ((*request->pathname)[offset + *length] == '/') {
+			break;
+		}
+		*length += 1;
+	}
+
+	return &(*request->pathname)[offset];
+}
+
 const char *find_header(request_t *request, const char *key) {
 	const char *header = strncasestrn(*request->header, request->header_len, key, strlen(key));
 	if (header == NULL) {
