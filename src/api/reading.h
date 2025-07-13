@@ -10,6 +10,7 @@ typedef struct reading_t {
 	float humidity;
 	time_t captured_at;
 	uint8_t (*uplink_id)[16];
+	uint8_t (*device_id)[16];
 } reading_t;
 
 extern const char *reading_table;

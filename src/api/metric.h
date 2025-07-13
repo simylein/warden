@@ -10,6 +10,7 @@ typedef struct metric_t {
 	float battery;
 	time_t captured_at;
 	uint8_t (*uplink_id)[16];
+	uint8_t (*device_id)[16];
 } metric_t;
 
 extern const char *metric_table;

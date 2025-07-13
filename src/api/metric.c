@@ -21,8 +21,8 @@ uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into metric (id, photovoltaic, battery, captured_at, uplink_id) "
-										"values (randomblob(16), ?, ?, ?, ?) returning id";
+	const char *sql = "insert into metric (id, photovoltaic, battery, captured_at, uplink_id, device_id) "
+										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -35,6 +35,7 @@ uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
 	sqlite3_bind_double(stmt, 2, metric->battery);
 	sqlite3_bind_int64(stmt, 3, metric->captured_at);
 	sqlite3_bind_blob(stmt, 4, metric->uplink_id, sizeof(*metric->uplink_id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 5, metric->device_id, sizeof(*metric->device_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
