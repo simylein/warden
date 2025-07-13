@@ -105,6 +105,9 @@ int extract(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
 			}
 		} else if (*byte == '\'' && tag && quote) {
 			quote = false;
+			if (append(classes, classes_len, NULL) == -1) {
+				return -1;
+			}
 		} else if (tag && quote) {
 			if (*byte == ',') {
 				if (append(classes, classes_len, &file->ptr[index + 1]) == -1) {
@@ -121,6 +124,8 @@ int extract(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
 }
 
 int hydrate(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
+	trace("extracted %hhu classes\n", *classes_len);
+
 	char global[4096];
 	uint16_t global_len = 0;
 	breakpoint_t global_breakpoint = {
