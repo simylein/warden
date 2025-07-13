@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <time.h>
 
 uint16_t recap_select(sqlite3 *database, bwt_t *bwt, response_t *response) {
 	uint16_t status;
@@ -54,7 +55,7 @@ uint16_t recap_select(sqlite3 *database, bwt_t *bwt, response_t *response) {
 			const int humidity_min_type = sqlite3_column_type(stmt, 5);
 			const double humidity_max = sqlite3_column_double(stmt, 6);
 			const int humidity_max_type = sqlite3_column_type(stmt, 6);
-			const uint64_t captured_at = (uint64_t)sqlite3_column_int64(stmt, 7);
+			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 7);
 			const int captured_at_type = sqlite3_column_type(stmt, 7);
 			append_body(response, id, id_len);
 			append_body(response, name, name_len);
@@ -79,7 +80,7 @@ uint16_t recap_select(sqlite3 *database, bwt_t *bwt, response_t *response) {
 			}
 			append_body(response, (char[]){captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (captured_at_type != SQLITE_NULL) {
-				append_body(response, (uint64_t[]){hton64(captured_at)}, sizeof(captured_at));
+				append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
 			}
 		} else if (result == SQLITE_DONE) {
 			status = 0;
