@@ -60,7 +60,7 @@ bool endpoint(request_t *request, const char *method, const char *pathname, bool
 }
 
 bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *response) {
-	const char *cookie = find_header(request, "cookie:");
+	const char *cookie = find_header(request, "cookie");
 	if (cookie == NULL) {
 		if (redirect == true) {
 			response->status = 307;
