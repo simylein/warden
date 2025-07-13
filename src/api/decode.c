@@ -46,7 +46,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	switch (uplink->kind) {
 	case 0x01: {
 		uint8_t id[16];
-		reading_t reading = {.id = &id, .uplink_id = uplink->id};
+		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading)) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
@@ -58,7 +58,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	}
 	case 0x02: {
 		uint8_t id[16];
-		metric_t metric = {.id = &id, .uplink_id = uplink->id};
+		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric)) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
