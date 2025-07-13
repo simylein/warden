@@ -19,8 +19,7 @@ uint16_t recap_select(sqlite3 *database, bwt_t *bwt, response_t *response) {
 										"reading.captured_at "
 										"from device "
 										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
-										"left join uplink on uplink.device_id = device.id "
-										"left join reading on reading.uplink_id = uplink.id "
+										"left join reading on reading.device_id = device.id "
 										"where reading.captured_at >= strftime('%s', 'now', '-6 days', 'start of day') "
 										"group by device.id, date(reading.captured_at, 'unixepoch')";
 	debug("%s\n", sql);
