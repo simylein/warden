@@ -80,22 +80,21 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"device.id, device.name, device.type, device.created_at, device.updated_at, "
-										"uplink.id, uplink.received_at, "
-										"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
-										"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
-										"from device "
-										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
-										"left join uplink on uplink.id = "
-										"(select id from uplink where device_id = device.id order by received_at desc limit 1) "
-										"left join reading on reading.id = "
-										"(select reading.id from reading join uplink on uplink.id = reading.uplink_id "
-										"where uplink.device_id = device.id order by reading.captured_at desc limit 1) "
-										"left join metric on metric.id = "
-										"(select metric.id from metric join uplink on uplink.id = metric.uplink_id "
-										"where uplink.device_id = device.id order by metric.captured_at desc limit 1) "
-										"order by device.name asc";
+	const char *sql =
+			"select "
+			"device.id, device.name, device.type, device.created_at, device.updated_at, "
+			"uplink.id, uplink.received_at, "
+			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
+			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
+			"from device "
+			"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+			"left join uplink on uplink.id = "
+			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
+			"left join reading on reading.id = "
+			"(select reading.id from reading where reading.device_id = device.id order by reading.captured_at desc limit 1) "
+			"left join metric on metric.id = "
+			"(select metric.id from metric where metric.device_id = device.id order by metric.captured_at desc limit 1) "
+			"order by device.name asc";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -231,22 +230,21 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"device.id, device.name, device.type, device.created_at, device.updated_at, "
-										"uplink.id, uplink.received_at, "
-										"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
-										"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
-										"from device "
-										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
-										"left join uplink on uplink.id = "
-										"(select id from uplink where device_id = device.id order by received_at desc limit 1) "
-										"left join reading on reading.id = "
-										"(select reading.id from reading join uplink on uplink.id = reading.uplink_id "
-										"where uplink.device_id = device.id order by reading.captured_at desc limit 1) "
-										"left join metric on metric.id = "
-										"(select metric.id from metric join uplink on uplink.id = metric.uplink_id "
-										"where uplink.device_id = device.id order by metric.captured_at desc limit 1) "
-										"where device.id = ?";
+	const char *sql =
+			"select "
+			"device.id, device.name, device.type, device.created_at, device.updated_at, "
+			"uplink.id, uplink.received_at, "
+			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
+			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at "
+			"from device "
+			"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+			"left join uplink on uplink.id = "
+			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
+			"left join reading on reading.id = "
+			"(select reading.id from reading where reading.device_id = device.id order by reading.captured_at desc limit 1) "
+			"left join metric on metric.id = "
+			"(select metric.id from metric where metric.device_id = device.id order by metric.captured_at desc limit 1) "
+			"where device.id = ?";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
