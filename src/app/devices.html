@@ -432,6 +432,8 @@
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
+					element.children[ind].classList.add('cursor-pointer');
+					element.children[ind].onclick = () => (window.location.href = `/device/${data[ind].id}`);
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
 					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
