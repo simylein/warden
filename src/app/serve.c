@@ -93,10 +93,10 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 		return;
 	}
 
-	const char *uuid = *request->pathname + 8;
-	size_t uuid_len = request->pathname_len - 8;
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
-		warn("uuid length %zu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
 		return;
 	}
