@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View details about your device" />
+		<title>Warden device</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDevice()">
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-8 lg:pr-16 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-8 lg:pl-16 text-lg font-normal overflow-x-scroll"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+			</nav>
+		</header>
+		<main class="m-4 sm:m-8 lg:m-16">
+			<div class="overflow-x-scroll">
+				<table style="border-collapse: collapse" class="w-full text-nowrap">
+					<tbody id="device">
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Id</p>
+							</td>
+							<td class="font-mono pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-80 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Name</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-32 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Type</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-24 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Created at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Updated at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Temperature</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Humidity</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Captured at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Photovoltaic</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Battery</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Captured at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+	</body>
+	<script>
+		// @inject ./src/app/state.js
+		// @inject ./src/app/timestamp.js
+		// @inject ./src/app/color-device.js
+		// @inject ./src/app/color-reading.js
+		// @inject ./src/app/color-metric.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/binary.js
+		const device = { retries: 0, timeout: null, controller: null, data: null, element: document.getElementById('device') };
+		const loadingDevice = (element) => {
+			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], []);
+			loading(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], []);
+			loading(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], []);
+			loading(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], []);
+			loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], []);
+			loading(element.children[5].children[1].children[0], ['w-12', 'h-4.5'], []);
+			loading(element.children[6].children[1].children[0], ['w-12', 'h-4.5'], []);
+			loading(element.children[7].children[1].children[0], ['w-40', 'h-4.5'], []);
+			loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], []);
+			loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], []);
+			loading(element.children[10].children[1].children[0], ['w-40', 'h-4.5'], []);
+		};
+		const paintDevice = (element, data) => {
+			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4.5'], data.id);
+			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4.5'], data.name);
+			paint(element.children[2].children[1].children[0], [], ['w-24', 'h-4.5'], data.type);
+			colorDevice(element.children[2].children[1].children[0], data.type);
+			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.createdAt));
+			if (data.updatedAt !== null) {
+				paint(element.children[4].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.updatedAt));
+			}
+			if (data.reading !== null) {
+				paint(element.children[5].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.temperature.toFixed(2));
+				colorTemperature(element.children[5].children[1].children[0], data.reading.temperature);
+				paint(element.children[6].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.humidity.toFixed(2));
+				colorHumidity(element.children[6].children[1].children[0], data.reading.humidity);
+				paint(element.children[7].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.reading.capturedAt));
+			}
+			if (data.metric !== null) {
+				paint(element.children[8].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.photovoltaic.toFixed(3));
+				colorPhotovoltaic(element.children[8].children[1].children[0], data.metric.photovoltaic);
+				paint(element.children[9].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.battery.toFixed(3));
+				colorBattery(element.children[9].children[1].children[0], data.metric.battery);
+				paint(element.children[10].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.metric.capturedAt));
+			}
+		};
+		const errorDevice = (element) => {
+			error(element.children[0].children[1].children[0]);
+			error(element.children[1].children[1].children[0]);
+			error(element.children[2].children[1].children[0]);
+			error(element.children[3].children[1].children[0]);
+			error(element.children[4].children[1].children[0]);
+			error(element.children[5].children[1].children[0]);
+			error(element.children[6].children[1].children[0]);
+			error(element.children[7].children[1].children[0]);
+			error(element.children[8].children[1].children[0]);
+			error(element.children[9].children[1].children[0]);
+			error(element.children[10].children[1].children[0]);
+		};
+		const parseDevice = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null };
+			device.id = binary.uuid();
+			device.name = binary.string();
+			device.type = binary.string();
+			device.createdAt = binary.uint(64);
+			if (binary.byte() !== 0) {
+				device.updatedAt = binary.uint(64);
+			}
+			if (binary.byte() !== 0) {
+				device.uplink = {};
+				device.uplink.id = binary.uuid();
+			}
+			if (binary.byte() !== 0) {
+				device.uplink.receivedAt = binary.uint(64);
+			}
+			if (binary.byte() !== 0) {
+				device.reading = {};
+				device.reading.id = binary.uuid();
+			}
+			if (binary.byte() !== 0) {
+				device.reading.temperature = binary.int(16) / 100;
+			}
+			if (binary.byte() !== 0) {
+				device.reading.humidity = binary.uint(16) / 100;
+			}
+			if (binary.byte() !== 0) {
+				device.reading.capturedAt = binary.uint(64);
+			}
+			if (binary.byte() !== 0) {
+				device.metric = {};
+				device.metric.id = binary.uuid();
+			}
+			if (binary.byte() !== 0) {
+				device.metric.photovoltaic = binary.uint(16) / 1000;
+			}
+			if (binary.byte() !== 0) {
+				device.metric.battery = binary.uint(16) / 1000;
+			}
+			if (binary.byte() !== 0) {
+				device.metric.capturedAt = binary.uint(64);
+			}
+			return device;
+		};
+		const loadDevice = async () => {
+			if (device.timeout) {
+				clearTimeout(device.timeout);
+				device.timeout = null;
+			}
+			if (device.controller) {
+				device.controller.abort();
+			}
+			device.controller = new AbortController();
+			window.requestAnimationFrame(() => loadingDevice(device.element));
+			try {
+				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: device.controller });
+				device.data = await parseDevice(response);
+				window.requestAnimationFrame(() => paintDevice(device.element, device.data));
+			} catch (err) {
+				if (err?.name !== 'AbortError') {
+					window.requestAnimationFrame(() => errorDevice(device.element));
+					if (device.retries < 4) {
+						device.timeout = setTimeout(() => {
+							device.retries++;
+							loadDevice();
+						}, 2 ** device.retries * 1000);
+					}
+				}
+			}
+		};
+	</script>
+</html>
