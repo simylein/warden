@@ -12,7 +12,9 @@ const char *metric_schema = "create table metric ("
 														"battery real not null, "
 														"captured_at timestamp not null, "
 														"uplink_id blob not null unique, "
-														"foreign key (uplink_id) references uplink(id) on delete cascade"
+														"device_id blob not null, "
+														"foreign key (uplink_id) references uplink(id) on delete cascade, "
+														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
 uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
