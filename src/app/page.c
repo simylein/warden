@@ -30,6 +30,24 @@ file_t page_device = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_device_readings = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/device-readings.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
+file_t page_device_metrics = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/device-metrics.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_uplinks = {
 		.fd = -1,
 		.ptr = NULL,

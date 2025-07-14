@@ -5,6 +5,8 @@
 extern file_t page_home;
 extern file_t page_devices;
 extern file_t page_device;
+extern file_t page_device_readings;
+extern file_t page_device_metrics;
 extern file_t page_uplinks;
 extern file_t page_signin;
 extern file_t page_signup;
