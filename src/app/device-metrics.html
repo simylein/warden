@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="itf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View metrics from your device" />
+		<title>Warden device metrics</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadMetrics()">
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-8 lg:pr-16 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-8 lg:pl-16 text-lg font-normal overflow-x-scroll"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+			</nav>
+		</header>
+		<main class="m-4 sm:m-8 lg:m-16">
+			<div
+				id="tabs"
+				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-4 lg:mb-8 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
+			>
+				<a class="no-underline text-black dark:text-white">Details</a>
+				<a class="no-underline text-black dark:text-white">Readings</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Metrics</a>
+			</div>
+			<div class="flex flex-col gap-2 sm:gap-4 lg:gap-8">
+				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
+						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
+						<p id="photovoltaic-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="photovoltaic-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<svg id="photovoltaic-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<path
+									class="stroke-neutral-200 dark:stroke-neutral-800"
+									fill="none"
+									stroke-width="2"
+									d="M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19"
+								/>
+								<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
+							</svg>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="photovoltaic-label" class="w-full flex justify-around text-xs">
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
+						<h2 class="m-0 text-base font-normal">Battery</h2>
+						<p id="battery-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
+						<div id="battery-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<svg id="battery-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<path
+									class="stroke-neutral-200 dark:stroke-neutral-800"
+									fill="none"
+									stroke-width="2"
+									d="M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13"
+								/>
+								<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-amber-400/80 dark:stroke-amber-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="2" />
+							</svg>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="battery-label" class="w-full flex justify-around text-xs">
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+	<script>
+		// @inject ./src/app/array.js
+		// @inject ./src/app/state.js
+		// @inject ./src/app/color-metric.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/binary.js
+		const tabs = document.getElementById('tabs');
+		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
+		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
+		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
+		const metrics = { retries: 0, timeout: null, controller: null, data: null };
+		const photovoltaic = {
+			range: document.getElementById('photovoltaic-range'),
+			scale: document.getElementById('photovoltaic-scale'),
+			graph: document.getElementById('photovoltaic-graph'),
+			label: document.getElementById('photovoltaic-label'),
+		};
+		const battery = {
+			range: document.getElementById('battery-range'),
+			scale: document.getElementById('battery-scale'),
+			graph: document.getElementById('battery-graph'),
+			label: document.getElementById('battery-label'),
+		};
+		const photovoltaicSkeleton =
+			'M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19';
+		const batterySkeleton =
+			'M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13';
+		const loadingPhotovoltaic = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4.5'], []);
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], [], [], '');
+			});
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[0].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].setAttribute('d', photovoltaicSkeleton);
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintPhotovoltaic = (element, photovoltaic, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			array(element.label.children.length).forEach((ind) => {
+				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+				const hours = date.getHours().toString().padStart(2, '0');
+				const minutes = date.getMinutes().toString().padStart(2, '0');
+				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+			});
+			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(2));
+				colorPhotovoltaic(element.range.children[0], photovoltaic.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], photovoltaic.max.abs.toFixed(2));
+				colorPhotovoltaic(element.range.children[2], photovoltaic.max.abs);
+			}
+			if (photovoltaic.min.floor !== null && photovoltaic.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (photovoltaic.max.ceil - photovoltaic.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			element.graph.children[0].removeAttribute('d');
+			array(element.graph.children.length).forEach((ind) => {
+				const distance = photovoltaic.points[ind].length / 100;
+				const d = photovoltaic.points[ind].map((point, i) => {
+					let type = i === 0 ? 'M' : 'L';
+					const last = i === 0 ? point : photovoltaic.points[ind][i - 1];
+					if (last.x - point.x > distance * 2) {
+						type = 'M';
+					}
+					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+				});
+				if (d.length !== 0) {
+					element.graph.children[ind].setAttribute('d', d.join(' '));
+				}
+			});
+		};
+		const errorPhotovoltaic = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind]);
+			});
+			error(element.range);
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind]);
+			});
+			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
+			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+		};
+		const loadingBattery = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4.5'], []);
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], [], [], '');
+			});
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[0].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].setAttribute('d', batterySkeleton);
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintBattery = (element, battery, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			array(element.label.children.length).forEach((ind) => {
+				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+				const hours = date.getHours().toString().padStart(2, '0');
+				const minutes = date.getMinutes().toString().padStart(2, '0');
+				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+			});
+			if (battery.min.abs !== null && battery.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range.children[0], [], [], battery.min.abs.toFixed(2));
+				colorBattery(element.range.children[0], battery.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], battery.max.abs.toFixed(2));
+				colorBattery(element.range.children[2], battery.max.abs);
+			}
+			if (battery.min.floor !== null && battery.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (battery.max.ceil - battery.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			element.graph.children[0].removeAttribute('d');
+			array(element.graph.children.length).forEach((ind) => {
+				const distance = battery.points[ind].length / 100;
+				const d = battery.points[ind].map((point, i) => {
+					let type = i === 0 ? 'M' : 'L';
+					const last = i === 0 ? point : battery.points[ind][i - 1];
+					if (last.x - point.x > distance * 2) {
+						type = 'M';
+					}
+					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
+				});
+				if (d.length !== 0) {
+					element.graph.children[ind].setAttribute('d', d.join(' '));
+				}
+			});
+		};
+		const errorBattery = (element) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind]);
+			});
+			error(element.range);
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind]);
+			});
+			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
+			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+		};
+		const summarizeMetrics = (metrics, metric, type) => {
+			const target = metrics[type];
+			if (target.min.abs === null || metric[type] < target.min.abs) {
+				target.min.abs = metric[type];
+				target.min.floor = Math.floor(metric[type]);
+			}
+			if (target.max.abs === null || metric[type] > target.max.abs) {
+				target.max.abs = metric[type];
+				target.max.ceil = Math.ceil(metric[type]);
+			}
+		};
+		const coordinateMetrics = (metrics, metric, type) => {
+			const target = metrics[type];
+			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
+			const xPercent = 100 - ((Number(metric.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * 100;
+			const yRange = target.max.ceil - target.min.floor;
+			const yPercent = 100 - ((metric[type] - target.min.floor) / yRange) * 100;
+			let index = null;
+			switch (type) {
+				case 'photovoltaic':
+					index = Math.floor(metric[type] * 2) + 1;
+					switch (true) {
+						case index >= 7:
+							index = 6;
+							break;
+						case index >= 5:
+							index = 5;
+							break;
+					}
+					target.points[index].push({ x: xPercent, y: yPercent });
+					break;
+				case 'battery':
+					index;
+					switch (true) {
+						case metric[type] >= 3.85:
+							index = 5;
+							break;
+						case metric[type] >= 3.78:
+							index = 4;
+							break;
+						case metric[type] >= 3.7:
+							index = 3;
+							break;
+						case metric[type] >= 3.6:
+							index = 2;
+							break;
+						case metric[type] < 3.5:
+							index = 1;
+							break;
+					}
+					target.points[index].push({ x: xPercent, y: yPercent });
+					break;
+			}
+		};
+		const calculateMetrics = (data) => {
+			const metrics = {
+				photovoltaic: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(photovoltaic.graph.children.length).map(() => []) },
+				battery: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(battery.graph.children.length).map(() => []) },
+				capturedAt: { start: null, end: null },
+			};
+			if (data.length !== 0) {
+				metrics.capturedAt.start = data[0].capturedAt;
+				metrics.capturedAt.end = data[data.length - 1].capturedAt;
+			}
+			data.forEach((metric) => {
+				summarizeMetrics(metrics, metric, 'photovoltaic');
+				summarizeMetrics(metrics, metric, 'battery');
+			});
+			data.forEach((metric) => {
+				coordinateMetrics(metrics, metric, 'photovoltaic');
+				coordinateMetrics(metrics, metric, 'battery');
+			});
+			return metrics;
+		};
+		const parseMetrics = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const metrics = [];
+			while (binary.offset < buffer.byteLength) {
+				const metric = { photovoltaic: null, battery: null, capturedAt: null };
+				metric.photovoltaic = binary.uint(16) / 1000;
+				metric.battery = binary.uint(16) / 1000;
+				metric.capturedAt = binary.uint(64);
+				metrics.push(metric);
+			}
+			return metrics;
+		};
+		const loadMetrics = async () => {
+			if (metrics.timeout) {
+				clearTimeout(metrics.timeout);
+				metrics.timeout = null;
+			}
+			if (metrics.controller) {
+				metrics.controller.abort();
+			}
+			metrics.controller = new AbortController();
+			window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
+			window.requestAnimationFrame(() => loadingBattery(battery));
+			try {
+				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: metrics.controller });
+				metrics.data = await parseMetrics(response);
+				const summary = calculateMetrics(metrics.data);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, summary.battery, summary.capturedAt));
+			} catch (err) {
+				if (err?.name !== 'AbortError') {
+					window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));
+					window.requestAnimationFrame(() => errorBattery(battery));
+					if (metrics.retries < 4) {
+						metrics.timeout = setTimeout(() => {
+							metrics.retries++;
+							loadMetrics();
+						}, 2 ** metrics.retries * 1000);
+					}
+				}
+			}
+		};
+	</script>
+</html>
