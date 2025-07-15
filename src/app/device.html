@@ -188,7 +188,7 @@
 		const parseDevice = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null };
+			const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null, reading: null, metric: null };
 			device.id = binary.uuid();
 			device.name = binary.string();
 			device.type = binary.string();
