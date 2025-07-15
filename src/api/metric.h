@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../lib/bwt.h"
+#include "../lib/request.h"
+#include "../lib/response.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
@@ -17,3 +20,5 @@ extern const char *metric_table;
 extern const char *metric_schema;
 
 uint16_t metric_insert(sqlite3 *database, metric_t *metric);
+
+void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

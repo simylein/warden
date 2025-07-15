@@ -4,6 +4,8 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include "metric.h"
+#include "reading.h"
 #include "recap.h"
 #include "uplink.h"
 #include "user.h"
@@ -156,6 +158,20 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			device_find_one(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/readings", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			reading_find_by_device(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/metrics", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			metric_find_by_device(database, &bwt, request, response);
 		}
 	}
 
