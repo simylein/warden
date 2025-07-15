@@ -453,6 +453,7 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 
 	const keymap_t variants[] = {
 			{.key = "text-", .key_len = 5, .val = "color", .val_len = 5},
+			{.key = "stroke-", .key_len = 7, .val = "stroke", .val_len = 6},
 			{.key = "border-t-", .key_len = 9, .val = "border-top-color", .val_len = 16},
 			{.key = "border-r-", .key_len = 9, .val = "border-right-color", .val_len = 18},
 			{.key = "border-b-", .key_len = 9, .val = "border-bottom-color", .val_len = 19},
