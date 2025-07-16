@@ -399,15 +399,18 @@
 					index;
 					switch (true) {
 						case metric[type] >= 3.85:
-							index = 5;
+							index = 6;
 							break;
 						case metric[type] >= 3.78:
-							index = 4;
+							index = 5;
 							break;
 						case metric[type] >= 3.7:
-							index = 3;
+							index = 4;
 							break;
 						case metric[type] >= 3.6:
+							index = 3;
+							break;
+						case metric[type] >= 3.5:
 							index = 2;
 							break;
 						case metric[type] < 3.5:
