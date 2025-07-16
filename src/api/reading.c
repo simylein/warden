@@ -5,6 +5,8 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "../lib/strn.h"
+#include "../lib/utils.h"
 #include "device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -24,7 +26,7 @@ const char *reading_schema = "create table reading ("
 														 "foreign key (device_id) references device(id) on delete cascade"
 														 ")";
 
-uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response,
+uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, reading_query_t *query, response_t *response,
 																	uint16_t *readings_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -33,7 +35,7 @@ uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devic
 										"reading.temperature, reading.humidity, reading.captured_at "
 										"from reading "
 										"join user_device on user_device.device_id = reading.device_id and user_device.user_id = ? "
-										"where reading.device_id = ? and reading.captured_at >= strftime('%s', 'now', 'start of day') "
+										"where reading.device_id = ? and reading.captured_at >= ? "
 										"order by reading.captured_at desc";
 	debug("%s\n", sql);
 
@@ -45,6 +47,7 @@ uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devic
 
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 3, query->from);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -118,11 +121,6 @@ cleanup:
 }
 
 void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = find_param(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -138,6 +136,19 @@ void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, r
 		return;
 	}
 
+	const char *from;
+	size_t from_len;
+	if (strnfind(*request->search, request->search_len, "from=", "", &from, &from_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	reading_query_t query = {.from = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1) {
+		response->status = 400;
+		return;
+	}
+
 	device_t device = {.id = &id};
 	uint16_t status = device_existing(database, bwt, &device);
 	if (status != 0) {
@@ -146,7 +157,7 @@ void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, r
 	}
 
 	uint16_t readings_len = 0;
-	status = reading_select_by_device(database, bwt, &device, response, &readings_len);
+	status = reading_select_by_device(database, bwt, &device, &query, response, &readings_len);
 	if (status != 0) {
 		response->status = status;
 		return;

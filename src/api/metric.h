@@ -16,6 +16,10 @@ typedef struct metric_t {
 	uint8_t (*device_id)[16];
 } metric_t;
 
+typedef struct metric_query_t {
+	time_t from;
+} metric_query_t;
+
 extern const char *metric_table;
 extern const char *metric_schema;
 

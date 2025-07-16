@@ -5,6 +5,8 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "../lib/strn.h"
+#include "../lib/utils.h"
 #include "device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -24,7 +26,8 @@ const char *metric_schema = "create table metric ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response, uint16_t *metrics_len) {
+uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, metric_query_t *query, response_t *response,
+																 uint16_t *metrics_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
@@ -32,7 +35,7 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 										"metric.photovoltaic, metric.battery, metric.captured_at "
 										"from metric "
 										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
-										"where metric.device_id = ? and metric.captured_at >= strftime('%s', 'now', 'start of day') "
+										"where metric.device_id = ? and metric.captured_at >= ? "
 										"order by metric.captured_at desc";
 	debug("%s\n", sql);
 
@@ -44,6 +47,7 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 3, query->from);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -117,11 +121,6 @@ cleanup:
 }
 
 void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = find_param(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -137,6 +136,19 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
+	const char *from;
+	size_t from_len;
+	if (strnfind(*request->search, request->search_len, "from=", "", &from, &from_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	metric_query_t query = {.from = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1) {
+		response->status = 400;
+		return;
+	}
+
 	device_t device = {.id = &id};
 	uint16_t status = device_existing(database, bwt, &device);
 	if (status != 0) {
@@ -145,7 +157,7 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	uint16_t metrics_len = 0;
-	status = metric_select_by_device(database, bwt, &device, response, &metrics_len);
+	status = metric_select_by_device(database, bwt, &device, &query, response, &metrics_len);
 	if (status != 0) {
 		response->status = status;
 		return;

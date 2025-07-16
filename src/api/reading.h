@@ -16,6 +16,10 @@ typedef struct reading_t {
 	uint8_t (*device_id)[16];
 } reading_t;
 
+typedef struct reading_query_t {
+	time_t from;
+} reading_query_t;
+
 extern const char *reading_table;
 extern const char *reading_schema;
 
