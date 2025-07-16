@@ -424,8 +424,8 @@
 				battery: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(battery.graph.children.length).map(() => []) },
 				capturedAt: { start: null, end: null },
 			};
-			readings.capturedAt.start = Math.floor(Date.now() / 1000);
-			readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+			metrics.capturedAt.start = Math.floor(Date.now() / 1000);
+			metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 			data.forEach((metric) => {
 				summarizeMetrics(metrics, metric, 'photovoltaic');
 				summarizeMetrics(metrics, metric, 'battery');
