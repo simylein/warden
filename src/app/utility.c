@@ -324,6 +324,18 @@ void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer
 		return;
 	}
 
+	const keymap_t overflows[] = {
+			{.key = "scrollbar-auto", .key_len = 14, .val = "scrollbar-width:auto", .val_len = 20},
+			{.key = "scrollbar-thin", .key_len = 14, .val = "scrollbar-width:thin", .val_len = 20},
+			{.key = "scrollbar-none", .key_len = 14, .val = "scrollbar-width:none", .val_len = 20},
+	};
+
+	for (uint8_t index = 0; index < sizeof(overflows) / sizeof(keymap_t); index++) {
+		if (cls->len == overflows[index].key_len && memcmp(cls->ptr, overflows[index].key, overflows[index].key_len) == 0) {
+			cls->known = stamp(pfx, cls, &overflows[index], NULL, NULL, buffer, buffer_len);
+		}
+	}
+
 	const keymap_t variants[] = {
 			{.key = "overflow-x-", .key_len = 11, .val = "overflow-x", .val_len = 10},
 			{.key = "overflow-y-", .key_len = 11, .val = "overflow-y", .val_len = 10},
