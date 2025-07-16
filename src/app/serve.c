@@ -32,7 +32,7 @@ void serve(file_t *asset, response_t *response) {
 			goto cleanup;
 		}
 
-		class_t classes[192];
+		class_t classes[224];
 		uint8_t classes_len = 0;
 		if (extract(asset, &classes, &classes_len) == -1) {
 			response->status = 500;

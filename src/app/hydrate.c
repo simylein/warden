@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int append(class_t (*classes)[192], uint8_t *classes_len, char *next_ptr) {
+int append(class_t (*classes)[224], uint8_t *classes_len, char *next_ptr) {
 	if ((size_t)*classes_len + 1 >= sizeof(*classes) / sizeof(class_t)) {
 		error("can not handle more than %zu classes\n", sizeof(*classes) / sizeof(class_t));
 		return -1;
@@ -36,7 +36,7 @@ int append(class_t (*classes)[192], uint8_t *classes_len, char *next_ptr) {
 	return 0;
 }
 
-int extract(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
+int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	bool tag = false;
 	bool class = false;
 	bool quote = false;
@@ -123,7 +123,7 @@ int extract(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
 	return 0;
 }
 
-int hydrate(file_t *file, class_t (*classes)[192], uint8_t *classes_len) {
+int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	trace("extracted %hhu classes\n", *classes_len);
 
 	char global[4096];
