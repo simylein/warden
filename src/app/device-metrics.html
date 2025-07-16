@@ -27,6 +27,43 @@
 				<a class="no-underline text-blue-600 dark:text-blue-400">Metrics</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-4 lg:gap-8">
+				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-scroll scrollbar-none text-nowrap">
+					<button
+						value="604800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(604800); setRange(604800); loadMetrics()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">7 days</p>
+					</button>
+					<button
+						value="172800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(172800); setRange(172800); loadMetrics()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">2 days</p>
+					</button>
+					<button
+						value="86400"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(86400); setRange(86400); loadMetrics()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">24 hours</p>
+					</button>
+					<button
+						value="43200"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(43200); setRange(43200); loadMetrics()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">12 hours</p>
+					</button>
+					<button
+						value="21600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(21600); setRange(21600); loadMetrics()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+					</button>
+				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
 						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
@@ -152,6 +189,7 @@
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
+		const ranges = document.getElementById('ranges');
 		const metrics = { retries: 0, timeout: null, controller: null, data: null };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
@@ -169,6 +207,27 @@
 			'M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19';
 		const batterySkeleton =
 			'M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13';
+		const getRange = () => {
+			const range = new URLSearchParams(window.location.search).get('range');
+			return +(range ?? 86400);
+		};
+		const setRange = (range) => {
+			const params = new URLSearchParams(window.location.search);
+			params.set('range', range);
+			window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+		};
+		const highlightRange = (range) => {
+			array(ranges.children.length).forEach((ind) => {
+				if (+ranges.children[ind].getAttribute('value') === range) {
+					ranges.children[ind].children[0].classList.add('text-blue-600', 'dark:text-blue-400');
+					ranges.children[ind].children[0].classList.remove('text-black', 'dark:text-white');
+				} else {
+					ranges.children[ind].children[0].classList.remove('text-blue-600', 'dark:text-blue-400');
+					ranges.children[ind].children[0].classList.add('text-black', 'dark:text-white');
+				}
+			});
+		};
+		highlightRange(getRange());
 		const loadingPhotovoltaic = (element) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -365,10 +424,8 @@
 				battery: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(battery.graph.children.length).map(() => []) },
 				capturedAt: { start: null, end: null },
 			};
-			if (data.length !== 0) {
-				metrics.capturedAt.start = data[0].capturedAt;
-				metrics.capturedAt.end = data[data.length - 1].capturedAt;
-			}
+			readings.capturedAt.start = Math.floor(Date.now() / 1000);
+			readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 			data.forEach((metric) => {
 				summarizeMetrics(metrics, metric, 'photovoltaic');
 				summarizeMetrics(metrics, metric, 'battery');
@@ -404,11 +461,13 @@
 			window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
 			window.requestAnimationFrame(() => loadingBattery(battery));
 			try {
-				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: metrics.controller });
+				const from = Math.floor(Date.now() / 1000) - getRange();
+				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}?from=${from}`, null, { controller: metrics.controller });
 				metrics.data = await parseMetrics(response);
 				const summary = calculateMetrics(metrics.data);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, summary.battery, summary.capturedAt));
+				highlightRange(getRange());
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));

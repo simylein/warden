@@ -27,6 +27,43 @@
 				<a class="text-base font-normal no-underline text-black dark:text-white">Metrics</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-4 lg:gap-8">
+				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-scroll scrollbar-none text-nowrap">
+					<button
+						value="604800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(604800); setRange(604800); loadReadings()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">7 days</p>
+					</button>
+					<button
+						value="172800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(172800); setRange(172800); loadReadings()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">2 days</p>
+					</button>
+					<button
+						value="86400"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(86400); setRange(86400); loadReadings()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">24 hours</p>
+					</button>
+					<button
+						value="43200"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(43200); setRange(43200); loadReadings()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">12 hours</p>
+					</button>
+					<button
+						value="21600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(21600); setRange(21600); loadReadings()"
+					>
+						<p class="m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+					</button>
+				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
 						<h2 class="m-0 text-base font-normal">Temperature</h2>
@@ -168,6 +205,7 @@
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
+		const ranges = document.getElementById('ranges');
 		const readings = { retries: 0, timeout: null, controller: null, data: null };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
@@ -185,6 +223,27 @@
 			'M 0 53 L 1 63 L 2 70 L 3 60 L 4 64 L 5 68 L 6 59 L 7 61 L 8 65 L 9 50 L 10 46 L 11 49 L 12 31 L 13 35 L 14 45 L 15 38 L 16 56 L 17 72 L 18 69 L 19 66 L 20 64 L 21 52 L 22 57 L 23 74 L 24 62 L 25 65 L 26 69 L 27 58 L 28 62 L 29 68 L 30 86 L 31 81 L 32 72 L 33 66 L 34 65 L 35 47 L 36 44 L 37 54 L 38 65 L 39 80 L 40 63 L 41 61 L 42 78 L 43 88 L 44 84 L 45 71 L 46 66 L 47 63 L 48 50 L 49 47 L 50 59 L 51 55 L 52 50 L 53 67 L 54 69 L 55 64 L 56 62 L 57 60 L 58 48 L 59 42 L 60 40 L 61 43 L 62 39 L 63 36 L 64 46 L 65 45 L 66 35 L 67 33 L 68 46 L 69 59 L 70 48 L 71 61 L 72 70 L 73 86 L 74 77 L 75 79 L 76 80 L 77 69 L 78 56 L 79 60 L 80 45 L 81 50 L 82 64 L 83 59 L 84 66 L 85 82 L 86 90 L 87 95 L 88 91 L 89 88 L 90 85 L 91 69 L 92 56 L 93 67 L 94 72 L 95 89 L 96 93 L 97 91 L 98 76 L 99 79 L 100 60';
 		const humiditySkeleton =
 			'M 0 31 L 1 36 L 2 38 L 3 41 L 4 55 L 5 49 L 6 54 L 7 37 L 8 32 L 9 43 L 10 50 L 11 45 L 12 41 L 13 35 L 14 33 L 15 24 L 16 42 L 17 44 L 18 48 L 19 30 L 20 33 L 21 21 L 22 34 L 23 44 L 24 50 L 25 42 L 26 36 L 27 41 L 28 47 L 29 30 L 30 19 L 31 24 L 32 31 L 33 48 L 34 51 L 35 46 L 36 30 L 37 18 L 38 37 L 39 33 L 40 26 L 41 40 L 42 35 L 43 19 L 44 21 L 45 11 L 46 15 L 47 17 L 48 36 L 49 28 L 50 31 L 51 43 L 52 51 L 53 60 L 54 69 L 55 58 L 56 73 L 57 59 L 58 50 L 59 62 L 60 71 L 61 90 L 62 77 L 63 85 L 64 69 L 65 57 L 66 39 L 67 41 L 68 54 L 69 49 L 70 46 L 71 33 L 72 24 L 73 43 L 74 37 L 75 42 L 76 59 L 77 67 L 78 62 L 79 45 L 80 42 L 81 24 L 82 20 L 83 38 L 84 46 L 85 34 L 86 27 L 87 13 L 88 21 L 89 31 L 90 45 L 91 37 L 92 50 L 93 56 L 94 71 L 95 60 L 96 66 L 97 70 L 98 84 L 99 97 L 100 89';
+		const getRange = () => {
+			const range = new URLSearchParams(window.location.search).get('range');
+			return +(range ?? 86400);
+		};
+		const setRange = (range) => {
+			const params = new URLSearchParams(window.location.search);
+			params.set('range', range);
+			window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+		};
+		const highlightRange = (range) => {
+			array(ranges.children.length).forEach((ind) => {
+				if (+ranges.children[ind].getAttribute('value') === range) {
+					ranges.children[ind].children[0].classList.add('text-blue-600', 'dark:text-blue-400');
+					ranges.children[ind].children[0].classList.remove('text-black', 'dark:text-white');
+				} else {
+					ranges.children[ind].children[0].classList.remove('text-blue-600', 'dark:text-blue-400');
+					ranges.children[ind].children[0].classList.add('text-black', 'dark:text-white');
+				}
+			});
+		};
+		highlightRange(getRange());
 		const loadingTemperature = (element) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -378,10 +437,8 @@
 				humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(humidity.graph.children.length).map(() => []) },
 				capturedAt: { start: null, end: null },
 			};
-			if (data.length !== 0) {
-				readings.capturedAt.start = data[0].capturedAt;
-				readings.capturedAt.end = data[data.length - 1].capturedAt;
-			}
+			readings.capturedAt.start = Math.floor(Date.now() / 1000);
+			readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 			data.forEach((reading) => {
 				summarizeReadings(readings, reading, 'temperature');
 				summarizeReadings(readings, reading, 'humidity');
@@ -417,11 +474,13 @@
 			window.requestAnimationFrame(() => loadingTemperature(temperature));
 			window.requestAnimationFrame(() => loadingHumidity(humidity));
 			try {
-				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: readings.controller });
+				const from = Math.floor(Date.now() / 1000) - getRange();
+				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}?from=${from}`, null, { controller: readings.controller });
 				readings.data = await parseReadings(response);
 				const summary = calculateReadings(readings.data);
 				window.requestAnimationFrame(() => paintTemperature(temperature, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, summary.humidity, summary.capturedAt));
+				highlightRange(getRange());
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorTemperature(temperature));
