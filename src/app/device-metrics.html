@@ -270,8 +270,8 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
+			const distance = 100 / photovoltaic.points.reduce((accumulator, points) => accumulator + points.length, 0);
 			array(element.graph.children.length).forEach((ind) => {
-				const distance = photovoltaic.points[ind].length / 100;
 				const d = photovoltaic.points[ind].map((point, i) => {
 					let type = i === 0 ? 'M' : 'L';
 					const last = i === 0 ? point : photovoltaic.points[ind][i - 1];
@@ -338,8 +338,8 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
+			const distance = 100 / battery.points.reduce((accumulator, points) => accumulator + points.length, 0);
 			array(element.graph.children.length).forEach((ind) => {
-				const distance = battery.points[ind].length / 100;
 				const d = battery.points[ind].map((point, i) => {
 					let type = i === 0 ? 'M' : 'L';
 					const last = i === 0 ? point : battery.points[ind][i - 1];

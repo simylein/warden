@@ -286,8 +286,8 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
+			const distance = 100 / temperature.points.reduce((accumulator, points) => accumulator + points.length, 0);
 			array(element.graph.children.length).forEach((ind) => {
-				const distance = temperature.points[ind].length / 100;
 				const d = temperature.points[ind].map((point, i) => {
 					let type = i === 0 ? 'M' : 'L';
 					const last = i === 0 ? point : temperature.points[ind][i - 1];
@@ -354,8 +354,8 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
+			const distance = 100 / humidity.points.reduce((accumulator, points) => accumulator + points.length, 0);
 			array(element.graph.children.length).forEach((ind) => {
-				const distance = humidity.points[ind].length / 100;
 				const d = humidity.points[ind].map((point, i) => {
 					let type = i === 0 ? 'M' : 'L';
 					const last = i === 0 ? point : humidity.points[ind][i - 1];
