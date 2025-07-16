@@ -8,7 +8,7 @@ int strnto16(const char *string, const size_t string_len, uint16_t *value) {
 		}
 
 		uint16_t digit = (uint16_t)string[index] - '0';
-		*value = *value * 10 + digit;
+		*value = (uint16_t)(*value * 10 + digit);
 	}
 
 	return 0;
@@ -21,7 +21,7 @@ int strnto32(const char *string, const size_t string_len, uint32_t *value) {
 		}
 
 		uint32_t digit = (uint32_t)string[index] - '0';
-		*value = *value * 10 + digit;
+		*value = (uint32_t)(*value * 10 + digit);
 	}
 
 	return 0;
@@ -34,7 +34,7 @@ int strnto64(const char *string, const size_t string_len, uint64_t *value) {
 		}
 
 		uint64_t digit = (uint64_t)string[index] - '0';
-		*value = *value * 10 + digit;
+		*value = (uint64_t)(*value * 10 + digit);
 	}
 
 	return 0;
