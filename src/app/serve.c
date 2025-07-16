@@ -69,30 +69,7 @@ cleanup:
 	pthread_rwlock_unlock(&asset->lock);
 }
 
-void serve_home(request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
-	serve(&page_home, response);
-}
-
-void serve_devices(request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
-	serve(&page_devices, response);
-}
-
 void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = find_param(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -119,11 +96,6 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 }
 
 void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = find_param(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -150,11 +122,6 @@ void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, re
 }
 
 void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = find_param(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -178,13 +145,4 @@ void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	}
 
 	serve(&page_device_metrics, response);
-}
-
-void serve_uplinks(request_t *request, response_t *response) {
-	if (request->search_len != 0) {
-		response->status = 400;
-		return;
-	}
-
-	serve(&page_uplinks, response);
 }
