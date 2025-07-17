@@ -475,7 +475,9 @@
 			window.requestAnimationFrame(() => loadingHumidity(humidity));
 			try {
 				const from = Math.floor(Date.now() / 1000) - getRange();
-				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}?from=${from}`, null, { controller: readings.controller });
+				const to = Math.floor(Date.now() / 1000);
+				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
+				const response = await fetcher('get', endpoint, null, { controller: readings.controller });
 				readings.data = await parseReadings(response);
 				const summary = calculateReadings(readings.data);
 				window.requestAnimationFrame(() => paintTemperature(temperature, summary.temperature, summary.capturedAt));

@@ -465,7 +465,9 @@
 			window.requestAnimationFrame(() => loadingBattery(battery));
 			try {
 				const from = Math.floor(Date.now() / 1000) - getRange();
-				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}?from=${from}`, null, { controller: metrics.controller });
+				const to = Math.floor(Date.now() / 1000);
+				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
+				const response = await fetcher('get', endpoint, null, { controller: metrics.controller });
 				metrics.data = await parseMetrics(response);
 				const summary = calculateMetrics(metrics.data);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
