@@ -34,7 +34,7 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 										"metric.photovoltaic, metric.battery, metric.captured_at "
 										"from metric "
 										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
-										"where metric.device_id = ? and metric.captured_at >= ? "
+										"where metric.device_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
 										"order by metric.captured_at desc";
 	debug("%s\n", sql);
 
@@ -47,6 +47,7 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
 	sqlite3_bind_int64(stmt, 3, query->from);
+	sqlite3_bind_int64(stmt, 4, query->to);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -137,13 +138,27 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 
 	const char *from;
 	size_t from_len;
-	if (strnfind(*request->search, request->search_len, "from=", "", &from, &from_len, 16) == -1) {
+	if (strnfind(*request->search, request->search_len, "from=", "&", &from, &from_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
 
-	metric_query_t query = {.from = 0};
-	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1) {
+	const char *to;
+	size_t to_len;
+	if (strnfind(*request->search, request->search_len, "to=", "", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	metric_query_t query = {.from = 0, .to = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
+		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+		response->status = 400;
+		return;
+	}
+
+	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 604800) {
+		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
 		response->status = 400;
 		return;
 	}
