@@ -7,7 +7,7 @@
 #include "request.h"
 #include "sha256.h"
 #include "string.h"
-#include "utils.h"
+#include "strn.h"
 #include <stdint.h>
 #include <time.h>
 

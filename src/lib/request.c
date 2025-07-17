@@ -1,6 +1,6 @@
 #include "request.h"
 #include "response.h"
-#include "utils.h"
+#include "strn.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>

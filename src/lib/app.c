@@ -5,7 +5,7 @@
 #include "logger.h"
 #include "request.h"
 #include "response.h"
-#include "utils.h"
+#include "strn.h"
 #include <arpa/inet.h>
 #include <sqlite3.h>
 #include <stdlib.h>

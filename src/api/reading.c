@@ -6,7 +6,6 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
-#include "../lib/utils.h"
 #include "device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
