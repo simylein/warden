@@ -1,4 +1,9 @@
 const colorPhotovoltaic = (element, photovoltaic) => {
+	element.classList.forEach((cls) => {
+		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
+			element.classList.remove(cls);
+		}
+	});
 	switch (true) {
 		case photovoltaic < 0.5:
 			return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
@@ -16,6 +21,11 @@ const colorPhotovoltaic = (element, photovoltaic) => {
 };
 
 const colorBattery = (element, battery) => {
+	element.classList.forEach((cls) => {
+		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
+			element.classList.remove(cls);
+		}
+	});
 	switch (true) {
 		case battery < 3.5:
 			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
