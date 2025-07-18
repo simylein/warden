@@ -33,35 +33,56 @@
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(604800); setRange(604800); loadReadings()"
 					>
-						<p class="m-0 text-base font-normal text-black dark:text-white">7 days</p>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
+					</button>
+					<button
+						value="345600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(345600); setRange(345600); loadReadings()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
 					</button>
 					<button
 						value="172800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(172800); setRange(172800); loadReadings()"
 					>
-						<p class="m-0 text-base font-normal text-black dark:text-white">2 days</p>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
 					</button>
 					<button
 						value="86400"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(86400); setRange(86400); loadReadings()"
 					>
-						<p class="m-0 text-base font-normal text-black dark:text-white">24 hours</p>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
 					</button>
 					<button
 						value="43200"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(43200); setRange(43200); loadReadings()"
 					>
-						<p class="m-0 text-base font-normal text-black dark:text-white">12 hours</p>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
 					</button>
 					<button
 						value="21600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(21600); setRange(21600); loadReadings()"
 					>
-						<p class="m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+					</button>
+					<button
+						value="10800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(10800); setRange(10800); loadReadings()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
 					</button>
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
@@ -235,11 +256,15 @@
 		const highlightRange = (range) => {
 			array(ranges.children.length).forEach((ind) => {
 				if (+ranges.children[ind].getAttribute('value') === range) {
-					ranges.children[ind].children[0].classList.add('text-blue-600', 'dark:text-blue-400');
-					ranges.children[ind].children[0].classList.remove('text-black', 'dark:text-white');
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.add('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.remove('text-black', 'dark:text-white');
+					});
 				} else {
-					ranges.children[ind].children[0].classList.remove('text-blue-600', 'dark:text-blue-400');
-					ranges.children[ind].children[0].classList.add('text-black', 'dark:text-white');
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.remove('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.add('text-black', 'dark:text-white');
+					});
 				}
 			});
 		};
