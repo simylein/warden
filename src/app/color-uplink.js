@@ -1,9 +1,13 @@
-const colorRssi = (element, rssi) => {
+const fadeRssi = (element) => {
 	element.classList.forEach((cls) => {
 		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
 			element.classList.remove(cls);
 		}
 	});
+};
+
+const colorRssi = (element, rssi) => {
+	fadeRssi(element);
 	switch (true) {
 		case rssi < -125:
 			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
@@ -20,12 +24,16 @@ const colorRssi = (element, rssi) => {
 	}
 };
 
-const colorSnr = (element, snr) => {
+const fadeSnr = (element) => {
 	element.classList.forEach((cls) => {
 		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
 			element.classList.remove(cls);
 		}
 	});
+};
+
+const colorSnr = (element, snr) => {
+	fadeSnr(element);
 	switch (true) {
 		case snr < -15:
 			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
@@ -42,7 +50,16 @@ const colorSnr = (element, snr) => {
 	}
 };
 
+const fadeSf = (element) => {
+	element.classList.forEach((cls) => {
+		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
+			element.classList.remove(cls);
+		}
+	});
+};
+
 const colorSf = (element, sf) => {
+	fadeSf(element);
 	switch (true) {
 		case sf === 7:
 			return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');

@@ -1,9 +1,13 @@
-const colorTemperature = (element, temperature) => {
+const fadeTemperature = (element) => {
 	element.classList.forEach((cls) => {
 		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
 			element.classList.remove(cls);
 		}
 	});
+};
+
+const colorTemperature = (element, temperature) => {
+	fadeTemperature(element);
 	switch (true) {
 		case temperature < -20:
 			return element.classList.add('text-fuchsia-600', 'dark:text-fuchsia-400', 'background-fuchsia-50', 'dark:background-fuchsia-950');
@@ -40,12 +44,16 @@ const colorTemperature = (element, temperature) => {
 	}
 };
 
-const colorHumidity = (element, humidity) => {
+const fadeHumidity = (element) => {
 	element.classList.forEach((cls) => {
 		if (cls.startsWith('text-') || cls.startsWith('dark:text-') || cls.startsWith('background-') || cls.startsWith('dark:background-')) {
 			element.classList.remove(cls);
 		}
 	});
+};
+
+const colorHumidity = (element, humidity) => {
+	fadeHumidity(element);
 	switch (true) {
 		case humidity < 20:
 			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
