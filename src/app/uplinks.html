@@ -415,16 +415,19 @@
 		// @inject ./src/app/color-uplink.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
-		const uplinks = { retries: 0, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
+		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
-				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], []);
-				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], []);
-				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], []);
-				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], []);
-				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], []);
-				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
-				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], []);
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fadeRssi(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
+				fadeSnr(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeSf(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
 			});
 		};
 		const paintUplinks = (element, data) => {
@@ -446,13 +449,16 @@
 		};
 		const errorUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
-				error(element.children[ind].children[0].children[0]);
-				error(element.children[ind].children[1].children[0]);
-				error(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[3].children[0]);
-				error(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fadeRssi(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
+				fadeSnr(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeSf(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
 			});
 		};
 		const parseUplinks = async (response) => {
@@ -473,7 +479,7 @@
 			}
 			return uplinks;
 		};
-		const loadUplinks = async () => {
+		const loadUplinks = async (silent) => {
 			if (uplinks.timeout) {
 				clearTimeout(uplinks.timeout);
 				uplinks.timeout = null;
@@ -482,11 +488,16 @@
 				uplinks.controller.abort();
 			}
 			uplinks.controller = new AbortController();
-			window.requestAnimationFrame(() => loadingUplinks(uplinks.element));
+			if (!silent) {
+				window.requestAnimationFrame(() => loadingUplinks(uplinks.element));
+			}
 			try {
 				const response = await fetcher('get', '/api/uplinks', null, { controller: uplinks.controller });
 				uplinks.data = await parseUplinks(response);
 				window.requestAnimationFrame(() => paintUplinks(uplinks.element, uplinks.data));
+				if (uplinks.reload !== null) {
+					uplinks.timeout = setTimeout(() => loadUplinks(true), uplinks.reload * 1000);
+				}
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorUplinks(uplinks.element));

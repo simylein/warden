@@ -416,16 +416,21 @@
 		// @inject ./src/app/color-metric.js
 		// @inject ./src/app/binary.js
 		// @inject ./src/app/fetcher.js
-		const devices = { retries: 0, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
+		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
-				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], []);
-				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], []);
-				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], []);
-				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], []);
-				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], []);
-				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], []);
-				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], []);
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
+				fadeDevice(element.children[ind].children[2].children[0]);
+				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
+				fadeTemperature(element.children[ind].children[3].children[0]);
+				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeHumidity(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
+				fadePhotovoltaic(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeBattery(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -455,13 +460,18 @@
 		};
 		const errorDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
-				error(element.children[ind].children[0].children[0]);
-				error(element.children[ind].children[1].children[0]);
-				error(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[3].children[0]);
-				error(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
+				fadeDevice(element.children[ind].children[2].children[0]);
+				error(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
+				fadeTemperature(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeHumidity(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
+				fadePhotovoltaic(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fadeBattery(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
 			});
 		};
 		const parseDevices = async (response) => {
@@ -514,7 +524,7 @@
 			}
 			return devices;
 		};
-		const loadDevices = async () => {
+		const loadDevices = async (silent) => {
 			if (devices.timeout) {
 				clearTimeout(devices.timeout);
 				devices.timeout = null;
@@ -523,11 +533,16 @@
 				devices.controller.abort();
 			}
 			devices.controller = new AbortController();
-			window.requestAnimationFrame(() => loadingDevices(devices.element));
+			if (!silent) {
+				window.requestAnimationFrame(() => loadingDevices(devices.element));
+			}
 			try {
 				const response = await fetcher('get', '/api/devices', null, { controller: devices.controller });
 				devices.data = await parseDevices(response);
 				window.requestAnimationFrame(() => paintDevices(devices.element, devices.data));
+				if (devices.reload !== null) {
+					devices.timeout = setTimeout(() => loadDevices(true), devices.reload * 1000);
+				}
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorDevices(devices.element));
