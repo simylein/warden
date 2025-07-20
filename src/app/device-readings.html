@@ -331,11 +331,14 @@
 		};
 		const errorTemperature = (element) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind]);
+				error(element.label.children[ind], ['w-8'], [], '');
 			});
-			error(element.range);
+			error(element.range, ['w-28', 'h-4.5'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
 			array(element.scale.children.length).forEach((ind) => {
-				error(element.scale.children[ind]);
+				error(element.scale.children[ind], [], [], '');
 			});
 			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
 			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
@@ -402,11 +405,14 @@
 		};
 		const errorHumidity = (element) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind]);
+				error(element.label.children[ind], ['w-8'], [], '');
 			});
-			error(element.range);
+			error(element.range, ['w-28', 'h-4.5'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
 			array(element.scale.children.length).forEach((ind) => {
-				error(element.scale.children[ind]);
+				error(element.scale.children[ind], [], [], '');
 			});
 			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
 			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
