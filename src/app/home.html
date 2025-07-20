@@ -718,7 +718,7 @@
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
-		const recap = { retries: 0, timeout: null, controller: null };
+		const recap = { retries: 0, reload: 60, timeout: null, controller: null };
 		const indoorTemperature = {
 			range: document.getElementById('indoor-temperature-range'),
 			scale: document.getElementById('indoor-temperature-scale'),
@@ -776,6 +776,11 @@
 			array(element.graph.children.length).forEach((ind) => {
 				element.graph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
 				loading(element.graph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
+				array(element.graph.children[ind].children.length).forEach((i) => {
+					if (i > 1 && i < 18) {
+						element.graph.children[ind].children[i].style.height = null;
+					}
+				});
 				element.graph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
 			});
 		};
@@ -826,14 +831,24 @@
 		};
 		const errorTemperature = (element) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind]);
+				error(element.label.children[ind], ['w-6'], [], '');
 			});
-			error(element.range);
+			error(element.range, ['w-28', 'h-4.5'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
 			array(element.scale.children.length).forEach((ind) => {
-				error(element.scale.children[ind]);
+				error(element.scale.children[ind], [], [], '');
 			});
 			array(element.graph.children.length).forEach((ind) => {
-				error(element.graph.children[ind].children[1]);
+				element.graph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
+				error(element.graph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
+				array(element.graph.children[ind].children.length).forEach((i) => {
+					if (i > 1 && i < 18) {
+						element.graph.children[ind].children[i].style.height = null;
+					}
+				});
+				element.graph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
 			});
 		};
 		const loadingHumidity = (element) => {
@@ -850,6 +865,11 @@
 			array(element.graph.children.length).forEach((ind) => {
 				element.graph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
 				loading(element.graph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
+				array(element.graph.children[ind].children.length).forEach((i) => {
+					if (i > 1 && i < 14) {
+						element.graph.children[ind].children[i].style.height = null;
+					}
+				});
 				element.graph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
 			});
 		};
@@ -908,14 +928,24 @@
 		};
 		const errorHumidity = (element) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind]);
+				error(element.label.children[ind], ['w-6'], [], '');
 			});
-			error(element.range);
+			error(element.range, ['w-28', 'h-4.5'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
 			array(element.scale.children.length).forEach((ind) => {
-				error(element.scale.children[ind]);
+				error(element.scale.children[ind], [], [], '');
 			});
 			array(element.graph.children.length).forEach((ind) => {
-				error(element.graph.children[ind].children[1]);
+				element.graph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
+				error(element.graph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
+				array(element.graph.children[ind].children.length).forEach((i) => {
+					if (i > 1 && i < 14) {
+						element.graph.children[ind].children[i].style.height = null;
+					}
+				});
+				element.graph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
 			});
 		};
 		const collectRecap = (recap, device, reading, today) => {
@@ -1008,7 +1038,7 @@
 			}
 			return devices;
 		};
-		const loadRecap = async () => {
+		const loadRecap = async (silent) => {
 			if (recap.timeout) {
 				clearTimeout(recap.timeout);
 				recap.timeout = null;
@@ -1017,10 +1047,12 @@
 				recap.controller.abort();
 			}
 			recap.controller = new AbortController();
-			window.requestAnimationFrame(() => loadingTemperature(indoorTemperature));
-			window.requestAnimationFrame(() => loadingHumidity(indoorHumidity));
-			window.requestAnimationFrame(() => loadingTemperature(outdoorTemperature));
-			window.requestAnimationFrame(() => loadingHumidity(outdoorHumidity));
+			if (!silent) {
+				window.requestAnimationFrame(() => loadingTemperature(indoorTemperature));
+				window.requestAnimationFrame(() => loadingHumidity(indoorHumidity));
+				window.requestAnimationFrame(() => loadingTemperature(outdoorTemperature));
+				window.requestAnimationFrame(() => loadingHumidity(outdoorHumidity));
+			}
 			try {
 				const response = await fetcher('get', '/api/recap', null, { controller: recap.controller });
 				const data = await parseRecap(response);
@@ -1029,6 +1061,9 @@
 				window.requestAnimationFrame(() => paintHumidity(indoorHumidity, summary.indoor.humidity));
 				window.requestAnimationFrame(() => paintTemperature(outdoorTemperature, summary.outdoor.temperature));
 				window.requestAnimationFrame(() => paintHumidity(outdoorHumidity, summary.outdoor.humidity));
+				if (recap.reload !== null) {
+					recap.timeout = setTimeout(() => loadRecap(true), recap.reload * 1000);
+				}
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorTemperature(indoorTemperature));
