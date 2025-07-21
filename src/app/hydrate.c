@@ -304,7 +304,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 		file_ind++;
 	}
 
-	if (tag == false) {
+	if (*classes_len != 0 && tag == false) {
 		error("file %s does not contain a style tag\n", file->path);
 		return -1;
 	}
