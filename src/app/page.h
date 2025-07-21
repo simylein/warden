@@ -3,6 +3,8 @@
 #include "file.h"
 
 extern file_t page_home;
+extern file_t page_robots;
+extern file_t page_security;
 extern file_t page_devices;
 extern file_t page_device;
 extern file_t page_device_readings;

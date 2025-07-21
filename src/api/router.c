@@ -97,6 +97,14 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/robots.txt", &method_found, &pathname_found) == true) {
+		serve(&page_robots, response);
+	}
+
+	if (endpoint(request, "get", "/security.txt", &method_found, &pathname_found) == true) {
+		serve(&page_security, response);
+	}
+
 	if (endpoint(request, "get", "/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
