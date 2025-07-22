@@ -715,6 +715,7 @@
 	<script>
 		// @inject ./src/app/array.js
 		// @inject ./src/app/state.js
+		// @inject ./src/app/math.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -964,15 +965,22 @@
 		};
 		const summarizeRecap = (recap, type, reading, ind) => {
 			const target = recap[type][reading];
-			target.days[ind].min = target.days[ind].min.reduce((accumulator, value) => accumulator + value) / target.days[ind].min.length;
-			target.days[ind].max = target.days[ind].max.reduce((accumulator, value) => accumulator + value) / target.days[ind].max.length;
-			if (target.min.abs === null || target.days[ind].min < target.min.abs) {
-				target.min.abs = target.days[ind].min;
-				target.min.floor = Math.floor(target.days[ind].min);
+			if (target.days[ind] !== null) {
+				target.days[ind].min = target.days[ind].min.reduce((accumulator, value) => accumulator + value) / target.days[ind].min.length;
+				target.days[ind].max = target.days[ind].max.reduce((accumulator, value) => accumulator + value) / target.days[ind].max.length;
+				if (target.min.abs === null || target.days[ind].min < target.min.abs) {
+					target.min.abs = target.days[ind].min;
+				}
+				if (target.max.abs === null || target.days[ind].max > target.max.abs) {
+					target.max.abs = target.days[ind].max;
+				}
 			}
-			if (target.max.abs === null || target.days[ind].max > target.max.abs) {
-				target.max.abs = target.days[ind].max;
-				target.max.ceil = Math.ceil(target.days[ind].max);
+		};
+		const normalizeRecap = (recap, type, reading) => {
+			const target = recap[type][reading];
+			if (target.min.abs !== null && target.max.abs !== null) {
+				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
+				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
 		const calculateRecap = (data, days) => {
@@ -993,19 +1001,15 @@
 				collectRecap(recap, device, 'humidity', today);
 			});
 			array(days).forEach((ind) => {
-				if (recap.indoor.temperature.days[ind] !== null) {
-					summarizeRecap(recap, 'indoor', 'temperature', ind);
-				}
-				if (recap.indoor.humidity.days[ind] !== null) {
-					summarizeRecap(recap, 'indoor', 'humidity', ind);
-				}
-				if (recap.outdoor.temperature.days[ind] !== null) {
-					summarizeRecap(recap, 'outdoor', 'temperature', ind);
-				}
-				if (recap.outdoor.humidity.days[ind] !== null) {
-					summarizeRecap(recap, 'outdoor', 'humidity', ind);
-				}
+				summarizeRecap(recap, 'indoor', 'temperature', ind);
+				summarizeRecap(recap, 'indoor', 'humidity', ind);
+				summarizeRecap(recap, 'outdoor', 'temperature', ind);
+				summarizeRecap(recap, 'outdoor', 'humidity', ind);
 			});
+			normalizeRecap(recap, 'indoor', 'temperature');
+			normalizeRecap(recap, 'indoor', 'humidity');
+			normalizeRecap(recap, 'outdoor', 'temperature');
+			normalizeRecap(recap, 'outdoor', 'humidity');
 			return recap;
 		};
 		const parseRecap = async (response) => {

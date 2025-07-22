@@ -203,6 +203,7 @@
 	<script>
 		// @inject ./src/app/array.js
 		// @inject ./src/app/state.js
+		// @inject ./src/app/math.js
 		// @inject ./src/app/color-metric.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -405,11 +406,16 @@
 			const target = metrics[type];
 			if (target.min.abs === null || metric[type] < target.min.abs) {
 				target.min.abs = metric[type];
-				target.min.floor = Math.floor(metric[type]);
 			}
 			if (target.max.abs === null || metric[type] > target.max.abs) {
 				target.max.abs = metric[type];
-				target.max.ceil = Math.ceil(metric[type]);
+			}
+		};
+		const normalizeMetrics = (metrics, type) => {
+			const target = metrics[type];
+			if (target.min.abs !== null && target.max.abs !== null) {
+				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
+				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
 		const coordinateMetrics = (metrics, metric, type) => {
@@ -470,6 +476,8 @@
 				summarizeMetrics(metrics, metric, 'photovoltaic');
 				summarizeMetrics(metrics, metric, 'battery');
 			});
+			normalizeMetrics(metrics, 'photovoltaic');
+			normalizeMetrics(metrics, 'battery');
 			data.forEach((metric) => {
 				coordinateMetrics(metrics, metric, 'photovoltaic');
 				coordinateMetrics(metrics, metric, 'battery');

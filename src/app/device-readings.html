@@ -219,6 +219,7 @@
 	<script>
 		// @inject ./src/app/array.js
 		// @inject ./src/app/state.js
+		// @inject ./src/app/math.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -421,11 +422,16 @@
 			const target = readings[type];
 			if (target.min.abs === null || reading[type] < target.min.abs) {
 				target.min.abs = reading[type];
-				target.min.floor = Math.floor(reading[type]);
 			}
 			if (target.max.abs === null || reading[type] > target.max.abs) {
 				target.max.abs = reading[type];
-				target.max.ceil = Math.ceil(reading[type]);
+			}
+		};
+		const normalizeReadings = (readings, type) => {
+			const target = readings[type];
+			if (target.min.abs !== null && target.max.abs !== null) {
+				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
+				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
 		const coordinateReadings = (readings, reading, type) => {
@@ -480,6 +486,8 @@
 				summarizeReadings(readings, reading, 'temperature');
 				summarizeReadings(readings, reading, 'humidity');
 			});
+			normalizeReadings(readings, 'temperature');
+			normalizeReadings(readings, 'humidity');
 			data.forEach((reading) => {
 				coordinateReadings(readings, reading, 'temperature');
 				coordinateReadings(readings, reading, 'humidity');
