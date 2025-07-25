@@ -212,7 +212,7 @@
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		const ranges = document.getElementById('ranges');
-		const metrics = { retries: 0, timeout: null, controller: null, data: null };
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
 			scale: document.getElementById('photovoltaic-scale'),
@@ -497,7 +497,7 @@
 			}
 			return metrics;
 		};
-		const loadMetrics = async () => {
+		const loadMetrics = async (silent) => {
 			if (metrics.timeout) {
 				clearTimeout(metrics.timeout);
 				metrics.timeout = null;
@@ -506,9 +506,12 @@
 				metrics.controller.abort();
 			}
 			metrics.controller = new AbortController();
-			window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
-			window.requestAnimationFrame(() => loadingBattery(battery));
+			if (!silent) {
+				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
+				window.requestAnimationFrame(() => loadingBattery(battery));
+			}
 			try {
+				metrics.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
@@ -518,6 +521,9 @@
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, summary.battery, summary.capturedAt));
 				highlightRange(getRange());
+				if (metrics.reload !== null) {
+					metrics.timeout = setTimeout(() => loadMetrics(true), metrics.reload * 1000);
+				}
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));

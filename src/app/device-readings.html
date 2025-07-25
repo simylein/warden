@@ -228,7 +228,7 @@
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		const ranges = document.getElementById('ranges');
-		const readings = { retries: 0, timeout: null, controller: null, data: null };
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
@@ -507,7 +507,7 @@
 			}
 			return readings;
 		};
-		const loadReadings = async () => {
+		const loadReadings = async (silent) => {
 			if (readings.timeout) {
 				clearTimeout(readings.timeout);
 				readings.timeout = null;
@@ -516,9 +516,12 @@
 				readings.controller.abort();
 			}
 			readings.controller = new AbortController();
-			window.requestAnimationFrame(() => loadingTemperature(temperature));
-			window.requestAnimationFrame(() => loadingHumidity(humidity));
+			if (!silent) {
+				window.requestAnimationFrame(() => loadingTemperature(temperature));
+				window.requestAnimationFrame(() => loadingHumidity(humidity));
+			}
 			try {
+				readings.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
@@ -528,6 +531,9 @@
 				window.requestAnimationFrame(() => paintTemperature(temperature, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, summary.humidity, summary.capturedAt));
 				highlightRange(getRange());
+				if (readings.reload !== null) {
+					readings.timeout = setTimeout(() => loadReadings(true), readings.reload * 1000);
+				}
 			} catch (err) {
 				if (err?.name !== 'AbortError') {
 					window.requestAnimationFrame(() => errorTemperature(temperature));
