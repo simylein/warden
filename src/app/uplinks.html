@@ -436,6 +436,8 @@
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
+					element.children[ind].classList.add('cursor-pointer');
+					element.children[ind].onclick = () => (window.location.href = `/uplink/${data[ind].id}`);
 					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
 					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
