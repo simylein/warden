@@ -29,7 +29,7 @@ uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"device.id,  "
+										"device.id, "
 										"user_device.device_id "
 										"from device "
 										"left join user_device on user_device.device_id = device.id and user_device.user_id = ? "
