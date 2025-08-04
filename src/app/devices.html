@@ -411,6 +411,7 @@
 		// @inject ./src/app/array.js
 		// @inject ./src/app/resize.js
 		// @inject ./src/app/state.js
+		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-device.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/color-metric.js
@@ -421,15 +422,15 @@
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-				fadeDevice(element.children[ind].children[2].children[0]);
+				fade(element.children[ind].children[2].children[0]);
 				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
-				fadeTemperature(element.children[ind].children[3].children[0]);
+				fade(element.children[ind].children[3].children[0]);
 				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeHumidity(element.children[ind].children[4].children[0]);
+				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
-				fadePhotovoltaic(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[5].children[0]);
 				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeBattery(element.children[ind].children[6].children[0]);
+				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
 			});
 		};
@@ -442,18 +443,29 @@
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
 					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
+					fade(element.children[ind].children[2].children[0]);
 					colorDevice(element.children[ind].children[2].children[0], data[ind].type);
+					fade(element.children[ind].children[3].children[0]);
+					fade(element.children[ind].children[4].children[0]);
 					if (data[ind].reading !== null) {
 						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.temperature.toFixed(2));
 						colorTemperature(element.children[ind].children[3].children[0], data[ind].reading.temperature);
 						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.humidity.toFixed(2));
 						colorHumidity(element.children[ind].children[4].children[0], data[ind].reading.humidity);
+					} else {
+						loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
+						loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
 					}
+					fade(element.children[ind].children[5].children[0]);
+					fade(element.children[ind].children[6].children[0]);
 					if (data[ind].metric !== null) {
 						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.photovoltaic.toFixed(3));
 						colorPhotovoltaic(element.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
 						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.battery.toFixed(3));
 						colorBattery(element.children[ind].children[6].children[0], data[ind].metric.battery);
+					} else {
+						loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+						loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
 					}
 				}
 			});
@@ -462,15 +474,15 @@
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-				fadeDevice(element.children[ind].children[2].children[0]);
+				fade(element.children[ind].children[2].children[0]);
 				error(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
-				fadeTemperature(element.children[ind].children[3].children[0]);
+				fade(element.children[ind].children[3].children[0]);
 				error(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeHumidity(element.children[ind].children[4].children[0]);
+				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
-				fadePhotovoltaic(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[5].children[0]);
 				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeBattery(element.children[ind].children[6].children[0]);
+				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
 			});
 		};

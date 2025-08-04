@@ -125,6 +125,7 @@
 	<script>
 		// @inject ./src/app/state.js
 		// @inject ./src/app/timestamp.js
+		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-device.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/color-metric.js
@@ -136,62 +137,77 @@
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('device') };
 		const loadingDevice = (element) => {
-			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], []);
-			loading(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], []);
-			fadeDevice(element.children[2].children[1].children[0]);
-			loading(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], []);
-			loading(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], []);
-			loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], []);
-			fadeTemperature(element.children[5].children[1].children[0]);
-			loading(element.children[5].children[1].children[0], ['w-12', 'h-4.5'], []);
-			fadeHumidity(element.children[6].children[1].children[0]);
-			loading(element.children[6].children[1].children[0], ['w-12', 'h-4.5'], []);
-			loading(element.children[7].children[1].children[0], ['w-40', 'h-4.5'], []);
-			fadePhotovoltaic(element.children[8].children[1].children[0]);
-			loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], []);
-			fadeBattery(element.children[9].children[1].children[0]);
-			loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], []);
-			loading(element.children[10].children[1].children[0], ['w-40', 'h-4.5'], []);
+			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			loading(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
+			fade(element.children[2].children[1].children[0]);
+			loading(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], [], '');
+			loading(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[5].children[1].children[0]);
+			loading(element.children[5].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[6].children[1].children[0]);
+			loading(element.children[6].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			loading(element.children[7].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[8].children[1].children[0]);
+			loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[9].children[1].children[0]);
+			loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			loading(element.children[10].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 		};
 		const paintDevice = (element, data) => {
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4.5'], data.id);
 			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4.5'], data.name);
 			paint(element.children[2].children[1].children[0], [], ['w-24', 'h-4.5'], data.type);
+			fade(element.children[2].children[1].children[0]);
 			colorDevice(element.children[2].children[1].children[0], data.type);
 			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.createdAt));
 			if (data.updatedAt !== null) {
 				paint(element.children[4].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.updatedAt));
+			} else {
+				loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
+			fade(element.children[5].children[1].children[0]);
+			fade(element.children[6].children[1].children[0]);
 			if (data.reading !== null) {
 				paint(element.children[5].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.temperature.toFixed(2));
 				colorTemperature(element.children[5].children[1].children[0], data.reading.temperature);
 				paint(element.children[6].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.humidity.toFixed(2));
 				colorHumidity(element.children[6].children[1].children[0], data.reading.humidity);
 				paint(element.children[7].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.reading.capturedAt));
+			} else {
+				loading(element.children[5].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[6].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[7].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
+			fade(element.children[8].children[1].children[0]);
+			fade(element.children[9].children[1].children[0]);
 			if (data.metric !== null) {
 				paint(element.children[8].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.photovoltaic.toFixed(3));
 				colorPhotovoltaic(element.children[8].children[1].children[0], data.metric.photovoltaic);
 				paint(element.children[9].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.battery.toFixed(3));
 				colorBattery(element.children[9].children[1].children[0], data.metric.battery);
 				paint(element.children[10].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.metric.capturedAt));
+			} else {
+				loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[10].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
 		};
 		const errorDevice = (element) => {
 			error(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
 			error(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-			fadeDevice(element.children[2].children[1].children[0]);
+			fade(element.children[2].children[1].children[0]);
 			error(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], [], '');
 			error(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			error(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			fadeTemperature(element.children[5].children[1].children[0]);
+			fade(element.children[5].children[1].children[0]);
 			error(element.children[5].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fadeHumidity(element.children[6].children[1].children[0]);
+			fade(element.children[6].children[1].children[0]);
 			error(element.children[6].children[1].children[0], ['w-12', 'h-4.5'], [], '');
 			error(element.children[7].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			fadePhotovoltaic(element.children[8].children[1].children[0]);
+			fade(element.children[8].children[1].children[0]);
 			error(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fadeBattery(element.children[9].children[1].children[0]);
+			fade(element.children[9].children[1].children[0]);
 			error(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
 			error(element.children[10].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 		};

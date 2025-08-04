@@ -716,6 +716,7 @@
 		// @inject ./src/app/array.js
 		// @inject ./src/app/state.js
 		// @inject ./src/app/math.js
+		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -795,9 +796,11 @@
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
+				fade(element.range.children[0]);
 				colorTemperature(element.range.children[0], temperature.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], temperature.max.abs.toFixed(2));
+				fade(element.range.children[2]);
 				colorTemperature(element.range.children[2], temperature.max.abs);
 			}
 			if (temperature.min.floor !== null && temperature.max.ceil !== null) {

@@ -412,6 +412,7 @@
 		// @inject ./src/app/resize.js
 		// @inject ./src/app/timestamp.js
 		// @inject ./src/app/state.js
+		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-uplink.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -422,11 +423,11 @@
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
 				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
 				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
-				fadeRssi(element.children[ind].children[4].children[0]);
+				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
-				fadeSnr(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[5].children[0]);
 				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeSf(element.children[ind].children[6].children[0]);
+				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
 			});
 		};
@@ -439,10 +440,13 @@
 					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
 					paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
 					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
+					fade(element.children[ind].children[4].children[0]);
 					colorRssi(element.children[ind].children[4].children[0], data[ind].rssi);
 					paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].snr);
+					fade(element.children[ind].children[5].children[0]);
 					colorSnr(element.children[ind].children[5].children[0], data[ind].snr);
 					paint(element.children[ind].children[6].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					fade(element.children[ind].children[6].children[0]);
 					colorSf(element.children[ind].children[6].children[0], data[ind].sf);
 				}
 			});
@@ -453,11 +457,11 @@
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
 				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
 				error(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
-				fadeRssi(element.children[ind].children[4].children[0]);
+				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
-				fadeSnr(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[5].children[0]);
 				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
-				fadeSf(element.children[ind].children[6].children[0]);
+				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
 			});
 		};

@@ -204,6 +204,7 @@
 		// @inject ./src/app/array.js
 		// @inject ./src/app/state.js
 		// @inject ./src/app/math.js
+		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-metric.js
 		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
@@ -286,9 +287,11 @@
 			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(3));
+				fade(element.range.children[0]);
 				colorPhotovoltaic(element.range.children[0], photovoltaic.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], photovoltaic.max.abs.toFixed(3));
+				fade(element.range.children[2]);
 				colorPhotovoltaic(element.range.children[2], photovoltaic.max.abs);
 			}
 			if (photovoltaic.min.floor !== null && photovoltaic.max.ceil !== null) {
@@ -360,9 +363,11 @@
 			if (battery.min.abs !== null && battery.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], battery.min.abs.toFixed(3));
+				fade(element.range.children[0]);
 				colorBattery(element.range.children[0], battery.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], battery.max.abs.toFixed(3));
+				fade(element.range.children[2]);
 				colorBattery(element.range.children[2], battery.max.abs);
 			}
 			if (battery.min.floor !== null && battery.max.ceil !== null) {
