@@ -140,6 +140,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/uplink/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve_uplink(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
 	}

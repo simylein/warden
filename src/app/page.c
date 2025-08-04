@@ -75,6 +75,15 @@ file_t page_uplinks = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_uplink = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/uplink.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_signin = {
 		.fd = -1,
 		.ptr = NULL,
