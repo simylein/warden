@@ -206,8 +206,9 @@
 		// @inject ./src/app/math.js
 		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-metric.js
-		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/fetching.js
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
@@ -502,45 +503,30 @@
 			}
 			return metrics;
 		};
-		const loadMetrics = async (silent) => {
-			if (metrics.timeout) {
-				clearTimeout(metrics.timeout);
-				metrics.timeout = null;
-			}
-			if (metrics.controller) {
-				metrics.controller.abort();
-			}
-			metrics.controller = new AbortController();
-			if (!silent) {
+		const loadMetrics = fetching(
+			metrics,
+			(context) => {
 				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
 				window.requestAnimationFrame(() => loadingBattery(battery));
-			}
-			try {
-				metrics.reload = getRange() / 360;
+			},
+			async (context) => {
+				context.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
-				const response = await fetcher('get', endpoint, null, { controller: metrics.controller });
-				metrics.data = await parseMetrics(response);
-				const summary = calculateMetrics(metrics.data);
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseMetrics(response)),
+			(context) => {
+				const summary = calculateMetrics(context.data);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, summary.battery, summary.capturedAt));
 				highlightRange(getRange());
-				if (metrics.reload !== null) {
-					metrics.timeout = setTimeout(() => loadMetrics(true), metrics.reload * 1000);
-				}
-			} catch (err) {
-				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));
-					window.requestAnimationFrame(() => errorBattery(battery));
-					if (metrics.retries < 4) {
-						metrics.timeout = setTimeout(() => {
-							metrics.retries++;
-							loadMetrics();
-						}, 2 ** metrics.retries * 1000);
-					}
-				}
+			},
+			(context) => {
+				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));
+				window.requestAnimationFrame(() => errorBattery(battery));
 			}
-		};
+		);
 	</script>
 </html>

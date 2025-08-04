@@ -417,6 +417,7 @@
 		// @inject ./src/app/color-metric.js
 		// @inject ./src/app/binary.js
 		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/fetching.js
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -536,36 +537,13 @@
 			}
 			return devices;
 		};
-		const loadDevices = async (silent) => {
-			if (devices.timeout) {
-				clearTimeout(devices.timeout);
-				devices.timeout = null;
-			}
-			if (devices.controller) {
-				devices.controller.abort();
-			}
-			devices.controller = new AbortController();
-			if (!silent) {
-				window.requestAnimationFrame(() => loadingDevices(devices.element));
-			}
-			try {
-				const response = await fetcher('get', '/api/devices', null, { controller: devices.controller });
-				devices.data = await parseDevices(response);
-				window.requestAnimationFrame(() => paintDevices(devices.element, devices.data));
-				if (devices.reload !== null) {
-					devices.timeout = setTimeout(() => loadDevices(true), devices.reload * 1000);
-				}
-			} catch (err) {
-				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorDevices(devices.element));
-					if (devices.retries < 4) {
-						devices.timeout = setTimeout(() => {
-							devices.retries++;
-							loadDevices();
-						}, 2 ** devices.retries * 1000);
-					}
-				}
-			}
-		};
+		const loadDevices = fetching(
+			devices,
+			(context) => window.requestAnimationFrame(() => loadingDevices(context.element)),
+			(context) => fetcher('get', '/api/devices', null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseDevices(response)),
+			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
+		);
 	</script>
 </html>

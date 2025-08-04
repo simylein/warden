@@ -129,8 +129,9 @@
 		// @inject ./src/app/color-device.js
 		// @inject ./src/app/color-reading.js
 		// @inject ./src/app/color-metric.js
-		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/fetching.js
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
@@ -257,36 +258,13 @@
 			}
 			return device;
 		};
-		const loadDevice = async (silent) => {
-			if (device.timeout) {
-				clearTimeout(device.timeout);
-				device.timeout = null;
-			}
-			if (device.controller) {
-				device.controller.abort();
-			}
-			device.controller = new AbortController();
-			if (!silent) {
-				window.requestAnimationFrame(() => loadingDevice(device.element));
-			}
-			try {
-				const response = await fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: device.controller });
-				device.data = await parseDevice(response);
-				window.requestAnimationFrame(() => paintDevice(device.element, device.data));
-				if (device.reload !== null) {
-					device.timeout = setTimeout(() => loadDevice(true), device.reload * 1000);
-				}
-			} catch (err) {
-				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorDevice(device.element));
-					if (device.retries < 4) {
-						device.timeout = setTimeout(() => {
-							device.retries++;
-							loadDevice();
-						}, 2 ** device.retries * 1000);
-					}
-				}
-			}
-		};
+		const loadDevice = fetching(
+			device,
+			(context) => window.requestAnimationFrame(() => loadingDevice(context.element)),
+			(context) => fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseDevice(response)),
+			(context) => window.requestAnimationFrame(() => paintDevice(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorDevice(context.element))
+		);
 	</script>
 </html>

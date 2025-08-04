@@ -222,8 +222,9 @@
 		// @inject ./src/app/math.js
 		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-reading.js
-		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/fetching.js
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
@@ -510,45 +511,30 @@
 			}
 			return readings;
 		};
-		const loadReadings = async (silent) => {
-			if (readings.timeout) {
-				clearTimeout(readings.timeout);
-				readings.timeout = null;
-			}
-			if (readings.controller) {
-				readings.controller.abort();
-			}
-			readings.controller = new AbortController();
-			if (!silent) {
+		const loadReadings = fetching(
+			readings,
+			(context) => {
 				window.requestAnimationFrame(() => loadingTemperature(temperature));
 				window.requestAnimationFrame(() => loadingHumidity(humidity));
-			}
-			try {
-				readings.reload = getRange() / 360;
+			},
+			(context) => {
+				context.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
-				const response = await fetcher('get', endpoint, null, { controller: readings.controller });
-				readings.data = await parseReadings(response);
-				const summary = calculateReadings(readings.data);
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseReadings(response)),
+			(context) => {
+				const summary = calculateReadings(context.data);
 				window.requestAnimationFrame(() => paintTemperature(temperature, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, summary.humidity, summary.capturedAt));
 				highlightRange(getRange());
-				if (readings.reload !== null) {
-					readings.timeout = setTimeout(() => loadReadings(true), readings.reload * 1000);
-				}
-			} catch (err) {
-				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorTemperature(temperature));
-					window.requestAnimationFrame(() => errorHumidity(humidity));
-					if (readings.retries < 4) {
-						readings.timeout = setTimeout(() => {
-							readings.retries++;
-							loadReadings();
-						}, 2 ** readings.retries * 1000);
-					}
-				}
+			},
+			(context) => {
+				window.requestAnimationFrame(() => errorTemperature(temperature));
+				window.requestAnimationFrame(() => errorHumidity(humidity));
 			}
-		};
+		);
 	</script>
 </html>

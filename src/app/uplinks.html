@@ -414,8 +414,9 @@
 		// @inject ./src/app/state.js
 		// @inject ./src/app/fade.js
 		// @inject ./src/app/color-uplink.js
-		// @inject ./src/app/fetcher.js
 		// @inject ./src/app/binary.js
+		// @inject ./src/app/fetcher.js
+		// @inject ./src/app/fetching.js
 		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -483,36 +484,13 @@
 			}
 			return uplinks;
 		};
-		const loadUplinks = async (silent) => {
-			if (uplinks.timeout) {
-				clearTimeout(uplinks.timeout);
-				uplinks.timeout = null;
-			}
-			if (uplinks.controller) {
-				uplinks.controller.abort();
-			}
-			uplinks.controller = new AbortController();
-			if (!silent) {
-				window.requestAnimationFrame(() => loadingUplinks(uplinks.element));
-			}
-			try {
-				const response = await fetcher('get', '/api/uplinks', null, { controller: uplinks.controller });
-				uplinks.data = await parseUplinks(response);
-				window.requestAnimationFrame(() => paintUplinks(uplinks.element, uplinks.data));
-				if (uplinks.reload !== null) {
-					uplinks.timeout = setTimeout(() => loadUplinks(true), uplinks.reload * 1000);
-				}
-			} catch (err) {
-				if (err?.name !== 'AbortError') {
-					window.requestAnimationFrame(() => errorUplinks(uplinks.element));
-					if (uplinks.retries < 4) {
-						uplinks.timeout = setTimeout(() => {
-							uplinks.retries++;
-							loadUplinks();
-						}, 2 ** uplinks.retries * 1000);
-					}
-				}
-			}
-		};
+		const loadUplinks = fetching(
+			uplinks,
+			(context) => window.requestAnimationFrame(() => loadingUplinks(context.element)),
+			(context) => fetcher('get', '/api/uplinks', null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseUplinks(response)),
+			(context) => window.requestAnimationFrame(() => paintUplinks(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorUplinks(context.element))
+		);
 	</script>
 </html>
