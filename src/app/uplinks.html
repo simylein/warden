@@ -477,7 +477,7 @@
 				uplink.data = binary.hex(binary.byte());
 				uplink.rssi = binary.int(16);
 				uplink.snr = binary.int(8) / 4;
-				uplink.sf = binary.int(8);
+				uplink.sf = binary.uint(8);
 				uplink.receivedAt = binary.uint(64);
 				uplink.deviceId = binary.uuid();
 				uplinks.push(uplink);
