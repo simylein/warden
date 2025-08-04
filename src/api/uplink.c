@@ -1,4 +1,5 @@
 #include "uplink.h"
+#include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
@@ -161,7 +162,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 										"uplink.id, uplink.kind, uplink.data, "
 										"uplink.airtime, uplink.frequency, uplink.bandwidth, "
 										"uplink.rssi, uplink.snr, uplink.sf, "
-										"received_at "
+										"uplink.received_at, uplink.device_id "
 										"from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"where uplink.id = ?";
@@ -199,6 +200,14 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 6);
 		const double snr = sqlite3_column_double(stmt, 7);
 		const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 8);
+		const time_t received_at = (time_t)sqlite3_column_int64(stmt, 9);
+		const uint8_t *device_id = sqlite3_column_blob(stmt, 10);
+		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 10);
+		if (device_id_len != sizeof(*((uplink_t *)0)->device_id)) {
+			error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((uplink_t *)0)->device_id));
+			status = 500;
+			goto cleanup;
+		}
 		append_body(response, id, id_len);
 		append_body(response, &kind, sizeof(kind));
 		append_body(response, &data_len, sizeof(uint8_t));
@@ -209,6 +218,8 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
 		append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
 		append_body(response, &sf, sizeof(sf));
+		append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+		append_body(response, device_id, device_id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("uplink %02x%02x not found\n", *uplink->id[0], *uplink->id[1]);
@@ -398,6 +409,46 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
 	info("found %hhu uplinks\n", uplinks_len);
+	response->status = 200;
+}
+
+void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((uplink_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((uplink_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	uplink_t uplink = {.id = &id};
+	uint16_t status = uplink_existing(database, bwt, &uplink);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	status = uplink_select_one(database, bwt, &uplink, response);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%zu\r\n", response->body_len);
+	info("found uplink %02x%02x\n", *uplink.id[0], *uplink.id[1]);
 	response->status = 200;
 }
 

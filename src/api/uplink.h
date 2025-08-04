@@ -30,7 +30,10 @@ extern const char *uplink_schema;
 
 uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink);
 
+uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
+uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, response_t *response);
 uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink);
 
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_create(sqlite3 *database, request_t *request, response_t *response);
