@@ -28,6 +28,8 @@ typedef struct uplink_query_t {
 extern const char *uplink_table;
 extern const char *uplink_schema;
 
+uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink);
+
 uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink);
 
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
