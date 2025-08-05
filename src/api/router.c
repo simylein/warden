@@ -4,6 +4,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include "downlink.h"
 #include "metric.h"
 #include "reading.h"
 #include "recap.h"
@@ -209,6 +210,14 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			uplink_create(database, request, response);
+		}
+	}
+
+	if (endpoint(request, "post", "/api/downlink", &method_found, &pathname_found) == true) {
+		// FIXME authorize this endpoint for nexus only
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			downlink_create(database, request, response);
 		}
 	}
 
