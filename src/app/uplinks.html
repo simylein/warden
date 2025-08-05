@@ -443,7 +443,11 @@
 					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
 					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
-					paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					if (data[ind].data.length !== 0) {
+						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					} else {
+						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+					}
 					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
 					fade(element.children[ind].children[4].children[0]);
 					colorRssi(element.children[ind].children[4].children[0], data[ind].rssi);
