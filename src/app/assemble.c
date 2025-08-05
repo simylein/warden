@@ -15,15 +15,14 @@ int assemble(file_t *asset) {
 	size_t assemble_len = 0;
 	char *assemble_ptr = NULL;
 
-	const char import[] = "import '";
 	while (asset_ind < asset->len) {
 		char *byte = &asset->ptr[asset_ind];
 
-		if (asset_ind + sizeof(import) - 1 < asset->len && memcmp(byte, import, sizeof(import) - 1) == 0) {
+		if (asset_ind + 8 < asset->len && memcmp(byte, "import '", 8) == 0) {
 			char path[65];
 			uint8_t path_len = 0;
-			byte += sizeof(import) - 1;
-			asset_ind += sizeof(import) - 1;
+			byte += 8;
+			asset_ind += 8;
 			char *start = byte;
 			while (asset_ind < asset->len) {
 				if (*byte == '\n' || path_len >= sizeof(path) - 1) {
