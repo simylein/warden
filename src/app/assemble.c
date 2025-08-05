@@ -34,20 +34,23 @@ int assemble(file_t *asset) {
 			}
 
 			sprintf(path, "%.*s", path_len, start);
-			file_t component = {.fd = -1, .ptr = NULL, .path = path, .lock = PTHREAD_RWLOCK_INITIALIZER};
-			if (file(&component) == -1) {
+			file_t script = {.fd = -1, .ptr = NULL, .path = path, .lock = PTHREAD_RWLOCK_INITIALIZER};
+			if (file(&script) == -1) {
 				return -1;
 			}
 
-			assemble_len += component.len;
+			assemble_len += script.len;
 			assemble_ptr = realloc(assemble_ptr, assemble_len);
 			if (assemble_ptr == NULL) {
 				error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
 				return -1;
 			}
 
-			memcpy(&assemble_ptr[assemble_ind], component.ptr, component.len);
-			assemble_ind += component.len;
+			memcpy(&assemble_ptr[assemble_ind], script.ptr, script.len);
+			assemble_ind += script.len;
+
+			close(script.fd);
+			free(script.ptr);
 		} else {
 			if (assemble_ind >= assemble_len) {
 				assemble_len += 4096;
