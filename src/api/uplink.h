@@ -4,6 +4,8 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include <sqlite3.h>
+#include <stdint.h>
+#include <time.h>
 
 typedef struct uplink_t {
 	uint8_t (*id)[16];
