@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest downlinks of your devices" />
+		<title>Warden downlinks</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDownlinks()">
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+				<a href="/downlinks" class="no-underline text-blue-600 dark:text-blue-400">Downlinks</a>
+			</nav>
+		</header>
+		<main class="m-4 sm:m-6 lg:m-8">
+			<div class="overflow-x-auto scrollbar-none">
+				<table style="border-collapse: collapse" class="w-full text-nowrap">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Device id</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Kind</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Data</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Tx power</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Sf</th>
+						</tr>
+					</thead>
+					<tbody id="downlinks">
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-10 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-56 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+	</body>
+	<script>
+		import './src/app/array.js';
+		import './src/app/resize.js';
+		import './src/app/timestamp.js';
+		import './src/app/state.js';
+		import './src/app/fade.js';
+		import './src/app/color-tx-power.js';
+		import './src/app/color-sf.js';
+		import './src/app/binary.js';
+		import './src/app/fetcher.js';
+		import './src/app/fetching.js';
+		const downlinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('downlinks') };
+		const loadingDownlinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-4', 'h-4.5'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-4', 'h-4.5'], [], '');
+			});
+		};
+		const paintDownlinks = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					element.children[ind].classList.add('cursor-pointer');
+					element.children[ind].onclick = () => (window.location.href = `/downlink/${data[ind].id}`);
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
+					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
+					if (data[ind].data.length !== 0) {
+						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					} else {
+						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+					}
+					paint(element.children[ind].children[4].children[0], [], ['w-4', 'h-4.5'], data[ind].txPower);
+					fade(element.children[ind].children[4].children[0]);
+					colorTxPower(element.children[ind].children[4].children[0], data[ind].txPower);
+					paint(element.children[ind].children[5].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					fade(element.children[ind].children[5].children[0]);
+					colorSf(element.children[ind].children[5].children[0], data[ind].sf);
+				}
+			});
+		};
+		const errorDownlinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-4', 'h-4.5'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-4', 'h-4.5'], [], '');
+			});
+		};
+		const parseDownlinks = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const downlinks = [];
+			while (binary.offset < buffer.byteLength) {
+				const downlink = { id: null, kind: null, data: null, txPower: null, sf: null, receivedAt: null, deviceId: null };
+				downlink.id = binary.uuid();
+				downlink.kind = binary.byte();
+				downlink.data = binary.hex(binary.byte());
+				downlink.txPower = binary.uint(8);
+				downlink.sf = binary.uint(8);
+				downlink.receivedAt = binary.uint(64);
+				downlink.deviceId = binary.uuid();
+				downlinks.push(downlink);
+			}
+			return downlinks;
+		};
+		const loadDownlinks = fetching(
+			downlinks,
+			(context) => window.requestAnimationFrame(() => loadingDownlinks(context.element)),
+			(context) => fetcher('get', '/api/downlinks', null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseDownlinks(response)),
+			(context) => window.requestAnimationFrame(() => paintDownlinks(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorDownlinks(context.element))
+		);
+	</script>
+</html>
