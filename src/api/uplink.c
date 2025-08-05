@@ -240,24 +240,28 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	uint16_t index = 0;
 
 	if (request->body_len < index + sizeof(uplink->kind)) {
+		debug("missing kind on uplink\n");
 		return -1;
 	}
 	uplink->kind = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->kind);
 
 	if (request->body_len < index + sizeof(uplink->data_len)) {
+		debug("missing data len on uplink\n");
 		return -1;
 	}
 	uplink->data_len = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->data_len);
 
 	if (request->body_len < index + uplink->data_len) {
+		debug("missing data on uplink\n");
 		return -1;
 	}
 	uplink->data = (uint8_t *)&(*request->body)[index];
 	index += uplink->data_len;
 
 	if (request->body_len < index + sizeof(uplink->airtime)) {
+		debug("missing airtime on uplink\n");
 		return -1;
 	}
 	memcpy(&uplink->airtime, &(*request->body)[index], sizeof(uplink->airtime));
@@ -265,6 +269,7 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	index += sizeof(uplink->airtime);
 
 	if (request->body_len < index + sizeof(uplink->frequency)) {
+		debug("missing frequency on uplink\n");
 		return -1;
 	}
 	memcpy(&uplink->frequency, &(*request->body)[index], sizeof(uplink->frequency));
@@ -272,6 +277,7 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	index += sizeof(uplink->frequency);
 
 	if (request->body_len < index + sizeof(uplink->bandwidth)) {
+		debug("missing bandwidth on uplink\n");
 		return -1;
 	}
 	memcpy(&uplink->bandwidth, &(*request->body)[index], sizeof(uplink->bandwidth));
@@ -279,6 +285,7 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	index += sizeof(uplink->bandwidth);
 
 	if (request->body_len < index + sizeof(uplink->rssi)) {
+		debug("missing rssi on uplink\n");
 		return -1;
 	}
 	memcpy(&uplink->rssi, &(*request->body)[index], sizeof(uplink->rssi));
@@ -286,18 +293,21 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	index += sizeof(uplink->rssi);
 
 	if (request->body_len < index + sizeof(uplink->snr)) {
+		debug("missing snr on uplink\n");
 		return -1;
 	}
 	uplink->snr = (int8_t)(*request->body)[index];
 	index += sizeof(uplink->snr);
 
 	if (request->body_len < index + sizeof(uplink->sf)) {
+		debug("missing sf on uplink\n");
 		return -1;
 	}
 	uplink->sf = (uint8_t)(*request->body)[index];
 	index += sizeof(uplink->sf);
 
 	if (request->body_len < index + sizeof(uplink->received_at)) {
+		debug("missing received at on uplink\n");
 		return -1;
 	}
 	memcpy(&uplink->received_at, &(*request->body)[index], sizeof(uplink->received_at));
@@ -305,12 +315,14 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	index += sizeof(uplink->received_at);
 
 	if (request->body_len < index + sizeof(*uplink->device_id)) {
+		debug("missing device id on uplink\n");
 		return -1;
 	}
 	uplink->device_id = (uint8_t (*)[16])(&(*request->body)[index]);
 	index += sizeof(*uplink->device_id);
 
 	if (request->body_len != index) {
+		debug("body len %zu does not match index %hu\n", request->body_len, index);
 		return -1;
 	}
 
@@ -318,23 +330,33 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 }
 
 int uplink_validate(uplink_t *uplink) {
+	if (uplink->airtime < 128) {
+		debug("invalid airtime %hu on uplink\n", uplink->airtime);
+		return -1;
+	}
+
 	if (uplink->frequency < 400 * 1000 * 1000 || uplink->frequency > 500 * 1000 * 1000) {
+		debug("invalid frequency %u on uplink\n", uplink->frequency);
 		return -1;
 	}
 
 	if (uplink->bandwidth < 7800 || uplink->bandwidth > 500 * 1000) {
+		debug("invalid bandwidth %u on uplink\n", uplink->bandwidth);
 		return -1;
 	}
 
 	if (uplink->rssi < -192 || uplink->rssi > 16) {
+		debug("invalid rssi %hd on uplink\n", uplink->rssi);
 		return -1;
 	}
 
 	if (uplink->snr < -96 || uplink->snr > 48) {
+		debug("invalid snr %hhd on uplink\n", uplink->snr);
 		return -1;
 	}
 
 	if (uplink->sf < 6 || uplink->sf > 12) {
+		debug("invalid sf %hhu on uplink\n", uplink->sf);
 		return -1;
 	}
 
