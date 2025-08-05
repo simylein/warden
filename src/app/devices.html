@@ -408,16 +408,16 @@
 		</main>
 	</body>
 	<script>
-		// @inject ./src/app/array.js
-		// @inject ./src/app/resize.js
-		// @inject ./src/app/state.js
-		// @inject ./src/app/fade.js
-		// @inject ./src/app/color-device.js
-		// @inject ./src/app/color-reading.js
-		// @inject ./src/app/color-metric.js
-		// @inject ./src/app/binary.js
-		// @inject ./src/app/fetcher.js
-		// @inject ./src/app/fetching.js
+		import './src/app/array.js';
+		import './src/app/resize.js';
+		import './src/app/state.js';
+		import './src/app/fade.js';
+		import './src/app/color-device.js';
+		import './src/app/color-reading.js';
+		import './src/app/color-metric.js';
+		import './src/app/binary.js';
+		import './src/app/fetcher.js';
+		import './src/app/fetching.js';
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {

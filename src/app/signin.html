@@ -54,9 +54,9 @@
 		</main>
 	</body>
 	<script>
-		// @inject ./src/app/formik.js
-		// @inject ./src/app/fetcher.js
-		// @inject ./src/app/notification.js
+		import './src/app/formik.js';
+		import './src/app/fetcher.js';
+		import './src/app/notification.js';
 		const { setValue, setTouched, handleSubmit } = formik(
 			{
 				button: document.getElementById('signin-button'),

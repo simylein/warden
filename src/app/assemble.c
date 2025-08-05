@@ -15,21 +15,24 @@ int assemble(file_t *asset) {
 	size_t assemble_len = 0;
 	char *assemble_ptr = NULL;
 
+	const char import[] = "import '";
 	while (asset_ind < asset->len) {
 		char *byte = &asset->ptr[asset_ind];
 
-		if (asset_ind + 11 < asset->len && memcmp(byte, "// @inject ", 11) == 0) {
+		if (asset_ind + sizeof(import) - 1 < asset->len && memcmp(byte, import, sizeof(import) - 1) == 0) {
 			char path[65];
 			uint8_t path_len = 0;
-			byte += 11;
-			asset_ind += 11;
+			byte += sizeof(import) - 1;
+			asset_ind += sizeof(import) - 1;
 			char *start = byte;
 			while (asset_ind < asset->len) {
 				if (*byte == '\n' || path_len >= sizeof(path) - 1) {
 					break;
 				}
 				byte += 1;
-				path_len += 1;
+				if (*byte != '\'' && *byte != ';') {
+					path_len += 1;
+				}
 				asset_ind += 1;
 			}
 

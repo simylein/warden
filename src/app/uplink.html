@@ -115,13 +115,13 @@
 		</main>
 	</body>
 	<script>
-		// @inject ./src/app/timestamp.js
-		// @inject ./src/app/state.js
-		// @inject ./src/app/fade.js
-		// @inject ./src/app/color-uplink.js
-		// @inject ./src/app/binary.js
-		// @inject ./src/app/fetcher.js
-		// @inject ./src/app/fetching.js
+		import './src/app/timestamp.js';
+		import './src/app/state.js';
+		import './src/app/fade.js';
+		import './src/app/color-uplink.js';
+		import './src/app/binary.js';
+		import './src/app/fetcher.js';
+		import './src/app/fetching.js';
 		const uplink = { retries: 0, reload: null, timeout: null, controller: null, data: null, element: document.getElementById('uplink') };
 		const loadingUplink = (element) => {
 			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');

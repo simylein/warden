@@ -217,14 +217,14 @@
 		</main>
 	</body>
 	<script>
-		// @inject ./src/app/array.js
-		// @inject ./src/app/state.js
-		// @inject ./src/app/math.js
-		// @inject ./src/app/fade.js
-		// @inject ./src/app/color-reading.js
-		// @inject ./src/app/binary.js
-		// @inject ./src/app/fetcher.js
-		// @inject ./src/app/fetching.js
+		import './src/app/array.js';
+		import './src/app/state.js';
+		import './src/app/math.js';
+		import './src/app/fade.js';
+		import './src/app/color-reading.js';
+		import './src/app/binary.js';
+		import './src/app/fetcher.js';
+		import './src/app/fetching.js';
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
