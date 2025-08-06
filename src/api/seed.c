@@ -10,11 +10,32 @@ uint8_t device_ids[8][16];
 uint8_t uplink_ids[16][16];
 
 int seed_user(sqlite3 *database) {
+	uint8_t permissions[4];
 	user_t users[] = {
-			{.id = &user_ids[0], .username = "alice", .username_len = 5, .password = ".go4Alice", .password_len = 9},
-			{.id = &user_ids[1], .username = "bob", .username_len = 3, .password = ".go4Bob", .password_len = 7},
-			{.id = &user_ids[2], .username = "charlie", .username_len = 7, .password = ".go4Charlie", .password_len = 11},
-			{.id = &user_ids[3], .username = "dave", .username_len = 4, .password = ".go4Dave", .password_len = 8},
+			{.id = &user_ids[0],
+			 .username = "alice",
+			 .username_len = 5,
+			 .password = ".go4Alice",
+			 .password_len = 9,
+			 .permissions = &permissions},
+			{.id = &user_ids[1],
+			 .username = "bob",
+			 .username_len = 3,
+			 .password = ".go4Bob",
+			 .password_len = 7,
+			 .permissions = &permissions},
+			{.id = &user_ids[2],
+			 .username = "charlie",
+			 .username_len = 7,
+			 .password = ".go4Charlie",
+			 .password_len = 11,
+			 .permissions = &permissions},
+			{.id = &user_ids[3],
+			 .username = "dave",
+			 .username_len = 4,
+			 .password = ".go4Dave",
+			 .password_len = 8,
+			 .permissions = &permissions},
 	};
 
 	for (uint8_t index = 0; index < sizeof(users) / sizeof(user_t); index++) {

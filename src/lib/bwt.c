@@ -11,11 +11,11 @@
 #include <stdint.h>
 #include <time.h>
 
-int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
+int bwt_sign(char (*buffer)[109], uint8_t (*id)[16], uint8_t (*data)[4]) {
 	const time_t iat = time(NULL);
 	const time_t exp = iat + bwt_ttl;
 
-	uint8_t binary[64];
+	uint8_t binary[68];
 	size_t offset = 0;
 	memcpy(&binary[offset], id, sizeof(*id));
 	offset += sizeof(*id);
@@ -23,6 +23,8 @@ int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 	offset += sizeof(iat);
 	memcpy(&binary[offset], &(uint64_t[]){hton64((uint64_t)exp)}, sizeof(exp));
 	offset += sizeof(exp);
+	memcpy(&binary[offset], data, sizeof(*data));
+	offset += sizeof(*data);
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
@@ -39,12 +41,12 @@ int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 	const char *buffer;
 	size_t buffer_len;
-	if (strnfind(cookie, cookie_len, "auth=", "", &buffer, &buffer_len, 103) == -1) {
+	if (strnfind(cookie, cookie_len, "auth=", "", &buffer, &buffer_len, 109) == -1) {
 		warn("no auth value in cookie header\n");
 		return -1;
 	}
 
-	uint8_t binary[64];
+	uint8_t binary[68];
 	if (base32_decode(binary, sizeof(binary), buffer, buffer_len) == -1) {
 		error("failed to decode bwt from base 32\n");
 		return -1;
@@ -57,6 +59,8 @@ int bwt_verify(const char *cookie, const size_t cookie_len, bwt_t *bwt) {
 	offset += sizeof(bwt->iat);
 	memcpy(&bwt->exp, &binary[offset], sizeof(bwt->exp));
 	offset += sizeof(bwt->exp);
+	memcpy(bwt->data, &binary[offset], sizeof(bwt->data));
+	offset += sizeof(bwt->data);
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);

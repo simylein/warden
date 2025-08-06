@@ -18,7 +18,8 @@ const char *user_schema = "create table user ("
 													"username text not null unique, "
 													"password blob not null, "
 													"signup_at datetime not null, "
-													"signin_at datetime not null"
+													"signin_at datetime not null, "
+													"permissions blob not null"
 													")";
 
 int user_parse(user_t *user, request_t *request) {
@@ -111,8 +112,8 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into user (id, username, password, signup_at, signin_at) "
-										"values (randomblob(16), ?, ?, ?, ?) returning id";
+	const char *sql = "insert into user (id, username, password, signup_at, signin_at, permissions) "
+										"values (randomblob(16), ?, ?, ?, ?, ?) returning id, permissions";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -124,11 +125,13 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 	uint8_t hash[32];
 	sha256(user->password, user->password_len, &hash);
 	time_t now = time(NULL);
+	memset(user->permissions, 0x00, sizeof(*user->permissions));
 
 	sqlite3_bind_text(stmt, 1, user->username, user->username_len, SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, hash, sizeof(hash), SQLITE_STATIC);
 	sqlite3_bind_int64(stmt, 3, now);
 	sqlite3_bind_int64(stmt, 4, now);
+	sqlite3_bind_blob(stmt, 5, user->permissions, sizeof(*user->permissions), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
@@ -139,7 +142,15 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 			status = 500;
 			goto cleanup;
 		}
+		const uint8_t *permissions = sqlite3_column_blob(stmt, 1);
+		const size_t permissions_len = (size_t)sqlite3_column_bytes(stmt, 1);
+		if (permissions_len != sizeof(*user->permissions)) {
+			error("permissions length %zu does not match buffer length %zu\n", permissions_len, sizeof(*user->permissions));
+			status = 500;
+			goto cleanup;
+		}
 		memcpy(user->id, id, id_len);
+		memcpy(user->permissions, permissions, permissions_len);
 		status = 0;
 	} else if (result == SQLITE_CONSTRAINT) {
 		warn("username %.*s already taken\n", (int)user->username_len, user->username);
@@ -161,7 +172,7 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "update user set signin_at = ? "
-										"where username = ? and password = ? returning id";
+										"where username = ? and password = ? returning id, permissions";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -187,7 +198,15 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 			status = 500;
 			goto cleanup;
 		}
+		const uint8_t *permissions = sqlite3_column_blob(stmt, 1);
+		const size_t permissions_len = (size_t)sqlite3_column_bytes(stmt, 1);
+		if (permissions_len != sizeof(*user->permissions)) {
+			error("permissions length %zu does not match buffer length %zu\n", permissions_len, sizeof(*user->permissions));
+			status = 500;
+			goto cleanup;
+		}
 		memcpy(user->id, id, id_len);
+		memcpy(user->permissions, permissions, permissions_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("invalid password for %.*s\n", (int)user->username_len, user->username);
@@ -211,7 +230,8 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t id[16];
-	user_t user = {.id = &id};
+	uint8_t permissions[4];
+	user_t user = {.id = &id, .permissions = &permissions};
 	if (request->body_len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
 		return;
@@ -223,8 +243,8 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	char bwt[103];
-	if (bwt_sign(&bwt, user.id) == -1) {
+	char bwt[109];
+	if (bwt_sign(&bwt, user.id, user.permissions) == -1) {
 		response->status = 500;
 		return;
 	}
@@ -242,7 +262,8 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t id[16];
-	user_t user = {.id = &id};
+	uint8_t permissions[4];
+	user_t user = {.id = &id, .permissions = &permissions};
 	if (request->body_len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
 		return;
@@ -254,8 +275,8 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	char bwt[103];
-	if (bwt_sign(&bwt, user.id) == -1) {
+	char bwt[109];
+	if (bwt_sign(&bwt, user.id, user.permissions) == -1) {
 		response->status = 500;
 		return;
 	}

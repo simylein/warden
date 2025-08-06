@@ -14,6 +14,7 @@ typedef struct user_t {
 	uint8_t password_len;
 	time_t *signup_at;
 	time_t *signin_at;
+	uint8_t (*permissions)[4];
 } user_t;
 
 extern const char *user_table;
