@@ -1,6 +1,7 @@
 #include "../app/page.h"
 #include "../app/serve.h"
 #include "../lib/bwt.h"
+#include "../lib/endian.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
@@ -14,6 +15,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+
+const uint32_t permission_uplink_read = 0x00000010;
+const uint32_t permission_uplink_create = 0x00000020;
+const uint32_t permission_uplink_update = 0x00000040;
+const uint32_t permission_uplink_delete = 0x00000080;
+const uint32_t permission_downlink_read = 0x00000001;
+const uint32_t permission_downlink_create = 0x00000002;
+const uint32_t permission_downlink_update = 0x00000004;
+const uint32_t permission_downlink_delete = 0x00000008;
 
 bool pathcmp(const char *pattern, uint8_t pattern_len, const char *pathname, uint8_t pathname_len) {
 	uint8_t pattern_ind = 0;
@@ -77,6 +87,19 @@ bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *res
 
 	if (bwt_verify(cookie, request->header_len - (size_t)(cookie - (const char *)request->header), bwt) == -1) {
 		response->status = 401;
+		return false;
+	}
+
+	return true;
+}
+
+bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
+	uint32_t permissions;
+	memcpy(&permissions, bwt->data, sizeof(bwt->data));
+	permissions = ntoh32(permissions);
+
+	if ((permissions & permission) != permission) {
+		response->status = 403;
 		return false;
 	}
 
@@ -220,10 +243,11 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	if (endpoint(request, "post", "/api/uplink", &method_found, &pathname_found) == true) {
-		// FIXME authorize this endpoint for nexus only
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_create(database, request, response);
+			if (authorize(&bwt, permission_uplink_create, response) == true) {
+				uplink_create(database, request, response);
+			}
 		}
 	}
 
@@ -242,10 +266,11 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	if (endpoint(request, "post", "/api/downlink", &method_found, &pathname_found) == true) {
-		// FIXME authorize this endpoint for nexus only
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			downlink_create(database, request, response);
+			if (authorize(&bwt, permission_downlink_create, response) == true) {
+				downlink_create(database, request, response);
+			}
 		}
 	}
 
