@@ -102,6 +102,15 @@ file_t page_downlink = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_users = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/users.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_signin = {
 		.fd = -1,
 		.ptr = NULL,
@@ -207,7 +216,13 @@ void page_close(void) {
 	close(page_home.fd);
 	close(page_devices.fd);
 	close(page_device.fd);
+	close(page_device_readings.fd);
+	close(page_device_metrics.fd);
 	close(page_uplinks.fd);
+	close(page_uplink.fd);
+	close(page_downlinks.fd);
+	close(page_downlink.fd);
+	close(page_users.fd);
 	close(page_signin.fd);
 	close(page_signup.fd);
 
@@ -226,7 +241,13 @@ void page_free(void) {
 	free(page_home.ptr);
 	free(page_devices.ptr);
 	free(page_device.ptr);
+	free(page_device_readings.ptr);
+	free(page_device_metrics.ptr);
 	free(page_uplinks.ptr);
+	free(page_uplink.ptr);
+	free(page_downlinks.ptr);
+	free(page_downlink.ptr);
+	free(page_users.ptr);
 	free(page_signin.ptr);
 	free(page_signup.ptr);
 
