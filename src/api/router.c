@@ -287,6 +287,15 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/users", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_read, response) == true) {
+				user_find(database, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
 		user_signin(database, request, response);
 	}

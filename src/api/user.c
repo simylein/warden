@@ -1,6 +1,7 @@
 #include "user.h"
 #include "../lib/bwt.h"
 #include "../lib/config.h"
+#include "../lib/endian.h"
 #include "../lib/format.h"
 #include "../lib/logger.h"
 #include "../lib/request.h"
@@ -21,6 +22,68 @@ const char *user_schema = "create table user ("
 													"signin_at datetime not null, "
 													"permissions blob not null"
 													")";
+
+uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *response, uint8_t *users_len) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select id, username, signup_at, signin_at, permissions from user "
+										"order by username asc "
+										"limit ? offset ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_int(stmt, 1, query->limit);
+	sqlite3_bind_int(stmt, 2, (int)query->offset);
+
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			const uint8_t *id = sqlite3_column_blob(stmt, 0);
+			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+			if (id_len != sizeof(*((user_t *)0)->id)) {
+				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((user_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			const uint8_t *username = sqlite3_column_text(stmt, 1);
+			const size_t username_len = (size_t)sqlite3_column_bytes(stmt, 1);
+			const time_t signup_at = (time_t)sqlite3_column_int64(stmt, 2);
+			const time_t signin_at = (time_t)sqlite3_column_int64(stmt, 3);
+			const uint8_t *permissions = sqlite3_column_blob(stmt, 4);
+			const size_t permissions_len = (size_t)sqlite3_column_bytes(stmt, 4);
+			if (permissions_len > UINT8_MAX) {
+				error("permissions length %zu exceeds buffer length %hhu\n", permissions_len, UINT8_MAX);
+				status = 500;
+				goto cleanup;
+			}
+			append_body(response, id, id_len);
+			append_body(response, username, username_len);
+			append_body(response, (char[]){0x00}, sizeof(char));
+			append_body(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
+			append_body(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
+			append_body(response, &permissions_len, sizeof(uint8_t));
+			append_body(response, permissions, permissions_len);
+			*users_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+			status = 500;
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
 
 int user_parse(user_t *user, request_t *request) {
 	uint8_t stage = 0;
@@ -285,4 +348,24 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 								bwt_ttl);
 	info("user %.*s signed in\n", (int)user.username_len, user.username);
 	response->status = 201;
+}
+
+void user_find(sqlite3 *database, request_t *request, response_t *response) {
+	user_query_t query = {.limit = 16, .offset = 0};
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t users_len = 0;
+	uint16_t status = user_select(database, &query, response, &users_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%zu\r\n", response->body_len);
+	info("found %hhu users\n", users_len);
+	response->status = 200;
 }
