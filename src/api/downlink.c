@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 const char *downlink_table = "downlink";
@@ -23,6 +24,58 @@ const char *downlink_schema = "create table downlink ("
 															"device_id blob not null, "
 															"foreign key (device_id) references device(id) on delete cascade"
 															")";
+
+uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"downlink.id, "
+										"user_device.device_id "
+										"from downlink "
+										"left join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
+										"where downlink.id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 2, downlink->id, sizeof(*downlink->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result == SQLITE_ROW) {
+		const uint8_t *id = sqlite3_column_blob(stmt, 0);
+		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+		if (id_len != sizeof(*downlink->id)) {
+			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*downlink->id));
+			status = 500;
+			goto cleanup;
+		}
+		const int user_device_device_id_type = sqlite3_column_type(stmt, 1);
+		if (user_device_device_id_type == SQLITE_NULL) {
+			status = 403;
+			goto cleanup;
+		}
+		memcpy(downlink->id, id, id_len);
+		status = 0;
+	} else if (result == SQLITE_DONE) {
+		warn("downlink %02x%02x not found\n", *downlink->id[0], *downlink->id[1]);
+		status = 404;
+		goto cleanup;
+	} else {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
 
 uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len) {
 	uint16_t status;

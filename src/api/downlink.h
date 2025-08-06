@@ -29,6 +29,8 @@ typedef struct downlink_query_t {
 extern const char *downlink_table;
 extern const char *downlink_schema;
 
+uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink);
+
 uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len);
 uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink);
 
