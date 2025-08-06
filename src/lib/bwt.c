@@ -26,7 +26,7 @@ int bwt_sign(char (*buffer)[103], uint8_t (*id)[16]) {
 
 	uint8_t hmac[32];
 	sha256_hmac((uint8_t *)bwt_key, strlen(bwt_key), binary, offset, &hmac);
-	memcpy(&binary[offset], hmac, offset);
+	memcpy(&binary[offset], hmac, sizeof(hmac));
 
 	if (base32_encode((char *)buffer, sizeof(*buffer), binary, sizeof(binary)) == -1) {
 		error("failed to encode bwt in base 32\n");
