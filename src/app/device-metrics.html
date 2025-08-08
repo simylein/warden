@@ -299,7 +299,7 @@
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[0].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].setAttribute('d', photovoltaicSkeleton);
 				} else {
 					element.graph.children[ind].removeAttribute('d');
@@ -331,7 +331,6 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			element.graph.children[0].removeAttribute('d');
 			let memo = null;
 			const distance = 100 / photovoltaic.points.length;
 			photovoltaic.points.forEach((point, ind) => {
@@ -366,8 +365,15 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
-			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
-			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].setAttribute('d', photovoltaicSkeleton);
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
 		};
 		const indexBattery = (value) => {
 			switch (true) {
@@ -399,7 +405,7 @@
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[0].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].setAttribute('d', batterySkeleton);
 				} else {
 					element.graph.children[ind].removeAttribute('d');
@@ -431,7 +437,6 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			element.graph.children[0].removeAttribute('d');
 			let memo = null;
 			const distance = 100 / battery.points.length;
 			battery.points.forEach((point, ind) => {
@@ -466,8 +471,15 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
-			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
-			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].setAttribute('d', batterySkeleton);
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
 		};
 		const summarizeMetrics = (metrics, metric, type) => {
 			const target = metrics[type];
