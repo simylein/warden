@@ -31,11 +31,13 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"metric.photovoltaic, metric.battery, metric.captured_at "
+										"avg(metric.photovoltaic), avg(metric.battery), "
+										"(metric.captured_at / ?) * ? as bucket_time "
 										"from metric "
 										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
 										"where metric.device_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
-										"order by metric.captured_at desc";
+										"group by bucket_time "
+										"order by bucket_time desc";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -44,10 +46,12 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 3, query->from);
-	sqlite3_bind_int64(stmt, 4, query->to);
+	sqlite3_bind_int(stmt, 1, query->bucket);
+	sqlite3_bind_int(stmt, 2, query->bucket);
+	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 4, device->id, sizeof(*device->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 5, query->from);
+	sqlite3_bind_int64(stmt, 6, query->to);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -150,17 +154,36 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
-	metric_query_t query = {.from = 0, .to = 0};
+	metric_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
 		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
 		response->status = 400;
 		return;
 	}
 
-	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 604800) {
+	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
 		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
 		response->status = 400;
 		return;
+	}
+
+	time_t range = query.to - query.from;
+	if (range <= 3600) {
+		query.bucket = 5;
+	} else if (range <= 10800) {
+		query.bucket = 15;
+	} else if (range <= 43200) {
+		query.bucket = 60;
+	} else if (range <= 86400) {
+		query.bucket = 120;
+	} else if (range <= 172800) {
+		query.bucket = 240;
+	} else if (range <= 345600) {
+		query.bucket = 480;
+	} else if (range <= 604800) {
+		query.bucket = 840;
+	} else if (range <= 1209600) {
+		query.bucket = 1680;
 	}
 
 	device_t device = {.id = &id};

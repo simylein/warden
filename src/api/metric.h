@@ -19,6 +19,7 @@ typedef struct metric_t {
 typedef struct metric_query_t {
 	time_t from;
 	time_t to;
+	uint16_t bucket;
 } metric_query_t;
 
 extern const char *metric_table;
