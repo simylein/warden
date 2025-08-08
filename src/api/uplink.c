@@ -421,7 +421,7 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 		return;
 	}
 
-	uint8_t uplinks_len;
+	uint8_t uplinks_len = 0;
 	uint16_t status = uplink_select(database, bwt, &query, response, &uplinks_len);
 	if (status != 0) {
 		response->status = status;
@@ -470,7 +470,7 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
-	info("found uplink %02x%02x\n", *uplink.id[0], *uplink.id[1]);
+	info("found uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
 	response->status = 200;
 }
 

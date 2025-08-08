@@ -401,7 +401,7 @@ void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t
 		return;
 	}
 
-	uint8_t downlinks_len;
+	uint8_t downlinks_len = 0;
 	uint16_t status = downlink_select(database, bwt, &query, response, &downlinks_len);
 	if (status != 0) {
 		response->status = status;
@@ -450,7 +450,7 @@ void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, respon
 
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
-	info("found downlink %02x%02x\n", *downlink.id[0], *downlink.id[1]);
+	info("found downlink %02x%02x\n", (*downlink.id)[0], (*downlink.id)[1]);
 	response->status = 200;
 }
 

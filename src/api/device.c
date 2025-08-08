@@ -475,6 +475,6 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
-	info("found device %02x%02x\n", *device.id[0], *device.id[1]);
+	info("found device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
 }
