@@ -257,6 +257,18 @@
 			});
 		};
 		highlightRange(getRange());
+		const indexPhotovoltaic = (value) => {
+			let index = Math.floor(value * 2) + 1;
+			switch (true) {
+				case index >= 7:
+					index = 6;
+					break;
+				case index >= 5:
+					index = 5;
+					break;
+			}
+			return index;
+		};
 		const loadingPhotovoltaic = (element) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -304,18 +316,26 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
-			const distance = 100 / photovoltaic.points.reduce((accumulator, points) => accumulator + points.length, 0);
-			array(element.graph.children.length).forEach((ind) => {
-				const d = photovoltaic.points[ind].map((point, i) => {
-					let type = i === 0 ? 'M' : 'L';
-					const last = i === 0 ? point : photovoltaic.points[ind][i - 1];
-					if (last.x - point.x > distance * 2) {
-						type = 'M';
-					}
-					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
-				});
-				if (d.length !== 0) {
-					element.graph.children[ind].setAttribute('d', d.join(' '));
+			let memo = null;
+			const distance = 100 / photovoltaic.points.length;
+			photovoltaic.points.forEach((point, ind) => {
+				const index = indexPhotovoltaic(point.v);
+				const last = ind === 0 ? point : photovoltaic.points[ind - 1];
+				let type = photovoltaic.paths[index].length === 0 ? 'M' : 'L';
+				if (last.x - point.x > distance * 8) {
+					type = 'M';
+				} else if (memo !== null && memo !== index) {
+					type = 'M';
+					photovoltaic.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				}
+				memo = index;
+				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			photovoltaic.paths.forEach((path, ind) => {
+				if (path.length !== 0) {
+					element.graph.children[ind].setAttribute('d', path.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
@@ -332,6 +352,22 @@
 			});
 			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
 			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+		};
+		const indexBattery = (value) => {
+			switch (true) {
+				case value >= 3.85:
+					return 6;
+				case value >= 3.78:
+					return 5;
+				case value >= 3.7:
+					return 4;
+				case value >= 3.6:
+					return 3;
+				case value >= 3.5:
+					return 2;
+				case value < 3.5:
+					return 1;
+			}
 		};
 		const loadingBattery = (element) => {
 			array(element.label.children.length).forEach((ind) => {
@@ -380,18 +416,26 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
-			const distance = 100 / battery.points.reduce((accumulator, points) => accumulator + points.length, 0);
-			array(element.graph.children.length).forEach((ind) => {
-				const d = battery.points[ind].map((point, i) => {
-					let type = i === 0 ? 'M' : 'L';
-					const last = i === 0 ? point : battery.points[ind][i - 1];
-					if (last.x - point.x > distance * 2) {
-						type = 'M';
-					}
-					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
-				});
-				if (d.length !== 0) {
-					element.graph.children[ind].setAttribute('d', d.join(' '));
+			let memo = null;
+			const distance = 100 / battery.points.length;
+			battery.points.forEach((point, ind) => {
+				const index = indexBattery(point.v);
+				const last = ind === 0 ? point : battery.points[ind - 1];
+				let type = battery.paths[index].length === 0 ? 'M' : 'L';
+				if (last.x - point.x > distance * 8) {
+					type = 'M';
+				} else if (memo !== null && memo !== index) {
+					type = 'M';
+					battery.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				}
+				memo = index;
+				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			battery.paths.forEach((path, ind) => {
+				if (path.length !== 0) {
+					element.graph.children[ind].setAttribute('d', path.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
@@ -425,56 +469,30 @@
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateMetrics = (metrics, metric, type) => {
+		const coordinateMetrics = (metrics, data, type) => {
 			const target = metrics[type];
 			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
-			const xPercent = 100 - ((Number(metric.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * 100;
 			const yRange = target.max.ceil - target.min.floor;
-			const yPercent = 100 - ((metric[type] - target.min.floor) / yRange) * 100;
-			let index = null;
-			switch (type) {
-				case 'photovoltaic':
-					index = Math.floor(metric[type] * 2) + 1;
-					switch (true) {
-						case index >= 7:
-							index = 6;
-							break;
-						case index >= 5:
-							index = 5;
-							break;
-					}
-					target.points[index].push({ x: xPercent, y: yPercent });
-					break;
-				case 'battery':
-					index;
-					switch (true) {
-						case metric[type] >= 3.85:
-							index = 6;
-							break;
-						case metric[type] >= 3.78:
-							index = 5;
-							break;
-						case metric[type] >= 3.7:
-							index = 4;
-							break;
-						case metric[type] >= 3.6:
-							index = 3;
-							break;
-						case metric[type] >= 3.5:
-							index = 2;
-							break;
-						case metric[type] < 3.5:
-							index = 1;
-							break;
-					}
-					target.points[index].push({ x: xPercent, y: yPercent });
-					break;
-			}
+			data.forEach((reading) => {
+				const xPercent = 100 - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * 100;
+				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
+				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
+			});
 		};
 		const calculateMetrics = (data) => {
 			const metrics = {
-				photovoltaic: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(photovoltaic.graph.children.length).map(() => []) },
-				battery: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(battery.graph.children.length).map(() => []) },
+				photovoltaic: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(photovoltaic.graph.children.length).map(() => []),
+				},
+				battery: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(battery.graph.children.length).map(() => []),
+				},
 				capturedAt: { start: null, end: null },
 			};
 			metrics.capturedAt.start = Math.floor(Date.now() / 1000);
@@ -485,10 +503,8 @@
 			});
 			normalizeMetrics(metrics, 'photovoltaic');
 			normalizeMetrics(metrics, 'battery');
-			data.forEach((metric) => {
-				coordinateMetrics(metrics, metric, 'photovoltaic');
-				coordinateMetrics(metrics, metric, 'battery');
-			});
+			coordinateMetrics(metrics, data, 'photovoltaic');
+			coordinateMetrics(metrics, data, 'battery');
 			return metrics;
 		};
 		const parseMetrics = async (response) => {
@@ -519,9 +535,9 @@
 			},
 			async (context, response) => (context.data = await parseMetrics(response)),
 			(context) => {
-				const summary = calculateMetrics(context.data);
-				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, summary.photovoltaic, summary.capturedAt));
-				window.requestAnimationFrame(() => paintBattery(battery, summary.battery, summary.capturedAt));
+				const metrics = calculateMetrics(context.data);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.photovoltaic, metrics.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, metrics.battery, metrics.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {

@@ -273,6 +273,18 @@
 			});
 		};
 		highlightRange(getRange());
+		const indexTemperature = (value) => {
+			let index = Math.floor(value / 4) + 7;
+			switch (true) {
+				case index < 1:
+					index = 1;
+					break;
+				case index > 16:
+					index = 16;
+					break;
+			}
+			return index;
+		};
 		const loadingTemperature = (element) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -320,18 +332,26 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
-			const distance = 100 / temperature.points.reduce((accumulator, points) => accumulator + points.length, 0);
-			array(element.graph.children.length).forEach((ind) => {
-				const d = temperature.points[ind].map((point, i) => {
-					let type = i === 0 ? 'M' : 'L';
-					const last = i === 0 ? point : temperature.points[ind][i - 1];
-					if (last.x - point.x > distance * 2) {
-						type = 'M';
-					}
-					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
-				});
-				if (d.length !== 0) {
-					element.graph.children[ind].setAttribute('d', d.join(' '));
+			let memo = null;
+			const distance = 100 / temperature.points.length;
+			temperature.points.forEach((point, ind) => {
+				const index = indexTemperature(point.v);
+				const last = ind === 0 ? point : temperature.points[ind - 1];
+				let type = temperature.paths[index].length === 0 ? 'M' : 'L';
+				if (last.x - point.x > distance * 8) {
+					type = 'M';
+				} else if (memo !== null && memo !== index) {
+					type = 'M';
+					temperature.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				}
+				memo = index;
+				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			temperature.paths.forEach((path, ind) => {
+				if (path.length !== 0) {
+					element.graph.children[ind].setAttribute('d', path.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
@@ -348,6 +368,24 @@
 			});
 			element.graph.children[0].classList.add('stroke-red-200', 'dark:stroke-red-800');
 			element.graph.children[0].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+		};
+		const indexHumidity = (value) => {
+			let index = Math.floor(value / 5) - 3;
+			switch (true) {
+				case index < 1:
+					index = 1;
+					break;
+				case index < 3:
+					index = 2;
+					break;
+				case index > 12:
+					index = 12;
+					break;
+				case index > 10:
+					index = 11;
+					break;
+			}
+			return index;
 		};
 		const loadingHumidity = (element) => {
 			array(element.label.children.length).forEach((ind) => {
@@ -394,18 +432,26 @@
 				});
 			}
 			element.graph.children[0].removeAttribute('d');
-			const distance = 100 / humidity.points.reduce((accumulator, points) => accumulator + points.length, 0);
-			array(element.graph.children.length).forEach((ind) => {
-				const d = humidity.points[ind].map((point, i) => {
-					let type = i === 0 ? 'M' : 'L';
-					const last = i === 0 ? point : humidity.points[ind][i - 1];
-					if (last.x - point.x > distance * 2) {
-						type = 'M';
-					}
-					return `${type} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`;
-				});
-				if (d.length !== 0) {
-					element.graph.children[ind].setAttribute('d', d.join(' '));
+			let memo = null;
+			const distance = 100 / humidity.points.length;
+			humidity.points.forEach((point, ind) => {
+				const index = indexHumidity(point.v);
+				const last = ind === 0 ? point : humidity.points[ind - 1];
+				let type = humidity.paths[index].length === 0 ? 'M' : 'L';
+				if (last.x - point.x > distance * 8) {
+					type = 'M';
+				} else if (memo !== null && memo !== index) {
+					type = 'M';
+					humidity.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				}
+				memo = index;
+				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			humidity.paths.forEach((path, ind) => {
+				if (path.length !== 0) {
+					element.graph.children[ind].setAttribute('d', path.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
@@ -439,50 +485,30 @@
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateReadings = (readings, reading, type) => {
+		const coordinateReadings = (readings, data, type) => {
 			const target = readings[type];
 			const xRange = Number(readings.capturedAt.end) - Number(readings.capturedAt.start);
-			const xPercent = 100 - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * 100;
 			const yRange = target.max.ceil - target.min.floor;
-			const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
-			let index = null;
-			switch (type) {
-				case 'temperature':
-					index = Math.floor(reading[type] / 4) + 7;
-					switch (true) {
-						case index < 1:
-							index = 1;
-							break;
-						case index > 16:
-							index = 16;
-							break;
-					}
-					target.points[index].push({ x: xPercent, y: yPercent });
-					break;
-				case 'humidity':
-					index = Math.floor(reading[type] / 5) - 3;
-					switch (true) {
-						case index < 1:
-							index = 1;
-							break;
-						case index < 3:
-							index = 2;
-							break;
-						case index > 12:
-							index = 12;
-							break;
-						case index > 10:
-							index = 11;
-							break;
-					}
-					target.points[index].push({ x: xPercent, y: yPercent });
-					break;
-			}
+			data.forEach((reading) => {
+				const xPercent = 100 - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * 100;
+				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
+				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
+			});
 		};
 		const calculateReadings = (data) => {
 			const readings = {
-				temperature: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(temperature.graph.children.length).map(() => []) },
-				humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, points: array(humidity.graph.children.length).map(() => []) },
+				temperature: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(temperature.graph.children.length).map(() => []),
+				},
+				humidity: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(humidity.graph.children.length).map(() => []),
+				},
 				capturedAt: { start: null, end: null },
 			};
 			readings.capturedAt.start = Math.floor(Date.now() / 1000);
@@ -493,10 +519,8 @@
 			});
 			normalizeReadings(readings, 'temperature');
 			normalizeReadings(readings, 'humidity');
-			data.forEach((reading) => {
-				coordinateReadings(readings, reading, 'temperature');
-				coordinateReadings(readings, reading, 'humidity');
-			});
+			coordinateReadings(readings, data, 'temperature');
+			coordinateReadings(readings, data, 'humidity');
 			return readings;
 		};
 		const parseReadings = async (response) => {
@@ -527,9 +551,9 @@
 			},
 			async (context, response) => (context.data = await parseReadings(response)),
 			(context) => {
-				const summary = calculateReadings(context.data);
-				window.requestAnimationFrame(() => paintTemperature(temperature, summary.temperature, summary.capturedAt));
-				window.requestAnimationFrame(() => paintHumidity(humidity, summary.humidity, summary.capturedAt));
+				const readings = calculateReadings(context.data);
+				window.requestAnimationFrame(() => paintTemperature(temperature, readings.temperature, readings.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, readings.humidity, readings.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
