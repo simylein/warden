@@ -62,7 +62,7 @@ uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
 		memcpy(device->id, id, id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
-		warn("device %02x%02x not found\n", *device->id[0], *device->id[1]);
+		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
 		status = 404;
 		goto cleanup;
 	} else {
@@ -362,7 +362,7 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 		}
 		status = 0;
 	} else if (result == SQLITE_DONE) {
-		warn("device %02x%02x not found\n", *device->id[0], *device->id[1]);
+		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
 		status = 404;
 		goto cleanup;
 	} else {

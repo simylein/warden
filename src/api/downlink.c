@@ -64,7 +64,7 @@ uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink) 
 		memcpy(downlink->id, id, id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
-		warn("downlink %02x%02x not found\n", *downlink->id[0], *downlink->id[1]);
+		warn("downlink %02x%02x not found\n", (*downlink->id)[0], (*downlink->id)[1]);
 		status = 404;
 		goto cleanup;
 	} else {
@@ -216,7 +216,7 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		append_body(response, device_id, device_id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
-		warn("downlink %02x%02x not found\n", *downlink->id[0], *downlink->id[1]);
+		warn("downlink %02x%02x not found\n", (*downlink->id)[0], (*downlink->id)[1]);
 		status = 404;
 		goto cleanup;
 	} else {
