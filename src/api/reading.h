@@ -19,6 +19,7 @@ typedef struct reading_t {
 typedef struct reading_query_t {
 	time_t from;
 	time_t to;
+	uint16_t bucket;
 } reading_query_t;
 
 extern const char *reading_table;

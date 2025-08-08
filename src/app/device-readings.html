@@ -30,6 +30,14 @@
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
 				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
 					<button
+						value="1209600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(1209600); setRange(1209600); loadReadings()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
+					</button>
+					<button
 						value="604800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
 						onclick="highlightRange(604800); setRange(604800); loadReadings()"
@@ -84,6 +92,14 @@
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
+					</button>
+					<button
+						value="3600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(3600); setRange(3600); loadReadings()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
 					</button>
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
