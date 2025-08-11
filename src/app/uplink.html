@@ -107,7 +107,7 @@
 								<p class="m-0">Device id</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-80 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="font-mono m-0 w-80 h-4.5 text-blue-600 dark:text-blue-400 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 					</tbody>
@@ -162,6 +162,8 @@
 			fade(element.children[8].children[1].children[0]);
 			colorSf(element.children[8].children[1].children[0], data.sf);
 			paint(element.children[9].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.receivedAt));
+			element.children[10].children[1].children[0].classList.add('cursor-pointer');
+			element.children[10].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
 			paint(element.children[10].children[1].children[0], [], ['w-80', 'h-4.5'], data.deviceId);
 		};
 		const errorUplink = (element) => {

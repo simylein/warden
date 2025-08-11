@@ -76,7 +76,7 @@
 								<p class="m-0">Uplink id</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-80 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="font-mono m-0 w-80 h-4.5 text-blue-600 dark:text-blue-400 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -187,6 +187,8 @@
 				loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
 			if (data.uplink !== null) {
+				element.children[5].children[1].children[0].classList.add('cursor-pointer');
+				element.children[5].children[1].children[0].onclick = () => (window.location.href = `/uplink/${data.uplink.id}`);
 				paint(element.children[5].children[1].children[0], [], ['w-80', 'h-4.5'], data.uplink.id);
 				paint(element.children[6].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.uplink.receivedAt));
 			} else {
