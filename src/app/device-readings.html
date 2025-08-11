@@ -23,9 +23,10 @@
 				id="tabs"
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
 			>
-				<a class="text-base font-normal no-underline text-black dark:text-white">Details</a>
-				<a class="text-base font-normal no-underline text-blue-600 dark:text-blue-400">Readings</a>
-				<a class="text-base font-normal no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Details</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Readings</a>
+				<a class="no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Signals</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
 				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
@@ -246,6 +247,7 @@
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
+		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		const ranges = document.getElementById('ranges');
 		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null };
 		const temperature = {
