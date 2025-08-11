@@ -889,9 +889,11 @@
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
+				fade(element.range.children[0]);
 				colorHumidity(element.range.children[0], humidity.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], humidity.max.abs.toFixed(2));
+				fade(element.range.children[2]);
 				colorHumidity(element.range.children[2], humidity.max.abs);
 			}
 			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
