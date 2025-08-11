@@ -133,6 +133,17 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.tag_len = 0,
 	};
 
+	char tiny[4096];
+	uint16_t tiny_len = 0;
+	breakpoint_t tiny_breakpoint = {
+			.tag = "xs",
+			.tag_len = 2,
+			.prefix = "@media (min-width:512px){",
+			.prefix_len = 25,
+			.suffix = "}",
+			.suffix_len = 1,
+	};
+
 	char small[4096];
 	uint16_t small_len = 0;
 	breakpoint_t small_breakpoint = {
@@ -223,31 +234,37 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 		common(&cls, &global, &global_len);
 		position(&cls, &global, &global_len);
 		display(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		display(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		display(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		display(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		display(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		display(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		spacing(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		spacing(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		spacing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		spacing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		spacing(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		spacing(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		sizing(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		sizing(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		sizing(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		sizing(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		sizing(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		sizing(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		border(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		border(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		border(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		border(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		border(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		border(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		overflow(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		overflow(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		overflow(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		overflow(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		overflow(&pfx, &cls, &large, &large_len, &large_breakpoint);
 		overflow(&pfx, &cls, &giant, &giant_len, &giant_breakpoint);
 		flex(&pfx, &cls, &global, &global_len, &global_breakpoint);
+		flex(&pfx, &cls, &tiny, &tiny_len, &tiny_breakpoint);
 		flex(&pfx, &cls, &small, &small_len, &small_breakpoint);
 		flex(&pfx, &cls, &medium, &medium_len, &medium_breakpoint);
 		flex(&pfx, &cls, &large, &large_len, &large_breakpoint);
@@ -264,7 +281,11 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 		}
 	}
 
-	size_t len = file->len + global_len + small_len + medium_len + large_len + giant_len + dark_len;
+	size_t len = file->len + global_len + tiny_len + small_len + medium_len + large_len + giant_len + dark_len;
+	if (tiny_len > 0) {
+		len += tiny_breakpoint.prefix_len;
+		len += tiny_breakpoint.suffix_len;
+	}
 	if (small_len > 0) {
 		len += small_breakpoint.prefix_len;
 		len += small_breakpoint.suffix_len;
@@ -312,6 +333,15 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	if (global_len != 0) {
 		memcpy(&ptr[ptr_ind], global, global_len);
 		ptr_ind += global_len;
+	}
+
+	if (tiny_len != 0) {
+		memcpy(&ptr[ptr_ind], tiny_breakpoint.prefix, tiny_breakpoint.prefix_len);
+		ptr_ind += tiny_breakpoint.prefix_len;
+		memcpy(&ptr[ptr_ind], small, tiny_len);
+		ptr_ind += tiny_len;
+		memcpy(&ptr[ptr_ind], tiny_breakpoint.suffix, tiny_breakpoint.suffix_len);
+		ptr_ind += tiny_breakpoint.suffix_len;
 	}
 
 	if (small_len != 0) {
