@@ -27,6 +27,12 @@ typedef struct uplink_query_t {
 	uint32_t offset;
 } uplink_query_t;
 
+typedef struct uplink_signal_query_t {
+	time_t from;
+	time_t to;
+	uint16_t bucket;
+} uplink_signal_query_t;
+
 extern const char *uplink_table;
 extern const char *uplink_schema;
 
@@ -38,4 +44,5 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink);
 
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_create(sqlite3 *database, request_t *request, response_t *response);

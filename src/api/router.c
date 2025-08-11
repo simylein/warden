@@ -248,6 +248,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/device/:id/signals", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			uplink_signal_find_by_device(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/api/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {

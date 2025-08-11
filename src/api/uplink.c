@@ -5,7 +5,9 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "../lib/strn.h"
 #include "decode.h"
+#include "device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -139,6 +141,59 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, res
 			append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 			append_body(response, device_id, device_id_len);
 			*uplinks_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+			status = 500;
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
+uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, uplink_signal_query_t *query,
+																				response_t *response, uint16_t *signals_len) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"avg(uplink.rssi), avg(uplink.snr), "
+										"(uplink.received_at / ?) * ? as bucket_time "
+										"from uplink "
+										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
+										"where uplink.device_id = ? and uplink.received_at >= ? and uplink.received_at <= ? "
+										"group by bucket_time "
+										"order by bucket_time desc";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_int(stmt, 1, query->bucket);
+	sqlite3_bind_int(stmt, 2, query->bucket);
+	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 4, device->id, sizeof(*device->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 5, query->from);
+	sqlite3_bind_int64(stmt, 6, query->to);
+
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 0);
+			const double snr = sqlite3_column_double(stmt, 1);
+			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 2);
+			append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+			append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			append_body(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+			*signals_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
 			break;
@@ -471,6 +526,88 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
 	info("found uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
+	response->status = 200;
+}
+
+void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	const char *from;
+	size_t from_len;
+	if (strnfind(*request->search, request->search_len, "from=", "&", &from, &from_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *to;
+	size_t to_len;
+	if (strnfind(*request->search, request->search_len, "to=", "", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uplink_signal_query_t query = {.from = 0, .to = 0, .bucket = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
+		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+		response->status = 400;
+		return;
+	}
+
+	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
+		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+		response->status = 400;
+		return;
+	}
+
+	time_t range = query.to - query.from;
+	if (range <= 3600) {
+		query.bucket = 5;
+	} else if (range <= 10800) {
+		query.bucket = 15;
+	} else if (range <= 43200) {
+		query.bucket = 60;
+	} else if (range <= 86400) {
+		query.bucket = 120;
+	} else if (range <= 172800) {
+		query.bucket = 240;
+	} else if (range <= 345600) {
+		query.bucket = 480;
+	} else if (range <= 604800) {
+		query.bucket = 840;
+	} else if (range <= 1209600) {
+		query.bucket = 1680;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(database, bwt, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint16_t signals_len = 0;
+	status = uplink_signal_select_by_device(database, bwt, &device, &query, response, &signals_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%zu\r\n", response->body_len);
+	info("found %hu signals\n", signals_len);
 	response->status = 200;
 }
 
