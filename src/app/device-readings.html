@@ -235,6 +235,7 @@
 		</main>
 	</body>
 	<script>
+		import './src/app/breakpoint.js';
 		import './src/app/array.js';
 		import './src/app/state.js';
 		import './src/app/math.js';
@@ -249,7 +250,7 @@
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		const ranges = document.getElementById('ranges');
-		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null };
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
@@ -262,10 +263,25 @@
 			graph: document.getElementById('humidity-graph'),
 			label: document.getElementById('humidity-label'),
 		};
-		const temperatureSkeleton =
-			'M 0 53 L 1 63 L 2 70 L 3 60 L 4 64 L 5 68 L 6 59 L 7 61 L 8 65 L 9 50 L 10 46 L 11 49 L 12 31 L 13 35 L 14 45 L 15 38 L 16 56 L 17 72 L 18 69 L 19 66 L 20 64 L 21 52 L 22 57 L 23 74 L 24 62 L 25 65 L 26 69 L 27 58 L 28 62 L 29 68 L 30 86 L 31 81 L 32 72 L 33 66 L 34 65 L 35 47 L 36 44 L 37 54 L 38 65 L 39 80 L 40 63 L 41 61 L 42 78 L 43 88 L 44 84 L 45 71 L 46 66 L 47 63 L 48 50 L 49 47 L 50 59 L 51 55 L 52 50 L 53 67 L 54 69 L 55 64 L 56 62 L 57 60 L 58 48 L 59 42 L 60 40 L 61 43 L 62 39 L 63 36 L 64 46 L 65 45 L 66 35 L 67 33 L 68 46 L 69 59 L 70 48 L 71 61 L 72 70 L 73 86 L 74 77 L 75 79 L 76 80 L 77 69 L 78 56 L 79 60 L 80 45 L 81 50 L 82 64 L 83 59 L 84 66 L 85 82 L 86 90 L 87 95 L 88 91 L 89 88 L 90 85 L 91 69 L 92 56 L 93 67 L 94 72 L 95 89 L 96 93 L 97 91 L 98 76 L 99 79 L 100 60';
-		const humiditySkeleton =
-			'M 0 31 L 1 36 L 2 38 L 3 41 L 4 55 L 5 49 L 6 54 L 7 37 L 8 32 L 9 43 L 10 50 L 11 45 L 12 41 L 13 35 L 14 33 L 15 24 L 16 42 L 17 44 L 18 48 L 19 30 L 20 33 L 21 21 L 22 34 L 23 44 L 24 50 L 25 42 L 26 36 L 27 41 L 28 47 L 29 30 L 30 19 L 31 24 L 32 31 L 33 48 L 34 51 L 35 46 L 36 30 L 37 18 L 38 37 L 39 33 L 40 26 L 41 40 L 42 35 L 43 19 L 44 21 L 45 11 L 46 15 L 47 17 L 48 36 L 49 28 L 50 31 L 51 43 L 52 51 L 53 60 L 54 69 L 55 58 L 56 73 L 57 59 L 58 50 L 59 62 L 60 71 L 61 90 L 62 77 L 63 85 L 64 69 L 65 57 L 66 39 L 67 41 L 68 54 L 69 49 L 70 46 L 71 33 L 72 24 L 73 43 L 74 37 L 75 42 L 76 59 L 77 67 L 78 62 L 79 45 L 80 42 L 81 24 L 82 20 L 83 38 L 84 46 L 85 34 L 86 27 L 87 13 L 88 21 L 89 31 L 90 45 L 91 37 L 92 50 L 93 56 L 94 71 L 95 60 L 96 66 L 97 70 L 98 84 L 99 97 L 100 89';
+		const temperatureSkeleton = [
+			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
+			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
+			67, 69, 54, 50, 34, 36, 43, 42, 32, 33, 51, 53, 48, 61, 68, 79, 70, 68, 58, 55, 72, 88, 86, 95, 88,
+		];
+		const humiditySkeleton = [
+			31, 36, 38, 41, 55, 49, 54, 37, 32, 43, 50, 45, 41, 35, 33, 24, 42, 44, 48, 30, 33, 21, 34, 44, 50, 42, 36, 41, 47, 30, 19, 24, 31, 48, 51, 46, 30, 18,
+			37, 33, 26, 40, 35, 19, 21, 11, 15, 17, 36, 28, 31, 43, 51, 60, 69, 58, 73, 59, 50, 62, 71, 90, 77, 85, 69, 57, 39, 41, 54, 49, 46, 33, 24, 43, 37, 42,
+			59, 67, 62, 45, 42, 24, 20, 38, 46, 34, 27, 13, 21, 31, 45, 37, 50, 56, 71, 60, 66, 70, 84, 97, 89,
+		];
+		window.addEventListener('resize', () => {
+			const width = breakpoint();
+			if (width !== readings.width) {
+				readings.width = width;
+				const summary = calculateReadings(readings.data, readings.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, readings.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, readings.width, summary.humidity, summary.capturedAt));
+			}
+		});
 		const getRange = () => {
 			const range = new URLSearchParams(window.location.search).get('range');
 			return +(range ?? 86400);
@@ -303,7 +319,7 @@
 			}
 			return index;
 		};
-		const loadingTemperature = (element) => {
+		const loadingTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -314,24 +330,29 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					element.graph.children[ind].setAttribute('d', temperatureSkeleton);
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintTemperature = (element, temperature, capturedAt) => {
+		const paintTemperature = (element, width, temperature, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-				const hours = date.getHours().toString().padStart(2, '0');
-				const minutes = date.getMinutes().toString().padStart(2, '0');
-				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
-			});
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+					const hours = date.getHours().toString().padStart(2, '0');
+					const minutes = date.getMinutes().toString().padStart(2, '0');
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+				});
+			}
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
@@ -350,7 +371,7 @@
 				});
 			}
 			let memo = null;
-			const distance = 100 / temperature.points.length;
+			const distance = width / temperature.points.length;
 			temperature.points.forEach((point, ind) => {
 				const index = indexTemperature(point.v);
 				const last = ind === 0 ? point : temperature.points[ind - 1];
@@ -364,15 +385,21 @@
 				memo = index;
 				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
-			temperature.paths.forEach((path, ind) => {
-				if (path.length !== 0) {
-					element.graph.children[ind].setAttribute('d', path.join(' '));
-				} else {
-					element.graph.children[ind].removeAttribute('d');
-				}
-			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (temperatureSkeleton.length - 1);
+			const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				temperature.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorTemperature = (element) => {
+		const errorTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -383,11 +410,14 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[ind].setAttribute('d', temperatureSkeleton);
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
@@ -411,7 +441,7 @@
 			}
 			return index;
 		};
-		const loadingHumidity = (element) => {
+		const loadingHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -422,24 +452,29 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					element.graph.children[ind].setAttribute('d', humiditySkeleton);
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintHumidity = (element, humidity, capturedAt) => {
+		const paintHumidity = (element, width, humidity, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-				const hours = date.getHours().toString().padStart(2, '0');
-				const minutes = date.getMinutes().toString().padStart(2, '0');
-				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
-			});
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+					const hours = date.getHours().toString().padStart(2, '0');
+					const minutes = date.getMinutes().toString().padStart(2, '0');
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+				});
+			}
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
@@ -458,7 +493,7 @@
 				});
 			}
 			let memo = null;
-			const distance = 100 / humidity.points.length;
+			const distance = width / humidity.points.length;
 			humidity.points.forEach((point, ind) => {
 				const index = indexHumidity(point.v);
 				const last = ind === 0 ? point : humidity.points[ind - 1];
@@ -472,15 +507,21 @@
 				memo = index;
 				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
-			humidity.paths.forEach((path, ind) => {
-				if (path.length !== 0) {
-					element.graph.children[ind].setAttribute('d', path.join(' '));
-				} else {
-					element.graph.children[ind].removeAttribute('d');
-				}
-			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (humiditySkeleton.length - 1);
+			const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				humidity.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorHumidity = (element) => {
+		const errorHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -491,11 +532,14 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[ind].setAttribute('d', humiditySkeleton);
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
@@ -517,17 +561,17 @@
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateReadings = (readings, data, type) => {
+		const coordinateReadings = (readings, data, type, width) => {
 			const target = readings[type];
 			const xRange = Number(readings.capturedAt.end) - Number(readings.capturedAt.start);
 			const yRange = target.max.ceil - target.min.floor;
 			data.forEach((reading) => {
-				const xPercent = 100 - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * 100;
+				const xPercent = width - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * width;
 				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
 				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
 			});
 		};
-		const calculateReadings = (data) => {
+		const calculateReadings = (data, width) => {
 			const readings = {
 				temperature: {
 					min: { abs: null, floor: null },
@@ -543,16 +587,18 @@
 				},
 				capturedAt: { start: null, end: null },
 			};
-			readings.capturedAt.start = Math.floor(Date.now() / 1000);
-			readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-			data.forEach((reading) => {
-				summarizeReadings(readings, reading, 'temperature');
-				summarizeReadings(readings, reading, 'humidity');
-			});
-			normalizeReadings(readings, 'temperature');
-			normalizeReadings(readings, 'humidity');
-			coordinateReadings(readings, data, 'temperature');
-			coordinateReadings(readings, data, 'humidity');
+			if (data !== null) {
+				readings.capturedAt.start = Math.floor(Date.now() / 1000);
+				readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				data.forEach((reading) => {
+					summarizeReadings(readings, reading, 'temperature');
+					summarizeReadings(readings, reading, 'humidity');
+				});
+				normalizeReadings(readings, 'temperature');
+				normalizeReadings(readings, 'humidity');
+				coordinateReadings(readings, data, 'temperature', width);
+				coordinateReadings(readings, data, 'humidity', width);
+			}
 			return readings;
 		};
 		const parseReadings = async (response) => {
@@ -571,8 +617,8 @@
 		const loadReadings = fetching(
 			readings,
 			(context) => {
-				window.requestAnimationFrame(() => loadingTemperature(temperature));
-				window.requestAnimationFrame(() => loadingHumidity(humidity));
+				window.requestAnimationFrame(() => loadingTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => loadingHumidity(humidity, context.width));
 			},
 			(context) => {
 				context.reload = getRange() / 360;
@@ -583,14 +629,14 @@
 			},
 			async (context, response) => (context.data = await parseReadings(response)),
 			(context) => {
-				const readings = calculateReadings(context.data);
-				window.requestAnimationFrame(() => paintTemperature(temperature, readings.temperature, readings.capturedAt));
-				window.requestAnimationFrame(() => paintHumidity(humidity, readings.humidity, readings.capturedAt));
+				const summary = calculateReadings(context.data, context.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, context.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, context.width, summary.humidity, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
-				window.requestAnimationFrame(() => errorTemperature(temperature));
-				window.requestAnimationFrame(() => errorHumidity(humidity));
+				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
 			}
 		);
 	</script>

@@ -219,6 +219,7 @@
 		</main>
 	</body>
 	<script>
+		import './src/app/breakpoint.js';
 		import './src/app/array.js';
 		import './src/app/state.js';
 		import './src/app/math.js';
@@ -233,7 +234,7 @@
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		const ranges = document.getElementById('ranges');
-		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null };
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
 			scale: document.getElementById('photovoltaic-scale'),
@@ -246,10 +247,25 @@
 			graph: document.getElementById('battery-graph'),
 			label: document.getElementById('battery-label'),
 		};
-		const photovoltaicSkeleton =
-			'M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19';
-		const batterySkeleton =
-			'M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13';
+		const photovoltaicSkeleton = [
+			87, 94, 79, 84, 64, 49, 60, 43, 42, 30, 42, 38, 25, 41, 53, 61, 41, 45, 58, 46, 49, 37, 35, 47, 31, 44, 31, 12, 17, 13, 0, 19, 25, 39, 59, 65, 70, 87, 73,
+			58, 66, 52, 64, 75, 59, 66, 81, 100, 91, 85, 89, 100, 93, 84, 75, 58, 40, 58, 71, 84, 72, 53, 39, 38, 20, 31, 16, 19, 32, 42, 46, 55, 72, 60, 56, 39, 46,
+			64, 76, 70, 54, 45, 57, 70, 54, 47, 58, 55, 66, 60, 42, 47, 30, 36, 30, 39, 20, 17, 0, 7, 19,
+		];
+		const batterySkeleton = [
+			30, 42, 35, 27, 16, 9, 18, 29, 36, 33, 19, 27, 18, 13, 6, 12, 25, 22, 14, 9, 15, 3, 0, 10, 28, 18, 0, 19, 24, 36, 46, 48, 59, 53, 50, 58, 67, 77, 79, 67,
+			55, 72, 59, 61, 49, 36, 21, 1, 10, 16, 36, 22, 35, 20, 27, 9, 18, 33, 23, 43, 30, 44, 26, 20, 25, 42, 60, 59, 73, 89, 100, 84, 97, 82, 93, 100, 80, 66,
+			69, 60, 40, 37, 55, 37, 32, 46, 43, 40, 28, 41, 25, 7, 11, 14, 28, 33, 22, 20, 11, 24, 13,
+		];
+		window.addEventListener('resize', () => {
+			const width = breakpoint();
+			if (width !== metrics.width) {
+				metrics.width = width;
+				const summary = calculateMetrics(metrics.data, metrics.width);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.width, summary.photovoltaic, summary.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, metrics.width, summary.battery, summary.capturedAt));
+			}
+		});
 		const getRange = () => {
 			const range = new URLSearchParams(window.location.search).get('range');
 			return +(range ?? 86400);
@@ -287,7 +303,7 @@
 			}
 			return index;
 		};
-		const loadingPhotovoltaic = (element) => {
+		const loadingPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -298,24 +314,29 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					element.graph.children[ind].setAttribute('d', photovoltaicSkeleton);
+					const factor = width / (photovoltaicSkeleton.length - 1);
+					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintPhotovoltaic = (element, photovoltaic, capturedAt) => {
+		const paintPhotovoltaic = (element, width, photovoltaic, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-				const hours = date.getHours().toString().padStart(2, '0');
-				const minutes = date.getMinutes().toString().padStart(2, '0');
-				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
-			});
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+					const hours = date.getHours().toString().padStart(2, '0');
+					const minutes = date.getMinutes().toString().padStart(2, '0');
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+				});
+			}
 			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(3));
@@ -334,7 +355,7 @@
 				});
 			}
 			let memo = null;
-			const distance = 100 / photovoltaic.points.length;
+			const distance = width / photovoltaic.points.length;
 			photovoltaic.points.forEach((point, ind) => {
 				const index = indexPhotovoltaic(point.v);
 				const last = ind === 0 ? point : photovoltaic.points[ind - 1];
@@ -348,15 +369,21 @@
 				memo = index;
 				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
-			photovoltaic.paths.forEach((path, ind) => {
-				if (path.length !== 0) {
-					element.graph.children[ind].setAttribute('d', path.join(' '));
-				} else {
-					element.graph.children[ind].removeAttribute('d');
-				}
-			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (photovoltaicSkeleton.length - 1);
+			const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				photovoltaic.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorPhotovoltaic = (element) => {
+		const errorPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -367,11 +394,14 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[ind].setAttribute('d', photovoltaicSkeleton);
+					const factor = width / (photovoltaicSkeleton.length - 1);
+					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
@@ -393,7 +423,7 @@
 					return 1;
 			}
 		};
-		const loadingBattery = (element) => {
+		const loadingBattery = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -404,24 +434,29 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					element.graph.children[ind].setAttribute('d', batterySkeleton);
+					const factor = width / (batterySkeleton.length - 1);
+					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintBattery = (element, battery, capturedAt) => {
+		const paintBattery = (element, width, battery, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-				const hours = date.getHours().toString().padStart(2, '0');
-				const minutes = date.getMinutes().toString().padStart(2, '0');
-				paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
-			});
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
+					const hours = date.getHours().toString().padStart(2, '0');
+					const minutes = date.getMinutes().toString().padStart(2, '0');
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+				});
+			}
 			if (battery.min.abs !== null && battery.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], battery.min.abs.toFixed(3));
@@ -440,7 +475,7 @@
 				});
 			}
 			let memo = null;
-			const distance = 100 / battery.points.length;
+			const distance = width / battery.points.length;
 			battery.points.forEach((point, ind) => {
 				const index = indexBattery(point.v);
 				const last = ind === 0 ? point : battery.points[ind - 1];
@@ -454,15 +489,21 @@
 				memo = index;
 				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
-			battery.paths.forEach((path, ind) => {
-				if (path.length !== 0) {
-					element.graph.children[ind].setAttribute('d', path.join(' '));
-				} else {
-					element.graph.children[ind].removeAttribute('d');
-				}
-			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (batterySkeleton.length - 1);
+			const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				battery.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorBattery = (element) => {
+		const errorBattery = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -473,11 +514,14 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					element.graph.children[ind].setAttribute('d', batterySkeleton);
+					const factor = width / (batterySkeleton.length - 1);
+					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
@@ -499,17 +543,17 @@
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateMetrics = (metrics, data, type) => {
+		const coordinateMetrics = (metrics, data, type, width) => {
 			const target = metrics[type];
 			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
 			const yRange = target.max.ceil - target.min.floor;
 			data.forEach((reading) => {
-				const xPercent = 100 - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * 100;
+				const xPercent = width - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * width;
 				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
 				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
 			});
 		};
-		const calculateMetrics = (data) => {
+		const calculateMetrics = (data, width) => {
 			const metrics = {
 				photovoltaic: {
 					min: { abs: null, floor: null },
@@ -525,16 +569,18 @@
 				},
 				capturedAt: { start: null, end: null },
 			};
-			metrics.capturedAt.start = Math.floor(Date.now() / 1000);
-			metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-			data.forEach((metric) => {
-				summarizeMetrics(metrics, metric, 'photovoltaic');
-				summarizeMetrics(metrics, metric, 'battery');
-			});
-			normalizeMetrics(metrics, 'photovoltaic');
-			normalizeMetrics(metrics, 'battery');
-			coordinateMetrics(metrics, data, 'photovoltaic');
-			coordinateMetrics(metrics, data, 'battery');
+			if (data !== null) {
+				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
+				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				data.forEach((metric) => {
+					summarizeMetrics(metrics, metric, 'photovoltaic');
+					summarizeMetrics(metrics, metric, 'battery');
+				});
+				normalizeMetrics(metrics, 'photovoltaic');
+				normalizeMetrics(metrics, 'battery');
+				coordinateMetrics(metrics, data, 'photovoltaic', width);
+				coordinateMetrics(metrics, data, 'battery', width);
+			}
 			return metrics;
 		};
 		const parseMetrics = async (response) => {
@@ -553,8 +599,8 @@
 		const loadMetrics = fetching(
 			metrics,
 			(context) => {
-				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic));
-				window.requestAnimationFrame(() => loadingBattery(battery));
+				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic, context.width));
+				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
 			},
 			async (context) => {
 				context.reload = getRange() / 360;
@@ -565,14 +611,14 @@
 			},
 			async (context, response) => (context.data = await parseMetrics(response)),
 			(context) => {
-				const metrics = calculateMetrics(context.data);
-				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.photovoltaic, metrics.capturedAt));
-				window.requestAnimationFrame(() => paintBattery(battery, metrics.battery, metrics.capturedAt));
+				const summary = calculateMetrics(context.data, context.width);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, context.width, summary.photovoltaic, summary.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, context.width, summary.battery, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
-				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic));
-				window.requestAnimationFrame(() => errorBattery(battery));
+				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
+				window.requestAnimationFrame(() => errorBattery(battery, context.width));
 			}
 		);
 	</script>
