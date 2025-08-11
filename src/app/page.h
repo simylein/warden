@@ -9,6 +9,7 @@ extern file_t page_devices;
 extern file_t page_device;
 extern file_t page_device_readings;
 extern file_t page_device_metrics;
+extern file_t page_device_signals;
 extern file_t page_uplinks;
 extern file_t page_uplink;
 extern file_t page_downlinks;

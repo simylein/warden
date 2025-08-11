@@ -66,6 +66,15 @@ file_t page_device_metrics = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_device_signals = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/device-signals.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_uplinks = {
 		.fd = -1,
 		.ptr = NULL,
