@@ -1,45 +1,38 @@
 #include "../lib/logger.h"
 #include "device.h"
+#include "downlink.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user.h"
 #include <sqlite3.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-uint8_t user_ids[4][16];
-uint8_t device_ids[8][16];
-uint8_t uplink_ids[16][16];
+uint8_t *user_ids;
+uint8_t user_ids_len;
+uint8_t *device_ids;
+uint8_t device_ids_len;
 
 int seed_user(sqlite3 *database) {
-	uint8_t permissions[4];
-	user_t users[] = {
-			{.id = &user_ids[0],
-			 .username = "alice",
-			 .username_len = 5,
-			 .password = ".go4Alice",
-			 .password_len = 9,
-			 .permissions = &permissions},
-			{.id = &user_ids[1],
-			 .username = "bob",
-			 .username_len = 3,
-			 .password = ".go4Bob",
-			 .password_len = 7,
-			 .permissions = &permissions},
-			{.id = &user_ids[2],
-			 .username = "charlie",
-			 .username_len = 7,
-			 .password = ".go4Charlie",
-			 .password_len = 11,
-			 .permissions = &permissions},
-			{.id = &user_ids[3],
-			 .username = "dave",
-			 .username_len = 4,
-			 .password = ".go4Dave",
-			 .password_len = 8,
-			 .permissions = &permissions},
-	};
+	char *usernames[] = {"alice", "bob", "charlie", "dave"};
+	char *passwords[] = {".go4Alice", ".go4Bob", ".go4Charlie", ".go4Dave"};
 
-	for (uint8_t index = 0; index < sizeof(users) / sizeof(user_t); index++) {
-		if (user_insert(database, &users[index]) != 0) {
+	user_ids_len = sizeof(usernames) / sizeof(*usernames);
+	user_ids = malloc(user_ids_len * sizeof(*((user_t *)0)->id));
+
+	for (uint8_t index = 0; index < user_ids_len; index++) {
+		uint8_t permissions[4];
+		user_t user = {
+				.id = (uint8_t (*)[16])(&user_ids[index * sizeof(*((user_t *)0)->id)]),
+				.username = usernames[index],
+				.username_len = (uint8_t)strlen(usernames[index]),
+				.password = passwords[index],
+				.password_len = (uint8_t)strlen(passwords[index]),
+				.permissions = &permissions,
+		};
+
+		if (user_insert(database, &user) != 0) {
 			return -1;
 		}
 	}
@@ -49,19 +42,35 @@ int seed_user(sqlite3 *database) {
 }
 
 int seed_device(sqlite3 *database) {
-	device_t devices[] = {
-			{.id = &device_ids[0], .name = "outside north", .name_len = 13, .type = "outdoor", .type_len = 7},
-			{.id = &device_ids[1], .name = "outside east", .name_len = 12, .type = "outdoor", .type_len = 7},
-			{.id = &device_ids[2], .name = "outside south", .name_len = 13, .type = "outdoor", .type_len = 7},
-			{.id = &device_ids[3], .name = "outside west", .name_len = 12, .type = "outdoor", .type_len = 7},
-			{.id = &device_ids[4], .name = "basement", .name_len = 8, .type = "indoor", .type_len = 6},
-			{.id = &device_ids[5], .name = "living room", .name_len = 11, .type = "indoor", .type_len = 6},
-			{.id = &device_ids[6], .name = "kitchen", .name_len = 7, .type = "indoor", .type_len = 6},
-			{.id = &device_ids[7], .name = "bathroom", .name_len = 8, .type = "indoor", .type_len = 6},
-	};
+	device_ids_len = (uint8_t)(8 + rand() % 16);
+	device_ids = malloc(device_ids_len * sizeof(*((device_t *)0)->id));
 
-	for (uint8_t index = 0; index < sizeof(devices) / sizeof(device_t); index++) {
-		if (device_insert(database, &devices[index]) != 0) {
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		char name[16];
+		uint8_t name_len = (uint8_t)(4 + rand() % 12);
+		for (uint8_t ind = 0; ind < name_len; ind++) {
+			name[ind] = (char)('a' + rand() % 26);
+		}
+
+		char *type;
+		uint8_t type_len;
+		if (rand() % 2 == 0) {
+			type = "indoor";
+			type_len = 6;
+		} else {
+			type = "outdoor";
+			type_len = 7;
+		}
+
+		device_t device = {
+				.id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+				.name = name,
+				.name_len = name_len,
+				.type = type,
+				.type_len = type_len,
+		};
+
+		if (device_insert(database, &device) != 0) {
 			return -1;
 		}
 	}
@@ -71,19 +80,18 @@ int seed_device(sqlite3 *database) {
 }
 
 int seed_user_device(sqlite3 *database) {
-	user_device_t users_devices[] = {
-			{.user_id = &user_ids[0], .device_id = &device_ids[0]}, {.user_id = &user_ids[0], .device_id = &device_ids[1]},
-			{.user_id = &user_ids[0], .device_id = &device_ids[2]}, {.user_id = &user_ids[0], .device_id = &device_ids[3]},
-			{.user_id = &user_ids[0], .device_id = &device_ids[4]}, {.user_id = &user_ids[0], .device_id = &device_ids[5]},
-			{.user_id = &user_ids[0], .device_id = &device_ids[6]}, {.user_id = &user_ids[0], .device_id = &device_ids[7]},
-			{.user_id = &user_ids[1], .device_id = &device_ids[0]}, {.user_id = &user_ids[1], .device_id = &device_ids[1]},
-			{.user_id = &user_ids[1], .device_id = &device_ids[2]}, {.user_id = &user_ids[1], .device_id = &device_ids[3]},
-			{.user_id = &user_ids[2], .device_id = &device_ids[5]}, {.user_id = &user_ids[2], .device_id = &device_ids[6]},
-	};
+	for (uint8_t index = 0; index < user_ids_len; index++) {
+		for (uint8_t ind = 0; ind < device_ids_len; ind++) {
+			if (rand() % 2 == 0) {
+				user_device_t user_device = {
+						.user_id = (uint8_t (*)[16])(&user_ids[index * sizeof(*((user_t *)0)->id)]),
+						.device_id = (uint8_t (*)[16])(&device_ids[ind * sizeof(*((device_t *)0)->id)]),
+				};
 
-	for (uint8_t index = 0; index < sizeof(users_devices) / sizeof(user_device_t); index++) {
-		if (user_device_insert(database, &users_devices[index]) != 0) {
-			return -1;
+				if (user_device_insert(database, &user_device) != 0) {
+					return -1;
+				}
+			}
 		}
 	}
 
@@ -92,124 +100,59 @@ int seed_user_device(sqlite3 *database) {
 }
 
 int seed_uplink(sqlite3 *database) {
-	uplink_t uplinks[] = {
-			{
-					.id = &uplink_ids[0],
-					.kind = 0x00,
-					.data = (uint8_t[]){0x5a, 0x3f, 0x91, 0xc2},
-					.data_len = 4,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		int16_t rssi = (int16_t)(rand() % 128 - 157);
+		int8_t snr = (int8_t)(rand() % 144 - 96);
+		uint8_t sf = (uint8_t)(rand() % 5 + 7);
+		time_t startup_at = time(NULL) - 24 * 60 * 60;
+		time_t received_at = time(NULL);
+		while (received_at > startup_at) {
+			uint8_t id[16];
+			uint8_t data[16];
+			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
+			for (uint8_t ind = 0; ind < data_len; ind++) {
+				data[ind] = (uint8_t)rand();
+			}
+			uplink_t uplink = {
+					.id = &id,
+					.kind = (uint8_t)rand(),
+					.data = data,
+					.data_len = data_len,
+					.airtime = 12 * 16 + (uint16_t)(rand() % 4096),
+					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
 					.bandwidth = 125 * 1000,
-					.rssi = -77,
-					.snr = (int8_t)(8.5 * 4),
-					.sf = 7,
-					.received_at = 946684800,
-					.device_id = &device_ids[0],
-			},
-			{
-					.id = &uplink_ids[1],
-					.kind = 0x01,
-					.data = (uint8_t[]){0xb7, 0xe9, 0x1f, 0x84, 0xd2, 0xa7, 0xc1, 0xe0},
-					.data_len = 8,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -112,
-					.snr = (int8_t)(-2.5 * 4),
-					.sf = 7,
-					.received_at = 946688400,
-					.device_id = &device_ids[1],
-			},
-			{
-					.id = &uplink_ids[2],
-					.kind = 0x02,
-					.data = (uint8_t[]){0x7c, 0x10, 0xa3, 0xd5, 0xb2},
-					.data_len = 5,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -122,
-					.snr = (int8_t)(-10.5 * 4),
-					.sf = 7,
-					.received_at = 946692000,
-					.device_id = &device_ids[0],
-			},
-			{
-					.id = &uplink_ids[3],
-					.kind = 0x02,
-					.data = (uint8_t[]){0x3f, 0x12},
-					.data_len = 2,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -128,
-					.snr = (int8_t)(-17.5 * 4),
-					.sf = 8,
-					.received_at = 946695600,
-					.device_id = &device_ids[1],
-			},
-			{
-					.id = &uplink_ids[4],
-					.kind = 0x00,
-					.data = (uint8_t[]){0xd8, 0x3e, 0x27, 0xfa, 0x9b},
-					.data_len = 5,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -110,
-					.snr = (int8_t)(-12.0 * 4),
-					.sf = 9,
-					.received_at = 946699200,
-					.device_id = &device_ids[0],
-			},
-			{
-					.id = &uplink_ids[5],
-					.kind = 0x01,
-					.data = (uint8_t[]){0x4a, 0xcf, 0x01, 0xb3, 0xa0, 0x5f, 0x77, 0xd2},
-					.data_len = 8,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -98,
-					.snr = (int8_t)(-9.0 * 4),
-					.sf = 10,
-					.received_at = 946702800,
-					.device_id = &device_ids[1],
-			},
-			{
-					.id = &uplink_ids[6],
-					.kind = 0x01,
-					.data = (uint8_t[]){0x92, 0xf0, 0xe1},
-					.data_len = 3,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -130,
-					.snr = (int8_t)(-15.0 * 4),
-					.sf = 11,
-					.received_at = 946706400,
-					.device_id = &device_ids[0],
-			},
-			{
-					.id = &uplink_ids[7],
-					.kind = 0x02,
-					.data = (uint8_t[]){0xe4, 0x7f, 0x98, 0xb2, 0x04, 0x1d},
-					.data_len = 6,
-					.airtime = 12 * 16,
-					.frequency = 433 * 1000 * 1000,
-					.bandwidth = 125 * 1000,
-					.rssi = -136,
-					.snr = (int8_t)(-18.5 * 4),
-					.sf = 12,
-					.received_at = 946710000,
-					.device_id = &device_ids[1],
-			},
-	};
+					.rssi = rssi,
+					.snr = snr,
+					.sf = sf,
+					.received_at = received_at,
+					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+			};
 
-	for (uint8_t index = 0; index < sizeof(uplinks) / sizeof(uplink_t); index++) {
-		if (uplink_insert(database, &uplinks[index]) != 0) {
-			return -1;
+			if (uplink_insert(database, &uplink) != 0) {
+				return -1;
+			}
+			rssi += (int16_t)(rand() % 5 - 2);
+			if (rssi < -157) {
+				rssi += 10;
+			}
+			if (rssi > -29) {
+				rssi -= 10;
+			}
+			snr += (int8_t)(rand() % 5 - 2);
+			if (snr < -96) {
+				snr += 10;
+			}
+			if (snr > 48) {
+				snr -= 10;
+			}
+			sf += (uint8_t)(rand() % 3 - 1);
+			if (sf < 7) {
+				sf += 1;
+			}
+			if (sf > 12) {
+				sf -= 1;
+			}
+			received_at -= 280 + rand() % 40;
 		}
 	}
 
@@ -217,7 +160,61 @@ int seed_uplink(sqlite3 *database) {
 	return 0;
 }
 
+int seed_downlink(sqlite3 *database) {
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
+		uint8_t sf = (uint8_t)(rand() % 5 + 7);
+		time_t startup_at = time(NULL) - 24 * 60 * 60;
+		time_t sent_at = time(NULL);
+		while (sent_at > startup_at) {
+			uint8_t id[16];
+			uint8_t data[16];
+			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
+			for (uint8_t ind = 0; ind < data_len; ind++) {
+				data[ind] = (uint8_t)rand();
+			}
+			downlink_t downlink = {
+					.id = &id,
+					.kind = (uint8_t)rand(),
+					.data = data,
+					.data_len = data_len,
+					.airtime = 12 * 16 + (uint16_t)(rand() % 4096),
+					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
+					.bandwidth = 125 * 1000,
+					.tx_power = tx_power,
+					.sf = sf,
+					.sent_at = sent_at,
+					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+			};
+
+			if (downlink_insert(database, &downlink) != 0) {
+				return -1;
+			}
+			tx_power += (uint8_t)(rand() % 3 - 1);
+			if (tx_power < 2) {
+				tx_power += 1;
+			}
+			if (tx_power > 17) {
+				tx_power -= 1;
+			}
+			sf += (uint8_t)(rand() % 3 - 1);
+			if (sf < 7) {
+				sf += 1;
+			}
+			if (sf > 12) {
+				sf -= 1;
+			}
+			sent_at -= 280 + rand() % 40;
+		}
+	}
+
+	info("seeded table downlink\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
+	srand((unsigned int)time(NULL));
+
 	if (seed_user(database) == -1) {
 		return -1;
 	}
@@ -228,6 +225,9 @@ int seed(sqlite3 *database) {
 		return -1;
 	}
 	if (seed_uplink(database) == -1) {
+		return -1;
+	}
+	if (seed_downlink(database) == -1) {
 		return -1;
 	}
 
