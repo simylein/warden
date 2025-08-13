@@ -475,6 +475,8 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 	};
 
 	const keymap_t mappings[] = {
+			{.key = "inherit", .key_len = 7, .val = "inherit", .val_len = 7},
+			{.key = "transparent", .key_len = 11, .val = "transparent", .val_len = 11},
 			{.key = "white", .key_len = 5, .val = "#ffffff", .val_len = 7},
 			{.key = "black", .key_len = 5, .val = "#000000", .val_len = 7},
 			{.key = "slate-50", .key_len = 8, .val = "#f8fafc", .val_len = 7},
