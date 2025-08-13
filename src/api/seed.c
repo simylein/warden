@@ -1,6 +1,8 @@
 #include "../lib/logger.h"
 #include "device.h"
 #include "downlink.h"
+#include "metric.h"
+#include "reading.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user.h"
@@ -238,6 +240,96 @@ int seed_downlink(sqlite3 *database) {
 	return 0;
 }
 
+int seed_reading(sqlite3 *database) {
+	uint32_t uplink_ind = 0;
+
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		float temperature = (float)(rand() % 6000) / 100 - 20;
+		float humidity = (float)(rand() % 10000) / 100;
+		time_t startup_at = time(NULL) - 24 * 60 * 60;
+		time_t captured_at = time(NULL);
+		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+			uint8_t id[16];
+			reading_t reading = {
+					.id = &id,
+					.temperature = temperature,
+					.humidity = humidity,
+					.captured_at = captured_at,
+					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+					.uplink_id = (uint8_t (*)[16])(&uplink_ids[uplink_ind * sizeof(*((uplink_t *)0)->id)]),
+			};
+
+			if (reading_insert(database, &reading) != 0) {
+				return -1;
+			}
+			temperature += ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+			if (temperature < -20) {
+				temperature += 1;
+			}
+			if (temperature > 40) {
+				temperature -= 1;
+			}
+			humidity += ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+			if (humidity < 0) {
+				humidity += 1;
+			}
+			if (humidity > 100) {
+				humidity -= 1;
+			}
+			captured_at -= 280 + rand() % 40;
+			uplink_ind += 1;
+		}
+	}
+
+	info("seeded table reading\n");
+	return 0;
+}
+
+int seed_metric(sqlite3 *database) {
+	uint32_t uplink_ind = 0;
+
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		float photovoltaic = (float)(rand() % 5000) / 1000;
+		float battery = (float)(rand() % 1000) / 1000 + 3.2f;
+		time_t startup_at = time(NULL) - 24 * 60 * 60;
+		time_t captured_at = time(NULL);
+		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+			uint8_t id[16];
+			metric_t metric = {
+					.id = &id,
+					.photovoltaic = photovoltaic,
+					.battery = battery,
+					.captured_at = captured_at,
+					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+					.uplink_id = (uint8_t (*)[16])(&uplink_ids[uplink_ind * sizeof(*((uplink_t *)0)->id)]),
+			};
+
+			if (metric_insert(database, &metric) != 0) {
+				return -1;
+			}
+			photovoltaic += ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+			if (photovoltaic < 0) {
+				photovoltaic += 0.1f;
+			}
+			if (photovoltaic > 5) {
+				photovoltaic -= 0.1f;
+			}
+			battery += ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+			if (battery < 3.2) {
+				battery += 0.1f;
+			}
+			if (battery > 4.2) {
+				battery -= 0.1f;
+			}
+			captured_at -= 280 + rand() % 40;
+			uplink_ind += 1;
+		}
+	}
+
+	info("seeded table metric\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -254,6 +346,12 @@ int seed(sqlite3 *database) {
 		return -1;
 	}
 	if (seed_downlink(database) == -1) {
+		return -1;
+	}
+	if (seed_reading(database) == -1) {
+		return -1;
+	}
+	if (seed_metric(database) == -1) {
 		return -1;
 	}
 
