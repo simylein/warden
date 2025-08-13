@@ -5,6 +5,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "../lib/strn.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -395,8 +396,29 @@ cleanup:
 }
 
 void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	downlink_query_t query = {.limit = 16, .offset = 0};
-	if (request->search_len != 0) {
+	const char *limit;
+	size_t limit_len;
+	if (strnfind(*request->search, request->search_len, "limit=", "&", &limit, &limit_len, 4) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *offset;
+	size_t offset_len;
+	if (strnfind(*request->search, request->search_len, "offset=", "", &offset, &offset_len, 4) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	downlink_query_t query = {.limit = 0, .offset = 0};
+	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
+		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		response->status = 400;
+		return;
+	}
+
+	if (query.limit < 4 || query.limit > 64 || query.offset > 16777216) {
+		warn("failed to validate query limit %hhu offset %u\n", query.limit, query.offset);
 		response->status = 400;
 		return;
 	}
