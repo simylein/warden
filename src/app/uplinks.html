@@ -419,6 +419,7 @@
 		import './src/app/binary.js';
 		import './src/app/fetcher.js';
 		import './src/app/fetching.js';
+		import './src/app/paginate.js';
 		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -495,7 +496,7 @@
 		const loadUplinks = fetching(
 			uplinks,
 			(context) => window.requestAnimationFrame(() => loadingUplinks(context.element)),
-			(context) => fetcher('get', '/api/uplinks', null, { controller: context.controller }),
+			(context) => fetcher('get', `/api/uplinks?limit=${getLimit()}&offset=${getOffset()}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseUplinks(response)),
 			(context) => window.requestAnimationFrame(() => paintUplinks(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorUplinks(context.element))

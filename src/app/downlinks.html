@@ -370,6 +370,7 @@
 		import './src/app/binary.js';
 		import './src/app/fetcher.js';
 		import './src/app/fetching.js';
+		import './src/app/paginate.js';
 		const downlinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('downlinks') };
 		const loadingDownlinks = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -438,7 +439,7 @@
 		const loadDownlinks = fetching(
 			downlinks,
 			(context) => window.requestAnimationFrame(() => loadingDownlinks(context.element)),
-			(context) => fetcher('get', '/api/downlinks', null, { controller: context.controller }),
+			(context) => fetcher('get', `/api/downlinks?limit=${getLimit()}&offset=${getOffset()}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseDownlinks(response)),
 			(context) => window.requestAnimationFrame(() => paintDownlinks(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorDownlinks(context.element))
