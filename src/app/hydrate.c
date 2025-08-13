@@ -273,6 +273,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 		font(&cls, &global, &global_len);
 		color(&pfx, &cls, &global, &global_len, &global_breakpoint);
 		color(&pfx, &cls, &dark, &dark_len, &dark_breakpoint);
+		opacity(&cls, &global, &global_len);
 		cursor(&cls, &global, &global_len);
 		layout(&cls, &global, &global_len);
 

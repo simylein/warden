@@ -20,5 +20,6 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len
 void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint);
+void opacity(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);

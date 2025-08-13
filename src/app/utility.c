@@ -766,6 +766,38 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 	}
 }
 
+void opacity(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+	const keymap_t opacities[] = {
+			{.key = "opacity-0", .key_len = 9, .val = "opacity:0", .val_len = 9},
+			{.key = "opacity-5", .key_len = 9, .val = "opacity:0.05", .val_len = 12},
+			{.key = "opacity-10", .key_len = 10, .val = "opacity:0.1", .val_len = 11},
+			{.key = "opacity-15", .key_len = 10, .val = "opacity:0.15", .val_len = 12},
+			{.key = "opacity-20", .key_len = 10, .val = "opacity:0.2", .val_len = 11},
+			{.key = "opacity-25", .key_len = 10, .val = "opacity:0.25", .val_len = 12},
+			{.key = "opacity-30", .key_len = 10, .val = "opacity:0.3", .val_len = 11},
+			{.key = "opacity-35", .key_len = 10, .val = "opacity:0.35", .val_len = 12},
+			{.key = "opacity-40", .key_len = 10, .val = "opacity:0.4", .val_len = 11},
+			{.key = "opacity-45", .key_len = 10, .val = "opacity:0.45", .val_len = 12},
+			{.key = "opacity-50", .key_len = 10, .val = "opacity:0.5", .val_len = 11},
+			{.key = "opacity-55", .key_len = 10, .val = "opacity:0.55", .val_len = 12},
+			{.key = "opacity-60", .key_len = 10, .val = "opacity:0.6", .val_len = 11},
+			{.key = "opacity-65", .key_len = 10, .val = "opacity:0.65", .val_len = 12},
+			{.key = "opacity-70", .key_len = 10, .val = "opacity:0.7", .val_len = 11},
+			{.key = "opacity-75", .key_len = 10, .val = "opacity:0.75", .val_len = 12},
+			{.key = "opacity-80", .key_len = 10, .val = "opacity:0.8", .val_len = 11},
+			{.key = "opacity-85", .key_len = 10, .val = "opacity:0.85", .val_len = 12},
+			{.key = "opacity-90", .key_len = 10, .val = "opacity:0.9", .val_len = 11},
+			{.key = "opacity-95", .key_len = 10, .val = "opacity:0.95", .val_len = 12},
+			{.key = "opacity-100", .key_len = 11, .val = "opacity:1", .val_len = 9},
+	};
+
+	for (uint8_t index = 0; index < sizeof(opacities) / sizeof(keymap_t); index++) {
+		if (cls->len == opacities[index].key_len && memcmp(cls->ptr, opacities[index].key, opacities[index].key_len) == 0) {
+			cls->known = stamp(NULL, cls, &opacities[index], NULL, NULL, buffer, buffer_len);
+		}
+	}
+}
+
 void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	const keymap_t texts[] = {
 			{.key = "cursor-auto", .key_len = 11, .val = "cursor:auto", .val_len = 11},
