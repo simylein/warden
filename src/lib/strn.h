@@ -8,6 +8,7 @@ int strnfind(const char *buffer, const size_t buffer_len, const char *prefix, co
 
 const char *strncasestrn(const char *buffer, size_t buffer_len, const char *buf, size_t buf_len);
 
+int strnto8(const char *string, const size_t string_len, uint8_t *value);
 int strnto16(const char *string, const size_t string_len, uint16_t *value);
 int strnto32(const char *string, const size_t string_len, uint32_t *value);
 int strnto64(const char *string, const size_t string_len, uint64_t *value);

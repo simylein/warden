@@ -65,6 +65,19 @@ const char *strncasestrn(const char *buffer, size_t buffer_len, const char *buf,
 	return NULL;
 }
 
+int strnto8(const char *string, const size_t string_len, uint8_t *value) {
+	for (size_t index = 0; index < string_len; index++) {
+		if (string[index] < '0' || string[index] > '9') {
+			return -1;
+		}
+
+		uint8_t digit = (uint8_t)string[index] - '0';
+		*value = (uint8_t)(*value * 10 + digit);
+	}
+
+	return 0;
+}
+
 int strnto16(const char *string, const size_t string_len, uint16_t *value) {
 	for (size_t index = 0; index < string_len; index++) {
 		if (string[index] < '0' || string[index] > '9') {
