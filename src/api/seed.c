@@ -262,14 +262,14 @@ int seed_reading(sqlite3 *database) {
 			if (reading_insert(database, &reading) != 0) {
 				return -1;
 			}
-			temperature += ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+			temperature += ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
 			if (temperature < -20) {
 				temperature += 1;
 			}
 			if (temperature > 40) {
 				temperature -= 1;
 			}
-			humidity += ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+			humidity += ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
 			if (humidity < 0) {
 				humidity += 1;
 			}
@@ -307,14 +307,14 @@ int seed_metric(sqlite3 *database) {
 			if (metric_insert(database, &metric) != 0) {
 				return -1;
 			}
-			photovoltaic += ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+			photovoltaic += ((float)rand() / (float)RAND_MAX) * 0.2f - 0.1f;
 			if (photovoltaic < 0) {
 				photovoltaic += 0.1f;
 			}
 			if (photovoltaic > 5) {
 				photovoltaic -= 0.1f;
 			}
-			battery += ((float)rand() / RAND_MAX) * 0.2f - 0.1f;
+			battery += ((float)rand() / (float)RAND_MAX) * 0.2f - 0.1f;
 			if (battery < 3.2) {
 				battery += 0.1f;
 			}
