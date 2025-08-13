@@ -13,6 +13,10 @@ uint8_t *user_ids;
 uint8_t user_ids_len;
 uint8_t *device_ids;
 uint8_t device_ids_len;
+uint8_t *uplink_ids;
+uint32_t uplink_ids_len;
+uint8_t *downlink_ids;
+uint32_t downlink_ids_len;
 
 int seed_user(sqlite3 *database) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
@@ -20,6 +24,9 @@ int seed_user(sqlite3 *database) {
 
 	user_ids_len = sizeof(usernames) / sizeof(*usernames);
 	user_ids = malloc(user_ids_len * sizeof(*((user_t *)0)->id));
+	if (user_ids == NULL) {
+		return -1;
+	}
 
 	for (uint8_t index = 0; index < user_ids_len; index++) {
 		uint8_t permissions[4];
@@ -44,6 +51,9 @@ int seed_user(sqlite3 *database) {
 int seed_device(sqlite3 *database) {
 	device_ids_len = (uint8_t)(8 + rand() % 16);
 	device_ids = malloc(device_ids_len * sizeof(*((device_t *)0)->id));
+	if (device_ids == NULL) {
+		return -1;
+	}
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		char name[16];
@@ -100,6 +110,8 @@ int seed_user_device(sqlite3 *database) {
 }
 
 int seed_uplink(sqlite3 *database) {
+	uplink_ids_len = 0;
+
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		int16_t rssi = (int16_t)(rand() % 128 - 157);
 		int8_t snr = (int8_t)(rand() % 144 - 96);
@@ -107,14 +119,19 @@ int seed_uplink(sqlite3 *database) {
 		time_t startup_at = time(NULL) - 24 * 60 * 60;
 		time_t received_at = time(NULL);
 		while (received_at > startup_at) {
-			uint8_t id[16];
+			if (uplink_ids_len % 4096 == 0) {
+				uplink_ids = realloc(uplink_ids, (uplink_ids_len + 4096) * sizeof(*((uplink_t *)0)->id));
+				if (uplink_ids == NULL) {
+					return -1;
+				}
+			}
 			uint8_t data[16];
 			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
 			for (uint8_t ind = 0; ind < data_len; ind++) {
 				data[ind] = (uint8_t)rand();
 			}
 			uplink_t uplink = {
-					.id = &id,
+					.id = (uint8_t (*)[16])(&uplink_ids[uplink_ids_len * sizeof(*((uplink_t *)0)->id)]),
 					.kind = (uint8_t)rand(),
 					.data = data,
 					.data_len = data_len,
@@ -153,6 +170,7 @@ int seed_uplink(sqlite3 *database) {
 				sf -= 1;
 			}
 			received_at -= 280 + rand() % 40;
+			uplink_ids_len += 1;
 		}
 	}
 
@@ -161,20 +179,27 @@ int seed_uplink(sqlite3 *database) {
 }
 
 int seed_downlink(sqlite3 *database) {
+	downlink_ids_len = 0;
+
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		uint8_t sf = (uint8_t)(rand() % 5 + 7);
 		time_t startup_at = time(NULL) - 24 * 60 * 60;
 		time_t sent_at = time(NULL);
 		while (sent_at > startup_at) {
-			uint8_t id[16];
+			if (downlink_ids_len % 4096 == 0) {
+				downlink_ids = realloc(downlink_ids, (downlink_ids_len + 4096) * sizeof(*((downlink_t *)0)->id));
+				if (downlink_ids == NULL) {
+					return -1;
+				}
+			}
 			uint8_t data[16];
 			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
 			for (uint8_t ind = 0; ind < data_len; ind++) {
 				data[ind] = (uint8_t)rand();
 			}
 			downlink_t downlink = {
-					.id = &id,
+					.id = (uint8_t (*)[16])(&downlink_ids[downlink_ids_len * sizeof(*((downlink_t *)0)->id)]),
 					.kind = (uint8_t)rand(),
 					.data = data,
 					.data_len = data_len,
@@ -205,6 +230,7 @@ int seed_downlink(sqlite3 *database) {
 				sf -= 1;
 			}
 			sent_at -= 280 + rand() % 40;
+			downlink_ids_len += 1;
 		}
 	}
 
@@ -230,6 +256,11 @@ int seed(sqlite3 *database) {
 	if (seed_downlink(database) == -1) {
 		return -1;
 	}
+
+	free(user_ids);
+	free(device_ids);
+	free(uplink_ids);
+	free(downlink_ids);
 
 	return 0;
 }
