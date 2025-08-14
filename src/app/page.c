@@ -129,6 +129,15 @@ file_t page_user = {
 		.hydrated = false,
 		.lock = PTHREAD_RWLOCK_INITIALIZER,
 };
+file_t page_user_devices = {
+		.fd = -1,
+		.ptr = NULL,
+		.len = 0,
+		.path = "./src/app/user-devices.html",
+		.modified = 0,
+		.hydrated = false,
+		.lock = PTHREAD_RWLOCK_INITIALIZER,
+};
 file_t page_signin = {
 		.fd = -1,
 		.ptr = NULL,
@@ -245,6 +254,7 @@ void page_close(void) {
 	close(page_downlink.fd);
 	close(page_users.fd);
 	close(page_user.fd);
+	close(page_user_devices.fd);
 	close(page_signin.fd);
 	close(page_signup.fd);
 
@@ -274,6 +284,7 @@ void page_free(void) {
 	free(page_downlink.ptr);
 	free(page_users.ptr);
 	free(page_user.ptr);
+	free(page_user_devices.ptr);
 	free(page_signin.ptr);
 	free(page_signup.ptr);
 

@@ -16,6 +16,7 @@ extern file_t page_downlinks;
 extern file_t page_downlink;
 extern file_t page_users;
 extern file_t page_user;
+extern file_t page_user_devices;
 extern file_t page_signin;
 extern file_t page_signup;
 
