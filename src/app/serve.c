@@ -1,6 +1,7 @@
 #include "../api/device.h"
 #include "../api/downlink.h"
 #include "../api/uplink.h"
+#include "../api/user.h"
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/logger.h"
@@ -225,4 +226,30 @@ void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_
 	}
 
 	serve(&page_downlink, response);
+}
+
+void serve_user(sqlite3 *database, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 6, &uuid_len);
+	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	serve(&page_user, response);
 }

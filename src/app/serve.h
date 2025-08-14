@@ -16,3 +16,5 @@ void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, res
 void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 
 void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+
+void serve_user(sqlite3 *database, request_t *request, response_t *response);
