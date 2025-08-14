@@ -8,6 +8,7 @@
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
+#include "user.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -376,6 +377,89 @@ cleanup:
 	return status;
 }
 
+uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *response, uint8_t *devices_len) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"device.id, device.name, device.type, device.created_at, device.updated_at, "
+										"uplink.id, uplink.received_at "
+										"from device "
+										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+										"left join uplink on uplink.id = "
+										"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
+										"order by device.name asc";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
+
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			const uint8_t *id = sqlite3_column_blob(stmt, 0);
+			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+			if (id_len != sizeof(*((device_t *)0)->id)) {
+				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((device_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			const uint8_t *name = sqlite3_column_text(stmt, 1);
+			const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
+			const uint8_t *type = sqlite3_column_text(stmt, 2);
+			const size_t type_len = (size_t)sqlite3_column_bytes(stmt, 2);
+			const time_t created_at = (time_t)sqlite3_column_int64(stmt, 3);
+			const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 4);
+			const int updated_at_type = sqlite3_column_type(stmt, 4);
+			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 5);
+			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 5);
+			const int uplink_id_type = sqlite3_column_type(stmt, 5);
+			if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
+				error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 6);
+			const int uplink_received_at_type = sqlite3_column_type(stmt, 6);
+			append_body(response, id, id_len);
+			append_body(response, name, name_len);
+			append_body(response, (char[]){0x00}, sizeof(char));
+			append_body(response, type, type_len);
+			append_body(response, (char[]){0x00}, sizeof(char));
+			append_body(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+			append_body(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
+			if (updated_at_type != SQLITE_NULL) {
+				append_body(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+			}
+			append_body(response, (char[]){uplink_id_type != SQLITE_NULL}, sizeof(char));
+			if (uplink_id_type != SQLITE_NULL) {
+				append_body(response, uplink_id, uplink_id_len);
+			}
+			append_body(response, (char[]){uplink_received_at_type != SQLITE_NULL}, sizeof(char));
+			if (uplink_received_at_type != SQLITE_NULL) {
+				append_body(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
+			}
+			*devices_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+			status = 500;
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 uint16_t device_insert(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -476,5 +560,46 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
 	info("found device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 200;
+}
+
+void device_find_by_user(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint8_t devices_len = 0;
+	status = device_select_by_user(database, &user, response, &devices_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%zu\r\n", response->body_len);
+	info("found %hhu devices\n", devices_len);
 	response->status = 200;
 }
