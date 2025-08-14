@@ -18,3 +18,4 @@ void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 
 void serve_user(sqlite3 *database, request_t *request, response_t *response);
+void serve_user_devices(sqlite3 *database, request_t *request, response_t *response);

@@ -20,6 +20,10 @@ const uint32_t permission_user_read = 0x10000000;
 const uint32_t permission_user_create = 0x20000000;
 const uint32_t permission_user_update = 0x40000000;
 const uint32_t permission_user_delete = 0x80000000;
+const uint32_t permission_user_device_read = 0x01000000;
+const uint32_t permission_user_device_create = 0x02000000;
+const uint32_t permission_user_device_update = 0x04000000;
+const uint32_t permission_user_device_delete = 0x08000000;
 const uint32_t permission_uplink_read = 0x00000010;
 const uint32_t permission_uplink_create = 0x00000020;
 const uint32_t permission_uplink_update = 0x00000040;
@@ -210,6 +214,15 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		if (authenticate(true, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
 				serve_user(database, request, response);
+			}
+		}
+	}
+
+	if (endpoint(request, "get", "/user/:id/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_device_read, response) == true) {
+				serve_user_devices(database, request, response);
 			}
 		}
 	}
