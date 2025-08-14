@@ -25,10 +25,14 @@ typedef struct user_query_t {
 extern const char *user_table;
 extern const char *user_schema;
 
+uint16_t user_existing(sqlite3 *database, user_t *user);
+
 uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *response, uint8_t *users_len);
+uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response);
 uint16_t user_insert(sqlite3 *database, user_t *user);
 uint16_t user_update(sqlite3 *database, user_t *user);
 
 void user_find(sqlite3 *database, request_t *request, response_t *response);
+void user_find_one(sqlite3 *database, request_t *request, response_t *response);
 void user_signup(sqlite3 *database, request_t *request, response_t *response);
 void user_signin(sqlite3 *database, request_t *request, response_t *response);

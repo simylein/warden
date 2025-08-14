@@ -1,4 +1,5 @@
 #include "user.h"
+#include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/config.h"
 #include "../lib/endian.h"
@@ -22,6 +23,47 @@ const char *user_schema = "create table user ("
 													"signin_at datetime not null, "
 													"permissions blob not null"
 													")";
+
+uint16_t user_existing(sqlite3 *database, user_t *user) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select user.id from user where user.id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result == SQLITE_ROW) {
+		const uint8_t *id = sqlite3_column_blob(stmt, 0);
+		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+		if (id_len != sizeof(*user->id)) {
+			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*user->id));
+			status = 500;
+			goto cleanup;
+		}
+		memcpy(user->id, id, id_len);
+		status = 0;
+	} else if (result == SQLITE_DONE) {
+		warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
+		status = 404;
+		goto cleanup;
+	} else {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
 
 uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *response, uint8_t *users_len) {
 	uint16_t status;
@@ -78,6 +120,65 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 			status = 500;
 			goto cleanup;
 		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
+uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select id, username, signup_at, signin_at, permissions from user "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result == SQLITE_ROW) {
+		const uint8_t *id = sqlite3_column_blob(stmt, 0);
+		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
+		if (id_len != sizeof(*((user_t *)0)->id)) {
+			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((user_t *)0)->id));
+			status = 500;
+			goto cleanup;
+		}
+		const uint8_t *username = sqlite3_column_text(stmt, 1);
+		const size_t username_len = (size_t)sqlite3_column_bytes(stmt, 1);
+		const time_t signup_at = (time_t)sqlite3_column_int64(stmt, 2);
+		const time_t signin_at = (time_t)sqlite3_column_int64(stmt, 3);
+		const uint8_t *permissions = sqlite3_column_blob(stmt, 4);
+		const size_t permissions_len = (size_t)sqlite3_column_bytes(stmt, 4);
+		if (permissions_len > UINT8_MAX) {
+			error("permissions length %zu exceeds buffer length %hhu\n", permissions_len, UINT8_MAX);
+			status = 500;
+			goto cleanup;
+		}
+		append_body(response, id, id_len);
+		append_body(response, username, username_len);
+		append_body(response, (char[]){0x00}, sizeof(char));
+		append_body(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
+		append_body(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
+		append_body(response, &permissions_len, sizeof(uint8_t));
+		append_body(response, permissions, permissions_len);
+		status = 0;
+	} else if (result == SQLITE_DONE) {
+		warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
+		status = 404;
+		goto cleanup;
+	} else {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
 	}
 
 cleanup:
@@ -367,5 +468,45 @@ void user_find(sqlite3 *database, request_t *request, response_t *response) {
 	append_header(response, "content-type:application/octet-stream\r\n");
 	append_header(response, "content-length:%zu\r\n", response->body_len);
 	info("found %hhu users\n", users_len);
+	response->status = 200;
+}
+
+void user_find_one(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search_len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	status = user_select_one(database, &user, response);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%zu\r\n", response->body_len);
+	info("found user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
 	response->status = 200;
 }
