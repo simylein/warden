@@ -427,7 +427,7 @@
 				const downlink = { id: null, kind: null, data: null, txPower: null, sf: null, receivedAt: null, deviceId: null };
 				downlink.id = binary.uuid();
 				downlink.kind = binary.byte();
-				downlink.data = binary.hex(binary.byte());
+				downlink.data = binary.hex(binary.uint(8));
 				downlink.txPower = binary.uint(8);
 				downlink.sf = binary.uint(8);
 				downlink.receivedAt = binary.uint(64);

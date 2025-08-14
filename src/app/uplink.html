@@ -200,7 +200,7 @@
 			};
 			uplink.id = binary.uuid();
 			uplink.kind = binary.byte();
-			uplink.data = binary.hex(binary.byte());
+			uplink.data = binary.hex(binary.uint(8));
 			uplink.airtime = binary.uint(16) / (16 * 1000);
 			uplink.frequency = binary.uint(32);
 			uplink.bandwidth = binary.uint(32);

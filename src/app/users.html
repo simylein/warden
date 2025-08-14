@@ -362,7 +362,7 @@
 				user.username = binary.string();
 				user.signupAt = binary.uint(64);
 				user.signinAt = binary.uint(64);
-				user.permissions = binary.hex(binary.byte());
+				user.permissions = binary.hex(binary.uint(8));
 				users.push(user);
 			}
 			return users;

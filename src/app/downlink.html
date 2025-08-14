@@ -184,7 +184,7 @@
 			};
 			downlink.id = binary.uuid();
 			downlink.kind = binary.byte();
-			downlink.data = binary.hex(binary.byte());
+			downlink.data = binary.hex(binary.uint(8));
 			downlink.airtime = binary.uint(16) / (16 * 1000);
 			downlink.frequency = binary.uint(32);
 			downlink.bandwidth = binary.uint(32);

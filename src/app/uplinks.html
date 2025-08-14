@@ -483,7 +483,7 @@
 				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, receivedAt: null, deviceId: null };
 				uplink.id = binary.uuid();
 				uplink.kind = binary.byte();
-				uplink.data = binary.hex(binary.byte());
+				uplink.data = binary.hex(binary.uint(8));
 				uplink.rssi = binary.int(16);
 				uplink.snr = binary.int(8) / 4;
 				uplink.sf = binary.uint(8);
