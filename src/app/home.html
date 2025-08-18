@@ -808,16 +808,18 @@
 			}
 			const devices = Array.from(new Set(temperature.points.map((point) => point.d)));
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
-			paint(element.guide, [], []);
-			array(element.guide.children.length).forEach((ind) => {
-				if (ind < devices.length) {
-					element.guide.children[ind].children[0].classList.remove('hidden');
-					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
-				} else {
-					element.guide.children[ind].children[0].classList.add('hidden');
-					paint(element.guide.children[ind].children[1], [], [], '');
-				}
-			});
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
 			temperature.points.forEach((point) => {
 				const index = mappings.get(point.d) + 1;
 				const type = temperature.paths[index].length === 0 ? 'M' : 'L';
@@ -918,16 +920,18 @@
 			}
 			const devices = Array.from(new Set(humidity.points.map((point) => point.d)));
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
-			paint(element.guide, [], []);
-			array(element.guide.children.length).forEach((ind) => {
-				if (ind < devices.length) {
-					element.guide.children[ind].children[0].classList.remove('hidden');
-					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
-				} else {
-					element.guide.children[ind].children[0].classList.add('hidden');
-					paint(element.guide.children[ind].children[1], [], [], '');
-				}
-			});
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
 			humidity.points.forEach((point) => {
 				const index = mappings.get(point.d) + 1;
 				const type = humidity.paths[index].length === 0 ? 'M' : 'L';
@@ -1028,16 +1032,18 @@
 			}
 			const devices = Array.from(new Set(photovoltaic.points.map((point) => point.d)));
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
-			paint(element.guide, [], []);
-			array(element.guide.children.length).forEach((ind) => {
-				if (ind < devices.length) {
-					element.guide.children[ind].children[0].classList.remove('hidden');
-					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
-				} else {
-					element.guide.children[ind].children[0].classList.add('hidden');
-					paint(element.guide.children[ind].children[1], [], [], '');
-				}
-			});
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
 			photovoltaic.points.forEach((point) => {
 				const index = mappings.get(point.d) + 1;
 				const type = photovoltaic.paths[index].length === 0 ? 'M' : 'L';
@@ -1138,16 +1144,18 @@
 			}
 			const devices = Array.from(new Set(battery.points.map((point) => point.d)));
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
-			paint(element.guide, [], []);
-			array(element.guide.children.length).forEach((ind) => {
-				if (ind < devices.length) {
-					element.guide.children[ind].children[0].classList.remove('hidden');
-					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
-				} else {
-					element.guide.children[ind].children[0].classList.add('hidden');
-					paint(element.guide.children[ind].children[1], [], [], '');
-				}
-			});
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
 			battery.points.forEach((point) => {
 				const index = mappings.get(point.d) + 1;
 				const type = battery.paths[index].length === 0 ? 'M' : 'L';
