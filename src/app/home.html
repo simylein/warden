@@ -7,7 +7,7 @@
 		<title>Warden home</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadRecap()">
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadReadings()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -19,756 +19,434 @@
 			</nav>
 		</header>
 		<main class="flex flex-col gap-2 sm:gap-3 lg:gap-4 m-4 sm:m-6 lg:m-8">
-			<div class="flex flex-col lg:flex-row gap-2 sm:gap-3 lg:gap-4">
-				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
-					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
-						<h2 class="m-0 text-base font-normal">Temperature indoor</h2>
-						<p id="indoor-temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800">
-							<span></span><span></span><span></span>
-						</p>
+			<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
+				<button
+					value="1209600"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(1209600); setRange(1209600); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
+				</button>
+				<button
+					value="604800"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(604800); setRange(604800); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
+				</button>
+				<button
+					value="345600"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(345600); setRange(345600); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
+				</button>
+				<button
+					value="172800"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(172800); setRange(172800); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
+				</button>
+				<button
+					value="86400"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(86400); setRange(86400); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
+				</button>
+				<button
+					value="43200"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(43200); setRange(43200); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
+				</button>
+				<button
+					value="21600"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(21600); setRange(21600); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+				</button>
+				<button
+					value="10800"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(10800); setRange(10800); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
+				</button>
+				<button
+					value="3600"
+					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+					onclick="highlightRange(3600); setRange(3600); loadReadings()"
+				>
+					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
+					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
+				</button>
+			</div>
+			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+					<h2 class="m-0 text-base font-normal">Temperature</h2>
+					<p id="temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				</div>
+				<div
+					id="temperature-guide"
+					class="h-4 mb-1 sm:mb-2 flex text-xs font-normal overflow-x-auto scrollbar-none text-nowrap background-neutral-200 dark:background-neutral-800"
+				>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-red-400/80 dark:background-red-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
 					</div>
-					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
-						<div id="indoor-temperature-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
-						<div class="relative flex flex-col">
-							<div class="absolute w-full h-full">
-								<div id="indoor-temperature-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 2%"></div>
-										<div style="height: 56%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 42%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 4%"></div>
-										<div style="height: 62%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 34%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 8%"></div>
-										<div style="height: 78%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 14%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 28%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 24%"></div>
-										<div style="height: 50%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 26%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 20%"></div>
-										<div style="height: 40%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 40%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 16%"></div>
-										<div style="height: 36%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 48%"></div>
-									</div>
-								</div>
-							</div>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-						</div>
-						<div></div>
-						<div id="indoor-temperature-label" class="w-full flex justify-around text-xs">
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-orange-400/80 dark:background-orange-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-amber-400/80 dark:background-amber-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-yellow-400/80 dark:background-yellow-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-lime-400/80 dark:background-lime-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-green-400/80 dark:background-green-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-emerald-400/80 dark:background-emerald-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-teal-400/80 dark:background-teal-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-cyan-400/80 dark:background-cyan-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-sky-400/80 dark:background-sky-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-blue-400/80 dark:background-blue-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-indigo-400/80 dark:background-indigo-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-violet-400/80 dark:background-violet-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-purple-400/80 dark:background-purple-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-fuchsia-400/80 dark:background-fuchsia-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-pink-400/80 dark:background-pink-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-rose-400/80 dark:background-rose-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
 					</div>
 				</div>
-				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
-					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
-						<h2 class="m-0 text-base font-normal">Humidity indoor</h2>
-						<p id="indoor-humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+					<div id="temperature-scale" class="flex flex-col text-xs text-end">
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 					</div>
-					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
-						<div id="indoor-humidity-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
-						<div class="relative flex flex-col">
-							<div class="absolute w-full h-full">
-								<div id="indoor-humidity-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 40%"></div>
-										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 30%"></div>
-										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 6%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 12%"></div>
-										<div style="height: 72%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 16%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 2%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 28%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 24%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 6%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 32%"></div>
-										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 4%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 40%"></div>
-										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-								</div>
-							</div>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-						</div>
-						<div></div>
-						<div id="indoor-humidity-label" class="w-full flex justify-around text-xs">
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+					<div class="relative flex flex-col">
+						<svg id="temperature-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<path
+								class="stroke-neutral-200 dark:stroke-neutral-800"
+								fill="none"
+								stroke-width="1"
+								d="M 0 53 L 1 63 L 2 70 L 3 60 L 4 64 L 5 68 L 6 59 L 7 61 L 8 65 L 9 50 L 10 46 L 11 49 L 12 31 L 13 35 L 14 45 L 15 38 L 16 56 L 17 72 L 18 69 L 19 66 L 20 64 L 21 52 L 22 57 L 23 74 L 24 62 L 25 65 L 26 69 L 27 58 L 28 62 L 29 68 L 30 86 L 31 81 L 32 72 L 33 66 L 34 65 L 35 47 L 36 44 L 37 54 L 38 65 L 39 80 L 40 63 L 41 61 L 42 78 L 43 88 L 44 84 L 45 71 L 46 66 L 47 63 L 48 50 L 49 47 L 50 59 L 51 55 L 52 50 L 53 67 L 54 69 L 55 64 L 56 62 L 57 60 L 58 48 L 59 42 L 60 40 L 61 43 L 62 39 L 63 36 L 64 46 L 65 45 L 66 35 L 67 33 L 68 46 L 69 59 L 70 48 L 71 61 L 72 70 L 73 86 L 74 77 L 75 79 L 76 80 L 77 69 L 78 56 L 79 60 L 80 45 L 81 50 L 82 64 L 83 59 L 84 66 L 85 82 L 86 90 L 87 95 L 88 91 L 89 88 L 90 85 L 91 69 L 92 56 L 93 67 L 94 72 L 95 89 L 96 93 L 97 91 L 98 76 L 99 79 L 100 60"
+							/>
+							<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-amber-400/80 dark:stroke-amber-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-emerald-400/80 dark:stroke-emerald-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-indigo-400/80 dark:stroke-indigo-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-violet-400/80 dark:stroke-violet-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-purple-400/80 dark:stroke-purple-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-fuchsia-400/80 dark:stroke-fuchsia-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-pink-400/80 dark:stroke-pink-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-rose-400/80 dark:stroke-rose-600/80" fill="none" stroke-width="1" />
+						</svg>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+					</div>
+					<div></div>
+					<div id="temperature-label" class="w-full flex justify-around text-xs">
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 					</div>
 				</div>
 			</div>
-			<div class="flex flex-col lg:flex-row gap-2 sm:gap-3 lg:gap-4">
-				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
-					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
-						<h2 class="m-0 text-base font-normal">Temperature outdoor</h2>
-						<p id="outdoor-temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800">
-							<span></span><span></span><span></span>
-						</p>
+			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+					<h2 class="m-0 text-base font-normal">Humidity</h2>
+					<p id="humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				</div>
+				<div
+					id="humidity-guide"
+					class="h-4 mb-1 sm:mb-2 flex text-xs font-normal overflow-x-auto scrollbar-none text-nowrap background-neutral-200 dark:background-neutral-800"
+				>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-red-400/80 dark:background-red-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
 					</div>
-					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
-						<div id="outdoor-temperature-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
-						<div class="relative flex flex-col">
-							<div class="absolute w-full h-full">
-								<div id="outdoor-temperature-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 2%"></div>
-										<div style="height: 56%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 42%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 4%"></div>
-										<div style="height: 62%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 34%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 8%"></div>
-										<div style="height: 78%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 14%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 28%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 24%"></div>
-										<div style="height: 50%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 26%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 20%"></div>
-										<div style="height: 40%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 40%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 16%"></div>
-										<div style="height: 36%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-fuchsia-400/80 dark:background-fuchsia-600/80"></div>
-										<div class="background-purple-400/80 dark:background-purple-600/80"></div>
-										<div class="background-violet-400/80 dark:background-violet-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-rose-400/80 dark:background-rose-600/80"></div>
-										<div style="height: 48%"></div>
-									</div>
-								</div>
-							</div>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-						</div>
-						<div></div>
-						<div id="outdoor-temperature-label" class="w-full flex justify-around text-xs">
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-orange-400/80 dark:background-orange-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-amber-400/80 dark:background-amber-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-yellow-400/80 dark:background-yellow-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-lime-400/80 dark:background-lime-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-green-400/80 dark:background-green-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-emerald-400/80 dark:background-emerald-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-teal-400/80 dark:background-teal-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-cyan-400/80 dark:background-cyan-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-sky-400/80 dark:background-sky-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-blue-400/80 dark:background-blue-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-indigo-400/80 dark:background-indigo-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-violet-400/80 dark:background-violet-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-purple-400/80 dark:background-purple-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-fuchsia-400/80 dark:background-fuchsia-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-pink-400/80 dark:background-pink-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
+					</div>
+					<div class="items-center gap-1 mr-2 sm:mr-4 md:mr-2 lg:mr-4 flex">
+						<span class="hidden w-2 h-2 background-rose-400/80 dark:background-rose-600/80"></span>
+						<label class="text-neutral-600 dark:text-neutral-400"></label>
 					</div>
 				</div>
-				<div class="flex-1 p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
-					<div class="flex justify-between gap-2 mb-1 sm:mb-2 lg:mb-1 xl:mb-2">
-						<h2 class="m-0 text-base font-normal">Humidity outdoor</h2>
-						<p id="outdoor-humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+					<div id="humidity-scale" class="flex flex-col text-xs text-end">
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 					</div>
-					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2 lg:gap-1 xl:gap-2">
-						<div id="outdoor-humidity-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
-						<div class="relative flex flex-col">
-							<div class="absolute w-full h-full">
-								<div id="outdoor-humidity-graph" class="flex justify-around w-full h-full gap-2 sm:gap-4 lg:gap-2 xl:gap-4">
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 40%"></div>
-										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 30%"></div>
-										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 6%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 12%"></div>
-										<div style="height: 72%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 16%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 2%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 28%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 24%"></div>
-										<div style="height: 70%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 6%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 32%"></div>
-										<div style="height: 64%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 4%"></div>
-									</div>
-									<div class="flex flex-col-reverse w-full h-full">
-										<div style="height: 40%"></div>
-										<div style="height: 58%" class="background-neutral-200 dark:background-neutral-800"></div>
-										<div class="background-red-400/80 dark:background-red-600/80"></div>
-										<div class="background-orange-400/80 dark:background-orange-600/80"></div>
-										<div class="background-amber-400/80 dark:background-amber-600/80"></div>
-										<div class="background-yellow-400/80 dark:background-yellow-600/80"></div>
-										<div class="background-lime-400/80 dark:background-lime-600/80"></div>
-										<div class="background-green-400/80 dark:background-green-600/80"></div>
-										<div class="background-emerald-400/80 dark:background-emerald-600/80"></div>
-										<div class="background-teal-400/80 dark:background-teal-600/80"></div>
-										<div class="background-cyan-400/80 dark:background-cyan-600/80"></div>
-										<div class="background-sky-400/80 dark:background-sky-600/80"></div>
-										<div class="background-blue-400/80 dark:background-blue-600/80"></div>
-										<div class="background-indigo-400/80 dark:background-indigo-600/80"></div>
-										<div style="height: 2%"></div>
-									</div>
-								</div>
-							</div>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
-						</div>
-						<div></div>
-						<div id="outdoor-humidity-label" class="w-full flex justify-around text-xs">
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="w-6 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+					<div class="relative flex flex-col">
+						<svg id="humidity-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<path
+								class="stroke-neutral-200 dark:stroke-neutral-800"
+								fill="none"
+								stroke-width="1"
+								d="M 0 31 L 1 36 L 2 38 L 3 41 L 4 55 L 5 49 L 6 54 L 7 37 L 8 32 L 9 43 L 10 50 L 11 45 L 12 41 L 13 35 L 14 33 L 15 24 L 16 42 L 17 44 L 18 48 L 19 30 L 20 33 L 21 21 L 22 34 L 23 44 L 24 50 L 25 42 L 26 36 L 27 41 L 28 47 L 29 30 L 30 19 L 31 24 L 32 31 L 33 48 L 34 51 L 35 46 L 36 30 L 37 18 L 38 37 L 39 33 L 40 26 L 41 40 L 42 35 L 43 19 L 44 21 L 45 11 L 46 15 L 47 17 L 48 36 L 49 28 L 50 31 L 51 43 L 52 51 L 53 60 L 54 69 L 55 58 L 56 73 L 57 59 L 58 50 L 59 62 L 60 71 L 61 90 L 62 77 L 63 85 L 64 69 L 65 57 L 66 39 L 67 41 L 68 54 L 69 49 L 70 46 L 71 33 L 72 24 L 73 43 L 74 37 L 75 42 L 76 59 L 77 67 L 78 62 L 79 45 L 80 42 L 81 24 L 82 20 L 83 38 L 84 46 L 85 34 L 86 27 L 87 13 L 88 21 L 89 31 L 90 45 L 91 37 L 92 50 L 93 56 L 94 71 L 95 60 L 96 66 L 97 70 L 98 84 L 99 97 L 100 89"
+							/>
+							<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-amber-400/80 dark:stroke-amber-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-emerald-400/80 dark:stroke-emerald-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-indigo-400/80 dark:stroke-indigo-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-violet-400/80 dark:stroke-violet-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-purple-400/80 dark:stroke-purple-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-fuchsia-400/80 dark:stroke-fuchsia-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-pink-400/80 dark:stroke-pink-600/80" fill="none" stroke-width="1" />
+							<path class="stroke-rose-400/80 dark:stroke-rose-600/80" fill="none" stroke-width="1" />
+						</svg>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+					</div>
+					<div></div>
+					<div id="humidity-label" class="w-full flex justify-around text-xs">
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 					</div>
 				</div>
 			</div>
 		</main>
 	</body>
 	<script>
+		import './src/app/breakpoint.js';
+		import './src/app/timespan.js';
 		import './src/app/array.js';
 		import './src/app/state.js';
 		import './src/app/math.js';
-		import './src/app/fade.js';
-		import './src/app/color-reading.js';
 		import './src/app/binary.js';
 		import './src/app/fetcher.js';
 		import './src/app/fetching.js';
-		const recap = { retries: 0, reload: 60, timeout: null, controller: null };
-		const indoorTemperature = {
-			range: document.getElementById('indoor-temperature-range'),
-			scale: document.getElementById('indoor-temperature-scale'),
-			graph: document.getElementById('indoor-temperature-graph'),
-			label: document.getElementById('indoor-temperature-label'),
+		const ranges = document.getElementById('ranges');
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const temperature = {
+			range: document.getElementById('temperature-range'),
+			scale: document.getElementById('temperature-scale'),
+			guide: document.getElementById('temperature-guide'),
+			graph: document.getElementById('temperature-graph'),
+			label: document.getElementById('temperature-label'),
 		};
-		const indoorHumidity = {
-			range: document.getElementById('indoor-humidity-range'),
-			scale: document.getElementById('indoor-humidity-scale'),
-			graph: document.getElementById('indoor-humidity-graph'),
-			label: document.getElementById('indoor-humidity-label'),
-		};
-		const outdoorTemperature = {
-			range: document.getElementById('outdoor-temperature-range'),
-			scale: document.getElementById('outdoor-temperature-scale'),
-			graph: document.getElementById('outdoor-temperature-graph'),
-			label: document.getElementById('outdoor-temperature-label'),
-		};
-		const outdoorHumidity = {
-			range: document.getElementById('outdoor-humidity-range'),
-			scale: document.getElementById('outdoor-humidity-scale'),
-			graph: document.getElementById('outdoor-humidity-graph'),
-			label: document.getElementById('outdoor-humidity-label'),
+		const humidity = {
+			range: document.getElementById('humidity-range'),
+			scale: document.getElementById('humidity-scale'),
+			guide: document.getElementById('humidity-guide'),
+			graph: document.getElementById('humidity-graph'),
+			label: document.getElementById('humidity-label'),
 		};
 		const temperatureSkeleton = [
-			[2, 56, 42],
-			[4, 62, 34],
-			[8, 78, 14],
-			[28, 70, 2],
-			[24, 50, 26],
-			[20, 40, 40],
-			[16, 36, 48],
+			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
+			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
+			67, 69, 54, 50, 34, 36, 43, 42, 32, 33, 51, 53, 48, 61, 68, 79, 70, 68, 58, 55, 72, 88, 86, 95, 88,
 		];
 		const humiditySkeleton = [
-			[40, 58, 2],
-			[30, 64, 6],
-			[12, 72, 16],
-			[2, 70, 28],
-			[24, 70, 6],
-			[32, 64, 4],
-			[40, 58, 2],
+			31, 36, 38, 41, 55, 49, 54, 37, 32, 43, 50, 45, 41, 35, 33, 24, 42, 44, 48, 30, 33, 21, 34, 44, 50, 42, 36, 41, 47, 30, 19, 24, 31, 48, 51, 46, 30, 18,
+			37, 33, 26, 40, 35, 19, 21, 11, 15, 17, 36, 28, 31, 43, 51, 60, 69, 58, 73, 59, 50, 62, 71, 90, 77, 85, 69, 57, 39, 41, 54, 49, 46, 33, 24, 43, 37, 42,
+			59, 67, 62, 45, 42, 24, 20, 38, 46, 34, 27, 13, 21, 31, 45, 37, 50, 56, 71, 60, 66, 70, 84, 97, 89,
 		];
-		const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		const loadingTemperature = (element) => {
+		window.addEventListener('resize', () => {
+			const width = breakpoint();
+			if (width !== readings.width) {
+				readings.width = width;
+				const summary = calculateReadings(readings.data, readings.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, readings.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, readings.width, summary.humidity, summary.capturedAt));
+			}
+		});
+		const getRange = () => {
+			const range = new URLSearchParams(window.location.search).get('range');
+			return +(range ?? 86400);
+		};
+		const setRange = (range) => {
+			const params = new URLSearchParams(window.location.search);
+			params.set('range', range);
+			window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+		};
+		const highlightRange = (range) => {
+			array(ranges.children.length).forEach((ind) => {
+				if (+ranges.children[ind].getAttribute('value') === range) {
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.add('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.remove('text-black', 'dark:text-white');
+					});
+				} else {
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.remove('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.add('text-black', 'dark:text-white');
+					});
+				}
+			});
+		};
+		highlightRange(getRange());
+		const loadingTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
-				loading(element.label.children[ind], ['w-6'], [], '');
+				loading(element.label.children[ind], ['w-8'], [], '');
 			});
 			loading(element.range, ['w-28', 'h-4.5'], []);
 			array(element.range.children.length).forEach((ind) => {
@@ -777,33 +455,32 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
-				loading(element.graph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
-				array(element.graph.children[ind].children.length).forEach((i) => {
-					if (i > 1 && i < 18) {
-						element.graph.children[ind].children[i].style.height = null;
-					}
-				});
-				element.graph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
 			});
 		};
-		const paintTemperature = (element, temperature) => {
-			const now = new Date();
-			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (element.label.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(element.label.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
-			});
+		const paintTemperature = (element, width, temperature, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
+				});
+			}
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
-				fade(element.range.children[0]);
-				colorTemperature(element.range.children[0], temperature.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], temperature.max.abs.toFixed(2));
-				fade(element.range.children[2]);
-				colorTemperature(element.range.children[2], temperature.max.abs);
 			}
 			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -812,32 +489,37 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[1].style.height = null;
-				if (temperature.days[ind] !== null) {
-					const dayMin = temperature.days[ind].min;
-					const dayMax = temperature.days[ind].max;
-					const range = temperature.max.ceil - temperature.min.floor;
-					const paddingBottom = ((dayMin - temperature.min.floor) / range) * 100;
-					element.graph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					const catchFloor = ((Math.min(dayMax, -20) - Math.max(dayMin, temperature.min.floor)) / range) * 100;
-					element.graph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(element.graph.children[ind].children.length).forEach((i) => {
-						if (i >= 3 && i <= 16) {
-							const height = ((Math.min(dayMax, -28 + i * 4) - Math.max(dayMin, -32 + i * 4)) / range) * 100;
-							element.graph.children[ind].children[i].style.height = `${height}%`;
-						}
-					});
-					const catchCeil = ((Math.min(dayMax, temperature.max.ceil) - Math.max(dayMin, 36)) / range) * 100;
-					element.graph.children[ind].children[17].style.height = `${catchCeil}%`;
-					const paddingTop = ((temperature.max.ceil - dayMax) / range) * 100;
-					element.graph.children[ind].children[18].style.height = `${paddingTop}%`;
+			const devices = Array.from(new Set(temperature.points.map((point) => point.d)));
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			paint(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				if (ind < devices.length) {
+					element.guide.children[ind].children[0].classList.remove('hidden');
+					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
 				}
 			});
+			temperature.points.forEach((point) => {
+				const index = mappings.get(point.d) + 1;
+				const type = temperature.paths[index].length === 0 ? 'M' : 'L';
+				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (temperatureSkeleton.length - 1);
+			const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				temperature.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorTemperature = (element) => {
+		const errorTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind], ['w-6'], [], '');
+				error(element.label.children[ind], ['w-8'], [], '');
 			});
 			error(element.range, ['w-28', 'h-4.5'], []);
 			array(element.range.children.length).forEach((ind) => {
@@ -846,20 +528,22 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[0].style.height = `${temperatureSkeleton[ind][0]}%`;
-				error(element.graph.children[ind].children[1], [], [], null, temperatureSkeleton[ind][1]);
-				array(element.graph.children[ind].children.length).forEach((i) => {
-					if (i > 1 && i < 18) {
-						element.graph.children[ind].children[i].style.height = null;
-					}
-				});
-				element.graph.children[ind].children[18].style.height = `${temperatureSkeleton[ind][2]}%`;
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
 			});
 		};
-		const loadingHumidity = (element) => {
+		const loadingHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
-				loading(element.label.children[ind], ['w-6'], [], '');
+				loading(element.label.children[ind], ['w-8'], [], '');
 			});
 			loading(element.range, ['w-28', 'h-4.5'], []);
 			array(element.range.children.length).forEach((ind) => {
@@ -868,33 +552,32 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
-				loading(element.graph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
-				array(element.graph.children[ind].children.length).forEach((i) => {
-					if (i > 1 && i < 14) {
-						element.graph.children[ind].children[i].style.height = null;
-					}
-				});
-				element.graph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
 			});
 		};
-		const paintHumidity = (element, humidity) => {
-			const now = new Date();
-			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			array(element.label.children.length).forEach((ind) => {
-				const date = new Date(today.getTime() - (element.label.children.length - 1 - ind) * 24 * 60 * 60 * 1000);
-				paint(element.label.children[ind], [], ['w-6'], labels[date.getUTCDay()]);
-			});
+		const paintHumidity = (element, width, humidity, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
+				});
+			}
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
-				fade(element.range.children[0]);
-				colorHumidity(element.range.children[0], humidity.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], humidity.max.abs.toFixed(2));
-				fade(element.range.children[2]);
-				colorHumidity(element.range.children[2], humidity.max.abs);
 			}
 			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -903,40 +586,37 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[1].style.height = null;
-				if (humidity.days[ind] !== null) {
-					const dayMin = humidity.days[ind].min;
-					const dayMax = humidity.days[ind].max;
-					const range = humidity.max.ceil - humidity.min.floor;
-					const paddingBottom = ((dayMin - humidity.min.floor) / range) * 100;
-					element.graph.children[ind].children[0].style.height = `${paddingBottom}%`;
-					const catchFloor = ((Math.min(dayMax, 20) - Math.max(dayMin, humidity.min.floor)) / range) * 100;
-					element.graph.children[ind].children[2].style.height = `${catchFloor}%`;
-					array(element.graph.children[ind].children.length).forEach((i) => {
-						if (i === 3) {
-							const height = ((Math.min(dayMax, 30) - Math.max(dayMin, 20)) / range) * 100;
-							element.graph.children[ind].children[i].style.height = `${height}%`;
-						}
-						if (i >= 4 && i <= 11) {
-							const height = ((Math.min(dayMax, 15 + i * 5) - Math.max(dayMin, 10 + i * 5)) / range) * 100;
-							element.graph.children[ind].children[i].style.height = `${height}%`;
-						}
-						if (i === 12) {
-							const height = ((Math.min(dayMax, 80) - Math.max(dayMin, 70)) / range) * 100;
-							element.graph.children[ind].children[i].style.height = `${height}%`;
-						}
-					});
-					const catchCeil = ((Math.min(dayMax, humidity.max.ceil) - Math.max(dayMin, 80)) / range) * 100;
-					element.graph.children[ind].children[13].style.height = `${catchCeil}%`;
-					const paddingTop = ((humidity.max.ceil - dayMax) / range) * 100;
-					element.graph.children[ind].children[14].style.height = `${paddingTop}%`;
+			const devices = Array.from(new Set(humidity.points.map((point) => point.d)));
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			paint(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				if (ind < devices.length) {
+					element.guide.children[ind].children[0].classList.remove('hidden');
+					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
 				}
 			});
+			humidity.points.forEach((point) => {
+				const index = mappings.get(point.d) + 1;
+				const type = humidity.paths[index].length === 0 ? 'M' : 'L';
+				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (humiditySkeleton.length - 1);
+			const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				humidity.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
 		};
-		const errorHumidity = (element) => {
+		const errorHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
-				error(element.label.children[ind], ['w-6'], [], '');
+				error(element.label.children[ind], ['w-8'], [], '');
 			});
 			error(element.range, ['w-28', 'h-4.5'], []);
 			array(element.range.children.length).forEach((ind) => {
@@ -945,132 +625,113 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
-				element.graph.children[ind].children[0].style.height = `${humiditySkeleton[ind][0]}%`;
-				error(element.graph.children[ind].children[1], [], [], null, humiditySkeleton[ind][1]);
-				array(element.graph.children[ind].children.length).forEach((i) => {
-					if (i > 1 && i < 14) {
-						element.graph.children[ind].children[i].style.height = null;
-					}
-				});
-				element.graph.children[ind].children[14].style.height = `${humiditySkeleton[ind][2]}%`;
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
 			});
 		};
-		const collectRecap = (recap, device, reading, today) => {
-			if (device[reading] !== null && device.capturedAt !== null) {
-				const date = new Date(Number(device.capturedAt) * 1000);
-				const day = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-				const diff = Math.floor((today - day) / (1000 * 60 * 60 * 24));
-				if (diff >= 0 && diff < 7) {
-					if (recap[device.type][reading].days[6 - diff] === null) {
-						recap[device.type][reading].days[6 - diff] = { min: [], max: [] };
-					}
-					recap[device.type][reading].days[6 - diff].min.push(device[reading].min);
-					recap[device.type][reading].days[6 - diff].max.push(device[reading].max);
+		const summarizeReadings = (readings, data, type) => {
+			const target = readings[type];
+			data.forEach((reading) => {
+				if (target.min.abs === null || reading[type] < target.min.abs) {
+					target.min.abs = reading[type];
 				}
-			}
+				if (target.max.abs === null || reading[type] > target.max.abs) {
+					target.max.abs = reading[type];
+				}
+			});
 		};
-		const summarizeRecap = (recap, type, reading, ind) => {
-			const target = recap[type][reading];
-			if (target.days[ind] !== null) {
-				target.days[ind].min = target.days[ind].min.reduce((accumulator, value) => accumulator + value) / target.days[ind].min.length;
-				target.days[ind].max = target.days[ind].max.reduce((accumulator, value) => accumulator + value) / target.days[ind].max.length;
-				if (target.min.abs === null || target.days[ind].min < target.min.abs) {
-					target.min.abs = target.days[ind].min;
-				}
-				if (target.max.abs === null || target.days[ind].max > target.max.abs) {
-					target.max.abs = target.days[ind].max;
-				}
-			}
-		};
-		const normalizeRecap = (recap, type, reading) => {
-			const target = recap[type][reading];
+		const normalizeReadings = (readings, type) => {
+			const target = readings[type];
 			if (target.min.abs !== null && target.max.abs !== null) {
 				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const calculateRecap = (data, days) => {
-			const recap = {
-				indoor: {
-					temperature: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
-					humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
-				},
-				outdoor: {
-					temperature: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
-					humidity: { min: { abs: null, floor: null }, max: { abs: null, ceil: null }, days: array(days).map(() => null) },
-				},
-			};
-			const now = new Date();
-			const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-			data.forEach((device) => {
-				collectRecap(recap, device, 'temperature', today);
-				collectRecap(recap, device, 'humidity', today);
+		const coordinateReadings = (readings, data, type, width) => {
+			const target = readings[type];
+			const xRange = Number(readings.capturedAt.end) - Number(readings.capturedAt.start);
+			const yRange = target.max.ceil - target.min.floor;
+			data.forEach((reading) => {
+				const xPercent = width - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * width;
+				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
+				target.points.push({ x: xPercent, y: yPercent, v: reading[type], d: reading.device.id });
 			});
-			array(days).forEach((ind) => {
-				summarizeRecap(recap, 'indoor', 'temperature', ind);
-				summarizeRecap(recap, 'indoor', 'humidity', ind);
-				summarizeRecap(recap, 'outdoor', 'temperature', ind);
-				summarizeRecap(recap, 'outdoor', 'humidity', ind);
-			});
-			normalizeRecap(recap, 'indoor', 'temperature');
-			normalizeRecap(recap, 'indoor', 'humidity');
-			normalizeRecap(recap, 'outdoor', 'temperature');
-			normalizeRecap(recap, 'outdoor', 'humidity');
-			return recap;
 		};
-		const parseRecap = async (response) => {
+		const calculateReadings = (data, width) => {
+			const readings = {
+				temperature: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(temperature.graph.children.length).map(() => []),
+				},
+				humidity: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					paths: array(humidity.graph.children.length).map(() => []),
+				},
+				capturedAt: { start: null, end: null },
+			};
+			if (data !== null) {
+				readings.capturedAt.start = Math.floor(Date.now() / 1000);
+				readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				summarizeReadings(readings, data, 'temperature');
+				summarizeReadings(readings, data, 'humidity');
+				normalizeReadings(readings, 'temperature');
+				normalizeReadings(readings, 'humidity');
+				coordinateReadings(readings, data, 'temperature', width);
+				coordinateReadings(readings, data, 'humidity', width);
+			}
+			return readings;
+		};
+		const parseReadings = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const devices = [];
+			const readings = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, type: null, temperature: null, humidity: null, capturedAt: null };
-				device.id = binary.uuid();
-				device.name = binary.string();
-				device.type = binary.string();
-				if (binary.byte() !== 0) {
-					device.temperature = {};
-					device.temperature.min = binary.int(16) / 100;
-				}
-				if (binary.byte() !== 0) {
-					device.temperature.max = binary.int(16) / 100;
-				}
-				if (binary.byte() !== 0) {
-					device.humidity = {};
-					device.humidity.min = binary.uint(16) / 100;
-				}
-				if (binary.byte() !== 0) {
-					device.humidity.max = binary.uint(16) / 100;
-				}
-				if (binary.byte() !== 0) {
-					device.capturedAt = binary.uint(64);
-				}
-				devices.push(device);
+				const reading = { temperature: null, humidity: null, capturedAt: null, device: null };
+				reading.temperature = binary.int(16) / 100;
+				reading.humidity = binary.uint(16) / 100;
+				reading.capturedAt = binary.uint(64);
+				reading.device = {};
+				reading.device.id = binary.uuid();
+				readings.push(reading);
 			}
-			return devices;
+			return readings;
 		};
-		const loadRecap = fetching(
-			recap,
+		const loadReadings = fetching(
+			readings,
 			(context) => {
-				window.requestAnimationFrame(() => loadingTemperature(indoorTemperature));
-				window.requestAnimationFrame(() => loadingHumidity(indoorHumidity));
-				window.requestAnimationFrame(() => loadingTemperature(outdoorTemperature));
-				window.requestAnimationFrame(() => loadingHumidity(outdoorHumidity));
-			},
-			(context) => fetcher('get', '/api/recap', null, { controller: context.controller }),
-			async (context, response) => (context.data = await parseRecap(response)),
-			(context) => {
-				const summary = calculateRecap(context.data, 7);
-				window.requestAnimationFrame(() => paintTemperature(indoorTemperature, summary.indoor.temperature));
-				window.requestAnimationFrame(() => paintHumidity(indoorHumidity, summary.indoor.humidity));
-				window.requestAnimationFrame(() => paintTemperature(outdoorTemperature, summary.outdoor.temperature));
-				window.requestAnimationFrame(() => paintHumidity(outdoorHumidity, summary.outdoor.humidity));
+				window.requestAnimationFrame(() => loadingTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => loadingHumidity(humidity, context.width));
 			},
 			(context) => {
-				window.requestAnimationFrame(() => errorTemperature(indoorTemperature));
-				window.requestAnimationFrame(() => errorHumidity(indoorHumidity));
-				window.requestAnimationFrame(() => errorTemperature(outdoorTemperature));
-				window.requestAnimationFrame(() => errorHumidity(outdoorHumidity));
+				context.reload = getRange() / 360;
+				const from = Math.floor(Date.now() / 1000) - getRange();
+				const to = Math.floor(Date.now() / 1000);
+				const endpoint = `/api/readings?from=${from}&to=${to}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseReadings(response)),
+			(context) => {
+				const summary = calculateReadings(context.data, context.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, context.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, context.width, summary.humidity, summary.capturedAt));
+				highlightRange(getRange());
+			},
+			(context) => {
+				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
 			}
 		);
 	</script>
