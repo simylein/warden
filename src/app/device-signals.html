@@ -220,6 +220,7 @@
 	</body>
 	<script>
 		import './src/app/breakpoint.js';
+		import './src/app/timespan.js';
 		import './src/app/array.js';
 		import './src/app/state.js';
 		import './src/app/math.js';
@@ -335,10 +336,8 @@
 			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const date = new Date((Number(receivedAt.start) + ind * interval) * 1000);
-					const hours = date.getHours().toString().padStart(2, '0');
-					const minutes = date.getMinutes().toString().padStart(2, '0');
-					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
 			if (rssi.min.abs !== null && rssi.max.abs !== null) {
@@ -455,10 +454,8 @@
 			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const date = new Date((Number(receivedAt.start) + ind * interval) * 1000);
-					const hours = date.getHours().toString().padStart(2, '0');
-					const minutes = date.getMinutes().toString().padStart(2, '0');
-					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
 			if (snr.min.abs !== null && snr.max.abs !== null) {

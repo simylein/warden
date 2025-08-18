@@ -236,6 +236,7 @@
 	</body>
 	<script>
 		import './src/app/breakpoint.js';
+		import './src/app/timespan.js';
 		import './src/app/array.js';
 		import './src/app/state.js';
 		import './src/app/math.js';
@@ -347,10 +348,8 @@
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-					const hours = date.getHours().toString().padStart(2, '0');
-					const minutes = date.getMinutes().toString().padStart(2, '0');
-					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
@@ -469,10 +468,8 @@
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const date = new Date((Number(capturedAt.start) + ind * interval) * 1000);
-					const hours = date.getHours().toString().padStart(2, '0');
-					const minutes = date.getMinutes().toString().padStart(2, '0');
-					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], `${hours}:${minutes}`);
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
