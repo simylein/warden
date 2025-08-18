@@ -767,6 +767,11 @@
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
 			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
@@ -808,6 +813,9 @@
 				if (ind < devices.length) {
 					element.guide.children[ind].children[0].classList.remove('hidden');
 					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+				} else {
+					element.guide.children[ind].children[0].classList.add('hidden');
+					paint(element.guide.children[ind].children[1], [], [], '');
 				}
 			});
 			temperature.points.forEach((point) => {
@@ -840,6 +848,11 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
@@ -863,6 +876,11 @@
 			});
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
@@ -905,6 +923,9 @@
 				if (ind < devices.length) {
 					element.guide.children[ind].children[0].classList.remove('hidden');
 					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+				} else {
+					element.guide.children[ind].children[0].classList.add('hidden');
+					paint(element.guide.children[ind].children[1], [], [], '');
 				}
 			});
 			humidity.points.forEach((point) => {
@@ -937,6 +958,11 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
@@ -960,6 +986,11 @@
 			});
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
@@ -1002,6 +1033,9 @@
 				if (ind < devices.length) {
 					element.guide.children[ind].children[0].classList.remove('hidden');
 					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+				} else {
+					element.guide.children[ind].children[0].classList.add('hidden');
+					paint(element.guide.children[ind].children[1], [], [], '');
 				}
 			});
 			photovoltaic.points.forEach((point) => {
@@ -1034,6 +1068,11 @@
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
 			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
 				if (ind === 0) {
@@ -1057,6 +1096,11 @@
 			});
 			array(element.scale.children.length).forEach((ind) => {
 				loading(element.scale.children[ind], [], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
@@ -1099,6 +1143,9 @@
 				if (ind < devices.length) {
 					element.guide.children[ind].children[0].classList.remove('hidden');
 					paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+				} else {
+					element.guide.children[ind].children[0].classList.add('hidden');
+					paint(element.guide.children[ind].children[1], [], [], '');
 				}
 			});
 			battery.points.forEach((point) => {
@@ -1130,6 +1177,11 @@
 			});
 			array(element.scale.children.length).forEach((ind) => {
 				error(element.scale.children[ind], [], [], '');
+			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			array(element.graph.children.length).forEach((ind) => {
