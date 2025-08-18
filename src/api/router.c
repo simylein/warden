@@ -249,6 +249,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/readings", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			reading_find(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
