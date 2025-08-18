@@ -524,14 +524,16 @@
 				}
 			});
 		};
-		const summarizeMetrics = (metrics, metric, type) => {
+		const summarizeMetrics = (metrics, data, type) => {
 			const target = metrics[type];
-			if (target.min.abs === null || metric[type] < target.min.abs) {
-				target.min.abs = metric[type];
-			}
-			if (target.max.abs === null || metric[type] > target.max.abs) {
-				target.max.abs = metric[type];
-			}
+			data.forEach((metric) => {
+				if (target.min.abs === null || metric[type] < target.min.abs) {
+					target.min.abs = metric[type];
+				}
+				if (target.max.abs === null || metric[type] > target.max.abs) {
+					target.max.abs = metric[type];
+				}
+			});
 		};
 		const normalizeMetrics = (metrics, type) => {
 			const target = metrics[type];
@@ -569,10 +571,8 @@
 			if (data !== null) {
 				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
 				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				data.forEach((metric) => {
-					summarizeMetrics(metrics, metric, 'photovoltaic');
-					summarizeMetrics(metrics, metric, 'battery');
-				});
+				summarizeMetrics(metrics, data, 'photovoltaic');
+				summarizeMetrics(metrics, data, 'battery');
 				normalizeMetrics(metrics, 'photovoltaic');
 				normalizeMetrics(metrics, 'battery');
 				coordinateMetrics(metrics, data, 'photovoltaic', width);

@@ -542,14 +542,16 @@
 				}
 			});
 		};
-		const summarizeReadings = (readings, reading, type) => {
+		const summarizeReadings = (readings, data, type) => {
 			const target = readings[type];
-			if (target.min.abs === null || reading[type] < target.min.abs) {
-				target.min.abs = reading[type];
-			}
-			if (target.max.abs === null || reading[type] > target.max.abs) {
-				target.max.abs = reading[type];
-			}
+			data.forEach((reading) => {
+				if (target.min.abs === null || reading[type] < target.min.abs) {
+					target.min.abs = reading[type];
+				}
+				if (target.max.abs === null || reading[type] > target.max.abs) {
+					target.max.abs = reading[type];
+				}
+			});
 		};
 		const normalizeReadings = (readings, type) => {
 			const target = readings[type];
@@ -587,10 +589,8 @@
 			if (data !== null) {
 				readings.capturedAt.start = Math.floor(Date.now() / 1000);
 				readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				data.forEach((reading) => {
-					summarizeReadings(readings, reading, 'temperature');
-					summarizeReadings(readings, reading, 'humidity');
-				});
+				summarizeReadings(readings, data, 'temperature');
+				summarizeReadings(readings, data, 'humidity');
 				normalizeReadings(readings, 'temperature');
 				normalizeReadings(readings, 'humidity');
 				coordinateReadings(readings, data, 'temperature', width);

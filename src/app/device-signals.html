@@ -528,14 +528,16 @@
 				}
 			});
 		};
-		const summarizeSignals = (signals, signal, type) => {
+		const summarizeSignals = (signals, data, type) => {
 			const target = signals[type];
-			if (target.min.abs === null || signal[type] < target.min.abs) {
-				target.min.abs = signal[type];
-			}
-			if (target.max.abs === null || signal[type] > target.max.abs) {
-				target.max.abs = signal[type];
-			}
+			data.forEach((signal) => {
+				if (target.min.abs === null || signal[type] < target.min.abs) {
+					target.min.abs = signal[type];
+				}
+				if (target.max.abs === null || signal[type] > target.max.abs) {
+					target.max.abs = signal[type];
+				}
+			});
 		};
 		const normalizeSignals = (signals, type) => {
 			const target = signals[type];
@@ -573,10 +575,8 @@
 			if (data !== null) {
 				signals.receivedAt.start = Math.floor(Date.now() / 1000);
 				signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				data.forEach((signal) => {
-					summarizeSignals(signals, signal, 'rssi');
-					summarizeSignals(signals, signal, 'snr');
-				});
+				summarizeSignals(signals, data, 'rssi');
+				summarizeSignals(signals, data, 'snr');
 				normalizeSignals(signals, 'rssi');
 				normalizeSignals(signals, 'snr');
 				coordinateSignals(signals, data, 'rssi', width);
