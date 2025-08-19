@@ -30,5 +30,6 @@ extern file_t page_request_header_fields_too_large;
 extern file_t page_internal_server_error;
 extern file_t page_http_version_not_supported;
 
+void page_init(void);
 void page_close(void);
 void page_free(void);

@@ -134,6 +134,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	page_init();
+
 	info("starting warden application\n");
 
 	queue.tasks = malloc(queue_size * sizeof(*queue.tasks));
