@@ -47,7 +47,8 @@ int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	size_t index = 0;
 
 	while (stage == 0 && index < file->len) {
-		if (index > 11 && memcmp(&file->ptr[index - 5], "<body", 5) == 0) {
+		char *byte = &file->ptr[index];
+		if (index + 5 < file->len && *byte == '<' && memcmp(&file->ptr[index + 1], "body", 4) == 0) {
 			tag = true;
 			stage = 1;
 		}
@@ -57,12 +58,15 @@ int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	while (stage == 1 && index < file->len) {
 		char *byte = &file->ptr[index];
 		if (*byte == '<' && !tag && !quote) {
+			if (index + 7 < file->len && *byte == '<' && memcmp(&file->ptr[index + 1], "script", 6) == 0) {
+				stage = 2;
+			}
 			tag = true;
 		} else if (*byte == '>' && tag && !quote) {
 			tag = false;
 		} else if (*byte == '"' && tag && !quote) {
 			quote = true;
-			if (index > 12 && memcmp(&file->ptr[index - 6], "class=", 6) == 0) {
+			if (index > 6 && memcmp(&file->ptr[index - 6], "class=", 6) == 0) {
 				if (append(classes, classes_len, &file->ptr[index + 1]) == -1) {
 					return -1;
 				}
@@ -84,8 +88,6 @@ int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			} else {
 				(*classes)[*classes_len].len++;
 			}
-		} else if (index > 13 && memcmp(&file->ptr[index - 8], "<script>", 8) == 0) {
-			stage = 2;
 		}
 		index++;
 	}
@@ -93,7 +95,7 @@ int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	while (stage == 2 && index < file->len) {
 		char *byte = &file->ptr[index];
 		if (*byte == '(' && !tag && !class) {
-			if (index > 19 && memcmp(&file->ptr[index - 13], "classList.add", 13) == 0) {
+			if (index > 13 && memcmp(&file->ptr[index - 13], "classList.add", 13) == 0) {
 				tag = true;
 			}
 		} else if (*byte == ')' && tag && !quote) {
