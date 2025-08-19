@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="View details about the downlink" />
-		<title>Warden downlink</title>
+		<meta name="description" content="View details about the uplink" />
+		<title>Warden uplink</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDownlink()">
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadUplink()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -21,7 +21,7 @@
 		<main class="m-4 sm:m-6 lg:m-8">
 			<div class="overflow-x-auto scrollbar-none">
 				<table style="border-collapse: collapse" class="w-full text-nowrap">
-					<tbody id="downlink">
+					<tbody id="uplink">
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
 								<p class="m-0">Id</p>
@@ -72,10 +72,18 @@
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-								<p class="m-0">Tx power</p>
+								<p class="m-0">Rssi</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="m-0 w-4 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="m-0 w-9 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Snr</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-12 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -88,7 +96,7 @@
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-								<p class="m-0">Sent at</p>
+								<p class="m-0">Received at</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
 								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
@@ -108,16 +116,16 @@
 		</main>
 	</body>
 	<script>
-		import './src/app/timestamp.js';
-		import './src/app/state.js';
-		import './src/app/fade.js';
-		import './src/app/color-tx-power.js';
-		import './src/app/color-sf.js';
-		import './src/app/binary.js';
-		import './src/app/fetcher.js';
-		import './src/app/fetching.js';
-		const downlink = { retries: 0, reload: null, timeout: null, controller: null, data: null, element: document.getElementById('downlink') };
-		const loadingDownlink = (element) => {
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-signal.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		const uplink = { retries: 0, reload: null, timeout: null, controller: null, data: null, element: document.getElementById('uplink') };
+		const loadingUplink = (element) => {
 			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
 			loading(element.children[1].children[1].children[0], ['w-5', 'h-4.5'], [], '');
 			loading(element.children[2].children[1].children[0], ['w-56', 'h-4.5'], [], '');
@@ -125,13 +133,15 @@
 			loading(element.children[4].children[1].children[0], ['w-24', 'h-4.5'], [], '');
 			loading(element.children[5].children[1].children[0], ['w-15', 'h-4.5'], [], '');
 			fade(element.children[6].children[1].children[0]);
-			loading(element.children[6].children[1].children[0], ['w-4', 'h-4.5'], [], '');
+			loading(element.children[6].children[1].children[0], ['w-9', 'h-4.5'], [], '');
 			fade(element.children[7].children[1].children[0]);
-			loading(element.children[7].children[1].children[0], ['w-4', 'h-4.5'], [], '');
-			loading(element.children[8].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			loading(element.children[9].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			loading(element.children[7].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[8].children[1].children[0]);
+			loading(element.children[8].children[1].children[0], ['w-4', 'h-4.5'], [], '');
+			loading(element.children[9].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			loading(element.children[10].children[1].children[0], ['w-80', 'h-4.5'], [], '');
 		};
-		const paintDownlink = (element, data) => {
+		const paintUplink = (element, data) => {
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4.5'], data.id);
 			paint(element.children[1].children[1].children[0], [], ['w-5', 'h-4.5'], data.kind.toString(16).padStart(2, '0'));
 			if (data.data.length !== 0) {
@@ -142,18 +152,21 @@
 			paint(element.children[3].children[1].children[0], [], ['w-11', 'h-4.5'], data.airtime.toFixed(3));
 			paint(element.children[4].children[1].children[0], [], ['w-24', 'h-4.5'], data.frequency);
 			paint(element.children[5].children[1].children[0], [], ['w-15', 'h-4.5'], data.bandwidth);
-			paint(element.children[6].children[1].children[0], [], ['w-4', 'h-4.5'], data.txPower);
+			paint(element.children[6].children[1].children[0], [], ['w-9', 'h-4.5'], data.rssi);
 			fade(element.children[6].children[1].children[0]);
-			colorTxPower(element.children[6].children[1].children[0], data.txPower);
-			paint(element.children[7].children[1].children[0], [], ['w-4', 'h-4.5'], data.sf);
+			colorRssi(element.children[6].children[1].children[0], data.rssi);
+			paint(element.children[7].children[1].children[0], [], ['w-12', 'h-4.5'], data.snr);
 			fade(element.children[7].children[1].children[0]);
-			colorSf(element.children[7].children[1].children[0], data.sf);
-			paint(element.children[8].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.sentAt));
-			element.children[9].children[1].children[0].classList.add('cursor-pointer');
-			element.children[9].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
-			paint(element.children[9].children[1].children[0], [], ['w-80', 'h-4.5'], data.deviceId);
+			colorSnr(element.children[7].children[1].children[0], data.snr);
+			paint(element.children[8].children[1].children[0], [], ['w-4', 'h-4.5'], data.sf);
+			fade(element.children[8].children[1].children[0]);
+			colorSf(element.children[8].children[1].children[0], data.sf);
+			paint(element.children[9].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.receivedAt));
+			element.children[10].children[1].children[0].classList.add('cursor-pointer');
+			element.children[10].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
+			paint(element.children[10].children[1].children[0], [], ['w-80', 'h-4.5'], data.deviceId);
 		};
-		const errorDownlink = (element) => {
+		const errorUplink = (element) => {
 			error(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
 			error(element.children[1].children[1].children[0], ['w-5', 'h-4.5'], [], '');
 			error(element.children[2].children[1].children[0], ['w-56', 'h-4.5'], [], '');
@@ -161,46 +174,50 @@
 			error(element.children[4].children[1].children[0], ['w-24', 'h-4.5'], [], '');
 			error(element.children[5].children[1].children[0], ['w-15', 'h-4.5'], [], '');
 			fade(element.children[6].children[1].children[0]);
-			error(element.children[6].children[1].children[0], ['w-4', 'h-4.5'], [], '');
+			error(element.children[6].children[1].children[0], ['w-9', 'h-4.5'], [], '');
 			fade(element.children[7].children[1].children[0]);
-			error(element.children[7].children[1].children[0], ['w-4', 'h-4.5'], [], '');
-			error(element.children[8].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			error(element.children[9].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			error(element.children[7].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[8].children[1].children[0]);
+			error(element.children[8].children[1].children[0], ['w-4', 'h-4.5'], [], '');
+			error(element.children[9].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			error(element.children[10].children[1].children[0], ['w-80', 'h-4.5'], [], '');
 		};
-		const parseDownlink = async (response) => {
+		const parseUplink = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const downlink = {
+			const uplink = {
 				id: null,
 				kind: null,
 				data: null,
 				airtime: null,
 				frequency: null,
 				bandwidth: null,
-				txPower: null,
+				rssi: null,
+				snr: null,
 				sf: null,
-				sentAt: null,
+				receivedAt: null,
 				deviceId: null,
 			};
-			downlink.id = binary.uuid();
-			downlink.kind = binary.byte();
-			downlink.data = binary.hex(binary.uint(8));
-			downlink.airtime = binary.uint(16) / (16 * 1000);
-			downlink.frequency = binary.uint(32);
-			downlink.bandwidth = binary.uint(32);
-			downlink.txPower = binary.uint(8);
-			downlink.sf = binary.uint(8);
-			downlink.sentAt = binary.uint(64);
-			downlink.deviceId = binary.uuid();
-			return downlink;
+			uplink.id = binary.uuid();
+			uplink.kind = binary.byte();
+			uplink.data = binary.hex(binary.uint(8));
+			uplink.airtime = binary.uint(16) / (16 * 1000);
+			uplink.frequency = binary.uint(32);
+			uplink.bandwidth = binary.uint(32);
+			uplink.rssi = binary.int(16);
+			uplink.snr = binary.int(8) / 4;
+			uplink.sf = binary.uint(8);
+			uplink.receivedAt = binary.uint(64);
+			uplink.deviceId = binary.uuid();
+			return uplink;
 		};
-		const loadDownlink = fetching(
-			downlink,
-			(context) => window.requestAnimationFrame(() => loadingDownlink(context.element)),
-			(context) => fetcher('get', `/api/downlink/${window.location.pathname.substring(10)}`, null, { controller: context.controller }),
-			async (context, response) => (context.data = await parseDownlink(response)),
-			(context) => window.requestAnimationFrame(() => paintDownlink(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDownlink(context.element))
+		const loadUplink = fetching(
+			uplink,
+			(context) => window.requestAnimationFrame(() => loadingUplink(context.element)),
+			(context) => fetcher('get', `/api/uplink/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
+			async (context, response) => (context.data = await parseUplink(response)),
+			(context) => window.requestAnimationFrame(() => paintUplink(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorUplink(context.element))
 		);
 	</script>
 </html>

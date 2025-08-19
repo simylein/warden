@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="itf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="View signals from your device" />
-		<title>Warden device signals</title>
+		<meta name="description" content="View metrics from your device" />
+		<title>Warden device metrics</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadSignals()">
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadMetrics()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -25,15 +25,15 @@
 			>
 				<a class="no-underline text-black dark:text-white">Details</a>
 				<a class="no-underline text-black dark:text-white">Readings</a>
-				<a class="no-underline text-black dark:text-white">Metrics</a>
-				<a class="no-underline text-blue-600 dark:text-blue-400">Signals</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Signals</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
 				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
 					<button
 						value="1209600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(1209600); setRange(1209600); loadSignals()"
+						onclick="highlightRange(1209600); setRange(1209600); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
@@ -41,7 +41,7 @@
 					<button
 						value="604800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(604800); setRange(604800); loadSignals()"
+						onclick="highlightRange(604800); setRange(604800); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
@@ -49,7 +49,7 @@
 					<button
 						value="345600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(345600); setRange(345600); loadSignals()"
+						onclick="highlightRange(345600); setRange(345600); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
@@ -57,7 +57,7 @@
 					<button
 						value="172800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(172800); setRange(172800); loadSignals()"
+						onclick="highlightRange(172800); setRange(172800); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
@@ -65,7 +65,7 @@
 					<button
 						value="86400"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(86400); setRange(86400); loadSignals()"
+						onclick="highlightRange(86400); setRange(86400); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
@@ -73,7 +73,7 @@
 					<button
 						value="43200"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(43200); setRange(43200); loadSignals()"
+						onclick="highlightRange(43200); setRange(43200); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
@@ -81,7 +81,7 @@
 					<button
 						value="21600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(21600); setRange(21600); loadSignals()"
+						onclick="highlightRange(21600); setRange(21600); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
@@ -89,7 +89,7 @@
 					<button
 						value="10800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(10800); setRange(10800); loadSignals()"
+						onclick="highlightRange(10800); setRange(10800); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
@@ -97,7 +97,7 @@
 					<button
 						value="3600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(3600); setRange(3600); loadSignals()"
+						onclick="highlightRange(3600); setRange(3600); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
@@ -105,11 +105,11 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Rssi</h2>
-						<p id="rssi-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
+						<p id="photovoltaic-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="rssi-scale" class="flex flex-col text-xs text-end">
+						<div id="photovoltaic-scale" class="flex flex-col text-xs text-end">
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -118,19 +118,19 @@
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 						</div>
 						<div class="relative flex flex-col">
-							<svg id="rssi-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<svg id="photovoltaic-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path
 									class="stroke-neutral-200 dark:stroke-neutral-800"
 									fill="none"
 									stroke-width="2"
-									d="M 0 52 L 1 41 L 2 36 L 3 35 L 4 32 L 5 32 L 6 38 L 7 34 L 8 50 L 9 37 L 10 46 L 11 30 L 12 47 L 13 34 L 14 31 L 15 33 L 16 47 L 17 30 L 18 47 L 19 41 L 20 57 L 21 65 L 22 61 L 23 71 L 24 70 L 25 52 L 26 44 L 27 53 L 28 56 L 29 55 L 30 46 L 31 41 L 32 44 L 33 32 L 34 41 L 35 47 L 36 35 L 37 39 L 38 43 L 39 41 L 40 35 L 41 46 L 42 62 L 43 51 L 44 57 L 45 44 L 46 61 L 47 61 L 48 66 L 49 84 L 50 78 L 51 64 L 52 48 L 53 44 L 54 44 L 55 31 L 56 33 L 57 39 L 58 45 L 59 44 L 60 55 L 61 60 L 62 52 L 63 57 L 64 61 L 65 56 L 66 55 L 67 41 L 68 33 L 69 49 L 70 46 L 71 38 L 72 49 L 73 55 L 74 54 L 75 71 L 76 67 L 77 69 L 78 54 L 79 50 L 80 34 L 81 36 L 82 43 L 83 42 L 84 32 L 85 33 L 86 51 L 87 53 L 88 48 L 89 61 L 90 68 L 91 79 L 92 70 L 93 68 L 94 58 L 95 55 L 96 72 L 97 88 L 98 86 L 99 95 L 100 88"
+									d="M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19"
 								/>
-								<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="2" />
-								<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="2" />
-								<path class="stroke-amber-400/80 dark:stroke-amber-600/80" fill="none" stroke-width="2" />
-								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="2" />
-								<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
 							</svg>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
@@ -140,7 +140,7 @@
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 						</div>
 						<div></div>
-						<div id="rssi-label" class="w-full flex justify-around text-xs">
+						<div id="photovoltaic-label" class="w-full flex justify-around text-xs">
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -161,11 +161,11 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Snr</h2>
-						<p id="snr-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<h2 class="m-0 text-base font-normal">Battery</h2>
+						<p id="battery-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="snr-scale" class="flex flex-col text-xs text-end">
+						<div id="battery-scale" class="flex flex-col text-xs text-end">
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -174,12 +174,12 @@
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 						</div>
 						<div class="relative flex flex-col">
-							<svg id="snr-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<svg id="battery-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path
 									class="stroke-neutral-200 dark:stroke-neutral-800"
 									fill="none"
 									stroke-width="2"
-									d="M 0 48 L 1 62 L 2 57 L 3 60 L 4 50 L 5 46 L 6 63 L 7 70 L 8 54 L 9 51 L 10 64 L 11 68 L 12 72 L 13 67 L 14 63 L 15 60 L 16 44 L 17 40 L 18 55 L 19 50 L 20 46 L 21 62 L 22 66 L 23 71 L 24 58 L 25 48 L 26 50 L 27 34 L 28 44 L 29 53 L 30 69 L 31 58 L 32 51 L 33 56 L 34 48 L 35 67 L 36 65 L 37 80 L 38 75 L 39 71 L 40 64 L 41 68 L 42 52 L 43 60 L 44 74 L 45 77 L 46 66 L 47 63 L 48 57 L 49 54 L 50 59 L 51 45 L 52 52 L 53 36 L 54 50 L 55 64 L 56 68 L 57 74 L 58 58 L 59 61 L 60 47 L 61 44 L 62 52 L 63 65 L 64 60 L 65 62 L 66 55 L 67 50 L 68 66 L 69 70 L 70 84 L 71 81 L 72 65 L 73 49 L 74 52 L 75 64 L 76 68 L 77 53 L 78 50 L 79 66 L 80 71 L 81 55 L 82 51 L 83 57 L 84 40 L 85 49 L 86 66 L 87 58 L 88 78 L 89 85 L 90 73 L 91 75 L 92 66 L 93 63 L 94 72 L 95 80 L 96 88 L 97 74 L 98 64 L 99 48 L 100 54"
+									d="M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13"
 								/>
 								<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="2" />
@@ -196,7 +196,7 @@
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 						</div>
 						<div></div>
-						<div id="snr-label" class="w-full flex justify-around text-xs">
+						<div id="battery-label" class="w-full flex justify-around text-xs">
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -219,52 +219,52 @@
 		</main>
 	</body>
 	<script>
-		import './src/app/breakpoint.js';
-		import './src/app/timespan.js';
-		import './src/app/array.js';
-		import './src/app/state.js';
-		import './src/app/math.js';
-		import './src/app/fade.js';
-		import './src/app/color-signal.js';
-		import './src/app/binary.js';
-		import './src/app/fetcher.js';
-		import './src/app/fetching.js';
+		import './src/app/scripts/breakpoint.js';
+		import './src/app/scripts/timespan.js';
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/math.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		const ranges = document.getElementById('ranges');
-		const signals = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
-		const rssi = {
-			range: document.getElementById('rssi-range'),
-			scale: document.getElementById('rssi-scale'),
-			graph: document.getElementById('rssi-graph'),
-			label: document.getElementById('rssi-label'),
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const photovoltaic = {
+			range: document.getElementById('photovoltaic-range'),
+			scale: document.getElementById('photovoltaic-scale'),
+			graph: document.getElementById('photovoltaic-graph'),
+			label: document.getElementById('photovoltaic-label'),
 		};
-		const snr = {
-			range: document.getElementById('snr-range'),
-			scale: document.getElementById('snr-scale'),
-			graph: document.getElementById('snr-graph'),
-			label: document.getElementById('snr-label'),
+		const battery = {
+			range: document.getElementById('battery-range'),
+			scale: document.getElementById('battery-scale'),
+			graph: document.getElementById('battery-graph'),
+			label: document.getElementById('battery-label'),
 		};
-		const rssiSkeleton = [
-			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
-			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
-			67, 69, 54, 50, 34, 36, 43, 42, 32, 33, 51, 53, 48, 61, 68, 79, 70, 68, 58, 55, 72, 88, 86, 95, 88,
+		const photovoltaicSkeleton = [
+			87, 94, 79, 84, 64, 49, 60, 43, 42, 30, 42, 38, 25, 41, 53, 61, 41, 45, 58, 46, 49, 37, 35, 47, 31, 44, 31, 12, 17, 13, 0, 19, 25, 39, 59, 65, 70, 87, 73,
+			58, 66, 52, 64, 75, 59, 66, 81, 100, 91, 85, 89, 100, 93, 84, 75, 58, 40, 58, 71, 84, 72, 53, 39, 38, 20, 31, 16, 19, 32, 42, 46, 55, 72, 60, 56, 39, 46,
+			64, 76, 70, 54, 45, 57, 70, 54, 47, 58, 55, 66, 60, 42, 47, 30, 36, 30, 39, 20, 17, 0, 7, 19,
 		];
-		const snrSkeleton = [
-			48, 62, 57, 60, 50, 46, 63, 70, 54, 51, 64, 68, 72, 67, 63, 60, 44, 40, 55, 50, 46, 62, 66, 71, 58, 48, 50, 34, 44, 53, 69, 58, 51, 56, 48, 67, 65, 80,
-			75, 71, 64, 68, 52, 60, 74, 77, 66, 63, 57, 54, 59, 45, 52, 36, 50, 64, 68, 74, 58, 61, 47, 44, 52, 65, 60, 62, 55, 50, 66, 70, 84, 81, 65, 49, 52, 64,
-			68, 53, 50, 66, 71, 55, 51, 57, 40, 49, 66, 58, 78, 85, 73, 75, 66, 63, 72, 80, 88, 74, 64, 48, 54,
+		const batterySkeleton = [
+			30, 42, 35, 27, 16, 9, 18, 29, 36, 33, 19, 27, 18, 13, 6, 12, 25, 22, 14, 9, 15, 3, 0, 10, 28, 18, 0, 19, 24, 36, 46, 48, 59, 53, 50, 58, 67, 77, 79, 67,
+			55, 72, 59, 61, 49, 36, 21, 1, 10, 16, 36, 22, 35, 20, 27, 9, 18, 33, 23, 43, 30, 44, 26, 20, 25, 42, 60, 59, 73, 89, 100, 84, 97, 82, 93, 100, 80, 66,
+			69, 60, 40, 37, 55, 37, 32, 46, 43, 40, 28, 41, 25, 7, 11, 14, 28, 33, 22, 20, 11, 24, 13,
 		];
 		window.addEventListener('resize', () => {
 			const width = breakpoint();
-			if (width !== signals.width) {
-				signals.width = width;
-				const summary = calculateSignals(signals.data, signals.width);
-				window.requestAnimationFrame(() => paintRssi(rssi, signals.width, summary.rssi, summary.receivedAt));
-				window.requestAnimationFrame(() => paintSnr(snr, signals.width, summary.snr, summary.receivedAt));
+			if (width !== metrics.width) {
+				metrics.width = width;
+				const summary = calculateMetrics(metrics.data, metrics.width);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.width, summary.photovoltaic, summary.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, metrics.width, summary.battery, summary.capturedAt));
 			}
 		});
 		const getRange = () => {
@@ -292,23 +292,19 @@
 			});
 		};
 		highlightRange(getRange());
-		const indexRssi = (value) => {
+		const indexPhotovoltaic = (value) => {
+			let index = Math.floor(value * 2) + 1;
 			switch (true) {
-				case value < -125:
-					return 1;
-				case value >= -125 && value < -115:
-					return 2;
-				case value >= -115 && value < -100:
-					return 3;
-				case value >= -100 && value < -80:
-					return 4;
-				case value >= -80 && value < -60:
-					return 5;
-				case value >= -60:
-					return 6;
+				case index >= 7:
+					index = 6;
+					break;
+				case index >= 5:
+					index = 5;
+					break;
 			}
+			return index;
 		};
-		const loadingRssi = (element, width) => {
+		const loadingPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -324,60 +320,60 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					const factor = width / (rssiSkeleton.length - 1);
-					const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (photovoltaicSkeleton.length - 1);
+					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintRssi = (element, width, rssi, receivedAt) => {
-			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
-			if (receivedAt.start !== null && receivedAt.end !== null) {
+		const paintPhotovoltaic = (element, width, photovoltaic, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
-			if (rssi.min.abs !== null && rssi.max.abs !== null) {
+			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
-				paint(element.range.children[0], [], [], rssi.min.abs.toFixed(0));
+				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(3));
 				fade(element.range.children[0]);
-				colorRssi(element.range.children[0], rssi.min.abs);
+				colorPhotovoltaic(element.range.children[0], photovoltaic.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
-				paint(element.range.children[2], [], [], rssi.max.abs.toFixed(0));
+				paint(element.range.children[2], [], [], photovoltaic.max.abs.toFixed(3));
 				fade(element.range.children[2]);
-				colorRssi(element.range.children[2], rssi.max.abs);
+				colorPhotovoltaic(element.range.children[2], photovoltaic.max.abs);
 			}
-			if (rssi.min.floor !== null && rssi.max.ceil !== null) {
+			if (photovoltaic.min.floor !== null && photovoltaic.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
-				const interval = (rssi.max.ceil - rssi.min.floor) / scaleLength;
+				const interval = (photovoltaic.max.ceil - photovoltaic.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (rssi.min.floor + ind * interval).toFixed(0));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
 				});
 			}
 			let memo = null;
-			const distance = width / rssi.points.length;
-			rssi.points.forEach((point, ind) => {
-				const index = indexRssi(point.v);
-				const last = ind === 0 ? point : rssi.points[ind - 1];
-				let type = rssi.paths[index].length === 0 ? 'M' : 'L';
+			const distance = width / photovoltaic.points.length;
+			photovoltaic.points.forEach((point, ind) => {
+				const index = indexPhotovoltaic(point.v);
+				const last = ind === 0 ? point : photovoltaic.points[ind - 1];
+				let type = photovoltaic.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
 					type = 'M';
-					rssi.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					photovoltaic.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 				}
 				memo = index;
-				rssi.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
-			const factor = width / (rssiSkeleton.length - 1);
-			const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			const factor = width / (photovoltaicSkeleton.length - 1);
+			const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 			element.graph.children[0].setAttribute('d', skeleton.join(' '));
-			if (receivedAt.start !== null && receivedAt.end !== null) {
-				rssi.paths.forEach((path, ind) => {
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				photovoltaic.paths.forEach((path, ind) => {
 					if (path.length !== 0) {
 						element.graph.children[ind].setAttribute('d', path.join(' '));
 					} else {
@@ -386,7 +382,7 @@
 				});
 			}
 		};
-		const errorRssi = (element, width) => {
+		const errorPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -402,31 +398,31 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					const factor = width / (rssiSkeleton.length - 1);
-					const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (photovoltaicSkeleton.length - 1);
+					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const indexSnr = (value) => {
+		const indexBattery = (value) => {
 			switch (true) {
-				case value < -15:
-					return 1;
-				case value >= -15 && value < -10:
-					return 2;
-				case value >= -10 && value < -5:
-					return 3;
-				case value >= -5 && value < 0:
-					return 4;
-				case value >= 0 && value < 5:
-					return 5;
-				case value >= 5:
+				case value >= 3.85:
 					return 6;
+				case value >= 3.78:
+					return 5;
+				case value >= 3.7:
+					return 4;
+				case value >= 3.6:
+					return 3;
+				case value >= 3.5:
+					return 2;
+				case value < 3.5:
+					return 1;
 			}
 		};
-		const loadingSnr = (element, width) => {
+		const loadingBattery = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -442,60 +438,60 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					const factor = width / (snrSkeleton.length - 1);
-					const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (batterySkeleton.length - 1);
+					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintSnr = (element, width, snr, receivedAt) => {
-			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
-			if (receivedAt.start !== null && receivedAt.end !== null) {
+		const paintBattery = (element, width, battery, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
-					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
-			if (snr.min.abs !== null && snr.max.abs !== null) {
+			if (battery.min.abs !== null && battery.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
-				paint(element.range.children[0], [], [], snr.min.abs.toFixed(2));
+				paint(element.range.children[0], [], [], battery.min.abs.toFixed(3));
 				fade(element.range.children[0]);
-				colorSnr(element.range.children[0], snr.min.abs);
+				colorBattery(element.range.children[0], battery.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
-				paint(element.range.children[2], [], [], snr.max.abs.toFixed(2));
+				paint(element.range.children[2], [], [], battery.max.abs.toFixed(3));
 				fade(element.range.children[2]);
-				colorSnr(element.range.children[2], snr.max.abs);
+				colorBattery(element.range.children[2], battery.max.abs);
 			}
-			if (snr.min.floor !== null && snr.max.ceil !== null) {
+			if (battery.min.floor !== null && battery.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
-				const interval = (snr.max.ceil - snr.min.floor) / scaleLength;
+				const interval = (battery.max.ceil - battery.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (snr.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
 				});
 			}
 			let memo = null;
-			const distance = width / snr.points.length;
-			snr.points.forEach((point, ind) => {
-				const index = indexSnr(point.v);
-				const last = ind === 0 ? point : snr.points[ind - 1];
-				let type = snr.paths[index].length === 0 ? 'M' : 'L';
+			const distance = width / battery.points.length;
+			battery.points.forEach((point, ind) => {
+				const index = indexBattery(point.v);
+				const last = ind === 0 ? point : battery.points[ind - 1];
+				let type = battery.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
 					type = 'M';
-					snr.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					battery.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 				}
 				memo = index;
-				snr.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
-			const factor = width / (snrSkeleton.length - 1);
-			const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			const factor = width / (batterySkeleton.length - 1);
+			const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 			element.graph.children[0].setAttribute('d', skeleton.join(' '));
-			if (receivedAt.start !== null && receivedAt.end !== null) {
-				snr.paths.forEach((path, ind) => {
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				battery.paths.forEach((path, ind) => {
 					if (path.length !== 0) {
 						element.graph.children[ind].setAttribute('d', path.join(' '));
 					} else {
@@ -504,7 +500,7 @@
 				});
 			}
 		};
-		const errorSnr = (element, width) => {
+		const errorBattery = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -520,106 +516,106 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					const factor = width / (snrSkeleton.length - 1);
-					const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (batterySkeleton.length - 1);
+					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const summarizeSignals = (signals, data, type) => {
-			const target = signals[type];
-			data.forEach((signal) => {
-				if (target.min.abs === null || signal[type] < target.min.abs) {
-					target.min.abs = signal[type];
+		const summarizeMetrics = (metrics, data, type) => {
+			const target = metrics[type];
+			data.forEach((metric) => {
+				if (target.min.abs === null || metric[type] < target.min.abs) {
+					target.min.abs = metric[type];
 				}
-				if (target.max.abs === null || signal[type] > target.max.abs) {
-					target.max.abs = signal[type];
+				if (target.max.abs === null || metric[type] > target.max.abs) {
+					target.max.abs = metric[type];
 				}
 			});
 		};
-		const normalizeSignals = (signals, type) => {
-			const target = signals[type];
+		const normalizeMetrics = (metrics, type) => {
+			const target = metrics[type];
 			if (target.min.abs !== null && target.max.abs !== null) {
 				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateSignals = (signals, data, type, width) => {
-			const target = signals[type];
-			const xRange = Number(signals.receivedAt.end) - Number(signals.receivedAt.start);
+		const coordinateMetrics = (metrics, data, type, width) => {
+			const target = metrics[type];
+			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
 			const yRange = target.max.ceil - target.min.floor;
-			data.forEach((signal) => {
-				const xPercent = width - ((Number(signal.receivedAt) - Number(signals.receivedAt.start)) / xRange) * width;
-				const yPercent = 100 - ((signal[type] - target.min.floor) / yRange) * 100;
-				target.points.push({ x: xPercent, y: yPercent, v: signal[type] });
+			data.forEach((reading) => {
+				const xPercent = width - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * width;
+				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
+				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
 			});
 		};
-		const calculateSignals = (data, width) => {
-			const signals = {
-				rssi: {
+		const calculateMetrics = (data, width) => {
+			const metrics = {
+				photovoltaic: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
-					paths: array(rssi.graph.children.length).map(() => []),
+					paths: array(photovoltaic.graph.children.length).map(() => []),
 				},
-				snr: {
+				battery: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
-					paths: array(snr.graph.children.length).map(() => []),
+					paths: array(battery.graph.children.length).map(() => []),
 				},
-				receivedAt: { start: null, end: null },
+				capturedAt: { start: null, end: null },
 			};
 			if (data !== null) {
-				signals.receivedAt.start = Math.floor(Date.now() / 1000);
-				signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeSignals(signals, data, 'rssi');
-				summarizeSignals(signals, data, 'snr');
-				normalizeSignals(signals, 'rssi');
-				normalizeSignals(signals, 'snr');
-				coordinateSignals(signals, data, 'rssi', width);
-				coordinateSignals(signals, data, 'snr', width);
+				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
+				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				summarizeMetrics(metrics, data, 'photovoltaic');
+				summarizeMetrics(metrics, data, 'battery');
+				normalizeMetrics(metrics, 'photovoltaic');
+				normalizeMetrics(metrics, 'battery');
+				coordinateMetrics(metrics, data, 'photovoltaic', width);
+				coordinateMetrics(metrics, data, 'battery', width);
 			}
-			return signals;
+			return metrics;
 		};
-		const parseSignals = async (response) => {
+		const parseMetrics = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const signals = [];
+			const metrics = [];
 			while (binary.offset < buffer.byteLength) {
-				const signal = { rssi: null, snr: null, receivedAt: null };
-				signal.rssi = binary.int(16);
-				signal.snr = binary.int(8) / 4;
-				signal.receivedAt = binary.uint(64);
-				signals.push(signal);
+				const metric = { photovoltaic: null, battery: null, capturedAt: null };
+				metric.photovoltaic = binary.uint(16) / 1000;
+				metric.battery = binary.uint(16) / 1000;
+				metric.capturedAt = binary.uint(64);
+				metrics.push(metric);
 			}
-			return signals;
+			return metrics;
 		};
-		const loadSignals = fetching(
-			signals,
+		const loadMetrics = fetching(
+			metrics,
 			(context) => {
-				window.requestAnimationFrame(() => loadingRssi(rssi, context.width));
-				window.requestAnimationFrame(() => loadingSnr(snr, context.width));
+				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic, context.width));
+				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
 			},
-			(context) => {
+			async (context) => {
 				context.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseSignals(response)),
+			async (context, response) => (context.data = await parseMetrics(response)),
 			(context) => {
-				const summary = calculateSignals(context.data, context.width);
-				window.requestAnimationFrame(() => paintRssi(rssi, context.width, summary.rssi, summary.receivedAt));
-				window.requestAnimationFrame(() => paintSnr(snr, context.width, summary.snr, summary.receivedAt));
+				const summary = calculateMetrics(context.data, context.width);
+				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, context.width, summary.photovoltaic, summary.capturedAt));
+				window.requestAnimationFrame(() => paintBattery(battery, context.width, summary.battery, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
-				window.requestAnimationFrame(() => errorRssi(rssi, context.width));
-				window.requestAnimationFrame(() => errorSnr(snr, context.width));
+				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
+				window.requestAnimationFrame(() => errorBattery(battery, context.width));
 			}
 		);
 	</script>

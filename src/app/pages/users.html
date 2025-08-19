@@ -312,13 +312,13 @@
 		</main>
 	</body>
 	<script>
-		import './src/app/array.js';
-		import './src/app/resize.js';
-		import './src/app/timestamp.js';
-		import './src/app/state.js';
-		import './src/app/binary.js';
-		import './src/app/fetcher.js';
-		import './src/app/fetching.js';
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
 		const users = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('users') };
 		const loadingUsers = (element) => {
 			array(element.children.length).forEach((ind) => {

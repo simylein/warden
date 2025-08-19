@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="itf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="View metrics from your device" />
-		<title>Warden device metrics</title>
+		<meta name="description" content="View readings from your device" />
+		<title>Warden device readings</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadMetrics()">
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadReadings()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -24,8 +24,8 @@
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
 			>
 				<a class="no-underline text-black dark:text-white">Details</a>
-				<a class="no-underline text-black dark:text-white">Readings</a>
-				<a class="no-underline text-blue-600 dark:text-blue-400">Metrics</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Readings</a>
+				<a class="no-underline text-black dark:text-white">Metrics</a>
 				<a class="no-underline text-black dark:text-white">Signals</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
@@ -33,7 +33,7 @@
 					<button
 						value="1209600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(1209600); setRange(1209600); loadMetrics()"
+						onclick="highlightRange(1209600); setRange(1209600); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
@@ -41,7 +41,7 @@
 					<button
 						value="604800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(604800); setRange(604800); loadMetrics()"
+						onclick="highlightRange(604800); setRange(604800); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
@@ -49,7 +49,7 @@
 					<button
 						value="345600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(345600); setRange(345600); loadMetrics()"
+						onclick="highlightRange(345600); setRange(345600); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
@@ -57,7 +57,7 @@
 					<button
 						value="172800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(172800); setRange(172800); loadMetrics()"
+						onclick="highlightRange(172800); setRange(172800); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
@@ -65,7 +65,7 @@
 					<button
 						value="86400"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(86400); setRange(86400); loadMetrics()"
+						onclick="highlightRange(86400); setRange(86400); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
@@ -73,7 +73,7 @@
 					<button
 						value="43200"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(43200); setRange(43200); loadMetrics()"
+						onclick="highlightRange(43200); setRange(43200); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
@@ -81,7 +81,7 @@
 					<button
 						value="21600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(21600); setRange(21600); loadMetrics()"
+						onclick="highlightRange(21600); setRange(21600); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
@@ -89,7 +89,7 @@
 					<button
 						value="10800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(10800); setRange(10800); loadMetrics()"
+						onclick="highlightRange(10800); setRange(10800); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
@@ -97,7 +97,7 @@
 					<button
 						value="3600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(3600); setRange(3600); loadMetrics()"
+						onclick="highlightRange(3600); setRange(3600); loadReadings()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
@@ -105,11 +105,11 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
-						<p id="photovoltaic-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<h2 class="m-0 text-base font-normal">Temperature</h2>
+						<p id="temperature-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="photovoltaic-scale" class="flex flex-col text-xs text-end">
+						<div id="temperature-scale" class="flex flex-col text-xs text-end">
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -118,19 +118,29 @@
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 						</div>
 						<div class="relative flex flex-col">
-							<svg id="photovoltaic-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<svg id="temperature-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path
 									class="stroke-neutral-200 dark:stroke-neutral-800"
 									fill="none"
 									stroke-width="2"
-									d="M 0 87 L 1 94 L 2 79 L 3 84 L 4 64 L 5 49 L 6 60 L 7 43 L 8 42 L 9 30 L 10 42 L 11 38 L 12 25 L 13 41 L 14 53 L 15 61 L 16 41 L 17 45 L 18 58 L 19 46 L 20 49 L 21 37 L 22 35 L 23 47 L 24 31 L 25 44 L 26 31 L 27 12 L 28 17 L 29 13 L 30 0 L 31 19 L 32 25 L 33 39 L 34 59 L 35 65 L 36 70 L 37 87 L 38 73 L 39 58 L 40 66 L 41 52 L 42 64 L 43 75 L 44 59 L 45 66 L 46 81 L 47 100 L 48 91 L 49 85 L 50 89 L 51 100 L 52 93 L 53 84 L 54 75 L 55 58 L 56 40 L 57 58 L 58 71 L 59 84 L 60 72 L 61 53 L 62 39 L 63 38 L 64 20 L 65 31 L 66 16 L 67 19 L 68 32 L 69 42 L 70 46 L 71 55 L 72 72 L 73 60 L 74 56 L 75 39 L 76 46 L 77 64 L 78 76 L 79 70 L 80 54 L 81 45 L 82 57 L 83 70 L 84 54 L 85 47 L 86 58 L 87 55 L 88 66 L 89 60 L 90 42 L 91 47 L 92 30 L 93 36 L 94 30 L 95 39 L 96 20 L 97 17 L 98 0 L 99 7 L 100 19"
+									d="M 0 53 L 1 63 L 2 70 L 3 60 L 4 64 L 5 68 L 6 59 L 7 61 L 8 65 L 9 50 L 10 46 L 11 49 L 12 31 L 13 35 L 14 45 L 15 38 L 16 56 L 17 72 L 18 69 L 19 66 L 20 64 L 21 52 L 22 57 L 23 74 L 24 62 L 25 65 L 26 69 L 27 58 L 28 62 L 29 68 L 30 86 L 31 81 L 32 72 L 33 66 L 34 65 L 35 47 L 36 44 L 37 54 L 38 65 L 39 80 L 40 63 L 41 61 L 42 78 L 43 88 L 44 84 L 45 71 L 46 66 L 47 63 L 48 50 L 49 47 L 50 59 L 51 55 L 52 50 L 53 67 L 54 69 L 55 64 L 56 62 L 57 60 L 58 48 L 59 42 L 60 40 L 61 43 L 62 39 L 63 36 L 64 46 L 65 45 L 66 35 L 67 33 L 68 46 L 69 59 L 70 48 L 71 61 L 72 70 L 73 86 L 74 77 L 75 79 L 76 80 L 77 69 L 78 56 L 79 60 L 80 45 L 81 50 L 82 64 L 83 59 L 84 66 L 85 82 L 86 90 L 87 95 L 88 91 L 89 88 L 90 85 L 91 69 L 92 56 L 93 67 L 94 72 L 95 89 L 96 93 L 97 91 L 98 76 L 99 79 L 100 60"
 								/>
+								<path class="stroke-fuchsia-400/80 dark:stroke-fuchsia-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-purple-400/80 dark:stroke-purple-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-violet-400/80 dark:stroke-violet-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-indigo-400/80 dark:stroke-indigo-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-emerald-400/80 dark:stroke-emerald-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-amber-400/80 dark:stroke-amber-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-rose-400/80 dark:stroke-rose-600/80" fill="none" stroke-width="2" />
 							</svg>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
@@ -140,7 +150,7 @@
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 						</div>
 						<div></div>
-						<div id="photovoltaic-label" class="w-full flex justify-around text-xs">
+						<div id="temperature-label" class="w-full flex justify-around text-xs">
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -161,11 +171,11 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Battery</h2>
-						<p id="battery-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<h2 class="m-0 text-base font-normal">Humidity</h2>
+						<p id="humidity-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="battery-scale" class="flex flex-col text-xs text-end">
+						<div id="humidity-scale" class="flex flex-col text-xs text-end">
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -174,12 +184,12 @@
 							<label class="min-w-7 h-4 mt-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 						</div>
 						<div class="relative flex flex-col">
-							<svg id="battery-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<svg id="humidity-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path
 									class="stroke-neutral-200 dark:stroke-neutral-800"
 									fill="none"
 									stroke-width="2"
-									d="M 0 30 L 1 42 L 2 35 L 3 27 L 4 16 L 5 9 L 6 18 L 7 29 L 8 36 L 9 33 L 10 19 L 11 27 L 12 18 L 13 13 L 14 6 L 15 12 L 16 25 L 17 22 L 18 14 L 19 9 L 20 15 L 21 3 L 22 0 L 23 10 L 24 28 L 25 18 L 26 0 L 27 19 L 28 24 L 29 36 L 30 46 L 31 48 L 32 59 L 33 53 L 34 50 L 35 58 L 36 67 L 37 77 L 38 79 L 39 67 L 40 55 L 41 72 L 42 59 L 43 61 L 44 49 L 45 36 L 46 21 L 47 1 L 48 10 L 49 16 L 50 36 L 51 22 L 52 35 L 53 20 L 54 27 L 55 9 L 56 18 L 57 33 L 58 23 L 59 43 L 60 30 L 61 44 L 62 26 L 63 20 L 64 25 L 65 42 L 66 60 L 67 59 L 68 73 L 69 89 L 70 100 L 71 84 L 72 97 L 73 82 L 74 93 L 75 100 L 76 80 L 77 66 L 78 69 L 79 60 L 80 40 L 81 37 L 82 55 L 83 37 L 84 32 L 85 46 L 86 43 L 87 40 L 88 28 L 89 41 L 90 25 L 91 7 L 92 11 L 93 14 L 94 28 L 95 33 L 96 22 L 97 20 L 98 11 L 99 24 L 100 13"
+									d="M 0 31 L 1 36 L 2 38 L 3 41 L 4 55 L 5 49 L 6 54 L 7 37 L 8 32 L 9 43 L 10 50 L 11 45 L 12 41 L 13 35 L 14 33 L 15 24 L 16 42 L 17 44 L 18 48 L 19 30 L 20 33 L 21 21 L 22 34 L 23 44 L 24 50 L 25 42 L 26 36 L 27 41 L 28 47 L 29 30 L 30 19 L 31 24 L 32 31 L 33 48 L 34 51 L 35 46 L 36 30 L 37 18 L 38 37 L 39 33 L 40 26 L 41 40 L 42 35 L 43 19 L 44 21 L 45 11 L 46 15 L 47 17 L 48 36 L 49 28 L 50 31 L 51 43 L 52 51 L 53 60 L 54 69 L 55 58 L 56 73 L 57 59 L 58 50 L 59 62 L 60 71 L 61 90 L 62 77 L 63 85 L 64 69 L 65 57 L 66 39 L 67 41 L 68 54 L 69 49 L 70 46 L 71 33 L 72 24 L 73 43 L 74 37 L 75 42 L 76 59 L 77 67 L 78 62 L 79 45 L 80 42 L 81 24 L 82 20 L 83 38 L 84 46 L 85 34 L 86 27 L 87 13 L 88 21 L 89 31 L 90 45 L 91 37 L 92 50 L 93 56 L 94 71 L 95 60 L 96 66 L 97 70 L 98 84 L 99 97 L 100 89"
 								/>
 								<path class="stroke-red-400/80 dark:stroke-red-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-orange-400/80 dark:stroke-orange-600/80" fill="none" stroke-width="2" />
@@ -187,6 +197,12 @@
 								<path class="stroke-yellow-400/80 dark:stroke-yellow-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-lime-400/80 dark:stroke-lime-600/80" fill="none" stroke-width="2" />
 								<path class="stroke-green-400/80 dark:stroke-green-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-emerald-400/80 dark:stroke-emerald-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-teal-400/80 dark:stroke-teal-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-cyan-400/80 dark:stroke-cyan-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-sky-400/80 dark:stroke-sky-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-blue-400/80 dark:stroke-blue-600/80" fill="none" stroke-width="2" />
+								<path class="stroke-indigo-400/80 dark:stroke-indigo-600/80" fill="none" stroke-width="2" />
 							</svg>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
@@ -196,7 +212,7 @@
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
 						</div>
 						<div></div>
-						<div id="battery-label" class="w-full flex justify-around text-xs">
+						<div id="humidity-label" class="w-full flex justify-around text-xs">
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
 							<label class="hidden lg:inline w-8 h-4 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
@@ -219,52 +235,52 @@
 		</main>
 	</body>
 	<script>
-		import './src/app/breakpoint.js';
-		import './src/app/timespan.js';
-		import './src/app/array.js';
-		import './src/app/state.js';
-		import './src/app/math.js';
-		import './src/app/fade.js';
-		import './src/app/color-metric.js';
-		import './src/app/binary.js';
-		import './src/app/fetcher.js';
-		import './src/app/fetching.js';
+		import './src/app/scripts/breakpoint.js';
+		import './src/app/scripts/timespan.js';
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/math.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-reading.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		const ranges = document.getElementById('ranges');
-		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
-		const photovoltaic = {
-			range: document.getElementById('photovoltaic-range'),
-			scale: document.getElementById('photovoltaic-scale'),
-			graph: document.getElementById('photovoltaic-graph'),
-			label: document.getElementById('photovoltaic-label'),
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const temperature = {
+			range: document.getElementById('temperature-range'),
+			scale: document.getElementById('temperature-scale'),
+			graph: document.getElementById('temperature-graph'),
+			label: document.getElementById('temperature-label'),
 		};
-		const battery = {
-			range: document.getElementById('battery-range'),
-			scale: document.getElementById('battery-scale'),
-			graph: document.getElementById('battery-graph'),
-			label: document.getElementById('battery-label'),
+		const humidity = {
+			range: document.getElementById('humidity-range'),
+			scale: document.getElementById('humidity-scale'),
+			graph: document.getElementById('humidity-graph'),
+			label: document.getElementById('humidity-label'),
 		};
-		const photovoltaicSkeleton = [
-			87, 94, 79, 84, 64, 49, 60, 43, 42, 30, 42, 38, 25, 41, 53, 61, 41, 45, 58, 46, 49, 37, 35, 47, 31, 44, 31, 12, 17, 13, 0, 19, 25, 39, 59, 65, 70, 87, 73,
-			58, 66, 52, 64, 75, 59, 66, 81, 100, 91, 85, 89, 100, 93, 84, 75, 58, 40, 58, 71, 84, 72, 53, 39, 38, 20, 31, 16, 19, 32, 42, 46, 55, 72, 60, 56, 39, 46,
-			64, 76, 70, 54, 45, 57, 70, 54, 47, 58, 55, 66, 60, 42, 47, 30, 36, 30, 39, 20, 17, 0, 7, 19,
+		const temperatureSkeleton = [
+			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
+			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
+			67, 69, 54, 50, 34, 36, 43, 42, 32, 33, 51, 53, 48, 61, 68, 79, 70, 68, 58, 55, 72, 88, 86, 95, 88,
 		];
-		const batterySkeleton = [
-			30, 42, 35, 27, 16, 9, 18, 29, 36, 33, 19, 27, 18, 13, 6, 12, 25, 22, 14, 9, 15, 3, 0, 10, 28, 18, 0, 19, 24, 36, 46, 48, 59, 53, 50, 58, 67, 77, 79, 67,
-			55, 72, 59, 61, 49, 36, 21, 1, 10, 16, 36, 22, 35, 20, 27, 9, 18, 33, 23, 43, 30, 44, 26, 20, 25, 42, 60, 59, 73, 89, 100, 84, 97, 82, 93, 100, 80, 66,
-			69, 60, 40, 37, 55, 37, 32, 46, 43, 40, 28, 41, 25, 7, 11, 14, 28, 33, 22, 20, 11, 24, 13,
+		const humiditySkeleton = [
+			31, 36, 38, 41, 55, 49, 54, 37, 32, 43, 50, 45, 41, 35, 33, 24, 42, 44, 48, 30, 33, 21, 34, 44, 50, 42, 36, 41, 47, 30, 19, 24, 31, 48, 51, 46, 30, 18,
+			37, 33, 26, 40, 35, 19, 21, 11, 15, 17, 36, 28, 31, 43, 51, 60, 69, 58, 73, 59, 50, 62, 71, 90, 77, 85, 69, 57, 39, 41, 54, 49, 46, 33, 24, 43, 37, 42,
+			59, 67, 62, 45, 42, 24, 20, 38, 46, 34, 27, 13, 21, 31, 45, 37, 50, 56, 71, 60, 66, 70, 84, 97, 89,
 		];
 		window.addEventListener('resize', () => {
 			const width = breakpoint();
-			if (width !== metrics.width) {
-				metrics.width = width;
-				const summary = calculateMetrics(metrics.data, metrics.width);
-				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.width, summary.photovoltaic, summary.capturedAt));
-				window.requestAnimationFrame(() => paintBattery(battery, metrics.width, summary.battery, summary.capturedAt));
+			if (width !== readings.width) {
+				readings.width = width;
+				const summary = calculateReadings(readings.data, readings.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, readings.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, readings.width, summary.humidity, summary.capturedAt));
 			}
 		});
 		const getRange = () => {
@@ -292,19 +308,19 @@
 			});
 		};
 		highlightRange(getRange());
-		const indexPhotovoltaic = (value) => {
-			let index = Math.floor(value * 2) + 1;
+		const indexTemperature = (value) => {
+			let index = Math.floor(value / 4) + 7;
 			switch (true) {
-				case index >= 7:
-					index = 6;
+				case index < 1:
+					index = 1;
 					break;
-				case index >= 5:
-					index = 5;
+				case index > 16:
+					index = 16;
 					break;
 			}
 			return index;
 		};
-		const loadingPhotovoltaic = (element, width) => {
+		const loadingTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -320,15 +336,15 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					const factor = width / (photovoltaicSkeleton.length - 1);
-					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintPhotovoltaic = (element, width, photovoltaic, capturedAt) => {
+		const paintTemperature = (element, width, temperature, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
@@ -336,44 +352,44 @@
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
-			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
+			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
-				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(3));
+				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
 				fade(element.range.children[0]);
-				colorPhotovoltaic(element.range.children[0], photovoltaic.min.abs);
+				colorTemperature(element.range.children[0], temperature.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
-				paint(element.range.children[2], [], [], photovoltaic.max.abs.toFixed(3));
+				paint(element.range.children[2], [], [], temperature.max.abs.toFixed(2));
 				fade(element.range.children[2]);
-				colorPhotovoltaic(element.range.children[2], photovoltaic.max.abs);
+				colorTemperature(element.range.children[2], temperature.max.abs);
 			}
-			if (photovoltaic.min.floor !== null && photovoltaic.max.ceil !== null) {
+			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
-				const interval = (photovoltaic.max.ceil - photovoltaic.min.floor) / scaleLength;
+				const interval = (temperature.max.ceil - temperature.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
 				});
 			}
 			let memo = null;
-			const distance = width / photovoltaic.points.length;
-			photovoltaic.points.forEach((point, ind) => {
-				const index = indexPhotovoltaic(point.v);
-				const last = ind === 0 ? point : photovoltaic.points[ind - 1];
-				let type = photovoltaic.paths[index].length === 0 ? 'M' : 'L';
+			const distance = width / temperature.points.length;
+			temperature.points.forEach((point, ind) => {
+				const index = indexTemperature(point.v);
+				const last = ind === 0 ? point : temperature.points[ind - 1];
+				let type = temperature.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
 					type = 'M';
-					photovoltaic.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					temperature.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 				}
 				memo = index;
-				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
-			const factor = width / (photovoltaicSkeleton.length - 1);
-			const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			const factor = width / (temperatureSkeleton.length - 1);
+			const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 			element.graph.children[0].setAttribute('d', skeleton.join(' '));
 			if (capturedAt.start !== null && capturedAt.end !== null) {
-				photovoltaic.paths.forEach((path, ind) => {
+				temperature.paths.forEach((path, ind) => {
 					if (path.length !== 0) {
 						element.graph.children[ind].setAttribute('d', path.join(' '));
 					} else {
@@ -382,7 +398,7 @@
 				});
 			}
 		};
-		const errorPhotovoltaic = (element, width) => {
+		const errorTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -398,31 +414,33 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					const factor = width / (photovoltaicSkeleton.length - 1);
-					const skeleton = photovoltaicSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (temperatureSkeleton.length - 1);
+					const skeleton = temperatureSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const indexBattery = (value) => {
+		const indexHumidity = (value) => {
+			let index = Math.floor(value / 5) - 3;
 			switch (true) {
-				case value >= 3.85:
-					return 6;
-				case value >= 3.78:
-					return 5;
-				case value >= 3.7:
-					return 4;
-				case value >= 3.6:
-					return 3;
-				case value >= 3.5:
-					return 2;
-				case value < 3.5:
-					return 1;
+				case index < 1:
+					index = 1;
+					break;
+				case index < 3:
+					index = 2;
+					break;
+				case index > 12:
+					index = 12;
+					break;
+				case index > 10:
+					index = 11;
+					break;
 			}
+			return index;
 		};
-		const loadingBattery = (element, width) => {
+		const loadingHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -438,15 +456,15 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
 					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
-					const factor = width / (batterySkeleton.length - 1);
-					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const paintBattery = (element, width, battery, capturedAt) => {
+		const paintHumidity = (element, width, humidity, capturedAt) => {
 			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
@@ -454,44 +472,44 @@
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8'], label);
 				});
 			}
-			if (battery.min.abs !== null && battery.max.abs !== null) {
+			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
-				paint(element.range.children[0], [], [], battery.min.abs.toFixed(3));
+				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
 				fade(element.range.children[0]);
-				colorBattery(element.range.children[0], battery.min.abs);
+				colorHumidity(element.range.children[0], humidity.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
-				paint(element.range.children[2], [], [], battery.max.abs.toFixed(3));
+				paint(element.range.children[2], [], [], humidity.max.abs.toFixed(2));
 				fade(element.range.children[2]);
-				colorBattery(element.range.children[2], battery.max.abs);
+				colorHumidity(element.range.children[2], humidity.max.abs);
 			}
-			if (battery.min.floor !== null && battery.max.ceil !== null) {
+			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
-				const interval = (battery.max.ceil - battery.min.floor) / scaleLength;
+				const interval = (humidity.max.ceil - humidity.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
 				});
 			}
 			let memo = null;
-			const distance = width / battery.points.length;
-			battery.points.forEach((point, ind) => {
-				const index = indexBattery(point.v);
-				const last = ind === 0 ? point : battery.points[ind - 1];
-				let type = battery.paths[index].length === 0 ? 'M' : 'L';
+			const distance = width / humidity.points.length;
+			humidity.points.forEach((point, ind) => {
+				const index = indexHumidity(point.v);
+				const last = ind === 0 ? point : humidity.points[ind - 1];
+				let type = humidity.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
 					type = 'M';
-					battery.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					humidity.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 				}
 				memo = index;
-				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
-			const factor = width / (batterySkeleton.length - 1);
-			const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			const factor = width / (humiditySkeleton.length - 1);
+			const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 			element.graph.children[0].setAttribute('d', skeleton.join(' '));
 			if (capturedAt.start !== null && capturedAt.end !== null) {
-				battery.paths.forEach((path, ind) => {
+				humidity.paths.forEach((path, ind) => {
 					if (path.length !== 0) {
 						element.graph.children[ind].setAttribute('d', path.join(' '));
 					} else {
@@ -500,7 +518,7 @@
 				});
 			}
 		};
-		const errorBattery = (element, width) => {
+		const errorHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
@@ -516,106 +534,106 @@
 				if (ind === 0) {
 					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
-					const factor = width / (batterySkeleton.length - 1);
-					const skeleton = batterySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					const factor = width / (humiditySkeleton.length - 1);
+					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
 		};
-		const summarizeMetrics = (metrics, data, type) => {
-			const target = metrics[type];
-			data.forEach((metric) => {
-				if (target.min.abs === null || metric[type] < target.min.abs) {
-					target.min.abs = metric[type];
+		const summarizeReadings = (readings, data, type) => {
+			const target = readings[type];
+			data.forEach((reading) => {
+				if (target.min.abs === null || reading[type] < target.min.abs) {
+					target.min.abs = reading[type];
 				}
-				if (target.max.abs === null || metric[type] > target.max.abs) {
-					target.max.abs = metric[type];
+				if (target.max.abs === null || reading[type] > target.max.abs) {
+					target.max.abs = reading[type];
 				}
 			});
 		};
-		const normalizeMetrics = (metrics, type) => {
-			const target = metrics[type];
+		const normalizeReadings = (readings, type) => {
+			const target = readings[type];
 			if (target.min.abs !== null && target.max.abs !== null) {
 				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
 				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
 			}
 		};
-		const coordinateMetrics = (metrics, data, type, width) => {
-			const target = metrics[type];
-			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
+		const coordinateReadings = (readings, data, type, width) => {
+			const target = readings[type];
+			const xRange = Number(readings.capturedAt.end) - Number(readings.capturedAt.start);
 			const yRange = target.max.ceil - target.min.floor;
 			data.forEach((reading) => {
-				const xPercent = width - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * width;
+				const xPercent = width - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * width;
 				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
 				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
 			});
 		};
-		const calculateMetrics = (data, width) => {
-			const metrics = {
-				photovoltaic: {
+		const calculateReadings = (data, width) => {
+			const readings = {
+				temperature: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
-					paths: array(photovoltaic.graph.children.length).map(() => []),
+					paths: array(temperature.graph.children.length).map(() => []),
 				},
-				battery: {
+				humidity: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
-					paths: array(battery.graph.children.length).map(() => []),
+					paths: array(humidity.graph.children.length).map(() => []),
 				},
 				capturedAt: { start: null, end: null },
 			};
 			if (data !== null) {
-				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
-				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeMetrics(metrics, data, 'photovoltaic');
-				summarizeMetrics(metrics, data, 'battery');
-				normalizeMetrics(metrics, 'photovoltaic');
-				normalizeMetrics(metrics, 'battery');
-				coordinateMetrics(metrics, data, 'photovoltaic', width);
-				coordinateMetrics(metrics, data, 'battery', width);
+				readings.capturedAt.start = Math.floor(Date.now() / 1000);
+				readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				summarizeReadings(readings, data, 'temperature');
+				summarizeReadings(readings, data, 'humidity');
+				normalizeReadings(readings, 'temperature');
+				normalizeReadings(readings, 'humidity');
+				coordinateReadings(readings, data, 'temperature', width);
+				coordinateReadings(readings, data, 'humidity', width);
 			}
-			return metrics;
+			return readings;
 		};
-		const parseMetrics = async (response) => {
+		const parseReadings = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const metrics = [];
+			const readings = [];
 			while (binary.offset < buffer.byteLength) {
-				const metric = { photovoltaic: null, battery: null, capturedAt: null };
-				metric.photovoltaic = binary.uint(16) / 1000;
-				metric.battery = binary.uint(16) / 1000;
-				metric.capturedAt = binary.uint(64);
-				metrics.push(metric);
+				const reading = { temperature: null, humidity: null, capturedAt: null };
+				reading.temperature = binary.int(16) / 100;
+				reading.humidity = binary.uint(16) / 100;
+				reading.capturedAt = binary.uint(64);
+				readings.push(reading);
 			}
-			return metrics;
+			return readings;
 		};
-		const loadMetrics = fetching(
-			metrics,
+		const loadReadings = fetching(
+			readings,
 			(context) => {
-				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic, context.width));
-				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
+				window.requestAnimationFrame(() => loadingTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => loadingHumidity(humidity, context.width));
 			},
-			async (context) => {
+			(context) => {
 				context.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseMetrics(response)),
+			async (context, response) => (context.data = await parseReadings(response)),
 			(context) => {
-				const summary = calculateMetrics(context.data, context.width);
-				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, context.width, summary.photovoltaic, summary.capturedAt));
-				window.requestAnimationFrame(() => paintBattery(battery, context.width, summary.battery, summary.capturedAt));
+				const summary = calculateReadings(context.data, context.width);
+				window.requestAnimationFrame(() => paintTemperature(temperature, context.width, summary.temperature, summary.capturedAt));
+				window.requestAnimationFrame(() => paintHumidity(humidity, context.width, summary.humidity, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
-				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
-				window.requestAnimationFrame(() => errorBattery(battery, context.width));
+				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
+				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
 			}
 		);
 	</script>
