@@ -806,7 +806,7 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (temperature.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			const devices = Array.from(new Set(temperature.points.map((point) => point.d)));
+			const devices = Array.from(new Set(temperature.points.map((point) => point.d))).sort();
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
 			if (devices.length !== 0) {
 				paint(element.guide, [], []);
@@ -918,7 +918,7 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (humidity.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			const devices = Array.from(new Set(humidity.points.map((point) => point.d)));
+			const devices = Array.from(new Set(humidity.points.map((point) => point.d))).sort();
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
 			if (devices.length !== 0) {
 				paint(element.guide, [], []);
@@ -1030,7 +1030,7 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			const devices = Array.from(new Set(photovoltaic.points.map((point) => point.d)));
+			const devices = Array.from(new Set(photovoltaic.points.map((point) => point.d))).sort();
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
 			if (devices.length !== 0) {
 				paint(element.guide, [], []);
@@ -1142,7 +1142,7 @@
 					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
 				});
 			}
-			const devices = Array.from(new Set(battery.points.map((point) => point.d)));
+			const devices = Array.from(new Set(battery.points.map((point) => point.d))).sort();
 			const mappings = new Map(devices.map((id, ind) => [id, ind]));
 			if (devices.length !== 0) {
 				paint(element.guide, [], []);
