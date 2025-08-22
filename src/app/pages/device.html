@@ -57,6 +57,22 @@
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Firmware</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-16 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Hardware</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-16 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
 								<p class="m-0">Created at</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
@@ -161,20 +177,22 @@
 			loading(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
 			fade(element.children[2].children[1].children[0]);
 			loading(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], [], '');
-			loading(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			loading(element.children[5].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			loading(element.children[3].children[1].children[0], ['w-16', 'h-4.5'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-16', 'h-4.5'], [], '');
+			loading(element.children[5].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			loading(element.children[6].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			fade(element.children[7].children[1].children[0]);
-			loading(element.children[7].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fade(element.children[8].children[1].children[0]);
-			loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			loading(element.children[9].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			loading(element.children[7].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			loading(element.children[8].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[9].children[1].children[0]);
+			loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
 			fade(element.children[10].children[1].children[0]);
 			loading(element.children[10].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fade(element.children[11].children[1].children[0]);
-			loading(element.children[11].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			loading(element.children[12].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			loading(element.children[11].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[12].children[1].children[0]);
+			loading(element.children[12].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[13].children[1].children[0]);
+			loading(element.children[13].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			loading(element.children[14].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 		};
 		const paintDevice = (element, data) => {
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4.5'], data.id);
@@ -182,46 +200,56 @@
 			paint(element.children[2].children[1].children[0], [], ['w-24', 'h-4.5'], data.type);
 			fade(element.children[2].children[1].children[0]);
 			colorDevice(element.children[2].children[1].children[0], data.type);
-			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.createdAt));
-			if (data.updatedAt !== null) {
-				paint(element.children[4].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.updatedAt));
+			if (data.firmware !== null) {
+				paint(element.children[3].children[1].children[0], [], ['w-16', 'h-4.5'], data.firmware);
 			} else {
-				loading(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[3].children[1].children[0], ['w-16', 'h-4.5'], [], '');
 			}
-			if (data.uplink !== null) {
-				element.children[5].children[1].children[0].classList.add('cursor-pointer');
-				element.children[5].children[1].children[0].onclick = () => (window.location.href = `/uplink/${data.uplink.id}`);
-				paint(element.children[5].children[1].children[0], [], ['w-80', 'h-4.5'], data.uplink.id);
-				paint(element.children[6].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.uplink.receivedAt));
+			if (data.hardware !== null) {
+				paint(element.children[4].children[1].children[0], [], ['w-16', 'h-4.5'], data.hardware);
 			} else {
-				loading(element.children[5].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+				loading(element.children[4].children[1].children[0], ['w-16', 'h-4.5'], [], '');
+			}
+			paint(element.children[5].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.createdAt));
+			if (data.updatedAt !== null) {
+				paint(element.children[6].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.updatedAt));
+			} else {
 				loading(element.children[6].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
-			fade(element.children[7].children[1].children[0]);
-			fade(element.children[8].children[1].children[0]);
-			if (data.reading !== null) {
-				paint(element.children[7].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.temperature.toFixed(2));
-				colorTemperature(element.children[7].children[1].children[0], data.reading.temperature);
-				paint(element.children[8].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.humidity.toFixed(2));
-				colorHumidity(element.children[8].children[1].children[0], data.reading.humidity);
-				paint(element.children[9].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.reading.capturedAt));
+			if (data.uplink !== null) {
+				element.children[7].children[1].children[0].classList.add('cursor-pointer');
+				element.children[7].children[1].children[0].onclick = () => (window.location.href = `/uplink/${data.uplink.id}`);
+				paint(element.children[7].children[1].children[0], [], ['w-80', 'h-4.5'], data.uplink.id);
+				paint(element.children[8].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.uplink.receivedAt));
 			} else {
-				loading(element.children[7].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-				loading(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-				loading(element.children[9].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[7].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+				loading(element.children[8].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
+			fade(element.children[9].children[1].children[0]);
 			fade(element.children[10].children[1].children[0]);
-			fade(element.children[11].children[1].children[0]);
-			if (data.metric !== null) {
-				paint(element.children[10].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.photovoltaic.toFixed(3));
-				colorPhotovoltaic(element.children[10].children[1].children[0], data.metric.photovoltaic);
-				paint(element.children[11].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.battery.toFixed(3));
-				colorBattery(element.children[11].children[1].children[0], data.metric.battery);
-				paint(element.children[12].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.metric.capturedAt));
+			if (data.reading !== null) {
+				paint(element.children[9].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.temperature.toFixed(2));
+				colorTemperature(element.children[9].children[1].children[0], data.reading.temperature);
+				paint(element.children[10].children[1].children[0], [], ['w-12', 'h-4.5'], data.reading.humidity.toFixed(2));
+				colorHumidity(element.children[10].children[1].children[0], data.reading.humidity);
+				paint(element.children[11].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.reading.capturedAt));
 			} else {
+				loading(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
 				loading(element.children[10].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-				loading(element.children[11].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-				loading(element.children[12].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[11].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			}
+			fade(element.children[12].children[1].children[0]);
+			fade(element.children[13].children[1].children[0]);
+			if (data.metric !== null) {
+				paint(element.children[12].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.photovoltaic.toFixed(3));
+				colorPhotovoltaic(element.children[12].children[1].children[0], data.metric.photovoltaic);
+				paint(element.children[13].children[1].children[0], [], ['w-12', 'h-4.5'], data.metric.battery.toFixed(3));
+				colorBattery(element.children[13].children[1].children[0], data.metric.battery);
+				paint(element.children[14].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.metric.capturedAt));
+			} else {
+				loading(element.children[12].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[13].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[14].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			}
 		};
 		const errorDevice = (element) => {
@@ -229,28 +257,47 @@
 			error(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
 			fade(element.children[2].children[1].children[0]);
 			error(element.children[2].children[1].children[0], ['w-24', 'h-4.5'], [], '');
-			error(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			error(element.children[4].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			error(element.children[5].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			error(element.children[3].children[1].children[0], ['w-16', 'h-4.5'], [], '');
+			error(element.children[4].children[1].children[0], ['w-16', 'h-4.5'], [], '');
+			error(element.children[5].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 			error(element.children[6].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			fade(element.children[7].children[1].children[0]);
-			error(element.children[7].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fade(element.children[8].children[1].children[0]);
-			error(element.children[8].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			error(element.children[9].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			error(element.children[7].children[1].children[0], ['w-80', 'h-4.5'], [], '');
+			error(element.children[8].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[9].children[1].children[0]);
+			error(element.children[9].children[1].children[0], ['w-12', 'h-4.5'], [], '');
 			fade(element.children[10].children[1].children[0]);
 			error(element.children[10].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			fade(element.children[11].children[1].children[0]);
-			error(element.children[11].children[1].children[0], ['w-12', 'h-4.5'], [], '');
-			error(element.children[12].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			error(element.children[11].children[1].children[0], ['w-40', 'h-4.5'], [], '');
+			fade(element.children[12].children[1].children[0]);
+			error(element.children[12].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			fade(element.children[13].children[1].children[0]);
+			error(element.children[13].children[1].children[0], ['w-12', 'h-4.5'], [], '');
+			error(element.children[14].children[1].children[0], ['w-40', 'h-4.5'], [], '');
 		};
 		const parseDevice = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null, reading: null, metric: null };
+			const device = {
+				id: null,
+				name: null,
+				type: null,
+				firmware: null,
+				hardware: null,
+				createdAt: null,
+				updatedAt: null,
+				uplink: null,
+				reading: null,
+				metric: null,
+			};
 			device.id = binary.uuid();
 			device.name = binary.string();
 			device.type = binary.string();
+			if (binary.byte() !== 0) {
+				device.firmware = binary.string();
+			}
+			if (binary.byte() !== 0) {
+				device.hardware = binary.string();
+			}
 			device.createdAt = binary.uint(64);
 			if (binary.byte() !== 0) {
 				device.updatedAt = binary.uint(64);

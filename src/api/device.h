@@ -14,6 +14,10 @@ typedef struct device_t {
 	uint8_t name_len;
 	char *type;
 	uint8_t type_len;
+	char *firmware;
+	uint8_t firmware_len;
+	char *hardware;
+	uint8_t hardware_len;
 	time_t *created_at;
 	time_t *updated_at;
 } device_t;
