@@ -333,7 +333,7 @@
 			});
 		};
 		const paintRssi = (element, width, rssi, receivedAt) => {
-			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
+			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
 					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
@@ -451,7 +451,7 @@
 			});
 		};
 		const paintSnr = (element, width, snr, receivedAt) => {
-			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / element.label.children.length - 1;
+			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
 					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());

@@ -345,7 +345,7 @@
 			});
 		};
 		const paintTemperature = (element, width, temperature, capturedAt) => {
-			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / (element.label.children.length - 1);
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
@@ -465,7 +465,7 @@
 			});
 		};
 		const paintHumidity = (element, width, humidity, capturedAt) => {
-			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / element.label.children.length - 1;
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / (element.label.children.length - 1);
 			if (capturedAt.start !== null && capturedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
