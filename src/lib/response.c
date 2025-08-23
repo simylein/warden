@@ -18,7 +18,7 @@ void response_init(response_t *response, char *buffer) {
 size_t response(request_t *req, response_t *res, char *buffer) {
 	res->head_len += (uint8_t)sprintf(*res->head, "HTTP/1.1 %hu %s\r\n", res->status, status_text(res->status));
 	if (res->header_len > 0) {
-		memcpy(&buffer[res->head_len], res->header, res->header_len);
+		memmove(&buffer[res->head_len], res->header, res->header_len);
 	}
 	memcpy(&buffer[res->head_len + res->header_len], "\r\n", 2);
 	res->header_len += 2;
