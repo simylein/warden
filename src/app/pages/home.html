@@ -1318,12 +1318,12 @@
 			if (data !== null) {
 				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
 				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeReadings(metrics, data, 'photovoltaic');
-				summarizeReadings(metrics, data, 'battery');
-				normalizeReadings(metrics, 'photovoltaic');
-				normalizeReadings(metrics, 'battery');
-				coordinateReadings(metrics, data, 'photovoltaic', width);
-				coordinateReadings(metrics, data, 'battery', width);
+				summarizeMetrics(metrics, data, 'photovoltaic');
+				summarizeMetrics(metrics, data, 'battery');
+				normalizeMetrics(metrics, 'photovoltaic');
+				normalizeMetrics(metrics, 'battery');
+				coordinateMetrics(metrics, data, 'photovoltaic', width);
+				coordinateMetrics(metrics, data, 'battery', width);
 			}
 			return metrics;
 		};
