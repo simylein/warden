@@ -224,6 +224,7 @@
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
+		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-metric.js';
 		import './src/app/scripts/binary.js';
@@ -524,34 +525,6 @@
 				}
 			});
 		};
-		const summarizeMetrics = (metrics, data, type) => {
-			const target = metrics[type];
-			data.forEach((metric) => {
-				if (target.min.abs === null || metric[type] < target.min.abs) {
-					target.min.abs = metric[type];
-				}
-				if (target.max.abs === null || metric[type] > target.max.abs) {
-					target.max.abs = metric[type];
-				}
-			});
-		};
-		const normalizeMetrics = (metrics, type) => {
-			const target = metrics[type];
-			if (target.min.abs !== null && target.max.abs !== null) {
-				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
-				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
-			}
-		};
-		const coordinateMetrics = (metrics, data, type, width) => {
-			const target = metrics[type];
-			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
-			const yRange = target.max.ceil - target.min.floor;
-			data.forEach((reading) => {
-				const xPercent = width - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * width;
-				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
-				target.points.push({ x: xPercent, y: yPercent, v: reading[type] });
-			});
-		};
 		const calculateMetrics = (data, width) => {
 			const metrics = {
 				photovoltaic: {
@@ -571,12 +544,10 @@
 			if (data !== null) {
 				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
 				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeMetrics(metrics, data, 'photovoltaic');
-				summarizeMetrics(metrics, data, 'battery');
-				normalizeMetrics(metrics, 'photovoltaic');
-				normalizeMetrics(metrics, 'battery');
-				coordinateMetrics(metrics, data, 'photovoltaic', width);
-				coordinateMetrics(metrics, data, 'battery', width);
+				envelope(metrics, data, 'photovoltaic');
+				envelope(metrics, data, 'battery');
+				coordinate(metrics, data, 'photovoltaic', 'capturedAt', width);
+				coordinate(metrics, data, 'battery', 'capturedAt', width);
 			}
 			return metrics;
 		};

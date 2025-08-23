@@ -657,6 +657,7 @@
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
+		import './src/app/scripts/graph.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -1200,34 +1201,6 @@
 				}
 			});
 		};
-		const summarizeReadings = (readings, data, type) => {
-			const target = readings[type];
-			data.forEach((reading) => {
-				if (target.min.abs === null || reading[type] < target.min.abs) {
-					target.min.abs = reading[type];
-				}
-				if (target.max.abs === null || reading[type] > target.max.abs) {
-					target.max.abs = reading[type];
-				}
-			});
-		};
-		const normalizeReadings = (readings, type) => {
-			const target = readings[type];
-			if (target.min.abs !== null && target.max.abs !== null) {
-				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
-				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
-			}
-		};
-		const coordinateReadings = (readings, data, type, width) => {
-			const target = readings[type];
-			const xRange = Number(readings.capturedAt.end) - Number(readings.capturedAt.start);
-			const yRange = target.max.ceil - target.min.floor;
-			data.forEach((reading) => {
-				const xPercent = width - ((Number(reading.capturedAt) - Number(readings.capturedAt.start)) / xRange) * width;
-				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
-				target.points.push({ x: xPercent, y: yPercent, v: reading[type], d: reading.device.id });
-			});
-		};
 		const calculateReadings = (data, width) => {
 			const readings = {
 				temperature: {
@@ -1247,12 +1220,10 @@
 			if (data !== null) {
 				readings.capturedAt.start = Math.floor(Date.now() / 1000);
 				readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeReadings(readings, data, 'temperature');
-				summarizeReadings(readings, data, 'humidity');
-				normalizeReadings(readings, 'temperature');
-				normalizeReadings(readings, 'humidity');
-				coordinateReadings(readings, data, 'temperature', width);
-				coordinateReadings(readings, data, 'humidity', width);
+				envelope(readings, data, 'temperature');
+				envelope(readings, data, 'humidity');
+				coordinate(readings, data, 'temperature', 'capturedAt', width);
+				coordinate(readings, data, 'humidity', 'capturedAt', width);
 			}
 			return readings;
 		};
@@ -1270,34 +1241,6 @@
 				readings.push(reading);
 			}
 			return readings;
-		};
-		const summarizeMetrics = (metrics, data, type) => {
-			const target = metrics[type];
-			data.forEach((reading) => {
-				if (target.min.abs === null || reading[type] < target.min.abs) {
-					target.min.abs = reading[type];
-				}
-				if (target.max.abs === null || reading[type] > target.max.abs) {
-					target.max.abs = reading[type];
-				}
-			});
-		};
-		const normalizeMetrics = (metrics, type) => {
-			const target = metrics[type];
-			if (target.min.abs !== null && target.max.abs !== null) {
-				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
-				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
-			}
-		};
-		const coordinateMetrics = (metrics, data, type, width) => {
-			const target = metrics[type];
-			const xRange = Number(metrics.capturedAt.end) - Number(metrics.capturedAt.start);
-			const yRange = target.max.ceil - target.min.floor;
-			data.forEach((reading) => {
-				const xPercent = width - ((Number(reading.capturedAt) - Number(metrics.capturedAt.start)) / xRange) * width;
-				const yPercent = 100 - ((reading[type] - target.min.floor) / yRange) * 100;
-				target.points.push({ x: xPercent, y: yPercent, v: reading[type], d: reading.device.id });
-			});
 		};
 		const calculateMetrics = (data, width) => {
 			const metrics = {
@@ -1318,12 +1261,10 @@
 			if (data !== null) {
 				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
 				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeMetrics(metrics, data, 'photovoltaic');
-				summarizeMetrics(metrics, data, 'battery');
-				normalizeMetrics(metrics, 'photovoltaic');
-				normalizeMetrics(metrics, 'battery');
-				coordinateMetrics(metrics, data, 'photovoltaic', width);
-				coordinateMetrics(metrics, data, 'battery', width);
+				envelope(metrics, data, 'photovoltaic');
+				envelope(metrics, data, 'battery');
+				coordinate(metrics, data, 'photovoltaic', 'capturedAt', width);
+				coordinate(metrics, data, 'battery', 'capturedAt', width);
 			}
 			return metrics;
 		};

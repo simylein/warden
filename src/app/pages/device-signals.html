@@ -224,6 +224,7 @@
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
+		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-signal.js';
 		import './src/app/scripts/binary.js';
@@ -528,34 +529,6 @@
 				}
 			});
 		};
-		const summarizeSignals = (signals, data, type) => {
-			const target = signals[type];
-			data.forEach((signal) => {
-				if (target.min.abs === null || signal[type] < target.min.abs) {
-					target.min.abs = signal[type];
-				}
-				if (target.max.abs === null || signal[type] > target.max.abs) {
-					target.max.abs = signal[type];
-				}
-			});
-		};
-		const normalizeSignals = (signals, type) => {
-			const target = signals[type];
-			if (target.min.abs !== null && target.max.abs !== null) {
-				target.min.floor = floor(target.min.abs, target.max.abs - target.min.abs);
-				target.max.ceil = ceil(target.max.abs, target.max.abs - target.min.abs);
-			}
-		};
-		const coordinateSignals = (signals, data, type, width) => {
-			const target = signals[type];
-			const xRange = Number(signals.receivedAt.end) - Number(signals.receivedAt.start);
-			const yRange = target.max.ceil - target.min.floor;
-			data.forEach((signal) => {
-				const xPercent = width - ((Number(signal.receivedAt) - Number(signals.receivedAt.start)) / xRange) * width;
-				const yPercent = 100 - ((signal[type] - target.min.floor) / yRange) * 100;
-				target.points.push({ x: xPercent, y: yPercent, v: signal[type] });
-			});
-		};
 		const calculateSignals = (data, width) => {
 			const signals = {
 				rssi: {
@@ -575,12 +548,10 @@
 			if (data !== null) {
 				signals.receivedAt.start = Math.floor(Date.now() / 1000);
 				signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
-				summarizeSignals(signals, data, 'rssi');
-				summarizeSignals(signals, data, 'snr');
-				normalizeSignals(signals, 'rssi');
-				normalizeSignals(signals, 'snr');
-				coordinateSignals(signals, data, 'rssi', width);
-				coordinateSignals(signals, data, 'snr', width);
+				envelope(signals, data, 'rssi');
+				envelope(signals, data, 'snr');
+				coordinate(signals, data, 'rssi', 'receivedAt', width);
+				coordinate(signals, data, 'snr', 'receivedAt', width);
 			}
 			return signals;
 		};
