@@ -243,6 +243,7 @@
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-reading.js';
+		import './src/app/scripts/index-reading.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -309,18 +310,6 @@
 			});
 		};
 		highlightRange(getRange());
-		const indexTemperature = (value) => {
-			let index = Math.floor(value / 4) + 7;
-			switch (true) {
-				case index < 1:
-					index = 1;
-					break;
-				case index > 16:
-					index = 16;
-					break;
-			}
-			return index;
-		};
 		const loadingTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -422,24 +411,6 @@
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
-		};
-		const indexHumidity = (value) => {
-			let index = Math.floor(value / 5) - 3;
-			switch (true) {
-				case index < 1:
-					index = 1;
-					break;
-				case index < 3:
-					index = 2;
-					break;
-				case index > 12:
-					index = 12;
-					break;
-				case index > 10:
-					index = 11;
-					break;
-			}
-			return index;
 		};
 		const loadingHumidity = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {

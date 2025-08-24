@@ -227,6 +227,7 @@
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/index-metric.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -293,18 +294,6 @@
 			});
 		};
 		highlightRange(getRange());
-		const indexPhotovoltaic = (value) => {
-			let index = Math.floor(value * 2) + 1;
-			switch (true) {
-				case index >= 7:
-					index = 6;
-					break;
-				case index >= 5:
-					index = 5;
-					break;
-			}
-			return index;
-		};
 		const loadingPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
@@ -406,22 +395,6 @@
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
-		};
-		const indexBattery = (value) => {
-			switch (true) {
-				case value >= 3.85:
-					return 6;
-				case value >= 3.78:
-					return 5;
-				case value >= 3.7:
-					return 4;
-				case value >= 3.6:
-					return 3;
-				case value >= 3.5:
-					return 2;
-				case value < 3.5:
-					return 1;
-			}
 		};
 		const loadingBattery = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
