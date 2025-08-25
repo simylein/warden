@@ -818,9 +818,19 @@
 				});
 			}
 			temperature.points.forEach((point) => {
-				const index = mappings.get(point.d) + 1;
-				const type = temperature.paths[index].length === 0 ? 'M' : 'L';
-				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				const index = mappings.get(point.d);
+				temperature.devices[index].push(point);
+			});
+			temperature.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = temperature.paths[index + 1].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					}
+					temperature.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			const factor = width / (temperatureSkeleton.length - 1);
@@ -930,9 +940,19 @@
 				});
 			}
 			humidity.points.forEach((point) => {
-				const index = mappings.get(point.d) + 1;
-				const type = humidity.paths[index].length === 0 ? 'M' : 'L';
-				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				const index = mappings.get(point.d);
+				humidity.devices[index].push(point);
+			});
+			humidity.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = humidity.paths[index + 1].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					}
+					humidity.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			const factor = width / (humiditySkeleton.length - 1);
@@ -1042,9 +1062,19 @@
 				});
 			}
 			photovoltaic.points.forEach((point) => {
-				const index = mappings.get(point.d) + 1;
-				const type = photovoltaic.paths[index].length === 0 ? 'M' : 'L';
-				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				const index = mappings.get(point.d);
+				photovoltaic.devices[index].push(point);
+			});
+			photovoltaic.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = photovoltaic.paths[index + 1].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					}
+					photovoltaic.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			const factor = width / (photovoltaicSkeleton.length - 1);
@@ -1154,9 +1184,19 @@
 				});
 			}
 			battery.points.forEach((point) => {
-				const index = mappings.get(point.d) + 1;
-				const type = battery.paths[index].length === 0 ? 'M' : 'L';
-				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				const index = mappings.get(point.d);
+				battery.devices[index].push(point);
+			});
+			battery.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = battery.paths[index + 1].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					}
+					battery.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
 			});
 			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
 			const factor = width / (batterySkeleton.length - 1);
@@ -1207,12 +1247,14 @@
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
+					devices: array(temperature.guide.children.length).map(() => []),
 					paths: array(temperature.graph.children.length).map(() => []),
 				},
 				humidity: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
+					devices: array(humidity.guide.children.length).map(() => []),
 					paths: array(humidity.graph.children.length).map(() => []),
 				},
 				capturedAt: { start: null, end: null },
@@ -1248,12 +1290,14 @@
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
+					devices: array(photovoltaic.guide.children.length).map(() => []),
 					paths: array(photovoltaic.graph.children.length).map(() => []),
 				},
 				battery: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
+					devices: array(battery.guide.children.length).map(() => []),
 					paths: array(battery.graph.children.length).map(() => []),
 				},
 				capturedAt: { start: null, end: null },
