@@ -1,21 +1,18 @@
 #pragma once
 
-#include "response.h"
+#include "strn.h"
 #include <stdint.h>
+#include <stdio.h>
+
+typedef struct response_t response_t;
 
 typedef struct request_t {
-	char (*method)[8];
-	uint8_t method_len;
-	char (*pathname)[128];
-	uint8_t pathname_len;
-	char (*search)[256];
-	uint16_t search_len;
-	char (*protocol)[16];
-	uint8_t protocol_len;
-	char (*header)[2048];
-	uint16_t header_len;
-	char (*body)[128616];
-	size_t body_len;
+	strn8_t method;
+	strn8_t pathname;
+	strn16_t search;
+	strn8_t protocol;
+	strn16_t header;
+	strn32_t body;
 } request_t;
 
 void request_init(request_t *request);

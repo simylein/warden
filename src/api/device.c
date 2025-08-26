@@ -533,7 +533,7 @@ cleanup:
 }
 
 void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -546,13 +546,13 @@ void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu devices\n", devices_len);
 	response->status = 200;
 }
 
 void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -586,13 +586,13 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
 }
 
 void device_find_by_user(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -627,7 +627,7 @@ void device_find_by_user(sqlite3 *database, request_t *request, response_t *resp
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu devices\n", devices_len);
 	response->status = 200;
 }

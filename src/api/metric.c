@@ -188,14 +188,14 @@ cleanup:
 void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *from;
 	size_t from_len;
-	if (strnfind(*request->search, request->search_len, "from=", "&", &from, &from_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(*request->search, request->search_len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -240,7 +240,7 @@ void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu metrics\n", metrics_len);
 	response->status = 200;
 }
@@ -263,14 +263,14 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 
 	const char *from;
 	size_t from_len;
-	if (strnfind(*request->search, request->search_len, "from=", "&", &from, &from_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(*request->search, request->search_len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -322,7 +322,7 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu metrics\n", metrics_len);
 	response->status = 200;
 }

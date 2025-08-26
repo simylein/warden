@@ -192,8 +192,8 @@ int user_parse(user_t *user, request_t *request) {
 
 	user->username_len = 0;
 	const uint8_t username_index = index;
-	while (stage == 0 && user->username_len < 16 && index < request->body_len) {
-		char *byte = &(*request->body)[index];
+	while (stage == 0 && user->username_len < 16 && index < request->body.len) {
+		char *byte = &request->body.ptr[index];
 		if (*byte == '\0') {
 			stage = 1;
 		} else {
@@ -201,7 +201,7 @@ int user_parse(user_t *user, request_t *request) {
 		}
 		index++;
 	}
-	user->username = &(*request->body)[username_index];
+	user->username = &request->body.ptr[username_index];
 	if (stage != 1) {
 		debug("found username with %hhu bytes\n", user->username_len);
 		return -1;
@@ -209,8 +209,8 @@ int user_parse(user_t *user, request_t *request) {
 
 	user->password_len = 0;
 	const uint8_t password_index = index;
-	while (stage == 1 && user->password_len < 64 && index < request->body_len) {
-		char *byte = &(*request->body)[index];
+	while (stage == 1 && user->password_len < 64 && index < request->body.len) {
+		char *byte = &request->body.ptr[index];
 		if (*byte == '\0') {
 			stage = 2;
 		} else {
@@ -218,7 +218,7 @@ int user_parse(user_t *user, request_t *request) {
 		}
 		index++;
 	}
-	user->password = &(*request->body)[password_index];
+	user->password = &request->body.ptr[password_index];
 	if (stage != 2) {
 		debug("found password with %hhu bytes\n", user->password_len);
 		return -1;
@@ -388,7 +388,7 @@ cleanup:
 }
 
 void user_signup(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -396,7 +396,7 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t id[16];
 	uint8_t permissions[4];
 	user_t user = {.id = &id, .permissions = &permissions};
-	if (request->body_len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
+	if (request->body.len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -420,7 +420,7 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 }
 
 void user_signin(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -428,7 +428,7 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t id[16];
 	uint8_t permissions[4];
 	user_t user = {.id = &id, .permissions = &permissions};
-	if (request->body_len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
+	if (request->body.len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -453,7 +453,7 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 
 void user_find(sqlite3 *database, request_t *request, response_t *response) {
 	user_query_t query = {.limit = 16, .offset = 0};
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -466,13 +466,13 @@ void user_find(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu users\n", users_len);
 	response->status = 200;
 }
 
 void user_find_one(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -506,7 +506,7 @@ void user_find_one(sqlite3 *database, request_t *request, response_t *response) 
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
 	response->status = 200;
 }

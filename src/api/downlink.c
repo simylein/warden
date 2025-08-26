@@ -234,82 +234,82 @@ cleanup:
 int downlink_parse(downlink_t *downlink, request_t *request) {
 	uint16_t index = 0;
 
-	if (request->body_len < index + sizeof(downlink->kind)) {
+	if (request->body.len < index + sizeof(downlink->kind)) {
 		debug("missing kind on downlink\n");
 		return -1;
 	}
-	downlink->kind = (uint8_t)(*request->body)[index];
+	downlink->kind = (uint8_t)request->body.ptr[index];
 	index += sizeof(downlink->kind);
 
-	if (request->body_len < index + sizeof(downlink->data_len)) {
+	if (request->body.len < index + sizeof(downlink->data_len)) {
 		debug("missing data len on downlink\n");
 		return -1;
 	}
-	downlink->data_len = (uint8_t)(*request->body)[index];
+	downlink->data_len = (uint8_t)request->body.ptr[index];
 	index += sizeof(downlink->data_len);
 
-	if (request->body_len < index + downlink->data_len) {
+	if (request->body.len < index + downlink->data_len) {
 		debug("missing data on downlink\n");
 		return -1;
 	}
-	downlink->data = (uint8_t *)&(*request->body)[index];
+	downlink->data = (uint8_t *)&request->body.ptr[index];
 	index += downlink->data_len;
 
-	if (request->body_len < index + sizeof(downlink->airtime)) {
+	if (request->body.len < index + sizeof(downlink->airtime)) {
 		debug("missing airtime on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->airtime, &(*request->body)[index], sizeof(downlink->airtime));
+	memcpy(&downlink->airtime, &request->body.ptr[index], sizeof(downlink->airtime));
 	downlink->airtime = ntoh16(downlink->airtime);
 	index += sizeof(downlink->airtime);
 
-	if (request->body_len < index + sizeof(downlink->frequency)) {
+	if (request->body.len < index + sizeof(downlink->frequency)) {
 		debug("missing frequency on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->frequency, &(*request->body)[index], sizeof(downlink->frequency));
+	memcpy(&downlink->frequency, &request->body.ptr[index], sizeof(downlink->frequency));
 	downlink->frequency = ntoh32(downlink->frequency);
 	index += sizeof(downlink->frequency);
 
-	if (request->body_len < index + sizeof(downlink->bandwidth)) {
+	if (request->body.len < index + sizeof(downlink->bandwidth)) {
 		debug("missing bandwidth on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->bandwidth, &(*request->body)[index], sizeof(downlink->bandwidth));
+	memcpy(&downlink->bandwidth, &request->body.ptr[index], sizeof(downlink->bandwidth));
 	downlink->bandwidth = ntoh32(downlink->bandwidth);
 	index += sizeof(downlink->bandwidth);
 
-	if (request->body_len < index + sizeof(downlink->tx_power)) {
+	if (request->body.len < index + sizeof(downlink->tx_power)) {
 		debug("missing tx power on downlink\n");
 		return -1;
 	}
-	downlink->tx_power = (uint8_t)(*request->body)[index];
+	downlink->tx_power = (uint8_t)request->body.ptr[index];
 	index += sizeof(downlink->tx_power);
 
-	if (request->body_len < index + sizeof(downlink->sf)) {
+	if (request->body.len < index + sizeof(downlink->sf)) {
 		debug("missing sf on downlink\n");
 		return -1;
 	}
-	downlink->sf = (uint8_t)(*request->body)[index];
+	downlink->sf = (uint8_t)request->body.ptr[index];
 	index += sizeof(downlink->sf);
 
-	if (request->body_len < index + sizeof(downlink->sent_at)) {
+	if (request->body.len < index + sizeof(downlink->sent_at)) {
 		debug("missing sent at on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->sent_at, &(*request->body)[index], sizeof(downlink->sent_at));
+	memcpy(&downlink->sent_at, &request->body.ptr[index], sizeof(downlink->sent_at));
 	downlink->sent_at = (time_t)ntoh64((uint64_t)downlink->sent_at);
 	index += sizeof(downlink->sent_at);
 
-	if (request->body_len < index + sizeof(*downlink->device_id)) {
+	if (request->body.len < index + sizeof(*downlink->device_id)) {
 		debug("missing device id on downlink\n");
 		return -1;
 	}
-	downlink->device_id = (uint8_t (*)[16])(&(*request->body)[index]);
+	downlink->device_id = (uint8_t (*)[16])(&request->body.ptr[index]);
 	index += sizeof(*downlink->device_id);
 
-	if (request->body_len != index) {
-		debug("body len %zu does not match index %hu\n", request->body_len, index);
+	if (request->body.len != index) {
+		debug("body len %u does not match index %hu\n", request->body.len, index);
 		return -1;
 	}
 
@@ -398,14 +398,14 @@ cleanup:
 void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *limit;
 	size_t limit_len;
-	if (strnfind(*request->search, request->search_len, "limit=", "&", &limit, &limit_len, 4) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "limit=", "&", &limit, &limit_len, 4) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	const char *offset;
 	size_t offset_len;
-	if (strnfind(*request->search, request->search_len, "offset=", "", &offset, &offset_len, 4) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "offset=", "", &offset, &offset_len, 4) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -431,13 +431,13 @@ void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu downlinks\n", downlinks_len);
 	response->status = 200;
 }
 
 void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -471,20 +471,20 @@ void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, respon
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found downlink %02x%02x\n", (*downlink.id)[0], (*downlink.id)[1]);
 	response->status = 200;
 }
 
 void downlink_create(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
 
 	uint8_t id[16];
 	downlink_t downlink = {.id = &id};
-	if (request->body_len == 0 || downlink_parse(&downlink, request) == -1 || downlink_validate(&downlink) == -1) {
+	if (request->body.len == 0 || downlink_parse(&downlink, request) == -1 || downlink_validate(&downlink) == -1) {
 		response->status = 400;
 		return;
 	}

@@ -12,13 +12,9 @@
 #include <time.h>
 #include <unistd.h>
 
-void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr) {
+void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int *client_sock, struct sockaddr_in *client_addr) {
 	struct request_t reqs;
 	struct response_t resp;
-
-	char request_buffer[sizeof(*reqs.method) + sizeof(*reqs.pathname) + sizeof(*reqs.search) + sizeof(*reqs.protocol) +
-											sizeof(*reqs.header) + sizeof(*reqs.body)];
-	char response_buffer[sizeof(*resp.head) + sizeof(*resp.header) + sizeof(*resp.body)];
 
 	request_init(&reqs);
 	response_init(&resp, response_buffer);
@@ -39,9 +35,8 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 
 	size_t received_bytes = 0;
 	uint8_t received_packets = 0;
-	ssize_t received = recv(
-			*client_sock, request_buffer,
-			sizeof(*reqs.method) + sizeof(*reqs.pathname) + sizeof(*reqs.search) + sizeof(*reqs.protocol) + sizeof(*reqs.header), 0);
+	ssize_t received = recv(*client_sock, request_buffer,
+													reqs.method.cap + reqs.pathname.cap + reqs.search.cap + reqs.protocol.cap + reqs.header.cap, 0);
 
 	if (received == -1) {
 		error("failed to receive data from client because %s\n", errno_str());
@@ -74,12 +69,12 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 			break;
 		}
 
-		if (request_length > sizeof(request_buffer)) {
-			warn("request length %zu exceeds buffer length %zu\n", request_length, sizeof(request_buffer));
+		if (request_length > receive_buffer) {
+			warn("request length %zu exceeds buffer length %u\n", request_length, receive_buffer);
 			break;
 		}
 
-		ssize_t received_further = recv(*client_sock, &request_buffer[received_bytes], sizeof(request_buffer) - received_bytes, 0);
+		ssize_t received_further = recv(*client_sock, &request_buffer[received_bytes], receive_buffer - received_bytes, 0);
 
 		if (received_further == -1) {
 			error("failed to receive further data from client because %s\n", errno_str());
@@ -108,9 +103,9 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	human_bytes(&bytes_buffer, received_bytes);
 
 	request(request_buffer, received_bytes, &reqs, &resp);
-	trace("method %hhub pathname %hhub search %hub header %hub body %zub\n", reqs.method_len, reqs.pathname_len, reqs.search_len,
-				reqs.header_len, reqs.body_len);
-	req("%.*s %.*s %s\n", (int)reqs.method_len, *reqs.method, (int)reqs.pathname_len, *reqs.pathname, bytes_buffer);
+	trace("method %hhub pathname %hhub search %hub header %hub body %ub\n", reqs.method.len, reqs.pathname.len, reqs.search.len,
+				reqs.header.len, reqs.body.len);
+	req("%.*s %.*s %s\n", (int)reqs.method.len, reqs.method.ptr, (int)reqs.pathname.len, reqs.pathname.ptr, bytes_buffer);
 
 	route(database, &reqs, &resp);
 
@@ -124,11 +119,11 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 	human_bytes(&bytes_buffer, response_length);
 
 	res("%d %s %s\n", resp.status, duration_buffer, bytes_buffer);
-	trace("head %hhub header %hub body %zub\n", resp.head_len, resp.header_len, resp.body_len);
+	trace("head %hhub header %hub body %ub\n", resp.head.len, resp.header.len, resp.body.len);
 
 	size_t sent_bytes = 0;
 	uint8_t sent_packets = 0;
-	ssize_t sent = send(*client_sock, response_buffer, resp.head_len + resp.header_len, MSG_NOSIGNAL);
+	ssize_t sent = send(*client_sock, response_buffer, resp.head.len + resp.header.len, MSG_NOSIGNAL);
 
 	if (sent == -1) {
 		error("failed to send data to client because %s\n", errno_str());
@@ -148,13 +143,13 @@ void handle(sqlite3 *database, int *client_sock, struct sockaddr_in *client_addr
 			break;
 		}
 
-		if (response_length > sizeof(response_buffer)) {
-			warn("response length %zu exceeds buffer length %zu\n", response_length, sizeof(response_buffer));
+		if (response_length > send_buffer) {
+			warn("response length %zu exceeds buffer length %u\n", response_length, send_buffer);
 			break;
 		}
 
-		ssize_t sent_further = send(*client_sock, &resp.body[sent_bytes - resp.head_len - resp.header_len],
-																resp.body_len - (sent_bytes - resp.head_len - resp.header_len), MSG_NOSIGNAL);
+		ssize_t sent_further = send(*client_sock, &resp.body.ptr[sent_bytes - resp.head.len - resp.header.len],
+																resp.body.len - (sent_bytes - resp.head.len - resp.header.len), MSG_NOSIGNAL);
 
 		if (sent_further == -1) {
 			error("failed to send further data to client because %s\n", errno_str());

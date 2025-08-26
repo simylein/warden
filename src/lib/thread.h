@@ -25,6 +25,8 @@ extern struct queue_t queue;
 typedef struct arg_t {
 	uint8_t id;
 	sqlite3 *database;
+	char *request_buffer;
+	char *response_buffer;
 } arg_t;
 
 typedef struct worker_t {

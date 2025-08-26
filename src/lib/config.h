@@ -23,6 +23,8 @@ extern uint8_t receive_timeout;
 extern uint8_t send_timeout;
 extern uint8_t receive_packets;
 extern uint8_t send_packets;
+extern uint32_t receive_buffer;
+extern uint32_t send_buffer;
 
 extern uint8_t log_level;
 extern bool log_requests;

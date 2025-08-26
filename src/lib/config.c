@@ -24,6 +24,8 @@ uint8_t receive_timeout = 60;
 uint8_t send_timeout = 60;
 uint8_t receive_packets = 16;
 uint8_t send_packets = 16;
+uint32_t receive_buffer = 262144;
+uint32_t send_buffer = 262144;
 
 uint8_t log_level = 4;
 bool log_requests = true;

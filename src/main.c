@@ -41,6 +41,8 @@ void stop(int sig) {
 		if (sqlite3_close_v2(thread_pool.workers[index].arg.database) != SQLITE_OK) {
 			error("failed to close %s because %s\n", database_file, sqlite3_errmsg(thread_pool.workers[index].arg.database));
 		}
+		free(thread_pool.workers[index].arg.request_buffer);
+		free(thread_pool.workers[index].arg.response_buffer);
 	}
 
 	free(queue.tasks);

@@ -294,90 +294,90 @@ cleanup:
 int uplink_parse(uplink_t *uplink, request_t *request) {
 	uint16_t index = 0;
 
-	if (request->body_len < index + sizeof(uplink->kind)) {
+	if (request->body.len < index + sizeof(uplink->kind)) {
 		debug("missing kind on uplink\n");
 		return -1;
 	}
-	uplink->kind = (uint8_t)(*request->body)[index];
+	uplink->kind = (uint8_t)request->body.ptr[index];
 	index += sizeof(uplink->kind);
 
-	if (request->body_len < index + sizeof(uplink->data_len)) {
+	if (request->body.len < index + sizeof(uplink->data_len)) {
 		debug("missing data len on uplink\n");
 		return -1;
 	}
-	uplink->data_len = (uint8_t)(*request->body)[index];
+	uplink->data_len = (uint8_t)request->body.ptr[index];
 	index += sizeof(uplink->data_len);
 
-	if (request->body_len < index + uplink->data_len) {
+	if (request->body.len < index + uplink->data_len) {
 		debug("missing data on uplink\n");
 		return -1;
 	}
-	uplink->data = (uint8_t *)&(*request->body)[index];
+	uplink->data = (uint8_t *)&request->body.ptr[index];
 	index += uplink->data_len;
 
-	if (request->body_len < index + sizeof(uplink->airtime)) {
+	if (request->body.len < index + sizeof(uplink->airtime)) {
 		debug("missing airtime on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->airtime, &(*request->body)[index], sizeof(uplink->airtime));
+	memcpy(&uplink->airtime, &request->body.ptr[index], sizeof(uplink->airtime));
 	uplink->airtime = ntoh16(uplink->airtime);
 	index += sizeof(uplink->airtime);
 
-	if (request->body_len < index + sizeof(uplink->frequency)) {
+	if (request->body.len < index + sizeof(uplink->frequency)) {
 		debug("missing frequency on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->frequency, &(*request->body)[index], sizeof(uplink->frequency));
+	memcpy(&uplink->frequency, &request->body.ptr[index], sizeof(uplink->frequency));
 	uplink->frequency = ntoh32(uplink->frequency);
 	index += sizeof(uplink->frequency);
 
-	if (request->body_len < index + sizeof(uplink->bandwidth)) {
+	if (request->body.len < index + sizeof(uplink->bandwidth)) {
 		debug("missing bandwidth on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->bandwidth, &(*request->body)[index], sizeof(uplink->bandwidth));
+	memcpy(&uplink->bandwidth, &request->body.ptr[index], sizeof(uplink->bandwidth));
 	uplink->bandwidth = ntoh32(uplink->bandwidth);
 	index += sizeof(uplink->bandwidth);
 
-	if (request->body_len < index + sizeof(uplink->rssi)) {
+	if (request->body.len < index + sizeof(uplink->rssi)) {
 		debug("missing rssi on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->rssi, &(*request->body)[index], sizeof(uplink->rssi));
+	memcpy(&uplink->rssi, &request->body.ptr[index], sizeof(uplink->rssi));
 	uplink->rssi = (int16_t)ntoh16((uint16_t)uplink->rssi);
 	index += sizeof(uplink->rssi);
 
-	if (request->body_len < index + sizeof(uplink->snr)) {
+	if (request->body.len < index + sizeof(uplink->snr)) {
 		debug("missing snr on uplink\n");
 		return -1;
 	}
-	uplink->snr = (int8_t)(*request->body)[index];
+	uplink->snr = (int8_t)request->body.ptr[index];
 	index += sizeof(uplink->snr);
 
-	if (request->body_len < index + sizeof(uplink->sf)) {
+	if (request->body.len < index + sizeof(uplink->sf)) {
 		debug("missing sf on uplink\n");
 		return -1;
 	}
-	uplink->sf = (uint8_t)(*request->body)[index];
+	uplink->sf = (uint8_t)request->body.ptr[index];
 	index += sizeof(uplink->sf);
 
-	if (request->body_len < index + sizeof(uplink->received_at)) {
+	if (request->body.len < index + sizeof(uplink->received_at)) {
 		debug("missing received at on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->received_at, &(*request->body)[index], sizeof(uplink->received_at));
+	memcpy(&uplink->received_at, &request->body.ptr[index], sizeof(uplink->received_at));
 	uplink->received_at = (time_t)ntoh64((uint64_t)uplink->received_at);
 	index += sizeof(uplink->received_at);
 
-	if (request->body_len < index + sizeof(*uplink->device_id)) {
+	if (request->body.len < index + sizeof(*uplink->device_id)) {
 		debug("missing device id on uplink\n");
 		return -1;
 	}
-	uplink->device_id = (uint8_t (*)[16])(&(*request->body)[index]);
+	uplink->device_id = (uint8_t (*)[16])(&request->body.ptr[index]);
 	index += sizeof(*uplink->device_id);
 
-	if (request->body_len != index) {
-		debug("body len %zu does not match index %hu\n", request->body_len, index);
+	if (request->body.len != index) {
+		debug("body len %u does not match index %hu\n", request->body.len, index);
 		return -1;
 	}
 
@@ -472,14 +472,14 @@ cleanup:
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *limit;
 	size_t limit_len;
-	if (strnfind(*request->search, request->search_len, "limit=", "&", &limit, &limit_len, 4) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "limit=", "&", &limit, &limit_len, 4) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	const char *offset;
 	size_t offset_len;
-	if (strnfind(*request->search, request->search_len, "offset=", "", &offset, &offset_len, 4) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "offset=", "", &offset, &offset_len, 4) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -505,13 +505,13 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu uplinks\n", uplinks_len);
 	response->status = 200;
 }
 
 void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
@@ -545,7 +545,7 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
 	response->status = 200;
 }
@@ -568,14 +568,14 @@ void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *requ
 
 	const char *from;
 	size_t from_len;
-	if (strnfind(*request->search, request->search_len, "from=", "&", &from, &from_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(*request->search, request->search_len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
 		response->status = 400;
 		return;
 	}
@@ -627,20 +627,20 @@ void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *requ
 	}
 
 	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%zu\r\n", response->body_len);
+	append_header(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu signals\n", signals_len);
 	response->status = 200;
 }
 
 void uplink_create(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search_len != 0) {
+	if (request->search.len != 0) {
 		response->status = 400;
 		return;
 	}
 
 	uint8_t id[16];
 	uplink_t uplink = {.id = &id};
-	if (request->body_len == 0 || uplink_parse(&uplink, request) == -1 || uplink_validate(&uplink) == -1) {
+	if (request->body.len == 0 || uplink_parse(&uplink, request) == -1 || uplink_validate(&uplink) == -1) {
 		response->status = 400;
 		return;
 	}

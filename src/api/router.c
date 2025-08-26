@@ -60,16 +60,17 @@ bool endpoint(request_t *request, const char *method, const char *pathname, bool
 		return false;
 	}
 
-	if (pathcmp(pathname, (uint8_t)strlen(pathname), *request->pathname, request->pathname_len) == true) {
+	if (pathcmp(pathname, (uint8_t)strlen(pathname), request->pathname.ptr, (uint8_t)request->pathname.len) == true) {
 		*pathname_found = true;
 
-		if (strcmp(method, "get") == 0 && request->method_len == 4 && memcmp(request->method, "head", request->method_len) == 0) {
+		if (strcmp(method, "get") == 0 && request->method.len == 4 &&
+				memcmp(request->method.ptr, "head", request->method.len) == 0) {
 			*method_found = true;
 
 			return true;
 		}
 
-		if (request->method_len == strlen(method) && memcmp(request->method, method, request->method_len) == 0) {
+		if (request->method.len == strlen(method) && memcmp(request->method.ptr, method, request->method.len) == 0) {
 			*method_found = true;
 
 			return true;
@@ -85,14 +86,14 @@ bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *res
 		if (redirect == true) {
 			response->status = 307;
 			append_header(response, "location:/signin\r\n");
-			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname_len, *request->pathname);
+			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname.len, request->pathname.ptr);
 		} else {
 			response->status = 401;
 		}
 		return false;
 	}
 
-	if (bwt_verify(cookie, request->header_len - (size_t)(cookie - (const char *)request->header), bwt) == -1) {
+	if (bwt_verify(cookie, request->header.len - (size_t)(cookie - (const char *)request->header.ptr), bwt) == -1) {
 		response->status = 401;
 		return false;
 	}
@@ -372,7 +373,7 @@ respond:
 		response->status = 405;
 	}
 
-	if (request->pathname_len >= 5 && memcmp(request->pathname, "/api/", 5) == 0) {
+	if (request->pathname.len >= 5 && memcmp(request->pathname.ptr, "/api/", 5) == 0) {
 		return;
 	}
 

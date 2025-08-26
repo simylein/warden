@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sqlite3.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 queue_t queue = {
 		.head = 0,
@@ -41,6 +42,18 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	}
 
 	sqlite3_busy_timeout(worker->arg.database, database_timeout);
+
+	worker->arg.request_buffer = malloc(receive_buffer * sizeof(char));
+	if (worker->arg.request_buffer == NULL) {
+		logger("failed to allocate %u bytes because %s\n", receive_buffer, errno_str());
+		return -1;
+	}
+
+	worker->arg.response_buffer = malloc(send_buffer * sizeof(char));
+	if (worker->arg.response_buffer == NULL) {
+		logger("failed to allocate %u bytes because %s\n", send_buffer, errno_str());
+		return -1;
+	}
 
 	int spawn_error = pthread_create(&worker->thread, NULL, function, (void *)&worker->arg);
 	if (spawn_error != 0) {
@@ -82,7 +95,7 @@ void *thread(void *args) {
 		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, thread_pool.load);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		handle(arg->database, &task.client_sock, &task.client_addr);
+		handle(arg->database, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
 
 		pthread_mutex_lock(&thread_pool.lock);
 		thread_pool.load--;
@@ -92,6 +105,8 @@ void *thread(void *args) {
 			if (sqlite3_close_v2(arg->database) != SQLITE_OK) {
 				error("failed to close %s because %s\n", database_file, sqlite3_errmsg(arg->database));
 			}
+			free(arg->request_buffer);
+			free(arg->response_buffer);
 			uint8_t new_size = thread_pool.size - 1;
 			info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
 			thread_pool.size = new_size;
