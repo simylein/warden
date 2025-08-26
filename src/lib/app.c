@@ -35,8 +35,9 @@ void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int 
 
 	size_t received_bytes = 0;
 	uint8_t received_packets = 0;
-	ssize_t received = recv(*client_sock, request_buffer,
-													reqs.method.cap + reqs.pathname.cap + reqs.search.cap + reqs.protocol.cap + reqs.header.cap, 0);
+	ssize_t received =
+			recv(*client_sock, request_buffer,
+					 (size_t)(reqs.method.cap + reqs.pathname.cap + reqs.search.cap + reqs.protocol.cap + reqs.header.cap), 0);
 
 	if (received == -1) {
 		error("failed to receive data from client because %s\n", errno_str());

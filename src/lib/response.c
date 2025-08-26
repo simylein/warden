@@ -49,5 +49,5 @@ void append_header(response_t *response, const char *format, ...) {
 
 void append_body(response_t *response, const void *buffer, size_t buffer_len) {
 	memcpy(response->body.ptr + response->body.len, buffer, buffer_len);
-	response->body.len += buffer_len;
+	response->body.len += (uint32_t)buffer_len;
 }
