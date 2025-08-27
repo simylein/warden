@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest uplinks of your devices" />
+		<title>Warden device uplinks</title>
+		<style></style>
+	</head>
+	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadUplinks()">
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+				<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+			</nav>
+		</header>
+		<main class="m-4 sm:m-6 lg:m-8">
+			<div
+				id="tabs"
+				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
+			>
+				<a class="no-underline text-black dark:text-white">Details</a>
+				<a class="no-underline text-black dark:text-white">Readings</a>
+				<a class="no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Signals</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Uplinks</a>
+				<a class="no-underline text-black dark:text-white">Downlinks</a>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table style="border-collapse: collapse" class="w-full text-nowrap">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Device id</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Kind</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Data</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Rssi</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Snr</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Sf</th>
+						</tr>
+					</thead>
+					<tbody id="uplinks">
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+						<uplink-row ref="./src/app/components/uplink-row.html" />
+					</tbody>
+				</table>
+			</div>
+		</main>
+	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-signal.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/paginate.js';
+		const tabs = document.getElementById('tabs');
+		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
+		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
+		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
+		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
+		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
+		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
+		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
+		const loadingUplinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
+			});
+		};
+		const paintUplinks = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					element.children[ind].classList.add('cursor-pointer');
+					element.children[ind].onclick = () => (window.location.href = `/uplink/${data[ind].id}`);
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
+					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
+					if (data[ind].data.length !== 0) {
+						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+					} else {
+						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+					}
+					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4.5'], data[ind].rssi);
+					fade(element.children[ind].children[4].children[0]);
+					colorRssi(element.children[ind].children[4].children[0], data[ind].rssi);
+					paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].snr);
+					fade(element.children[ind].children[5].children[0]);
+					colorSnr(element.children[ind].children[5].children[0], data[ind].snr);
+					paint(element.children[ind].children[6].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					fade(element.children[ind].children[6].children[0]);
+					colorSf(element.children[ind].children[6].children[0], data[ind].sf);
+				}
+			});
+		};
+		const errorUplinks = (element) => {
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-9', 'h-4.5'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-4', 'h-4.5'], [], '');
+			});
+		};
+		const parseUplinks = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const uplinks = [];
+			while (binary.offset < buffer.byteLength) {
+				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, receivedAt: null, deviceId: null };
+				uplink.id = binary.uuid();
+				uplink.kind = binary.byte();
+				uplink.data = binary.hex(binary.uint(8));
+				uplink.rssi = binary.int(16);
+				uplink.snr = binary.int(8) / 4;
+				uplink.sf = binary.uint(8);
+				uplink.receivedAt = binary.uint(64);
+				uplink.deviceId = binary.uuid();
+				uplinks.push(uplink);
+			}
+			return uplinks;
+		};
+		const loadUplinks = fetching(
+			uplinks,
+			(context) => window.requestAnimationFrame(() => loadingUplinks(context.element)),
+			(context) => {
+				const endpoint = `/api/device/${window.location.pathname.substring(8)}?limit=${getLimit()}&offset=${getOffset()}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseUplinks(response)),
+			(context) => window.requestAnimationFrame(() => paintUplinks(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorUplinks(context.element))
+		);
+	</script>
+</html>
