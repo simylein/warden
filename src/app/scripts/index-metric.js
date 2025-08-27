@@ -1,14 +1,14 @@
 const indexPhotovoltaic = (photovoltaic) => {
 	switch (true) {
-		case photovoltaic < 0.5:
+		case photovoltaic < 1.0:
 			return 1;
-		case photovoltaic >= 0.5 && photovoltaic < 1.0:
+		case photovoltaic >= 1.0 && photovoltaic < 1.8:
 			return 2;
-		case photovoltaic >= 1.0 && photovoltaic < 1.5:
+		case photovoltaic >= 1.8 && photovoltaic < 2.4:
 			return 3;
-		case photovoltaic >= 1.5 && photovoltaic < 2.0:
+		case photovoltaic >= 2.4 && photovoltaic < 2.8:
 			return 4;
-		case photovoltaic >= 2.0 && photovoltaic < 3.0:
+		case photovoltaic >= 2.8 && photovoltaic < 3.0:
 			return 5;
 		case photovoltaic >= 3.0:
 			return 6;
