@@ -3,6 +3,7 @@
 #include "../lib/bwt.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "device.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
@@ -33,8 +34,11 @@ uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink);
 
 uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len);
 uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink, response_t *response);
+uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, downlink_query_t *query,
+																	 response_t *response, uint16_t *downlinks_len);
 uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink);
 
 void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void downlink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void downlink_create(sqlite3 *database, request_t *request, response_t *response);
