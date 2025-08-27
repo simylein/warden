@@ -27,6 +27,8 @@
 				<a class="no-underline text-black dark:text-white">Readings</a>
 				<a class="no-underline text-black dark:text-white">Metrics</a>
 				<a class="no-underline text-black dark:text-white">Signals</a>
+				<a class="no-underline text-black dark:text-white">Uplinks</a>
+				<a class="no-underline text-black dark:text-white">Downlinks</a>
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table style="border-collapse: collapse" class="w-full text-nowrap">
@@ -171,6 +173,8 @@
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
 		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
+		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
+		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
 		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('device') };
 		const loadingDevice = (element) => {
 			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
