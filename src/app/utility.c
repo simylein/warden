@@ -843,3 +843,18 @@ void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 		}
 	}
 }
+
+void table(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+	const keymap_t tables[] = {
+			{.key = "border-collapse", .key_len = 15, .val = "border-collapse:collapse", .val_len = 24},
+			{.key = "border-separate", .key_len = 15, .val = "border-collapse:separate", .val_len = 24},
+			{.key = "table-auto", .key_len = 10, .val = "table-layout:auto", .val_len = 17},
+			{.key = "table-fixed", .key_len = 11, .val = "table-layout:fixed", .val_len = 18},
+	};
+
+	for (uint8_t index = 0; index < sizeof(tables) / sizeof(keymap_t); index++) {
+		if (cls->len == tables[index].key_len && memcmp(cls->ptr, tables[index].key, tables[index].key_len) == 0) {
+			cls->known = stamp(NULL, cls, &tables[index], NULL, NULL, buffer, buffer_len);
+		}
+	}
+}

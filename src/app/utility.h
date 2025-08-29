@@ -23,3 +23,4 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 void opacity(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
 void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);
+void table(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len);

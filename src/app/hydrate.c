@@ -278,6 +278,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 		opacity(&cls, &global, &global_len);
 		cursor(&cls, &global, &global_len);
 		layout(&cls, &global, &global_len);
+		table(&cls, &global, &global_len);
 
 		if (cls.known == false) {
 			warn("unknown class %.*s\n", (*classes)[index].len, (*classes)[index].ptr);
