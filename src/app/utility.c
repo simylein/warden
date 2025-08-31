@@ -317,6 +317,25 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 			cls->known = stamp(pfx, cls, &variants[index], mapping, NULL, buffer, buffer_len);
 		}
 	}
+
+	const keymap_t outlines[] = {
+			{.key = "outline-0", .key_len = 9, .val = "outline-width:0px", .val_len = 17},
+			{.key = "outline-1", .key_len = 9, .val = "outline-width:1px", .val_len = 17},
+			{.key = "outline-2", .key_len = 9, .val = "outline-width:2px", .val_len = 17},
+			{.key = "outline-4", .key_len = 9, .val = "outline-width:4px", .val_len = 17},
+			{.key = "outline-8", .key_len = 9, .val = "outline-width:8px", .val_len = 17},
+			{.key = "outline-none", .key_len = 12, .val = "outline-style:none", .val_len = 18},
+			{.key = "outline-solid", .key_len = 13, .val = "outline-style:solid", .val_len = 19},
+			{.key = "outline-dashed", .key_len = 14, .val = "outline-style:dashed", .val_len = 20},
+			{.key = "outline-dotted", .key_len = 14, .val = "outline-style:dotted", .val_len = 20},
+			{.key = "outline-double", .key_len = 14, .val = "outline-style:double", .val_len = 20},
+	};
+
+	for (uint8_t index = 0; index < sizeof(outlines) / sizeof(keymap_t); index++) {
+		if (cls->len == outlines[index].key_len && memcmp(cls->ptr, outlines[index].key, outlines[index].key_len) == 0) {
+			cls->known = stamp(pfx, cls, &outlines[index], NULL, NULL, buffer, buffer_len);
+		}
+	}
 }
 
 void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
