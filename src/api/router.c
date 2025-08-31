@@ -360,7 +360,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/api/users", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
-		if (authenticate(true, &bwt, request, response) == true) {
+		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
 				user_find(database, request, response);
 			}
@@ -369,7 +369,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/api/user/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
-		if (authenticate(true, &bwt, request, response) == true) {
+		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
 				user_find_one(database, request, response);
 			}
@@ -378,7 +378,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 
 	if (endpoint(request, "get", "/api/user/:id/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
-		if (authenticate(true, &bwt, request, response) == true) {
+		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
 				device_find_by_user(database, request, response);
 			}
