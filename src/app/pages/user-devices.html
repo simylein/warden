@@ -8,6 +8,7 @@
 		<style></style>
 	</head>
 	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDevices()">
+		<notifications ref="./src/app/components/notifications.html" />
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -39,6 +40,7 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Created at</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Updated at</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Received at</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
 					<tbody id="devices">
@@ -61,6 +63,26 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="delete-dialog" class="max-w-96 p-4 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<div class="flex flex-col gap-2">
+					<h1 class="m-0 text-xl font-medium">Delete user device?</h1>
+					<p class="m-0 text-base font-normal">Deleting this user device will remove access to said device to the affected user.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							class="min-w-28 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 focus:outline-none cursor-pointer"
+							onclick="handleSubmit(deleteDialog.children[0].children[2].children[0], deleteDialog.children[0].children[2].children[1], deleteUserDevice, closeDeleteDialog)"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 focus:outline-none cursor-pointer"
+							onclick="closeDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</div>
+			</dialog>
 		</main>
 	</body>
 	<script>
@@ -73,6 +95,7 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/notification.js';
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 38)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 38)}/devices`;
@@ -86,6 +109,9 @@
 				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4.5'], [], '');
 				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4.5'], [], '');
 				loading(element.children[ind].children[5].children[0], ['w-40', 'h-4.5'], [], '');
+				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[6].children[0].onclick = null;
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -108,6 +134,9 @@
 					} else {
 						loading(element.children[ind].children[5].children[0], ['w-40', 'h-4.5'], [], '');
 					}
+					element.children[ind].children[6].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[6].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[6].children[0].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -120,6 +149,9 @@
 				error(element.children[ind].children[3].children[0], ['w-40', 'h-4.5'], [], '');
 				error(element.children[ind].children[4].children[0], ['w-40', 'h-4.5'], [], '');
 				error(element.children[ind].children[5].children[0], ['w-40', 'h-4.5'], [], '');
+				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[6].children[0].onclick = null;
 			});
 		};
 		const parseDevices = async (response) => {
@@ -154,5 +186,55 @@
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
 		);
+		const deleteDialog = document.getElementById('delete-dialog');
+		let userDevice = null;
+		const openDeleteDialog = (device) => {
+			userDevice = device;
+			deleteDialog.showModal();
+		};
+		const closeDeleteDialog = () => {
+			userDevice = null;
+			deleteDialog.close();
+		};
+		const deleteUserDevice = async () => {
+			const bytes = new Uint8Array(userDevice.id.length / 2);
+			for (let ind = 0; ind < bytes.length; ind++) {
+				bytes[ind] = parseInt(userDevice.id.substring(ind * 2, ind * 2 + 2), 16);
+			}
+			const data = new Blob([bytes]);
+			try {
+				await fetcher('delete', `/api/user/${window.location.pathname.substring(6)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+				notification('success', 'Successfully deleted user device');
+				loadDevices(true);
+			} catch (err) {
+				if (err instanceof TypeError) {
+					return notification('info', 'Seems like you might be offline');
+				}
+				const message = `Request failed with ${err.status ?? 0} ${err.statusText ?? null}`;
+				if (err.status < 500) {
+					return notification('warning', message);
+				}
+				return notification('error', message);
+			}
+		};
+		const handleSubmit = async (confirm, cancel, submit, close) => {
+			const store = confirm.innerText;
+			confirm.innerText = 'loading...';
+			confirm.disabled = true;
+			confirm.classList.add('cursor-progress');
+			confirm.classList.remove('cursor-pointer');
+			cancel.disabled = true;
+			cancel.classList.add('cursor-progress');
+			cancel.classList.remove('cursor-pointer');
+			await submit();
+			confirm.innerText = store;
+			confirm.disabled = false;
+			confirm.classList.add('cursor-pointer');
+			confirm.classList.remove('cursor-progress');
+			cancel.disabled = false;
+			cancel.classList.add('cursor-pointer');
+			cancel.classList.remove('cursor-progress');
+			close();
+		};
 	</script>
 </html>

@@ -9,6 +9,7 @@
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
+#include "user-device.h"
 #include "user.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -381,6 +382,15 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
 				device_find_by_user(database, request, response);
+			}
+		}
+	}
+
+	if (endpoint(request, "delete", "/api/user/:id/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_device_delete, response) == true) {
+				user_device_remove(database, request, response);
 			}
 		}
 	}
