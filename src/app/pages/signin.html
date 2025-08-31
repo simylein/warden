@@ -82,7 +82,7 @@
 			async (values) => {
 				const data = new Blob([values.username, '\0', values.password, '\0']);
 				try {
-					const response = await fetcher('post', '/api/signin', data, { headers: { 'content-type': 'application/octet-stream' } });
+					await fetcher('post', '/api/signin', data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully signed in as ${values.username}`);
 					const memo = document.cookie.match(/memo=([^;]*)/);
 					window.location.href = memo?.[1] ?? '/';
