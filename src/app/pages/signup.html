@@ -56,6 +56,7 @@
 	<script>
 		import './src/app/scripts/formik.js';
 		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const { setValue, setTouched, handleSubmit } = formik(
 			{
@@ -87,14 +88,7 @@
 					const memo = document.cookie.match(/memo=([^;]*)/);
 					window.location.href = memo?.[1] ?? '/';
 				} catch (err) {
-					if (err instanceof TypeError) {
-						return notification('info', 'Seems like you might be offline');
-					}
-					const message = `Request failed with ${err.status ?? 0} ${err.statusText ?? null}`;
-					if (err.status < 500) {
-						return notification('warning', message);
-					}
-					return notification('error', message);
+					report(err);
 				}
 			}
 		);
