@@ -89,6 +89,8 @@
 		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				element.children[ind].onclick = null;
 				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
 				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
@@ -129,6 +131,8 @@
 		};
 		const errorUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				element.children[ind].onclick = null;
 				error(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
 				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');

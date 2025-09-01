@@ -10,6 +10,7 @@ const loading = (element, add, remove, text, height, width) => {
 	if (width !== undefined && width !== null) {
 		element.style.width = `${width}%`;
 	}
+	element.onclick = null;
 };
 
 const paint = (element, add, remove, text, height, width) => {
@@ -38,4 +39,5 @@ const error = (element, add, remove, text, height, width) => {
 	if (width !== undefined && width !== null) {
 		element.style.width = `${width}%`;
 	}
+	element.onclick = null;
 };

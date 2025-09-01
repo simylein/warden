@@ -70,6 +70,7 @@
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
 				fade(element.children[ind].children[2].children[0]);
@@ -128,6 +129,7 @@
 		};
 		const errorDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
 				fade(element.children[ind].children[2].children[0]);
