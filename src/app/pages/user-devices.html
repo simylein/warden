@@ -22,11 +22,23 @@
 		</header>
 		<main class="m-4 sm:m-6 lg:m-8">
 			<div
-				id="tabs"
-				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
+				class="flex items-center justify-between border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
 			>
-				<a class="no-underline text-black dark:text-white">Details</a>
-				<a class="no-underline text-blue-600 dark:text-blue-400">Devices</a>
+				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal">
+					<a class="no-underline text-black dark:text-white">Details</a>
+					<a class="no-underline text-blue-600 dark:text-blue-400">Devices</a>
+				</div>
+				<svg
+					id="create"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+				</svg>
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
@@ -63,25 +75,61 @@
 					</tbody>
 				</table>
 			</div>
-			<dialog id="delete-dialog" class="max-w-96 p-4 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
-				<div class="flex flex-col gap-2">
+			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="createForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Create user device?</h1>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="device-id" class="mb-2 text-base font-normal">Device id</label>
+						<input
+							id="device-id"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="device-id"
+							autofocus
+							onchange="createForm.setValue('deviceId', event.target.value)"
+							onblur="createForm.setTouched('deviceId', true)"
+						/>
+						<p id="device-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="create-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Create
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Delete user device?</h1>
 					<p class="m-0 text-base font-normal">Deleting this user device will remove access to said device to the affected user.</p>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
-							class="min-w-28 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
-							onclick="handleSubmit(deleteDialog.children[0].children[2].children[0], deleteDialog.children[0].children[2].children[1], deleteUserDevice, closeDeleteDialog)"
+							id="delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
 						>
 							Delete
 						</button>
 						<button
-							class="min-w-28 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
 							onclick="closeDeleteDialog()"
 						>
 							Cancel
 						</button>
 					</div>
-				</div>
+				</form>
 			</dialog>
 		</main>
 	</body>
@@ -95,12 +143,18 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 38)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 38)}/devices`;
+		const create = document.getElementById('create');
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
 		const loadingDevices = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
@@ -115,6 +169,9 @@
 			});
 		};
 		const paintDevices = (element, data) => {
+			create.classList.remove('opacity-50', 'cursor-not-allowed');
+			create.classList.add('cursor-pointer');
+			create.onclick = () => openCreateDialog();
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
@@ -129,7 +186,7 @@
 					} else {
 						loading(element.children[ind].children[4].children[0], ['w-40', 'h-4.5'], [], '');
 					}
-					if (data[ind].receivedAt !== null) {
+					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
 						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].uplink.receivedAt));
 					} else {
 						loading(element.children[ind].children[5].children[0], ['w-40', 'h-4.5'], [], '');
@@ -141,6 +198,9 @@
 			});
 		};
 		const errorDevices = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
@@ -186,55 +246,80 @@
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
 		);
+		const createDialog = document.getElementById('create-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		let userDevice = null;
+		const openCreateDialog = () => {
+			document.getElementById('device-id').value = '';
+			createDialog.showModal();
+		};
+		const closeCreateDialog = () => {
+			createForm.reset();
+			createDialog.close();
+		};
 		const openDeleteDialog = (device) => {
-			userDevice = device;
+			deleteForm.setValue('deviceId', device.id);
+			deleteForm.setTouched('deviceId', true);
 			deleteDialog.showModal();
 		};
 		const closeDeleteDialog = () => {
-			userDevice = null;
+			deleteForm.reset();
 			deleteDialog.close();
 		};
-		const deleteUserDevice = async () => {
-			const bytes = new Uint8Array(userDevice.id.length / 2);
-			for (let ind = 0; ind < bytes.length; ind++) {
-				bytes[ind] = parseInt(userDevice.id.substring(ind * 2, ind * 2 + 2), 16);
-			}
-			const data = new Blob([bytes]);
-			try {
-				await fetcher('delete', `/api/user/${window.location.pathname.substring(6)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
-				notification('success', 'Successfully deleted user device');
-				loadDevices(true);
-			} catch (err) {
-				if (err instanceof TypeError) {
-					return notification('info', 'Seems like you might be offline');
+		const createForm = formik(
+			{
+				button: document.getElementById('create-button'),
+				deviceId: document.getElementById('device-id-validation'),
+			},
+			{
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(values.deviceId.length / 2);
+				for (let ind = 0; ind < bytes.length; ind++) {
+					bytes[ind] = parseInt(values.deviceId.substring(ind * 2, ind * 2 + 2), 16);
 				}
-				const message = `Request failed with ${err.status ?? 0} ${err.statusText ?? null}`;
-				if (err.status < 500) {
-					return notification('warning', message);
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('post', `/api/user/${window.location.pathname.substring(6)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully created user device');
+					loadDevices(true);
+				} catch (err) {
+					report(err);
 				}
-				return notification('error', message);
+				closeCreateDialog();
 			}
-		};
-		const handleSubmit = async (confirm, cancel, submit, close) => {
-			const store = confirm.innerText;
-			confirm.innerText = 'loading...';
-			confirm.disabled = true;
-			confirm.classList.add('cursor-progress');
-			confirm.classList.remove('cursor-pointer');
-			cancel.disabled = true;
-			cancel.classList.add('cursor-progress');
-			cancel.classList.remove('cursor-pointer');
-			await submit();
-			confirm.innerText = store;
-			confirm.disabled = false;
-			confirm.classList.add('cursor-pointer');
-			confirm.classList.remove('cursor-progress');
-			cancel.disabled = false;
-			cancel.classList.add('cursor-pointer');
-			cancel.classList.remove('cursor-progress');
-			close();
-		};
+		);
+		const deleteForm = formik(
+			{
+				button: document.getElementById('delete-button'),
+			},
+			{
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(values.deviceId.length / 2);
+				for (let ind = 0; ind < bytes.length; ind++) {
+					bytes[ind] = parseInt(values.deviceId.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('delete', `/api/user/${window.location.pathname.substring(6)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully deleted user device');
+					loadDevices(true);
+				} catch (err) {
+					report(err);
+				}
+				closeDeleteDialog();
+			}
+		);
 	</script>
 </html>

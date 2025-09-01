@@ -69,5 +69,11 @@ const formik = (elements, schema, submit) => {
 		elements.button.classList.remove('cursor-progress');
 	};
 
-	return { values, errors, touched, validate, setValue, setTouched, handleSubmit };
+	const reset = () => {
+		Object.keys(values).forEach((key) => delete values[key]);
+		Object.keys(errors).forEach((key) => delete errors[key]);
+		Object.keys(touched).forEach((key) => delete touched[key]);
+	};
+
+	return { values, errors, touched, validate, setValue, setTouched, handleSubmit, reset };
 };

@@ -90,6 +90,50 @@ cleanup:
 	return status;
 }
 
+void user_device_create(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	if (request->body.len != sizeof(*((device_t *)0)->id)) {
+		response->status = 400;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = user.id, .device_id = (uint8_t (*)[16])request->body.ptr};
+	status = user_device_insert(database, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created user device %02x%02x\n", (*user_device.device_id)[0], (*user_device.device_id)[1]);
+	response->status = 200;
+}
+
 void user_device_remove(sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;

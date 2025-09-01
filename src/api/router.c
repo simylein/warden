@@ -386,6 +386,15 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "post", "/api/user/:id/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_device_create, response) == true) {
+				user_device_create(database, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "delete", "/api/user/:id/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
