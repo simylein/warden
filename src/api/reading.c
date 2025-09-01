@@ -66,6 +66,11 @@ uint16_t reading_select(sqlite3 *database, bwt_t *bwt, reading_query_t *query, r
 				status = 500;
 				goto cleanup;
 			}
+			if (response->body.len + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(captured_at) + device_id_len > response->body.cap) {
+				error("readings amount %hu exceeds buffer length %u\n", *readings_len, response->body.cap);
+				status = 500;
+				goto cleanup;
+			}
 			append_body(response, (uint16_t[]){hton16((uint16_t)(int16_t)(temperature * 100))}, sizeof(uint16_t));
 			append_body(response, (uint16_t[]){hton16((uint16_t)(humidity * 100))}, sizeof(uint16_t));
 			append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));

@@ -66,6 +66,11 @@ uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, res
 				status = 500;
 				goto cleanup;
 			}
+			if (response->body.len + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(captured_at) + device_id_len > response->body.cap) {
+				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
+				status = 500;
+				goto cleanup;
+			}
 			append_body(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
 			append_body(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
 			append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
