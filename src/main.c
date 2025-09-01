@@ -76,6 +76,8 @@ int main(int argc, char *argv[]) {
 		info("--send-timeout      -st  seconds to wait for sending      (%hhu)\n", send_timeout);
 		info("--receive-packets   -rp  most packets allowed to receive  (%hhu)\n", receive_packets);
 		info("--send-packets      -sp  most packets allowed to send     (%hhu)\n", send_packets);
+		info("--receive-buffer    -rb  most bytes in receive buffer     (%u)\n", receive_buffer);
+		info("--send-buffer       -sb  most bytes in send buffer        (%u)\n", send_buffer);
 		info("--log-level         -ll  logging verbosity to print       (%s)\n", human_log_level(log_level));
 		info("--log-requests      -lq  log incoming requests            (%s)\n", human_bool(log_requests));
 		info("--log-responses     -ls  log outgoing responses           (%s)\n", human_bool(log_responses));

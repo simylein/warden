@@ -119,7 +119,7 @@ int parse_uint32(const char *arg, const char *key, const uint32_t min, const uin
 	}
 
 	if (new_value < min || new_value > max) {
-		error("%s must be between %hu and %hu\n", key, min, max);
+		error("%s must be between %u and %u\n", key, min, max);
 		return 1;
 	}
 
@@ -219,6 +219,12 @@ int configure(int argc, char *argv[]) {
 		} else if (match_arg(flag, "--send-packets", "-sp")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "send packets", 1, 128, &send_packets);
+		} else if (match_arg(flag, "--receive-buffer", "-rb")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint32(value, "receive buffer", 16384, 1048576, &receive_buffer);
+		} else if (match_arg(flag, "--send-buffer", "-sb")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint32(value, "send buffer", 16384, 1048576, &send_buffer);
 		} else if (match_arg(flag, "--log-level", "-ll")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_log_level(value, &log_level);
