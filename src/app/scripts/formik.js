@@ -1,4 +1,5 @@
 const formik = (elements, schema, submit) => {
+	const backgrounds = [];
 	const [values, errors, touched] = [{}, {}, {}];
 
 	const validate = (all) => {
@@ -22,12 +23,23 @@ const formik = (elements, schema, submit) => {
 		const valid = Object.keys(errors).every((key) => !errors[key]);
 		if (valid) {
 			elements.button.disabled = false;
-			elements.button.classList.add('background-blue-300', 'dark:background-blue-700', 'cursor-pointer');
 			elements.button.classList.remove('background-neutral-300', 'dark:background-neutral-700', 'cursor-not-allowed');
+			while (backgrounds.length > 0) {
+				const cls = backgrounds.pop();
+				elements.button.classList.add(cls);
+			}
+			elements.button.classList.add('cursor-pointer');
 		} else if (all) {
 			elements.button.disabled = true;
+			for (let ind = elements.button.classList.length - 1; ind >= 0; ind--) {
+				const cls = elements.button.classList[ind];
+				if (cls.startsWith('background-') || cls.startsWith('dark:background-')) {
+					backgrounds.push(cls);
+					elements.button.classList.remove(cls);
+				}
+			}
+			elements.button.classList.remove('cursor-pointer');
 			elements.button.classList.add('background-neutral-300', 'dark:background-neutral-700', 'cursor-not-allowed');
-			elements.button.classList.remove('background-blue-300', 'dark:background-blue-700', 'cursor-pointer');
 		}
 		return valid;
 	};
