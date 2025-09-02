@@ -356,8 +356,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					photovoltaic.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					photovoltaic.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					photovoltaic.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				photovoltaic.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
@@ -458,8 +460,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					battery.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					battery.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					battery.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				battery.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);

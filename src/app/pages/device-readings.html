@@ -372,8 +372,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					temperature.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					temperature.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					temperature.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				temperature.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
@@ -474,8 +476,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					humidity.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					humidity.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					humidity.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				humidity.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);

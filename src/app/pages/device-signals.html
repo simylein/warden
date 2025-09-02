@@ -371,8 +371,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					rssi.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					rssi.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					rssi.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				rssi.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
@@ -489,8 +491,10 @@
 				if (last.x - point.x > distance * 8) {
 					type = 'M';
 				} else if (memo !== null && memo !== index) {
-					type = 'M';
-					snr.paths[memo].push(`L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+					const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+					snr.paths[memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					snr.paths[index].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+					type = 'L';
 				}
 				memo = index;
 				snr.paths[index].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
