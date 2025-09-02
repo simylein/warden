@@ -1044,7 +1044,7 @@
 				const scaleLength = element.scale.children.length;
 				const interval = (photovoltaic.max.ceil - photovoltaic.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(2));
 				});
 			}
 			const devices = Array.from(new Set(photovoltaic.points.map((point) => point.d))).sort();
@@ -1166,7 +1166,7 @@
 				const scaleLength = element.scale.children.length;
 				const interval = (battery.max.ceil - battery.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(2));
 				});
 			}
 			const devices = Array.from(new Set(battery.points.map((point) => point.d))).sort();

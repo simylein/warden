@@ -344,7 +344,7 @@
 				const scaleLength = element.scale.children.length;
 				const interval = (photovoltaic.max.ceil - photovoltaic.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (photovoltaic.min.floor + ind * interval).toFixed(2));
 				});
 			}
 			let memo = null;
@@ -446,7 +446,7 @@
 				const scaleLength = element.scale.children.length;
 				const interval = (battery.max.ceil - battery.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(1));
+					paint(element.scale.children[scaleLength - 1 - ind], [], [], (battery.min.floor + ind * interval).toFixed(2));
 				});
 			}
 			let memo = null;
