@@ -658,6 +658,9 @@
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
 		import './src/app/scripts/graph.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-reading.js';
+		import './src/app/scripts/color-metric.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -793,8 +796,12 @@
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], temperature.min.abs.toFixed(2));
+				fade(element.range.children[0]);
+				colorTemperature(element.range.children[0], temperature.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], temperature.max.abs.toFixed(2));
+				fade(element.range.children[2]);
+				colorTemperature(element.range.children[2], temperature.max.abs);
 			}
 			if (temperature.min.floor !== null && temperature.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -915,8 +922,12 @@
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], humidity.min.abs.toFixed(2));
+				fade(element.range.children[0]);
+				colorHumidity(element.range.children[0], humidity.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], humidity.max.abs.toFixed(2));
+				fade(element.range.children[2]);
+				colorHumidity(element.range.children[2], humidity.max.abs);
 			}
 			if (humidity.min.floor !== null && humidity.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -1037,8 +1048,12 @@
 			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], photovoltaic.min.abs.toFixed(3));
+				fade(element.range.children[0]);
+				colorPhotovoltaic(element.range.children[0], photovoltaic.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], photovoltaic.max.abs.toFixed(3));
+				fade(element.range.children[2]);
+				colorPhotovoltaic(element.range.children[2], photovoltaic.max.abs);
 			}
 			if (photovoltaic.min.floor !== null && photovoltaic.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -1159,8 +1174,12 @@
 			if (battery.min.abs !== null && battery.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4.5']);
 				paint(element.range.children[0], [], [], battery.min.abs.toFixed(3));
+				fade(element.range.children[0]);
+				colorBattery(element.range.children[0], battery.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], battery.max.abs.toFixed(3));
+				fade(element.range.children[2]);
+				colorBattery(element.range.children[2], battery.max.abs);
 			}
 			if (battery.min.floor !== null && battery.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
