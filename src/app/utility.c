@@ -4,7 +4,7 @@
 #include <string.h>
 
 bool stamp(class_t *pfx, class_t *cls, const keymap_t *variant, const keymap_t *mapping, const keymap_t *suffix,
-					 char (*buffer)[4096], uint16_t *buffer_len) {
+					 char (*buffer)[8192], uint16_t *buffer_len) {
 	if (*buffer_len < sizeof(*buffer) - 64) {
 		(*buffer)[*buffer_len] = '.';
 		*buffer_len += 1;
@@ -55,7 +55,7 @@ bool stamp(class_t *pfx, class_t *cls, const keymap_t *variant, const keymap_t *
 	return false;
 }
 
-void common(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void common(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t commons[] = {
 			{.key = "font-sans",
 			 .key_len = 9,
@@ -83,7 +83,7 @@ void common(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void position(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void position(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t positions[] = {
 			{.key = "static", .key_len = 6, .val = "position:static", .val_len = 15},
 			{.key = "relative", .key_len = 8, .val = "position:relative", .val_len = 17},
@@ -99,7 +99,7 @@ void position(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void display(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void display(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -120,7 +120,7 @@ void display(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_
 	}
 }
 
-void spacing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void spacing(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -183,7 +183,7 @@ void spacing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_
 	}
 }
 
-void sizing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void sizing(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -265,7 +265,7 @@ void sizing(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 	}
 }
 
-void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void border(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -338,7 +338,7 @@ void border(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_l
 	}
 }
 
-void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void overflow(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -388,7 +388,7 @@ void overflow(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer
 	}
 }
 
-void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void flex(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -424,7 +424,7 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len
 	}
 }
 
-void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void text(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t texts[] = {
 			{.key = "text-xs", .key_len = 7, .val = "font-size:12px", .val_len = 14},
 			{.key = "text-sm", .key_len = 7, .val = "font-size:14px", .val_len = 14},
@@ -457,7 +457,7 @@ void text(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void font(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t fonts[] = {
 			{.key = "font-thin", .key_len = 9, .val = "font-weight:100", .val_len = 15},
 			{.key = "font-extralight", .key_len = 15, .val = "font-weight:200", .val_len = 15},
@@ -477,7 +477,7 @@ void font(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_len, breakpoint_t *breakpoint) {
+void color(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len, breakpoint_t *breakpoint) {
 	if (pfx->len != breakpoint->tag_len || memcmp(pfx->ptr, breakpoint->tag, breakpoint->tag_len) != 0) {
 		return;
 	}
@@ -785,7 +785,7 @@ void color(class_t *pfx, class_t *cls, char (*buffer)[4096], uint16_t *buffer_le
 	}
 }
 
-void opacity(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void opacity(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t opacities[] = {
 			{.key = "opacity-0", .key_len = 9, .val = "opacity:0", .val_len = 9},
 			{.key = "opacity-5", .key_len = 9, .val = "opacity:0.05", .val_len = 12},
@@ -817,7 +817,7 @@ void opacity(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void cursor(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t texts[] = {
 			{.key = "cursor-auto", .key_len = 11, .val = "cursor:auto", .val_len = 11},
 			{.key = "cursor-default", .key_len = 14, .val = "cursor:default", .val_len = 14},
@@ -847,7 +847,7 @@ void cursor(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void layout(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t layouts[] = {
 			{.key = "z-0", .key_len = 3, .val = "z-index:0", .val_len = 9},
 			{.key = "z-4", .key_len = 3, .val = "z-index:4", .val_len = 9},
@@ -863,7 +863,7 @@ void layout(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
 	}
 }
 
-void table(class_t *cls, char (*buffer)[4096], uint16_t *buffer_len) {
+void table(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 	const keymap_t tables[] = {
 			{.key = "border-collapse", .key_len = 15, .val = "border-collapse:collapse", .val_len = 24},
 			{.key = "border-separate", .key_len = 15, .val = "border-collapse:separate", .val_len = 24},

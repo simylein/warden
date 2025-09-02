@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int append(class_t (*classes)[224], uint8_t *classes_len, char *next_ptr) {
+int append(class_t (*classes)[256], uint16_t *classes_len, char *next_ptr) {
 	if ((size_t)*classes_len + 1 >= sizeof(*classes) / sizeof(class_t)) {
 		error("can not handle more than %zu classes\n", sizeof(*classes) / sizeof(class_t));
 		return -1;
@@ -36,7 +36,7 @@ int append(class_t (*classes)[224], uint8_t *classes_len, char *next_ptr) {
 	return 0;
 }
 
-int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
+int extract(file_t *file, class_t (*classes)[256], uint16_t *classes_len) {
 	bool tag = false;
 	bool class = false;
 	bool quote = false;
@@ -125,17 +125,17 @@ int extract(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	return 0;
 }
 
-int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
-	trace("extracted %hhu classes\n", *classes_len);
+int hydrate(file_t *file, class_t (*classes)[256], uint16_t *classes_len) {
+	trace("extracted %hu classes\n", *classes_len);
 
-	char global[4096];
+	char global[8192];
 	uint16_t global_len = 0;
 	breakpoint_t global_breakpoint = {
 			.tag = "",
 			.tag_len = 0,
 	};
 
-	char tiny[4096];
+	char tiny[8192];
 	uint16_t tiny_len = 0;
 	breakpoint_t tiny_breakpoint = {
 			.tag = "xs",
@@ -146,7 +146,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char small[4096];
+	char small[8192];
 	uint16_t small_len = 0;
 	breakpoint_t small_breakpoint = {
 			.tag = "sm",
@@ -157,7 +157,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char medium[4096];
+	char medium[8192];
 	uint16_t medium_len = 0;
 	breakpoint_t medium_breakpoint = {
 			.tag = "md",
@@ -168,7 +168,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char large[4096];
+	char large[8192];
 	uint16_t large_len = 0;
 	breakpoint_t large_breakpoint = {
 			.tag = "lg",
@@ -179,7 +179,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char giant[4096];
+	char giant[8192];
 	uint16_t giant_len = 0;
 	breakpoint_t giant_breakpoint = {
 			.tag = "xl",
@@ -190,7 +190,7 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 			.suffix_len = 1,
 	};
 
-	char dark[4096];
+	char dark[8192];
 	uint16_t dark_len = 0;
 	breakpoint_t dark_breakpoint = {
 			.tag = "dark",
@@ -202,12 +202,12 @@ int hydrate(file_t *file, class_t (*classes)[224], uint8_t *classes_len) {
 	};
 
 	debug("hydrating file %s\n", file->path);
-	for (uint8_t index = 0; index < *classes_len; index++) {
+	for (uint16_t index = 0; index < *classes_len; index++) {
 		class_t pfx;
 		class_t cls;
 
 		uint8_t stg = 0;
-		uint8_t ind = 0;
+		uint16_t ind = 0;
 
 		if (memchr((*classes)[index].ptr, ':', (*classes)[index].len) == NULL) {
 			stg = 1;
