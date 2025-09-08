@@ -7,7 +7,7 @@
 		<title>Warden device downlinks</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDownlinks()">
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadDownlinks()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -90,14 +90,14 @@
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
 				element.children[ind].onclick = null;
-				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
-				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
-				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
-				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-4', 'h-4.5'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-4', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-4', 'h-4.5'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-4', 'h-4'], [], '');
 			});
 		};
 		const paintDownlinks = (element, data) => {
@@ -106,18 +106,18 @@
 				if (data[ind]) {
 					element.children[ind].classList.add('cursor-pointer');
 					element.children[ind].onclick = () => (window.location.href = `/downlink/${data[ind].id}`);
-					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].receivedAt));
-					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4.5'], data[ind].deviceId.substring(0, 4));
-					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4.5'], data[ind].kind.toString(16).padStart(2, '0'));
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].receivedAt));
+					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].deviceId.substring(0, 4));
+					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4'], data[ind].kind.toString(16).padStart(2, '0'));
 					if (data[ind].data.length !== 0) {
-						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4.5'], data[ind].data);
+						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4'], data[ind].data);
 					} else {
-						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
 					}
-					paint(element.children[ind].children[4].children[0], [], ['w-4', 'h-4.5'], data[ind].txPower);
+					paint(element.children[ind].children[4].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
 					fade(element.children[ind].children[4].children[0]);
 					colorTxPower(element.children[ind].children[4].children[0], data[ind].txPower);
-					paint(element.children[ind].children[5].children[0], [], ['w-4', 'h-4.5'], data[ind].sf);
+					paint(element.children[ind].children[5].children[0], [], ['w-4', 'h-4'], data[ind].sf);
 					fade(element.children[ind].children[5].children[0]);
 					colorSf(element.children[ind].children[5].children[0], data[ind].sf);
 				}
@@ -127,14 +127,14 @@
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
 				element.children[ind].onclick = null;
-				error(element.children[ind].children[0].children[0], ['w-40', 'h-4.5'], [], '');
-				error(element.children[ind].children[1].children[0], ['w-10', 'h-4.5'], [], '');
-				error(element.children[ind].children[2].children[0], ['w-5', 'h-4.5'], [], '');
-				error(element.children[ind].children[3].children[0], ['w-56', 'h-4.5'], [], '');
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-4', 'h-4.5'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-4', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-4', 'h-4.5'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-4', 'h-4'], [], '');
 			});
 		};
 		const parseDownlinks = async (response) => {

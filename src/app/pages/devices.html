@@ -7,7 +7,7 @@
 		<title>Warden devices</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadDevices()">
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadDevices()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -71,18 +71,18 @@
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
-				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
-				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
-				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
+				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -91,11 +91,11 @@
 				if (data[ind]) {
 					element.children[ind].classList.add('cursor-pointer');
 					element.children[ind].children[0].onclick = () => (window.location.href = `/device/${data[ind].id}`);
-					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
 					element.children[ind].children[1].onclick = () => (window.location.href = `/device/${data[ind].id}`);
-					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].name);
+					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].name);
 					element.children[ind].children[2].onclick = () => (window.location.href = `/device/${data[ind].id}`);
-					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4.5'], data[ind].type);
+					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], data[ind].type);
 					fade(element.children[ind].children[2].children[0]);
 					colorDevice(element.children[ind].children[2].children[0], data[ind].type);
 					element.children[ind].children[3].onclick = () => (window.location.href = `/device/${data[ind].id}/readings`);
@@ -103,26 +103,26 @@
 					element.children[ind].children[4].onclick = () => (window.location.href = `/device/${data[ind].id}/readings`);
 					fade(element.children[ind].children[4].children[0]);
 					if (data[ind].reading !== null) {
-						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.temperature.toFixed(2));
+						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], data[ind].reading.temperature.toFixed(2));
 						colorTemperature(element.children[ind].children[3].children[0], data[ind].reading.temperature);
-						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4.5'], data[ind].reading.humidity.toFixed(2));
+						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].reading.humidity.toFixed(2));
 						colorHumidity(element.children[ind].children[4].children[0], data[ind].reading.humidity);
 					} else {
-						loading(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
-						loading(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
+						loading(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
+						loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 					}
 					element.children[ind].children[5].onclick = () => (window.location.href = `/device/${data[ind].id}/metrics`);
 					fade(element.children[ind].children[5].children[0]);
 					element.children[ind].children[6].onclick = () => (window.location.href = `/device/${data[ind].id}/metrics`);
 					fade(element.children[ind].children[6].children[0]);
 					if (data[ind].metric !== null) {
-						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.photovoltaic.toFixed(3));
+						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
 						colorPhotovoltaic(element.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
-						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4.5'], data[ind].metric.battery.toFixed(3));
+						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], data[ind].metric.battery.toFixed(3));
 						colorBattery(element.children[ind].children[6].children[0], data[ind].metric.battery);
 					} else {
-						loading(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
-						loading(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
+						loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+						loading(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 					}
 				}
 			});
@@ -130,18 +130,18 @@
 		const errorDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
-				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
-				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[2].children[0], ['w-16', 'h-4.5'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
-				error(element.children[ind].children[3].children[0], ['w-12', 'h-4.5'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-12', 'h-4.5'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-12', 'h-4.5'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				error(element.children[ind].children[6].children[0], ['w-12', 'h-4.5'], [], '');
+				error(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 			});
 		};
 		const parseDevices = async (response) => {

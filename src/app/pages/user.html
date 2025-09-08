@@ -7,7 +7,7 @@
 		<title>Warden user</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadUser()">
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadUser()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -35,7 +35,7 @@
 								<p class="m-0">Id</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-80 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="font-mono m-0 w-80 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -43,7 +43,7 @@
 								<p class="m-0">Username</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="m-0 w-32 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="m-0 w-32 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -51,7 +51,7 @@
 								<p class="m-0">Signup at</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -59,7 +59,7 @@
 								<p class="m-0">Signin at</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="m-0 w-40 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -67,7 +67,7 @@
 								<p class="m-0">Permissions</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-20 h-4.5 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="font-mono m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 					</tbody>
@@ -86,25 +86,25 @@
 		tabs.children[1].href = `${window.location.pathname.substring(0, 38)}/devices`;
 		const user = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('user') };
 		const loadingUser = (element) => {
-			loading(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
-			loading(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-			loading(element.children[2].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			loading(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			loading(element.children[4].children[1].children[0], ['w-20', 'h-4.5'], [], '');
+			loading(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
+			loading(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
+			loading(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
+			loading(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-20', 'h-4'], [], '');
 		};
 		const paintUser = (element, data) => {
-			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4.5'], data.id);
-			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4.5'], data.username);
-			paint(element.children[2].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.signupAt));
-			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4.5'], timestamp(data.signinAt));
-			paint(element.children[4].children[1].children[0], [], ['w-20', 'h-4.5'], data.permissions);
+			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4'], data.id);
+			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4'], data.username);
+			paint(element.children[2].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.signupAt));
+			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.signinAt));
+			paint(element.children[4].children[1].children[0], [], ['w-20', 'h-4'], data.permissions);
 		};
 		const errorUser = (element) => {
-			error(element.children[0].children[1].children[0], ['w-80', 'h-4.5'], [], '');
-			error(element.children[1].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-			error(element.children[2].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			error(element.children[3].children[1].children[0], ['w-40', 'h-4.5'], [], '');
-			error(element.children[4].children[1].children[0], ['w-20', 'h-4.5'], [], '');
+			error(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
+			error(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
+			error(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
+			error(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
+			error(element.children[4].children[1].children[0], ['w-20', 'h-4'], [], '');
 		};
 		const parseUser = async (response) => {
 			const buffer = await response.arrayBuffer();

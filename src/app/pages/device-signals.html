@@ -7,7 +7,7 @@
 		<title>Warden device signals</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadSignals()">
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadSignals()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -108,7 +108,7 @@
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 						<h2 class="m-0 text-base font-normal">Rssi</h2>
-						<p id="rssi-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<p id="rssi-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
 						<div id="rssi-scale" class="flex flex-col text-xs text-end">
@@ -164,7 +164,7 @@
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 						<h2 class="m-0 text-base font-normal">Snr</h2>
-						<p id="snr-range" class="m-0 w-28 h-4.5 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<p id="snr-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
 						<div id="snr-scale" class="flex flex-col text-xs text-end">
@@ -317,7 +317,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
-			loading(element.range, ['w-28', 'h-4.5'], []);
+			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});
@@ -346,7 +346,7 @@
 				});
 			}
 			if (rssi.min.abs !== null && rssi.max.abs !== null) {
-				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range, [], ['w-28', 'h-4']);
 				paint(element.range.children[0], [], [], rssi.min.abs.toFixed(0));
 				fade(element.range.children[0]);
 				colorRssi(element.range.children[0], rssi.min.abs);
@@ -397,7 +397,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
-			error(element.range, ['w-28', 'h-4.5'], []);
+			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
 			});
@@ -437,7 +437,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8'], [], '');
 			});
-			loading(element.range, ['w-28', 'h-4.5'], []);
+			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});
@@ -466,7 +466,7 @@
 				});
 			}
 			if (snr.min.abs !== null && snr.max.abs !== null) {
-				paint(element.range, [], ['w-28', 'h-4.5']);
+				paint(element.range, [], ['w-28', 'h-4']);
 				paint(element.range.children[0], [], [], snr.min.abs.toFixed(2));
 				fade(element.range.children[0]);
 				colorSnr(element.range.children[0], snr.min.abs);
@@ -517,7 +517,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8'], [], '');
 			});
-			error(element.range, ['w-28', 'h-4.5'], []);
+			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});

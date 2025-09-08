@@ -7,7 +7,7 @@
 		<title>Warden users</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-black dark:text-white background-white dark:background-black" onload="loadUsers()">
+	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadUsers()">
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -68,11 +68,11 @@
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
 				element.children[ind].onclick = null;
-				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
-				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4.5'], [], '');
-				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4.5'], [], '');
-				loading(element.children[ind].children[4].children[0], ['w-20', 'h-4.5'], [], '');
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-20', 'h-4'], [], '');
 			});
 		};
 		const paintUsers = (element, data) => {
@@ -81,11 +81,11 @@
 				if (data[ind]) {
 					element.children[ind].classList.add('cursor-pointer');
 					element.children[ind].onclick = () => (window.location.href = `/user/${data[ind].id}`);
-					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4.5'], data[ind].id.substring(0, 4));
-					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4.5'], data[ind].username);
-					paint(element.children[ind].children[2].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].signupAt));
-					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4.5'], timestamp(data[ind].signinAt));
-					paint(element.children[ind].children[4].children[0], [], ['w-20', 'h-4.5'], data[ind].permissions);
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].username);
+					paint(element.children[ind].children[2].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].signupAt));
+					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].signinAt));
+					paint(element.children[ind].children[4].children[0], [], ['w-20', 'h-4'], data[ind].permissions);
 				}
 			});
 		};
@@ -93,11 +93,11 @@
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
 				element.children[ind].onclick = null;
-				error(element.children[ind].children[0].children[0], ['w-10', 'h-4.5'], [], '');
-				error(element.children[ind].children[1].children[0], ['w-32', 'h-4.5'], [], '');
-				error(element.children[ind].children[2].children[0], ['w-40', 'h-4.5'], [], '');
-				error(element.children[ind].children[3].children[0], ['w-40', 'h-4.5'], [], '');
-				error(element.children[ind].children[4].children[0], ['w-20', 'h-4.5'], [], '');
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-20', 'h-4'], [], '');
 			});
 		};
 		const parseUsers = async (response) => {
