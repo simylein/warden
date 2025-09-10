@@ -14,7 +14,7 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
-const char *bwt_key = "l2u2n5a4";
+const char *bwt_key = "w77a61r72d64e65n6e";
 uint32_t bwt_ttl = 2764800;
 
 const char *database_file = "warden.sqlite";
