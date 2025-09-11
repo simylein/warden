@@ -1,5 +1,7 @@
 #pragma once
 
+void logger_init(void);
+
 void req(const char *message, ...) __attribute__((format(printf, 1, 2)));
 void res(const char *message, ...) __attribute__((format(printf, 1, 2)));
 

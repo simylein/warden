@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 static const char *purple = "\x1b[35m";
 static const char *blue = "\x1b[34m";
@@ -13,6 +14,20 @@ static const char *red = "\x1b[31m";
 static const char *bold = "\x1b[1m";
 static const char *normal = "\x1b[22m";
 static const char *reset = "\x1b[39m";
+
+void logger_init(void) {
+	if (isatty(fileno(stdout)) == 0 || isatty(fileno(stderr)) == 0) {
+		purple = "";
+		blue = "";
+		cyan = "";
+		green = "";
+		yellow = "";
+		red = "";
+		bold = "";
+		normal = "";
+		reset = "";
+	}
+}
 
 void timestamp(char (*buffer)[9]) {
 	time_t now = time(NULL);

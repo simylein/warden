@@ -59,6 +59,8 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, &stop);
 	signal(SIGTERM, &stop);
 
+	logger_init();
+
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
 		info("available command line flags\n");
 		info("--name              -n   name of application              (%s)\n", name);
