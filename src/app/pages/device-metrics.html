@@ -241,7 +241,7 @@
 		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
 		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
 		const ranges = document.getElementById('ranges');
-		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
 			scale: document.getElementById('photovoltaic-scale'),
@@ -254,6 +254,7 @@
 			graph: document.getElementById('battery-graph'),
 			label: document.getElementById('battery-label'),
 		};
+		metrics.width = breakpoint(photovoltaic.graph.clientWidth);
 		const photovoltaicSkeleton = [
 			87, 94, 79, 84, 64, 49, 60, 43, 42, 30, 42, 38, 25, 41, 53, 61, 41, 45, 58, 46, 49, 37, 35, 47, 31, 44, 31, 12, 17, 13, 0, 19, 25, 39, 59, 65, 70, 87, 73,
 			58, 66, 52, 64, 75, 59, 66, 81, 100, 91, 85, 89, 100, 93, 84, 75, 58, 40, 58, 71, 84, 72, 53, 39, 38, 20, 31, 16, 19, 32, 42, 46, 55, 72, 60, 56, 39, 46,
@@ -265,7 +266,7 @@
 			69, 60, 40, 37, 55, 37, 32, 46, 43, 40, 28, 41, 25, 7, 11, 14, 28, 33, 22, 20, 11, 24, 13,
 		];
 		window.addEventListener('resize', () => {
-			const width = breakpoint();
+			const width = breakpoint(photovoltaic.graph.clientWidth);
 			if (width !== metrics.width) {
 				metrics.width = width;
 				const summary = calculateMetrics(metrics.data, metrics.width);

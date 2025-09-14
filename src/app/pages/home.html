@@ -665,8 +665,8 @@
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
 		const ranges = document.getElementById('ranges');
-		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
-		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
@@ -695,7 +695,8 @@
 			graph: document.getElementById('battery-graph'),
 			label: document.getElementById('battery-label'),
 		};
-
+		readings.width = breakpoint(temperature.graph.clientWidth);
+		metrics.width = breakpoint(photovoltaic.graph.clientWidth);
 		const temperatureSkeleton = [
 			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
 			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
@@ -717,16 +718,17 @@
 			69, 60, 40, 37, 55, 37, 32, 46, 43, 40, 28, 41, 25, 7, 11, 14, 28, 33, 22, 20, 11, 24, 13,
 		];
 		window.addEventListener('resize', () => {
-			const width = breakpoint();
-			if (width !== readings.width) {
-				readings.width = width;
+			const temperatureWidth = breakpoint(temperature.graph.clientWidth);
+			if (temperatureWidth !== readings.width) {
+				readings.width = temperatureWidth;
 				const summary = calculateReadings(readings.data, readings.width);
 				window.requestAnimationFrame(() => paintTemperature(temperature, readings.width, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, readings.width, summary.humidity, summary.capturedAt));
 			}
-			if (width !== readings.width) {
-				readings.width = width;
-				const summary = calculateReadings(metrics.data, metrics.width);
+			const photovoltaicWidth = breakpoint(photovoltaic.graph.clientWidth);
+			if (photovoltaicWidth !== metrics.width) {
+				metrics.width = photovoltaicWidth;
+				const summary = calculateMetrics(metrics.data, metrics.width);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, metrics.width, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, metrics.width, summary.battery, summary.capturedAt));
 			}

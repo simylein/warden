@@ -240,7 +240,7 @@
 		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
 		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
 		const ranges = document.getElementById('ranges');
-		const signals = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: breakpoint() };
+		const signals = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const rssi = {
 			range: document.getElementById('rssi-range'),
 			scale: document.getElementById('rssi-scale'),
@@ -253,6 +253,7 @@
 			graph: document.getElementById('snr-graph'),
 			label: document.getElementById('snr-label'),
 		};
+		signals.width = breakpoint(rssi.graph.clientWidth);
 		const rssiSkeleton = [
 			52, 41, 36, 35, 32, 32, 38, 34, 50, 37, 46, 30, 47, 34, 31, 33, 47, 30, 47, 41, 57, 65, 61, 71, 70, 52, 44, 53, 56, 55, 46, 41, 44, 32, 41, 47, 35, 39,
 			43, 41, 35, 46, 62, 51, 57, 44, 61, 61, 66, 84, 78, 64, 48, 44, 44, 31, 33, 39, 45, 44, 55, 60, 52, 57, 61, 56, 55, 41, 33, 49, 46, 38, 49, 55, 54, 71,
@@ -264,7 +265,7 @@
 			68, 53, 50, 66, 71, 55, 51, 57, 40, 49, 66, 58, 78, 85, 73, 75, 66, 63, 72, 80, 88, 74, 64, 48, 54,
 		];
 		window.addEventListener('resize', () => {
-			const width = breakpoint();
+			const width = breakpoint(rssi.graph.clientWidth);
 			if (width !== signals.width) {
 				signals.width = width;
 				const summary = calculateSignals(signals.data, signals.width);
