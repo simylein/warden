@@ -78,6 +78,20 @@ int assemble(file_t *asset) {
 
 			close(component.fd);
 			free(component.ptr);
+		} else if (!tag && !quote && *byte == '{' && asset_ind + 9 < asset->len && memcmp(byte + 1, "version}", 8) == 0) {
+			byte += 8;
+			asset_ind += 8;
+
+			size_t version_len = strlen(version);
+			memcpy(&assemble_ptr[assemble_ind], version, version_len);
+			assemble_ind += version_len;
+		} else if (!tag && !quote && *byte == '{' && asset_ind + 8 < asset->len && memcmp(byte + 1, "commit}", 7) == 0) {
+			byte += 7;
+			asset_ind += 7;
+
+			size_t commit_len = strlen(commit);
+			memcpy(&assemble_ptr[assemble_ind], commit, commit_len);
+			assemble_ind += commit_len;
 		} else {
 			if (assemble_ind >= assemble_len) {
 				assemble_len += 4096;
