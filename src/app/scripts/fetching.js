@@ -22,7 +22,7 @@ const fetching = (context, loading, fetch, parse, paint, error) => {
 		} catch (err) {
 			if (err?.name !== 'AbortError') {
 				error(context);
-				if (context.retries < 4) {
+				if (context.retries < 8) {
 					context.timeout = setTimeout(() => {
 						context.retries++;
 						load();
