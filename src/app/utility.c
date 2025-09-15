@@ -415,6 +415,10 @@ void flex(class_t *pfx, class_t *cls, char (*buffer)[8192], uint16_t *buffer_len
 			{.key = "items-center", .key_len = 12, .val = "align-items:center", .val_len = 18},
 			{.key = "items-baseline", .key_len = 14, .val = "align-items:baseline", .val_len = 20},
 			{.key = "items-stretch", .key_len = 13, .val = "align-items:stretch", .val_len = 19},
+			{.key = "grow", .key_len = 4, .val = "flex-grow:1", .val_len = 11},
+			{.key = "grow-0", .key_len = 6, .val = "flex-grow:0", .val_len = 11},
+			{.key = "shrink", .key_len = 6, .val = "flex-shrink:1", .val_len = 13},
+			{.key = "shrink-0", .key_len = 8, .val = "flex-shrink:0", .val_len = 13},
 	};
 
 	for (uint8_t index = 0; index < sizeof(flexes) / sizeof(keymap_t); index++) {
