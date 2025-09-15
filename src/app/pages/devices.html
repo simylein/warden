@@ -7,7 +7,10 @@
 		<title>Warden devices</title>
 		<style></style>
 	</head>
-	<body class="font-sans m-0 text-base leading-none text-black dark:text-white background-white dark:background-black" onload="loadDevices()">
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadDevices()"
+	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -19,7 +22,7 @@
 				<a href="/users" class="no-underline text-black dark:text-white">Users</a>
 			</nav>
 		</header>
-		<main class="m-4 sm:m-6 lg:m-8">
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
 					<thead>
