@@ -387,6 +387,102 @@ cleanup:
 	return status;
 }
 
+uint16_t user_delete(sqlite3 *database, user_t *user) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "delete from user "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
+void user_find(sqlite3 *database, request_t *request, response_t *response) {
+	user_query_t query = {.limit = 16, .offset = 0};
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t users_len = 0;
+	uint16_t status = user_select(database, &query, response, &users_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%u\r\n", response->body.len);
+	info("found %hhu users\n", users_len);
+	response->status = 200;
+}
+
+void user_find_one(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = find_param(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	status = user_select_one(database, &user, response);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	append_header(response, "content-type:application/octet-stream\r\n");
+	append_header(response, "content-length:%u\r\n", response->body.len);
+	info("found user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
+	response->status = 200;
+}
+
 void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
@@ -451,27 +547,7 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 	response->status = 201;
 }
 
-void user_find(sqlite3 *database, request_t *request, response_t *response) {
-	user_query_t query = {.limit = 16, .offset = 0};
-	if (request->search.len != 0) {
-		response->status = 400;
-		return;
-	}
-
-	uint8_t users_len = 0;
-	uint16_t status = user_select(database, &query, response, &users_len);
-	if (status != 0) {
-		response->status = status;
-		return;
-	}
-
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
-	info("found %hhu users\n", users_len);
-	response->status = 200;
-}
-
-void user_find_one(sqlite3 *database, request_t *request, response_t *response) {
+void user_remove(sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -493,20 +569,12 @@ void user_find_one(sqlite3 *database, request_t *request, response_t *response) 
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_delete(database, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
 	}
 
-	status = user_select_one(database, &user, response);
-	if (status != 0) {
-		response->status = status;
-		return;
-	}
-
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
-	info("found user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
+	info("deleted user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
 	response->status = 200;
 }
