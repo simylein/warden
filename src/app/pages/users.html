@@ -11,6 +11,7 @@
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
 		onload="loadUsers()"
 	>
+		<notifications ref="./src/app/components/notifications.html" />
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -34,6 +35,7 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Signup at</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Signin at</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Permissions</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
 					<tbody id="users">
@@ -56,6 +58,28 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Delete user?</h1>
+					<p class="m-0 text-base font-normal">Deleting this user will remove access and all affected user devices.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -74,41 +98,67 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
 		const users = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('users') };
 		const loadingUsers = (element) => {
 			array(element.children.length).forEach((ind) => {
-				element.children[ind].classList.remove('cursor-pointer');
-				element.children[ind].onclick = null;
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				element.children[ind].children[0].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				element.children[ind].children[1].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[2].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[3].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[4].children[0], ['w-20', 'h-4'], [], '');
+				element.children[ind].children[4].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
 			});
 		};
 		const paintUsers = (element, data) => {
 			resize(element, data.length > 0 ? data.length : 1);
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
-					element.children[ind].classList.add('cursor-pointer');
-					element.children[ind].onclick = () => (window.location.href = `/user/${data[ind].id}`);
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
+					element.children[ind].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[0].onclick = () => (window.location.href = `/user/${data[ind].id}`);
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].username);
+					element.children[ind].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[1].onclick = () => (window.location.href = `/user/${data[ind].id}`);
 					paint(element.children[ind].children[2].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].signupAt));
+					element.children[ind].children[2].classList.add('cursor-pointer');
+					element.children[ind].children[2].onclick = () => (window.location.href = `/user/${data[ind].id}`);
 					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].signinAt));
+					element.children[ind].children[3].classList.add('cursor-pointer');
+					element.children[ind].children[3].onclick = () => (window.location.href = `/user/${data[ind].id}`);
 					paint(element.children[ind].children[4].children[0], [], ['w-20', 'h-4'], data[ind].permissions);
+					element.children[ind].children[4].classList.add('cursor-pointer');
+					element.children[ind].children[4].onclick = () => (window.location.href = `/user/${data[ind].id}`);
+					element.children[ind].children[5].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[5].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[5].children[0].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
 		const errorUsers = (element) => {
 			array(element.children.length).forEach((ind) => {
-				element.children[ind].classList.remove('cursor-pointer');
-				element.children[ind].onclick = null;
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				element.children[ind].children[0].classList.remove('cursor-pointer');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
+				element.children[ind].children[1].classList.remove('cursor-pointer');
 				error(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[2].classList.remove('cursor-pointer');
 				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[3].classList.remove('cursor-pointer');
 				error(element.children[ind].children[4].children[0], ['w-20', 'h-4'], [], '');
+				element.children[ind].children[4].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
 			});
 		};
 		const parseUsers = async (response) => {
@@ -133,6 +183,38 @@
 			async (context, response) => (context.data = await parseUsers(response)),
 			(context) => window.requestAnimationFrame(() => paintUsers(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorUsers(context.element))
+		);
+		const deleteDialog = document.getElementById('delete-dialog');
+		const openDeleteDialog = (user) => {
+			deleteForm.setValue('userId', user.id);
+			deleteForm.setTouched('userId', true);
+			deleteDialog.showModal();
+		};
+		const closeDeleteDialog = () => {
+			deleteForm.reset();
+			deleteDialog.close();
+		};
+		const deleteForm = formik(
+			{
+				button: document.getElementById('delete-button'),
+			},
+			{
+				userId: (value) => {
+					if (!value) return 'user id is required';
+					if (value.length !== 32) return 'user id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'user id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				try {
+					await fetcher('delete', `/api/user/${values.userId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully deleted user');
+					loadUsers(true);
+				} catch (err) {
+					report(err);
+				}
+				closeDeleteDialog();
+			}
 		);
 	</script>
 </html>
