@@ -78,7 +78,7 @@ uint16_t user_device_delete(sqlite3 *database, user_device_t *user_device) {
 	}
 
 	if (sqlite3_changes(database) == 0) {
-		error("user device %02x%02x not found\n", (*user_device->device_id)[0], (*user_device->device_id)[1]);
+		warn("user device %02x%02x not found\n", (*user_device->device_id)[0], (*user_device->device_id)[1]);
 		status = 404;
 		goto cleanup;
 	}
