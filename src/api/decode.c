@@ -5,6 +5,16 @@
 #include <stdint.h>
 #include <time.h>
 
+int decode_kind_00(uint8_t data_len, time_t received_at) {
+	if (data_len != 0) {
+		error("uplink data len must be 0 bytes\n");
+		return -1;
+	}
+
+	trace("heartbeat received_at %lu\n", received_at);
+	return 0;
+}
+
 int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading) {
 	if (data_len != 4) {
 		error("uplink data len must be 4 bytes\n");
@@ -72,6 +82,13 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 int decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x\n", uplink->kind);
 	switch (uplink->kind) {
+	case 0x00: {
+		if (decode_kind_00(uplink->data_len, uplink->received_at)) {
+			error("failed to decode uplink kind %02x\n", uplink->kind);
+			return -1;
+		}
+		return 0;
+	}
 	case 0x01: {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
