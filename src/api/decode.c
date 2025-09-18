@@ -1,4 +1,5 @@
 #include "../lib/logger.h"
+#include "buffer.h"
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
@@ -77,7 +78,7 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	return 0;
 }
 
-int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading) {
+int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, buffer_t *buffer) {
 	if (data_len != 9) {
 		error("uplink data len must be 9 bytes\n");
 		return -1;
@@ -89,14 +90,18 @@ int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
-	uint32_t delta = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint16_t)data[6];
-	reading->captured_at = received_at - delta;
+	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint16_t)data[6];
+	buffer->level = (uint16_t)(data[7] << 8) | (uint16_t)data[8];
+
+	reading->captured_at = received_at - buffer->delay;
+	buffer->captured_at = received_at;
 
 	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
-int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t *metric) {
+int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t *metric, buffer_t *buffer) {
 	if (data_len != 8) {
 		error("uplink data len must be 8 bytes\n");
 		return -1;
@@ -108,14 +113,19 @@ int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 	uint16_t battery_raw = (uint16_t)((data[1] & 0x0f) << 8) | (uint16_t)data[2];
 	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
 
-	uint32_t delta = (uint32_t)(data[3] << 16) | (uint32_t)(data[4] << 8) | (uint16_t)data[5];
-	metric->captured_at = received_at - delta;
+	buffer->delay = (uint32_t)(data[3] << 16) | (uint32_t)(data[4] << 8) | (uint16_t)data[5];
+	buffer->level = (uint16_t)(data[6] << 8) | (uint16_t)data[7];
+
+	metric->captured_at = received_at - buffer->delay;
+	buffer->captured_at = received_at;
 
 	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
-int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, metric_t *metric) {
+int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, metric_t *metric,
+									 buffer_t *buffer) {
 	if (data_len != 12) {
 		error("uplink data len must be 12 bytes\n");
 		return -1;
@@ -133,12 +143,16 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	uint16_t battery_raw = (uint16_t)((data[5] & 0x0f) << 8) | (uint16_t)data[6];
 	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
 
-	uint32_t delta = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint16_t)data[9];
-	reading->captured_at = received_at - delta;
-	metric->captured_at = received_at - delta;
+	buffer->delay = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint16_t)data[9];
+	buffer->level = (uint16_t)(data[10] << 8) | (uint16_t)data[11];
+
+	reading->captured_at = received_at - buffer->delay;
+	metric->captured_at = received_at - buffer->delay;
+	buffer->captured_at = received_at;
 
 	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
 	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -146,7 +160,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x\n", uplink->kind);
 	switch (uplink->kind) {
 	case 0x00: {
-		if (decode_kind_00(uplink->data_len, uplink->received_at)) {
+		if (decode_kind_00(uplink->data_len, uplink->received_at) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -155,7 +169,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	case 0x01: {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading)) {
+		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -167,7 +181,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	case 0x02: {
 		uint8_t id[16];
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric)) {
+		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -180,7 +194,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_03(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric)) {
+		if (decode_kind_03(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -195,7 +209,8 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	case 0x81: {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_81(uplink->data, uplink->data_len, uplink->received_at, &reading)) {
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_81(uplink->data, uplink->data_len, uplink->received_at, &reading, &buffer) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -207,7 +222,8 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 	case 0x82: {
 		uint8_t id[16];
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_82(uplink->data, uplink->data_len, uplink->received_at, &metric)) {
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_82(uplink->data, uplink->data_len, uplink->received_at, &metric, &buffer) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
@@ -220,7 +236,8 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		if (decode_kind_83(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric)) {
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_83(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric, &buffer) == -1) {
 			error("failed to decode uplink kind %02x\n", uplink->kind);
 			return -1;
 		}
