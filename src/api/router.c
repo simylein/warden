@@ -4,6 +4,7 @@
 #include "../lib/endian.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "buffer.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -296,6 +297,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			metric_find_by_device(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/buffers", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			buffer_find_by_device(database, &bwt, request, response);
 		}
 	}
 
