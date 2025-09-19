@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -14,3 +15,5 @@ typedef struct buffer_t {
 
 extern const char *buffer_table;
 extern const char *buffer_schema;
+
+uint16_t buffer_insert(sqlite3 *database, buffer_t *buffer);

@@ -1,4 +1,5 @@
 #include "../lib/logger.h"
+#include "buffer.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -7,6 +8,7 @@
 #include "user-device.h"
 #include "user.h"
 #include <sqlite3.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -348,6 +350,57 @@ int seed_metric(sqlite3 *database) {
 	return 0;
 }
 
+int seed_buffer(sqlite3 *database) {
+	uint32_t uplink_ind = 0;
+
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint32_t delay = 0;
+		uint16_t level = 0;
+		time_t startup_at = time(NULL) - 24 * 60 * 60;
+		time_t captured_at = time(NULL);
+		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+			uint8_t id[16];
+			buffer_t buffer = {
+					.id = &id,
+					.delay = delay,
+					.level = level,
+					.captured_at = captured_at,
+					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
+					.uplink_id = (uint8_t (*)[16])(&uplink_ids[uplink_ind * sizeof(*((uplink_t *)0)->id)]),
+			};
+
+			if (buffer_insert(database, &buffer) != 0) {
+				return -1;
+			}
+			bool increase = rand() % 4 == 0;
+			bool decrease = rand() % 64 == 0;
+			if (decrease) {
+				uint32_t delay_sub = (uint32_t)(rand() % 3600);
+				if (delay_sub < delay) {
+					delay -= delay_sub;
+				} else {
+					delay = 0;
+				}
+				uint16_t level_sub = (uint16_t)(rand() % 60);
+				if (level_sub < level) {
+					level -= level;
+				} else {
+					level = 0;
+				}
+			}
+			if (increase) {
+				delay += (uint32_t)(rand() % 120);
+				level += (uint16_t)(rand() % 2);
+			}
+			captured_at -= 280 + rand() % 40;
+			uplink_ind += 1;
+		}
+	}
+
+	info("seeded table metric\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -370,6 +423,10 @@ int seed(sqlite3 *database) {
 		return -1;
 	}
 	if (seed_metric(database) == -1) {
+		return -1;
+	}
+
+	if (seed_buffer(database) == -1) {
 		return -1;
 	}
 
