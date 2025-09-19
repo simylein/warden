@@ -1,4 +1,5 @@
 #include "../lib/logger.h"
+#include "buffer.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -61,6 +62,10 @@ int init(sqlite3 *database) {
 	}
 
 	if (init_table(database, metric_table, metric_schema) == -1) {
+		return -1;
+	}
+
+	if (init_table(database, buffer_table, buffer_schema) == -1) {
 		return -1;
 	}
 

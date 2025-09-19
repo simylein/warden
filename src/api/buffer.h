@@ -11,3 +11,6 @@ typedef struct buffer_t {
 	uint8_t (*uplink_id)[16];
 	uint8_t (*device_id)[16];
 } buffer_t;
+
+extern const char *buffer_table;
+extern const char *buffer_schema;
