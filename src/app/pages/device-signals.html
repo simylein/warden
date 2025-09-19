@@ -241,6 +241,7 @@
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-signal.js';
+		import './src/app/scripts/index-signal.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -309,22 +310,6 @@
 			});
 		};
 		highlightRange(getRange());
-		const indexRssi = (value) => {
-			switch (true) {
-				case value < -125:
-					return 1;
-				case value >= -125 && value < -115:
-					return 2;
-				case value >= -115 && value < -100:
-					return 3;
-				case value >= -100 && value < -80:
-					return 4;
-				case value >= -80 && value < -60:
-					return 5;
-				case value >= -60:
-					return 6;
-			}
-		};
 		const loadingRssi = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
@@ -428,22 +413,6 @@
 					element.graph.children[ind].removeAttribute('d');
 				}
 			});
-		};
-		const indexSnr = (value) => {
-			switch (true) {
-				case value < -15:
-					return 1;
-				case value >= -15 && value < -10:
-					return 2;
-				case value >= -10 && value < -5:
-					return 3;
-				case value >= -5 && value < 0:
-					return 4;
-				case value >= 0 && value < 5:
-					return 5;
-				case value >= 5:
-					return 6;
-			}
 		};
 		const loadingSnr = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
