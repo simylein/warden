@@ -78,6 +78,21 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	return 0;
 }
 
+int decode_kind_80(uint8_t *data, uint8_t data_len, time_t received_at, buffer_t *buffer) {
+	if (data_len != 5) {
+		error("uplink data len must be 5 bytes\n");
+		return -1;
+	}
+
+	buffer->delay = (uint32_t)(data[0] << 16) | (uint32_t)(data[1] << 8) | (uint16_t)data[2];
+	buffer->level = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
+
+	buffer->captured_at = received_at;
+
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	return 0;
+}
+
 int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, buffer_t *buffer) {
 	if (data_len != 9) {
 		error("uplink data len must be 9 bytes\n");
@@ -202,6 +217,18 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
+			return -1;
+		}
+		return 0;
+	}
+	case 0x80: {
+		uint8_t id[16];
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_80(uplink->data, uplink->data_len, uplink->received_at, &buffer) == -1) {
+			error("failed to decode uplink kind %02x\n", uplink->kind);
+			return -1;
+		}
+		if (buffer_insert(database, &buffer) != 0) {
 			return -1;
 		}
 		return 0;
