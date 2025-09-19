@@ -30,6 +30,7 @@
 				<a class="no-underline text-black dark:text-white">Details</a>
 				<a class="no-underline text-black dark:text-white">Readings</a>
 				<a class="no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Buffers</a>
 				<a class="no-underline text-black dark:text-white">Signals</a>
 				<a class="no-underline text-blue-600 dark:text-blue-400">Uplinks</a>
 				<a class="no-underline text-black dark:text-white">Downlinks</a>
@@ -95,9 +96,10 @@
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
 		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
-		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/signals`;
-		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
-		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
+		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/buffers`;
+		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/signals`;
+		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
+		tabs.children[6].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
 		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
