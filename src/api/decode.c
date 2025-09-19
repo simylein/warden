@@ -217,6 +217,9 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		if (reading_insert(database, &reading) != 0) {
 			return -1;
 		}
+		if (buffer_insert(database, &buffer) != 0) {
+			return -1;
+		}
 		return 0;
 	}
 	case 0x82: {
@@ -228,6 +231,9 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
+			return -1;
+		}
+		if (buffer_insert(database, &buffer) != 0) {
 			return -1;
 		}
 		return 0;
@@ -245,6 +251,9 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
+			return -1;
+		}
+		if (buffer_insert(database, &buffer) != 0) {
 			return -1;
 		}
 		return 0;
