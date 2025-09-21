@@ -161,20 +161,13 @@
 			const binary = new Binary(buffer);
 			const devices = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, uplink: null, reading: null, metric: null };
+				const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, reading: null, metric: null, buffer: null, uplink: null };
 				device.id = binary.uuid();
 				device.name = binary.string();
 				device.type = binary.string();
 				device.createdAt = binary.uint(64);
 				if (binary.byte() !== 0) {
 					device.updatedAt = binary.uint(64);
-				}
-				if (binary.byte() !== 0) {
-					device.uplink = {};
-					device.uplink.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
-					device.uplink.receivedAt = binary.uint(64);
 				}
 				if (binary.byte() !== 0) {
 					device.reading = {};
@@ -201,6 +194,26 @@
 				}
 				if (binary.byte() !== 0) {
 					device.metric.capturedAt = binary.uint(64);
+				}
+				if (binary.byte() !== 0) {
+					device.buffer = {};
+					device.buffer.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					device.buffer.delay = binary.uint(32);
+				}
+				if (binary.byte() !== 0) {
+					device.buffer.level = binary.uint(16);
+				}
+				if (binary.byte() !== 0) {
+					device.buffer.capturedAt = binary.uint(64);
+				}
+				if (binary.byte() !== 0) {
+					device.uplink = {};
+					device.uplink.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					device.uplink.receivedAt = binary.uint(64);
 				}
 				devices.push(device);
 			}
