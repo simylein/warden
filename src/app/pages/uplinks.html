@@ -74,6 +74,7 @@
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-signal.js';
 		import './src/app/scripts/color-sf.js';
 		import './src/app/scripts/binary.js';
@@ -88,6 +89,7 @@
 				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
 				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4'], [], '');
@@ -108,8 +110,10 @@
 					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4'], data[ind].kind.toString(16).padStart(2, '0'));
 					if (data[ind].data.length !== 0) {
 						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4'], data[ind].data);
+						fade(element.children[ind].children[3].children[0]);
 					} else {
-						loading(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
+						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4'], 'null');
+						colorNull(element.children[ind].children[3].children[0]);
 					}
 					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
 					fade(element.children[ind].children[4].children[0]);
@@ -130,6 +134,7 @@
 				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
 				error(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-9', 'h-4'], [], '');
