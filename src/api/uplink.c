@@ -243,7 +243,7 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, kind, data, rssi, snr, sf, received_at, uplink.device_id from uplink "
+	const char *sql = "select id, kind, data, rssi, snr, sf, received_at from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"where uplink.device_id = ? "
 										"order by received_at desc "
@@ -283,13 +283,6 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			const double snr = sqlite3_column_double(stmt, 4);
 			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 5);
 			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 6);
-			const uint8_t *device_id = sqlite3_column_blob(stmt, 7);
-			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
-			if (device_id_len != sizeof(*((uplink_t *)0)->device_id)) {
-				error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((uplink_t *)0)->device_id));
-				status = 500;
-				goto cleanup;
-			}
 			append_body(response, id, id_len);
 			append_body(response, &kind, sizeof(kind));
 			append_body(response, &data_len, sizeof(uint8_t));
@@ -298,7 +291,6 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
 			append_body(response, &sf, sizeof(sf));
 			append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-			append_body(response, device_id, device_id_len);
 			*uplinks_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;

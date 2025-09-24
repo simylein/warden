@@ -168,7 +168,6 @@
 				uplink.snr = binary.int(8) / 4;
 				uplink.sf = binary.uint(8);
 				uplink.receivedAt = binary.uint(64);
-				uplink.deviceId = binary.uuid();
 				uplinks.push(uplink);
 			}
 			return uplinks;

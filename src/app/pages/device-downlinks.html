@@ -159,7 +159,6 @@
 				downlink.txPower = binary.uint(8);
 				downlink.sf = binary.uint(8);
 				downlink.receivedAt = binary.uint(64);
-				downlink.deviceId = binary.uuid();
 				downlinks.push(downlink);
 			}
 			return downlinks;
