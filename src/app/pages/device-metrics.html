@@ -40,7 +40,7 @@
 					<button
 						value="1209600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(1209600); setRange(1209600); loadMetrics()"
+						onclick="highlightRange(1209600); setRange(1209600); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
@@ -48,7 +48,7 @@
 					<button
 						value="604800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(604800); setRange(604800); loadMetrics()"
+						onclick="highlightRange(604800); setRange(604800); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
@@ -56,7 +56,7 @@
 					<button
 						value="345600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(345600); setRange(345600); loadMetrics()"
+						onclick="highlightRange(345600); setRange(345600); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
@@ -64,7 +64,7 @@
 					<button
 						value="172800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(172800); setRange(172800); loadMetrics()"
+						onclick="highlightRange(172800); setRange(172800); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
@@ -72,7 +72,7 @@
 					<button
 						value="86400"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(86400); setRange(86400); loadMetrics()"
+						onclick="highlightRange(86400); setRange(86400); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
@@ -80,7 +80,7 @@
 					<button
 						value="43200"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(43200); setRange(43200); loadMetrics()"
+						onclick="highlightRange(43200); setRange(43200); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
@@ -88,7 +88,7 @@
 					<button
 						value="21600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(21600); setRange(21600); loadMetrics()"
+						onclick="highlightRange(21600); setRange(21600); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
@@ -96,7 +96,7 @@
 					<button
 						value="10800"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(10800); setRange(10800); loadMetrics()"
+						onclick="highlightRange(10800); setRange(10800); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
@@ -104,7 +104,7 @@
 					<button
 						value="3600"
 						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(3600); setRange(3600); loadMetrics()"
+						onclick="highlightRange(3600); setRange(3600); deviceTabs(); loadMetrics()"
 					>
 						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
 						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
@@ -235,6 +235,7 @@
 	</body>
 	<script>
 		import './src/app/scripts/breakpoint.js';
+		import './src/app/scripts/device-tabs.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
@@ -246,14 +247,6 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
-		const tabs = document.getElementById('tabs');
-		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
-		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
-		tabs.children[2].href = `${window.location.pathname.substring(0, 40)}/metrics`;
-		tabs.children[3].href = `${window.location.pathname.substring(0, 40)}/buffers`;
-		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/signals`;
-		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
-		tabs.children[6].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
 		const ranges = document.getElementById('ranges');
 		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const photovoltaic = {
@@ -296,6 +289,7 @@
 			params.set('range', range);
 			window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
 		};
+		deviceTabs();
 		const highlightRange = (range) => {
 			array(ranges.children.length).forEach((ind) => {
 				if (+ranges.children[ind].getAttribute('value') === range) {
