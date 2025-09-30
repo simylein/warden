@@ -193,3 +193,9 @@ const char *find_header(request_t *request, const char *key) {
 
 	return header;
 }
+
+char *body_read(request_t *request, uint32_t length) {
+	char *ptr = &(request->body.ptr[request->body.pos]);
+	request->body.pos += length;
+	return ptr;
+}

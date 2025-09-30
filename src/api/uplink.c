@@ -361,92 +361,81 @@ cleanup:
 }
 
 int uplink_parse(uplink_t *uplink, request_t *request) {
-	uint16_t index = 0;
+	request->body.pos = 0;
 
-	if (request->body.len < index + sizeof(uplink->kind)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->kind)) {
 		debug("missing kind on uplink\n");
 		return -1;
 	}
-	uplink->kind = (uint8_t)request->body.ptr[index];
-	index += sizeof(uplink->kind);
+	uplink->kind = *(uint8_t *)body_read(request, sizeof(uplink->kind));
 
-	if (request->body.len < index + sizeof(uplink->data_len)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->data_len)) {
 		debug("missing data len on uplink\n");
 		return -1;
 	}
-	uplink->data_len = (uint8_t)request->body.ptr[index];
-	index += sizeof(uplink->data_len);
+	uplink->data_len = *(uint8_t *)body_read(request, sizeof(uplink->data_len));
 
-	if (request->body.len < index + uplink->data_len) {
+	if (request->body.len < request->body.pos + uplink->data_len) {
 		debug("missing data on uplink\n");
 		return -1;
 	}
-	uplink->data = (uint8_t *)&request->body.ptr[index];
-	index += uplink->data_len;
+	uplink->data = (uint8_t *)body_read(request, uplink->data_len);
 
-	if (request->body.len < index + sizeof(uplink->airtime)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->airtime)) {
 		debug("missing airtime on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->airtime, &request->body.ptr[index], sizeof(uplink->airtime));
+	memcpy(&uplink->airtime, body_read(request, sizeof(uplink->airtime)), sizeof(uplink->airtime));
 	uplink->airtime = ntoh16(uplink->airtime);
-	index += sizeof(uplink->airtime);
 
-	if (request->body.len < index + sizeof(uplink->frequency)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->frequency)) {
 		debug("missing frequency on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->frequency, &request->body.ptr[index], sizeof(uplink->frequency));
+	memcpy(&uplink->frequency, body_read(request, sizeof(uplink->frequency)), sizeof(uplink->frequency));
 	uplink->frequency = ntoh32(uplink->frequency);
-	index += sizeof(uplink->frequency);
 
-	if (request->body.len < index + sizeof(uplink->bandwidth)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->bandwidth)) {
 		debug("missing bandwidth on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->bandwidth, &request->body.ptr[index], sizeof(uplink->bandwidth));
+	memcpy(&uplink->bandwidth, body_read(request, sizeof(uplink->bandwidth)), sizeof(uplink->bandwidth));
 	uplink->bandwidth = ntoh32(uplink->bandwidth);
-	index += sizeof(uplink->bandwidth);
 
-	if (request->body.len < index + sizeof(uplink->rssi)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->rssi)) {
 		debug("missing rssi on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->rssi, &request->body.ptr[index], sizeof(uplink->rssi));
+	memcpy(&uplink->rssi, body_read(request, sizeof(uplink->rssi)), sizeof(uplink->rssi));
 	uplink->rssi = (int16_t)ntoh16((uint16_t)uplink->rssi);
-	index += sizeof(uplink->rssi);
 
-	if (request->body.len < index + sizeof(uplink->snr)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->snr)) {
 		debug("missing snr on uplink\n");
 		return -1;
 	}
-	uplink->snr = (int8_t)request->body.ptr[index];
-	index += sizeof(uplink->snr);
+	uplink->snr = *(int8_t *)body_read(request, sizeof(uplink->snr));
 
-	if (request->body.len < index + sizeof(uplink->sf)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->sf)) {
 		debug("missing sf on uplink\n");
 		return -1;
 	}
-	uplink->sf = (uint8_t)request->body.ptr[index];
-	index += sizeof(uplink->sf);
+	uplink->sf = *(uint8_t *)body_read(request, sizeof(uplink->sf));
 
-	if (request->body.len < index + sizeof(uplink->received_at)) {
+	if (request->body.len < request->body.pos + sizeof(uplink->received_at)) {
 		debug("missing received at on uplink\n");
 		return -1;
 	}
-	memcpy(&uplink->received_at, &request->body.ptr[index], sizeof(uplink->received_at));
+	memcpy(&uplink->received_at, body_read(request, sizeof(uplink->received_at)), sizeof(uplink->received_at));
 	uplink->received_at = (time_t)ntoh64((uint64_t)uplink->received_at);
-	index += sizeof(uplink->received_at);
 
-	if (request->body.len < index + sizeof(*uplink->device_id)) {
+	if (request->body.len < request->body.pos + sizeof(*uplink->device_id)) {
 		debug("missing device id on uplink\n");
 		return -1;
 	}
-	uplink->device_id = (uint8_t (*)[16])(&request->body.ptr[index]);
-	index += sizeof(*uplink->device_id);
+	uplink->device_id = (uint8_t (*)[16])body_read(request, sizeof(*uplink->device_id));
 
-	if (request->body.len != index) {
-		debug("body len %u does not match index %hu\n", request->body.len, index);
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
 		return -1;
 	}
 

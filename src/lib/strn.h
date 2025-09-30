@@ -7,18 +7,21 @@ typedef struct strn8_t {
 	char *ptr;
 	uint8_t len;
 	uint8_t cap;
+	uint8_t pos;
 } strn8_t;
 
 typedef struct strn16_t {
 	char *ptr;
 	uint16_t len;
 	uint16_t cap;
+	uint16_t pos;
 } strn16_t;
 
 typedef struct strn32_t {
 	char *ptr;
 	uint32_t len;
 	uint32_t cap;
+	uint32_t pos;
 } strn32_t;
 
 int strnfind(const char *buffer, const size_t buffer_len, const char *prefix, const char *suffix, const char **string,

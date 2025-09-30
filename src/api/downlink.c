@@ -298,84 +298,74 @@ cleanup:
 }
 
 int downlink_parse(downlink_t *downlink, request_t *request) {
-	uint16_t index = 0;
+	request->body.pos = 0;
 
-	if (request->body.len < index + sizeof(downlink->kind)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->kind)) {
 		debug("missing kind on downlink\n");
 		return -1;
 	}
-	downlink->kind = (uint8_t)request->body.ptr[index];
-	index += sizeof(downlink->kind);
+	downlink->kind = *(uint8_t *)body_read(request, sizeof(downlink->kind));
 
-	if (request->body.len < index + sizeof(downlink->data_len)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->data_len)) {
 		debug("missing data len on downlink\n");
 		return -1;
 	}
-	downlink->data_len = (uint8_t)request->body.ptr[index];
-	index += sizeof(downlink->data_len);
+	downlink->data_len = *(uint8_t *)body_read(request, sizeof(downlink->data_len));
 
-	if (request->body.len < index + downlink->data_len) {
+	if (request->body.len < request->body.pos + downlink->data_len) {
 		debug("missing data on downlink\n");
 		return -1;
 	}
-	downlink->data = (uint8_t *)&request->body.ptr[index];
-	index += downlink->data_len;
+	downlink->data = (uint8_t *)body_read(request, downlink->data_len);
 
-	if (request->body.len < index + sizeof(downlink->airtime)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->airtime)) {
 		debug("missing airtime on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->airtime, &request->body.ptr[index], sizeof(downlink->airtime));
+	memcpy(&downlink->airtime, body_read(request, sizeof(downlink->airtime)), sizeof(downlink->airtime));
 	downlink->airtime = ntoh16(downlink->airtime);
-	index += sizeof(downlink->airtime);
 
-	if (request->body.len < index + sizeof(downlink->frequency)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->frequency)) {
 		debug("missing frequency on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->frequency, &request->body.ptr[index], sizeof(downlink->frequency));
+	memcpy(&downlink->frequency, body_read(request, sizeof(downlink->frequency)), sizeof(downlink->frequency));
 	downlink->frequency = ntoh32(downlink->frequency);
-	index += sizeof(downlink->frequency);
 
-	if (request->body.len < index + sizeof(downlink->bandwidth)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->bandwidth)) {
 		debug("missing bandwidth on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->bandwidth, &request->body.ptr[index], sizeof(downlink->bandwidth));
+	memcpy(&downlink->bandwidth, body_read(request, sizeof(downlink->bandwidth)), sizeof(downlink->bandwidth));
 	downlink->bandwidth = ntoh32(downlink->bandwidth);
-	index += sizeof(downlink->bandwidth);
 
-	if (request->body.len < index + sizeof(downlink->tx_power)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->tx_power)) {
 		debug("missing tx power on downlink\n");
 		return -1;
 	}
-	downlink->tx_power = (uint8_t)request->body.ptr[index];
-	index += sizeof(downlink->tx_power);
+	downlink->tx_power = *(uint8_t *)body_read(request, sizeof(downlink->tx_power));
 
-	if (request->body.len < index + sizeof(downlink->sf)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->sf)) {
 		debug("missing sf on downlink\n");
 		return -1;
 	}
-	downlink->sf = (uint8_t)request->body.ptr[index];
-	index += sizeof(downlink->sf);
+	downlink->sf = *(uint8_t *)body_read(request, sizeof(downlink->sf));
 
-	if (request->body.len < index + sizeof(downlink->sent_at)) {
+	if (request->body.len < request->body.pos + sizeof(downlink->sent_at)) {
 		debug("missing sent at on downlink\n");
 		return -1;
 	}
-	memcpy(&downlink->sent_at, &request->body.ptr[index], sizeof(downlink->sent_at));
+	memcpy(&downlink->sent_at, body_read(request, sizeof(downlink->sent_at)), sizeof(downlink->sent_at));
 	downlink->sent_at = (time_t)ntoh64((uint64_t)downlink->sent_at);
-	index += sizeof(downlink->sent_at);
 
-	if (request->body.len < index + sizeof(*downlink->device_id)) {
+	if (request->body.len < request->body.pos + sizeof(*downlink->device_id)) {
 		debug("missing device id on downlink\n");
 		return -1;
 	}
-	downlink->device_id = (uint8_t (*)[16])(&request->body.ptr[index]);
-	index += sizeof(*downlink->device_id);
+	downlink->device_id = (uint8_t (*)[16])body_read(request, sizeof(*downlink->device_id));
 
-	if (request->body.len != index) {
-		debug("body len %u does not match index %hu\n", request->body.len, index);
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
 		return -1;
 	}
 

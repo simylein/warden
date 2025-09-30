@@ -187,19 +187,19 @@ cleanup:
 }
 
 int user_parse(user_t *user, request_t *request) {
+	request->body.pos = 0;
+
 	uint8_t stage = 0;
-	uint8_t index = 0;
 
 	user->username_len = 0;
-	const uint8_t username_index = index;
-	while (stage == 0 && user->username_len < 16 && index < request->body.len) {
-		char *byte = &request->body.ptr[index];
+	const uint8_t username_index = (uint8_t)request->body.pos;
+	while (stage == 0 && user->username_len < 16 && request->body.pos < request->body.len) {
+		char *byte = body_read(request, sizeof(char));
 		if (*byte == '\0') {
 			stage = 1;
 		} else {
 			user->username_len++;
 		}
-		index++;
 	}
 	user->username = &request->body.ptr[username_index];
 	if (stage != 1) {
@@ -208,15 +208,14 @@ int user_parse(user_t *user, request_t *request) {
 	}
 
 	user->password_len = 0;
-	const uint8_t password_index = index;
-	while (stage == 1 && user->password_len < 64 && index < request->body.len) {
-		char *byte = &request->body.ptr[index];
+	const uint8_t password_index = (uint8_t)request->body.pos;
+	while (stage == 1 && user->password_len < 64 && request->body.pos < request->body.len) {
+		char *byte = body_read(request, sizeof(char));
 		if (*byte == '\0') {
 			stage = 2;
 		} else {
 			user->password_len++;
 		}
-		index++;
 	}
 	user->password = &request->body.ptr[password_index];
 	if (stage != 2) {
