@@ -30,4 +30,4 @@ extern uint8_t log_level;
 extern bool log_requests;
 extern bool log_responses;
 
-int configure(int argc, char *argv[]);
+int configure(int argc, char *argv[], uint8_t *cmds);

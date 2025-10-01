@@ -169,12 +169,18 @@ int parse_log_level(const char *arg, uint8_t *value) {
 	return 0;
 }
 
-int configure(int argc, char *argv[]) {
+int configure(int argc, char *argv[], uint8_t *cmds) {
 	int errors = 0;
 
 	for (int ind = 1; ind < argc; ind++) {
 		const char *flag = argv[ind];
-		if (match_arg(flag, "--name", "-n")) {
+		if (match_arg(flag, "--version", "-v")) {
+			*cmds |= 0x10;
+		} else if (match_arg(flag, "--init", "-i")) {
+			*cmds |= 0x20;
+		} else if (match_arg(flag, "--seed", "-s")) {
+			*cmds |= 0x40;
+		} else if (match_arg(flag, "--name", "-n")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "name", 2, 8, &name);
 		} else if (match_arg(flag, "--address", "-a")) {
