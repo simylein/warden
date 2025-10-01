@@ -397,7 +397,7 @@ int seed_buffer(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table metric\n");
+	info("seeded table buffer\n");
 	return 0;
 }
 
