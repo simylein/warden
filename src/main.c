@@ -87,6 +87,12 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
 
+	if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
+		info("warden version %s %s\n", version, commit);
+		info("written by simylein in c\n");
+		exit(0);
+	}
+
 	uint8_t cmds = 0x00;
 	int cf_errors = configure(argc, argv, &cmds);
 	if (cf_errors != 0) {
@@ -95,24 +101,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
-		if (cmds & 0x10) {
-			info("warden version %s %s\n", version, commit);
-			info("written by simylein in c\n");
-			exit(0);
-		}
-
 		sqlite3 *database;
 		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
 			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
 			exit(1);
 		}
 
-		if (cmds & 0x20 && init(database) != 0) {
+		if (cmds & 0x10 && init(database) != 0) {
 			fatal("failed to initialise database\n");
 			exit(1);
 		}
 
-		if (cmds & 0x40 && seed(database) != 0) {
+		if (cmds & 0x20 && seed(database) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}
