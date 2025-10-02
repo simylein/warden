@@ -104,13 +104,13 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 				status = 500;
 				goto cleanup;
 			}
-			append_body(response, id, id_len);
-			append_body(response, username, username_len);
-			append_body(response, (char[]){0x00}, sizeof(char));
-			append_body(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
-			append_body(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
-			append_body(response, &permissions_len, sizeof(uint8_t));
-			append_body(response, permissions, permissions_len);
+			body_write(response, id, id_len);
+			body_write(response, username, username_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
+			body_write(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
+			body_write(response, &permissions_len, sizeof(uint8_t));
+			body_write(response, permissions, permissions_len);
 			*users_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -163,13 +163,13 @@ uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response) 
 			status = 500;
 			goto cleanup;
 		}
-		append_body(response, id, id_len);
-		append_body(response, username, username_len);
-		append_body(response, (char[]){0x00}, sizeof(char));
-		append_body(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
-		append_body(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
-		append_body(response, &permissions_len, sizeof(uint8_t));
-		append_body(response, permissions, permissions_len);
+		body_write(response, id, id_len);
+		body_write(response, username, username_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint64_t[]){hton64((uint64_t)signup_at)}, sizeof(signup_at));
+		body_write(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
+		body_write(response, &permissions_len, sizeof(uint8_t));
+		body_write(response, permissions, permissions_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
@@ -194,7 +194,7 @@ int user_parse(user_t *user, request_t *request) {
 	user->username_len = 0;
 	const uint8_t username_index = (uint8_t)request->body.pos;
 	while (stage == 0 && user->username_len < 16 && request->body.pos < request->body.len) {
-		char *byte = body_read(request, sizeof(char));
+		const char *byte = body_read(request, sizeof(char));
 		if (*byte == '\0') {
 			stage = 1;
 		} else {
@@ -210,7 +210,7 @@ int user_parse(user_t *user, request_t *request) {
 	user->password_len = 0;
 	const uint8_t password_index = (uint8_t)request->body.pos;
 	while (stage == 1 && user->password_len < 64 && request->body.pos < request->body.len) {
-		char *byte = body_read(request, sizeof(char));
+		const char *byte = body_read(request, sizeof(char));
 		if (*byte == '\0') {
 			stage = 2;
 		} else {
@@ -436,8 +436,8 @@ void user_find(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu users\n", users_len);
 	response->status = 200;
 }
@@ -449,7 +449,7 @@ void user_find_one(sqlite3 *database, request_t *request, response_t *response) 
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 10, &uuid_len);
+	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
 		response->status = 400;
@@ -476,8 +476,8 @@ void user_find_one(sqlite3 *database, request_t *request, response_t *response) 
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
 	response->status = 200;
 }
@@ -508,8 +508,8 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	append_header(response, "set-cookie:auth=%.*s;Path=/;Max-Age=%d;SameSite=Strict;HttpOnly;\r\n", (int)sizeof(bwt), bwt,
-								bwt_ttl);
+	header_write(response, "set-cookie:auth=%.*s;Path=/;Max-Age=%d;SameSite=Strict;HttpOnly;\r\n", (int)sizeof(bwt), bwt,
+							 bwt_ttl);
 	info("user %.*s signed up\n", (int)user.username_len, user.username);
 	response->status = 201;
 }
@@ -540,8 +540,8 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
-	append_header(response, "set-cookie:auth=%.*s;Path=/;Max-Age=%d;SameSite=Strict;HttpOnly;\r\n", (int)sizeof(bwt), bwt,
-								bwt_ttl);
+	header_write(response, "set-cookie:auth=%.*s;Path=/;Max-Age=%d;SameSite=Strict;HttpOnly;\r\n", (int)sizeof(bwt), bwt,
+							 bwt_ttl);
 	info("user %.*s signed in\n", (int)user.username_len, user.username);
 	response->status = 201;
 }
@@ -553,7 +553,7 @@ void user_remove(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 10, &uuid_len);
+	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
 		response->status = 400;

@@ -71,10 +71,10 @@ uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, res
 				status = 500;
 				goto cleanup;
 			}
-			append_body(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
-			append_body(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
-			append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			append_body(response, device_id, device_id_len);
+			body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			body_write(response, device_id, device_id_len);
 			*metrics_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -125,9 +125,9 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			const double photovoltaic = sqlite3_column_double(stmt, 0);
 			const double battery = sqlite3_column_double(stmt, 1);
 			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
-			append_body(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
-			append_body(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
-			append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
 			*metrics_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -244,15 +244,15 @@ void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu metrics\n", metrics_len);
 	response->status = 200;
 }
 
 void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -326,8 +326,8 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu metrics\n", metrics_len);
 	response->status = 200;
 }

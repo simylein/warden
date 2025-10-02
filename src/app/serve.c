@@ -63,9 +63,9 @@ void serve(file_t *asset, response_t *response) {
 		if (response->status == 0) {
 			response->status = 200;
 		}
-		append_header(response, "content-type:%s\r\n", type(asset->path));
-		append_header(response, "content-length:%zu\r\n", asset->len);
-		append_body(response, asset->ptr, asset->len);
+		header_write(response, "content-type:%s\r\n", type(asset->path));
+		header_write(response, "content-length:%zu\r\n", asset->len);
+		body_write(response, asset->ptr, asset->len);
 	}
 
 cleanup:
@@ -74,7 +74,7 @@ cleanup:
 
 void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -100,7 +100,7 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 
 void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -126,7 +126,7 @@ void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, re
 
 void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -152,7 +152,7 @@ void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, res
 
 void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -178,7 +178,7 @@ void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, res
 
 void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -204,7 +204,7 @@ void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, res
 
 void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -230,7 +230,7 @@ void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, res
 
 void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -256,7 +256,7 @@ void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, r
 
 void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 8, &uuid_len);
+	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((uplink_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((uplink_t *)0)->id) * 2);
 		response->status = 400;
@@ -282,7 +282,7 @@ void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 
 void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 10, &uuid_len);
+	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
 		response->status = 400;
@@ -308,7 +308,7 @@ void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_
 
 void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 6, &uuid_len);
+	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
 		response->status = 400;
@@ -334,7 +334,7 @@ void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 
 void serve_user_devices(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 6, &uuid_len);
+	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
 		response->status = 400;

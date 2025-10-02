@@ -131,15 +131,15 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, res
 				status = 500;
 				goto cleanup;
 			}
-			append_body(response, id, id_len);
-			append_body(response, &kind, sizeof(kind));
-			append_body(response, &data_len, sizeof(uint8_t));
-			append_body(response, data, data_len);
-			append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-			append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
-			append_body(response, &sf, sizeof(sf));
-			append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-			append_body(response, device_id, device_id_len);
+			body_write(response, id, id_len);
+			body_write(response, &kind, sizeof(kind));
+			body_write(response, &data_len, sizeof(uint8_t));
+			body_write(response, data, data_len);
+			body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+			body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			body_write(response, &sf, sizeof(sf));
+			body_write(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+			body_write(response, device_id, device_id_len);
 			*uplinks_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -210,18 +210,18 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 			status = 500;
 			goto cleanup;
 		}
-		append_body(response, id, id_len);
-		append_body(response, &kind, sizeof(kind));
-		append_body(response, &data_len, sizeof(uint8_t));
-		append_body(response, data, data_len);
-		append_body(response, &(uint16_t[]){hton16((uint16_t)(airtime * 16 * 1000))}, sizeof(uint16_t));
-		append_body(response, &(uint32_t[]){hton32(frequency)}, sizeof(frequency));
-		append_body(response, &(uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
-		append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-		append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
-		append_body(response, &sf, sizeof(sf));
-		append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-		append_body(response, device_id, device_id_len);
+		body_write(response, id, id_len);
+		body_write(response, &kind, sizeof(kind));
+		body_write(response, &data_len, sizeof(uint8_t));
+		body_write(response, data, data_len);
+		body_write(response, &(uint16_t[]){hton16((uint16_t)(airtime * 16 * 1000))}, sizeof(uint16_t));
+		body_write(response, &(uint32_t[]){hton32(frequency)}, sizeof(frequency));
+		body_write(response, &(uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
+		body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+		body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+		body_write(response, &sf, sizeof(sf));
+		body_write(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+		body_write(response, device_id, device_id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("uplink %02x%02x not found\n", (*uplink->id)[0], (*uplink->id)[1]);
@@ -283,14 +283,14 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			const double snr = sqlite3_column_double(stmt, 4);
 			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 5);
 			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 6);
-			append_body(response, id, id_len);
-			append_body(response, &kind, sizeof(kind));
-			append_body(response, &data_len, sizeof(uint8_t));
-			append_body(response, data, data_len);
-			append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-			append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
-			append_body(response, &sf, sizeof(sf));
-			append_body(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+			body_write(response, id, id_len);
+			body_write(response, &kind, sizeof(kind));
+			body_write(response, &data_len, sizeof(uint8_t));
+			body_write(response, data, data_len);
+			body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+			body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			body_write(response, &sf, sizeof(sf));
+			body_write(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 			*uplinks_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -341,9 +341,9 @@ uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t 
 			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 0);
 			const double snr = sqlite3_column_double(stmt, 1);
 			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 2);
-			append_body(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-			append_body(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
-			append_body(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+			body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+			body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 			*signals_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -562,8 +562,8 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu uplinks\n", uplinks_len);
 	response->status = 200;
 }
@@ -575,7 +575,7 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((uplink_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((uplink_t *)0)->id) * 2);
 		response->status = 400;
@@ -602,15 +602,15 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
 	response->status = 200;
 }
 
 void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -665,15 +665,15 @@ void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu uplinks\n", uplinks_len);
 	response->status = 200;
 }
 
 void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -747,8 +747,8 @@ void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *requ
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu signals\n", signals_len);
 	response->status = 200;
 }

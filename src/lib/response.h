@@ -16,5 +16,5 @@ typedef struct response_t {
 void response_init(response_t *response, char *buffer);
 size_t response(request_t *req, response_t *res, char *buffer);
 
-void append_header(response_t *response, const char *format, ...) __attribute__((format(printf, 2, 3)));
-void append_body(response_t *response, const void *buffer, size_t buffer_len);
+void header_write(response_t *response, const char *format, ...) __attribute__((format(printf, 2, 3)));
+void body_write(response_t *response, const void *buffer, size_t buffer_len);

@@ -56,9 +56,9 @@ uint16_t buffer_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			const uint32_t delay = (uint32_t)sqlite3_column_int(stmt, 0);
 			const uint16_t level = (uint16_t)sqlite3_column_int(stmt, 1);
 			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
-			append_body(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
-			append_body(response, (uint16_t[]){hton16(level)}, sizeof(level));
-			append_body(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			body_write(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
+			body_write(response, (uint16_t[]){hton16(level)}, sizeof(level));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
 			*buffers_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
@@ -123,7 +123,7 @@ cleanup:
 
 void buffer_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 12, &uuid_len);
+	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -197,8 +197,8 @@ void buffer_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
-	append_header(response, "content-type:application/octet-stream\r\n");
-	append_header(response, "content-length:%u\r\n", response->body.len);
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu buffers\n", buffers_len);
 	response->status = 200;
 }

@@ -83,12 +83,12 @@ bool endpoint(request_t *request, const char *method, const char *pathname, bool
 }
 
 bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *response) {
-	const char *cookie = find_header(request, "cookie");
+	const char *cookie = header_find(request, "cookie");
 	if (cookie == NULL) {
 		if (redirect == true) {
 			response->status = 307;
-			append_header(response, "location:/signin\r\n");
-			append_header(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname.len, request->pathname.ptr);
+			header_write(response, "location:/signin\r\n");
+			header_write(response, "set-cookie:memo=%.*s\r\n", (int)request->pathname.len, request->pathname.ptr);
 		} else {
 			response->status = 401;
 		}

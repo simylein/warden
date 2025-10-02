@@ -162,7 +162,7 @@ void request(char *buffer, size_t length, request_t *req, response_t *res) {
 	req->body.ptr = &buffer[index];
 }
 
-const char *find_param(request_t *request, uint8_t offset, uint8_t *length) {
+const char *param_find(request_t *request, uint8_t offset, uint8_t *length) {
 	if (request->pathname.len < offset) {
 		return NULL;
 	}
@@ -177,7 +177,7 @@ const char *find_param(request_t *request, uint8_t offset, uint8_t *length) {
 	return &request->pathname.ptr[offset];
 }
 
-const char *find_header(request_t *request, const char *key) {
+const char *header_find(request_t *request, const char *key) {
 	const char *header = strncasestrn(request->header.ptr, request->header.len, key, strlen(key));
 	if (header == NULL) {
 		return NULL;
@@ -194,7 +194,7 @@ const char *find_header(request_t *request, const char *key) {
 	return header;
 }
 
-char *body_read(request_t *request, uint32_t length) {
+const char *body_read(request_t *request, uint32_t length) {
 	char *ptr = &(request->body.ptr[request->body.pos]);
 	request->body.pos += length;
 	return ptr;

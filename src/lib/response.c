@@ -40,14 +40,14 @@ size_t response(request_t *req, response_t *res, char *buffer) {
 	return res->head.len + res->header.len + res->body.len;
 }
 
-void append_header(response_t *response, const char *format, ...) {
+void header_write(response_t *response, const char *format, ...) {
 	va_list args;
 	va_start(args, format);
 	response->header.len += (uint16_t)vsprintf(response->header.ptr + response->header.len, format, args);
 	va_end(args);
 }
 
-void append_body(response_t *response, const void *buffer, size_t buffer_len) {
+void body_write(response_t *response, const void *buffer, size_t buffer_len) {
 	memcpy(response->body.ptr + response->body.len, buffer, buffer_len);
 	response->body.len += (uint32_t)buffer_len;
 }

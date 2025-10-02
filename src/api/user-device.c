@@ -97,7 +97,7 @@ void user_device_create(sqlite3 *database, request_t *request, response_t *respo
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 10, &uuid_len);
+	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
@@ -141,7 +141,7 @@ void user_device_remove(sqlite3 *database, request_t *request, response_t *respo
 	}
 
 	uint8_t uuid_len = 0;
-	const char *uuid = find_param(request, 10, &uuid_len);
+	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
 		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
 		response->status = 400;
