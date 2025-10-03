@@ -1,6 +1,7 @@
 #include "../lib/logger.h"
 #include "file.h"
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>

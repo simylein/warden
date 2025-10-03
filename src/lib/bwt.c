@@ -4,7 +4,6 @@
 #include "endian.h"
 #include "format.h"
 #include "logger.h"
-#include "request.h"
 #include "sha256.h"
 #include "string.h"
 #include "strn.h"
