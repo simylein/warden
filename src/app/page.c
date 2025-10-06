@@ -27,15 +27,15 @@ file_t page_user_devices = {.path = "./src/app/pages/user-devices.html", .lock =
 file_t page_signin = {.path = "./src/app/pages/signin.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_signup = {.path = "./src/app/pages/signup.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 
-file_t page_bad_request = {.path = "./src/app/errors/400.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_unauthorized = {.path = "./src/app/errors/401.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_forbidden = {.path = "./src/app/errors/403.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_not_found = {.path = "./src/app/errors/404.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_method_not_allowed = {.path = "./src/app/errors/405.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_uri_too_long = {.path = "./src/app/errors/414.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_request_header_fields_too_large = {.path = "./src/app/errors/431.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_internal_server_error = {.path = "./src/app/errors/500.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_http_version_not_supported = {.path = "./src/app/errors/505.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_bad_request = {.path = "./src/app/pages/400.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_unauthorized = {.path = "./src/app/pages/401.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_forbidden = {.path = "./src/app/pages/403.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_not_found = {.path = "./src/app/pages/404.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_method_not_allowed = {.path = "./src/app/pages/405.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_uri_too_long = {.path = "./src/app/pages/414.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_request_header_fields_too_large = {.path = "./src/app/pages/431.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_internal_server_error = {.path = "./src/app/pages/500.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_http_version_not_supported = {.path = "./src/app/pages/505.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 
 file_t *pages[] = {
 		&page_home,
