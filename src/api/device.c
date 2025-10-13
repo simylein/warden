@@ -80,7 +80,7 @@ cleanup:
 	return status;
 }
 
-uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint8_t *devices_len) {
+uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
@@ -92,7 +92,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			"buffer.id, buffer.delay, buffer.level, buffer.captured_at, "
 			"uplink.id, uplink.received_at "
 			"from device "
-			"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+			"join user_device on user_device.device_id = device.id and user_device.user_id = ?1 "
 			"left join reading on reading.id = "
 			"(select reading.id from reading where reading.device_id = device.id order by reading.captured_at desc limit 1) "
 			"left join metric on metric.id = "
@@ -101,7 +101,21 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
 			"left join uplink on uplink.id = "
 			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
-			"order by device.name asc";
+			"order by "
+			"case when ?2 = 'id' and ?3 = 'asc' then device.id end asc, "
+			"case when ?2 = 'id' and ?3 = 'desc' then device.id end desc, "
+			"case when ?2 = 'name' and ?3 = 'asc' then device.name end asc, "
+			"case when ?2 = 'name' and ?3 = 'desc' then device.name end desc, "
+			"case when ?2 = 'type' and ?3 = 'asc' then device.type end asc, "
+			"case when ?2 = 'type' and ?3 = 'desc' then device.type end desc, "
+			"case when ?2 = 'temperature' and ?3 = 'asc' then reading.temperature end asc, "
+			"case when ?2 = 'temperature' and ?3 = 'desc' then reading.temperature end desc, "
+			"case when ?2 = 'humidity' and ?3 = 'asc' then reading.humidity end asc, "
+			"case when ?2 = 'humidity' and ?3 = 'desc' then reading.humidity end desc, "
+			"case when ?2 = 'photovoltaic' and ?3 = 'asc' then metric.photovoltaic end asc, "
+			"case when ?2 = 'photovoltaic' and ?3 = 'desc' then metric.photovoltaic end desc, "
+			"case when ?2 = 'battery' and ?3 = 'asc' then metric.battery end asc, "
+			"case when ?2 = 'battery' and ?3 = 'desc' then metric.battery end desc";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -111,6 +125,8 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint
 	}
 
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->order, query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 3, query->sort, query->sort_len, SQLITE_STATIC);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -600,13 +616,21 @@ cleanup:
 }
 
 void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	if (request->search.len != 0) {
+	device_query_t query;
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
+							 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", (const char **)&query.sort, (size_t *)&query.sort_len,
+							 8) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	uint8_t devices_len = 0;
-	uint16_t status = device_select(database, bwt, response, &devices_len);
+	uint16_t status = device_select(database, bwt, &query, response, &devices_len);
 	if (status != 0) {
 		response->status = status;
 		return;

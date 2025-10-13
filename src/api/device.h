@@ -22,12 +22,19 @@ typedef struct device_t {
 	time_t *updated_at;
 } device_t;
 
+typedef struct device_query_t {
+	char *order;
+	uint8_t order_len;
+	char *sort;
+	uint8_t sort_len;
+} device_query_t;
+
 extern const char *device_table;
 extern const char *device_schema;
 
 uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device);
 
-uint16_t device_select(sqlite3 *database, bwt_t *bwt, response_t *response, uint8_t *devices_len);
+uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len);
 uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *response, uint8_t *devices_len);
 uint16_t device_insert(sqlite3 *database, device_t *device);
