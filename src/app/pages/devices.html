@@ -178,23 +178,23 @@
 		};
 		const paintSorting = (column) => {
 			const element = columns[column];
-			const sort = element.getAttribute('sort');
-			const sortNew = sort === 'asc' ? 'desc' : 'asc';
-			Object.keys(columns).forEach((column) => {
-				columns[column].children[0].classList.add('hidden');
-				columns[column].children[1].classList.add('hidden');
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
 			});
+			element.setAttribute('sort', sort);
 			switch (true) {
-				case sortNew === 'asc':
+				case sort === 'asc':
 					element.children[0].classList.remove('hidden');
 					break;
-				case sortNew === 'desc':
+				case sort === 'desc':
 					element.children[1].classList.remove('hidden');
 					break;
 			}
-			element.setAttribute('sort', sortNew);
 			setParam('order', column);
-			setParam('sort', sortNew);
+			setParam('sort', sort);
 		};
 		const loadingDevices = (element) => {
 			array(element.children.length).forEach((ind) => {
