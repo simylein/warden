@@ -83,8 +83,11 @@ recursion:
 			memcpy(&assemble_ptr[assemble_ind], component.ptr, component.len);
 			assemble_ind += component.len;
 
-			if (memmem(component.ptr, component.len, "ref=\"", 5) != NULL) {
-				recurse = true;
+			for (size_t ind = 0; ind + 6 <= component.len; ind++) {
+				if (component.ptr[ind] == ' ' && memcmp(&component.ptr[ind + 1], "ref=\"", 5) == 0) {
+					recurse = true;
+					break;
+				}
 			}
 
 			close(component.fd);
