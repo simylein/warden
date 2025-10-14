@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 int assemble(file_t *asset) {
+	bool recurse = false;
+
 	bool tag = false;
 	bool quote = false;
 
@@ -18,6 +20,7 @@ int assemble(file_t *asset) {
 	size_t assemble_len = 0;
 	char *assemble_ptr = NULL;
 
+recursion:
 	while (asset_ind < asset->len) {
 		char *byte = &asset->ptr[asset_ind];
 		if (*byte == '<' && !tag && !quote) {
@@ -61,20 +64,28 @@ int assemble(file_t *asset) {
 				return -1;
 			}
 
-			assemble_len += component.len;
-			assemble_ptr = realloc(assemble_ptr, assemble_len);
-			if (assemble_ptr == NULL) {
-				error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
-				return -1;
+			if (assemble_ind + component.len >= assemble_len) {
+				assemble_len += component.len;
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
+					close(component.fd);
+					free(component.ptr);
+					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
+					return -1;
+				}
+				assemble_ptr = assemble_ptr_new;
 			}
 
 			while (assemble_ind > 0 && assemble_ptr[assemble_ind] != '<') {
-				byte -= 1;
 				assemble_ind -= 1;
 			}
 
 			memcpy(&assemble_ptr[assemble_ind], component.ptr, component.len);
 			assemble_ind += component.len;
+
+			if (memmem(component.ptr, component.len, "ref=\"", 5) != NULL) {
+				recurse = true;
+			}
 
 			close(component.fd);
 			free(component.ptr);
@@ -83,6 +94,15 @@ int assemble(file_t *asset) {
 			asset_ind += 8;
 
 			size_t version_len = strlen(version);
+			if (assemble_ind + version_len >= assemble_len) {
+				assemble_len += version_len;
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
+					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
+					return -1;
+				}
+				assemble_ptr = assemble_ptr_new;
+			}
 			memcpy(&assemble_ptr[assemble_ind], version, version_len);
 			assemble_ind += version_len;
 		} else if (!tag && !quote && *byte == '{' && asset_ind + 8 < asset->len && memcmp(byte + 1, "commit}", 7) == 0) {
@@ -90,16 +110,26 @@ int assemble(file_t *asset) {
 			asset_ind += 7;
 
 			size_t commit_len = strlen(commit);
+			if (assemble_ind + commit_len >= assemble_len) {
+				assemble_len += commit_len;
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
+					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
+					return -1;
+				}
+				assemble_ptr = assemble_ptr_new;
+			}
 			memcpy(&assemble_ptr[assemble_ind], commit, commit_len);
 			assemble_ind += commit_len;
 		} else {
 			if (assemble_ind >= assemble_len) {
 				assemble_len += 4096;
-				assemble_ptr = realloc(assemble_ptr, assemble_len);
-				if (assemble_ptr == NULL) {
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
 					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
 					return -1;
 				}
+				assemble_ptr = assemble_ptr_new;
 			}
 			assemble_ptr[assemble_ind] = *byte;
 			assemble_ind += 1;
@@ -134,11 +164,16 @@ int assemble(file_t *asset) {
 				return -1;
 			}
 
-			assemble_len += script.len;
-			assemble_ptr = realloc(assemble_ptr, assemble_len);
-			if (assemble_ptr == NULL) {
-				error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
-				return -1;
+			if (assemble_ind + script.len >= assemble_len) {
+				assemble_len += script.len;
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
+					close(script.fd);
+					free(script.ptr);
+					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
+					return -1;
+				}
+				assemble_ptr = assemble_ptr_new;
 			}
 
 			memcpy(&assemble_ptr[assemble_ind], script.ptr, script.len);
@@ -149,11 +184,12 @@ int assemble(file_t *asset) {
 		} else {
 			if (assemble_ind >= assemble_len) {
 				assemble_len += 4096;
-				assemble_ptr = realloc(assemble_ptr, assemble_len);
-				if (assemble_ptr == NULL) {
+				char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+				if (assemble_ptr_new == NULL) {
 					error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
 					return -1;
 				}
+				assemble_ptr = assemble_ptr_new;
 			}
 			assemble_ptr[assemble_ind] = *byte;
 			assemble_ind += 1;
@@ -166,6 +202,23 @@ int assemble(file_t *asset) {
 
 	asset->ptr = assemble_ptr;
 	asset->len = assemble_ind;
+
+	if (recurse == true) {
+		debug("recursing file %s\n", asset->path);
+
+		recurse = false;
+
+		tag = false;
+		quote = false;
+
+		asset_ind = 0;
+		assemble_ind = 0;
+
+		assemble_len = 0;
+		assemble_ptr = NULL;
+
+		goto recursion;
+	}
 
 	return 0;
 }
