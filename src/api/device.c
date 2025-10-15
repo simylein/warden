@@ -615,6 +615,45 @@ cleanup:
 	return status;
 }
 
+uint16_t device_update(sqlite3 *database, device_t *device) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "update device set firmware = ?, hardware = ?, updated_at = ? "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_text(stmt, 1, device->firmware, device->firmware_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, device->hardware, device->hardware_len, SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 3, *device->updated_at);
+	sqlite3_bind_blob(stmt, 4, *device->id, sizeof(*device->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query;
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,

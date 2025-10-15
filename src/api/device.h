@@ -38,6 +38,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *response, uint8_t *devices_len);
 uint16_t device_insert(sqlite3 *database, device_t *device);
+uint16_t device_update(sqlite3 *database, device_t *device);
 
 void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

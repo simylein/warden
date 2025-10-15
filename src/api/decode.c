@@ -78,6 +78,37 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	return 0;
 }
 
+int decode_kind_04(uint8_t *data, uint8_t data_len, time_t received_at, device_t *device) {
+	if (data_len != 4) {
+		error("uplink data len must be 4 bytes\n");
+		return -1;
+	}
+
+	uint8_t firmware_major = (data[0] & 0xf0) >> 4;
+	uint8_t firmware_minor = data[0] & 0x0f;
+	uint8_t firmware_patch = (data[1] & 0xf0) >> 4;
+	uint8_t firmware_rc = data[1] & 0x0f;
+	device->firmware_len = (uint8_t)sprintf(device->firmware, "%hhu.%hhu.%hhu", firmware_major, firmware_minor, firmware_patch);
+	if (firmware_rc != 0) {
+		device->firmware_len += (uint8_t)sprintf(&device->firmware[device->firmware_len], "-rc%hhu", firmware_rc);
+	}
+
+	uint8_t hardware_major = (data[2] & 0xf0) >> 4;
+	uint8_t hardware_minor = data[2] & 0x0f;
+	uint8_t hardware_patch = (data[3] & 0xf0) >> 4;
+	uint8_t hardware_rc = data[3] & 0x0f;
+	device->hardware_len = (uint8_t)sprintf(device->hardware, "%hhu.%hhu.%hhu", hardware_major, hardware_minor, hardware_patch);
+	if (hardware_rc != 0) {
+		device->hardware_len += (uint8_t)sprintf(&device->hardware[device->hardware_len], "-rc%hhu", hardware_rc);
+	}
+
+	*device->updated_at = received_at;
+
+	trace("firmware %.*s hardware %.*s captured_at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
+				device->hardware, *device->updated_at);
+	return 0;
+}
+
 int decode_kind_80(uint8_t *data, uint8_t data_len, time_t received_at, buffer_t *buffer) {
 	if (data_len != 5) {
 		error("uplink data len must be 5 bytes\n");
@@ -171,12 +202,48 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	return 0;
 }
 
+int decode_kind_84(uint8_t *data, uint8_t data_len, time_t received_at, device_t *device, buffer_t *buffer) {
+	if (data_len != 9) {
+		error("uplink data len must be 9 bytes\n");
+		return -1;
+	}
+
+	uint8_t firmware_major = (data[0] & 0xf0) >> 4;
+	uint8_t firmware_minor = data[0] & 0x0f;
+	uint8_t firmware_patch = (data[1] & 0xf0) >> 4;
+	uint8_t firmware_rc = data[1] & 0x0f;
+	device->firmware_len = (uint8_t)sprintf(device->firmware, "%hhu.%hhu.%hhu", firmware_major, firmware_minor, firmware_patch);
+	if (firmware_rc != 0) {
+		device->firmware_len += (uint8_t)sprintf(&device->firmware[device->firmware_len], "-rc%hhu", firmware_rc);
+	}
+
+	uint8_t hardware_major = (data[2] & 0xf0) >> 4;
+	uint8_t hardware_minor = data[2] & 0x0f;
+	uint8_t hardware_patch = (data[3] & 0xf0) >> 4;
+	uint8_t hardware_rc = data[3] & 0x0f;
+	device->hardware_len = (uint8_t)sprintf(device->hardware, "%hhu.%hhu.%hhu", hardware_major, hardware_minor, hardware_patch);
+	if (hardware_rc != 0) {
+		device->hardware_len += (uint8_t)sprintf(&device->hardware[device->hardware_len], "-rc%hhu", hardware_rc);
+	}
+
+	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint16_t)data[6];
+	buffer->level = (uint16_t)(data[7] << 8) | (uint16_t)data[8];
+
+	*device->updated_at = received_at;
+	buffer->captured_at = received_at;
+
+	trace("firmware %.*s hardware %.*s captured_at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
+				device->hardware, *device->updated_at);
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	return 0;
+}
+
 int decode(sqlite3 *database, uplink_t *uplink) {
-	trace("decoding uplink kind %02x\n", uplink->kind);
+	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
 	case 0x00: {
 		if (decode_kind_00(uplink->data_len, uplink->received_at) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		return 0;
@@ -185,7 +252,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (reading_insert(database, &reading) != 0) {
@@ -197,7 +264,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
@@ -210,7 +277,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_03(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (reading_insert(database, &reading) != 0) {
@@ -221,11 +288,26 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		}
 		return 0;
 	}
+	case 0x04: {
+		char firmware[16];
+		char hardware[16];
+		time_t updated_at;
+		device_t device = {
+				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
+		if (decode_kind_04(uplink->data, uplink->data_len, uplink->received_at, &device) == -1) {
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return -1;
+		}
+		if (device_update(database, &device) != 0) {
+			return -1;
+		}
+		return 0;
+	}
 	case 0x80: {
 		uint8_t id[16];
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_80(uplink->data, uplink->data_len, uplink->received_at, &buffer) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (buffer_insert(database, &buffer) != 0) {
@@ -238,7 +320,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_81(uplink->data, uplink->data_len, uplink->received_at, &reading, &buffer) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (reading_insert(database, &reading) != 0) {
@@ -254,7 +336,7 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_82(uplink->data, uplink->data_len, uplink->received_at, &metric, &buffer) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
@@ -271,13 +353,33 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_83(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric, &buffer) == -1) {
-			error("failed to decode uplink kind %02x\n", uplink->kind);
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return -1;
 		}
 		if (reading_insert(database, &reading) != 0) {
 			return -1;
 		}
 		if (metric_insert(database, &metric) != 0) {
+			return -1;
+		}
+		if (buffer_insert(database, &buffer) != 0) {
+			return -1;
+		}
+		return 0;
+	}
+	case 0x84: {
+		uint8_t id[16];
+		char firmware[16];
+		char hardware[16];
+		time_t updated_at;
+		device_t device = {
+				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_84(uplink->data, uplink->data_len, uplink->received_at, &device, &buffer) == -1) {
+			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return -1;
+		}
+		if (device_update(database, &device) != 0) {
 			return -1;
 		}
 		if (buffer_insert(database, &buffer) != 0) {
