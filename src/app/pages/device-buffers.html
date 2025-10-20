@@ -234,6 +234,7 @@
 		</footer>
 	</body>
 	<script>
+		import './src/app/scripts/duration.js';
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/device-tabs.js';
 		import './src/app/scripts/timespan.js';
@@ -342,11 +343,11 @@
 			}
 			if (delay.min.abs !== null && delay.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
-				paint(element.range.children[0], [], [], delay.min.abs.toFixed(0));
+				paint(element.range.children[0], [], [], duration(delay.min.abs));
 				fade(element.range.children[0]);
 				colorDelay(element.range.children[0], delay.min.abs);
 				paint(element.range.children[1], [], [], ' - ');
-				paint(element.range.children[2], [], [], delay.max.abs.toFixed(0));
+				paint(element.range.children[2], [], [], duration(delay.max.abs));
 				fade(element.range.children[2]);
 				colorDelay(element.range.children[2], delay.max.abs);
 			}
@@ -354,7 +355,7 @@
 				const scaleLength = element.scale.children.length;
 				const interval = (delay.max.ceil - delay.min.floor) / scaleLength;
 				array(scaleLength).forEach((ind) => {
-					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], (delay.min.floor + ind * interval).toFixed(0));
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], duration(delay.min.floor + ind * interval));
 				});
 			}
 			let memo = null;
