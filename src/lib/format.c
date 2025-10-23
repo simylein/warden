@@ -52,30 +52,30 @@ void human_duration(char (*buffer)[8], struct timespec *start, struct timespec *
 	time_t stop_nanoseconds = stop->tv_sec * 1000000000 + stop->tv_nsec;
 	time_t nanoseconds = stop_nanoseconds - start_nanoseconds;
 	if (nanoseconds < 1000) {
-		sprintf(*buffer, "%zuns", nanoseconds);
+		sprintf(*buffer, "%luns", nanoseconds);
 	} else if (nanoseconds < 10000) {
 		sprintf(*buffer, "%.1fus", (float)nanoseconds / 1000);
 	} else if (nanoseconds < 1000000) {
-		sprintf(*buffer, "%zuus", nanoseconds / 1000);
+		sprintf(*buffer, "%luus", nanoseconds / 1000);
 	} else if (nanoseconds < 10000000) {
 		sprintf(*buffer, "%.1fms", (float)nanoseconds / 1000000);
 	} else if (nanoseconds < 1000000000) {
-		sprintf(*buffer, "%zums", nanoseconds / 1000000);
+		sprintf(*buffer, "%lums", nanoseconds / 1000000);
 	} else if (nanoseconds < 10000000000) {
 		sprintf(*buffer, "%.1fs", (float)nanoseconds / 1000000000);
 	} else {
-		sprintf(*buffer, "%zus", nanoseconds / 1000000000);
+		sprintf(*buffer, "%lus", nanoseconds / 1000000000);
 	}
 }
 
 void human_time(char (*buffer)[8], time_t seconds) {
 	if (seconds < 60) {
-		sprintf(*buffer, "%zus", seconds);
+		sprintf(*buffer, "%lus", seconds);
 	} else if (seconds < 3600) {
-		sprintf(*buffer, "%zum", seconds / 60);
+		sprintf(*buffer, "%lum", seconds / 60);
 	} else if (seconds < 86400) {
-		sprintf(*buffer, "%zuh", seconds / 3600);
+		sprintf(*buffer, "%luh", seconds / 3600);
 	} else {
-		sprintf(*buffer, "%zud", seconds / 86400);
+		sprintf(*buffer, "%lud", seconds / 86400);
 	}
 }
