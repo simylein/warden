@@ -1,5 +1,7 @@
 const duration = (seconds) => {
 	switch (true) {
+		case seconds === 0:
+			return `${seconds}s`;
 		case seconds < 1:
 			return `${seconds.toFixed(1)}s`;
 		case seconds >= 1 && seconds < 60:
