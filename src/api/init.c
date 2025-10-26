@@ -40,31 +40,24 @@ int init(sqlite3 *database) {
 	if (init_table(database, user_table, user_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, user_device_table, user_device_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, device_table, device_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, uplink_table, uplink_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, downlink_table, downlink_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, reading_table, reading_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, metric_table, metric_schema) == -1) {
 		return -1;
 	}
-
 	if (init_table(database, buffer_table, buffer_schema) == -1) {
 		return -1;
 	}
