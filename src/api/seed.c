@@ -425,7 +425,6 @@ int seed(sqlite3 *database) {
 	if (seed_metric(database) == -1) {
 		return -1;
 	}
-
 	if (seed_buffer(database) == -1) {
 		return -1;
 	}
