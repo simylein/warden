@@ -204,7 +204,7 @@
 					fade(element.children[ind].children[3].children[0]);
 					element.children[ind].children[4].onclick = () => (window.location.href = `/device/${data[ind].id}/readings`);
 					fade(element.children[ind].children[4].children[0]);
-					if (data[ind].reading !== null) {
+					if (data[ind].reading !== null && Number(data[ind].reading.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], data[ind].reading.temperature.toFixed(2));
 						colorTemperature(element.children[ind].children[3].children[0], data[ind].reading.temperature);
 						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].reading.humidity.toFixed(2));
@@ -219,7 +219,7 @@
 					fade(element.children[ind].children[5].children[0]);
 					element.children[ind].children[6].onclick = () => (window.location.href = `/device/${data[ind].id}/metrics`);
 					fade(element.children[ind].children[6].children[0]);
-					if (data[ind].metric !== null) {
+					if (data[ind].metric !== null && Number(data[ind].metric.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
 						colorPhotovoltaic(element.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
 						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], data[ind].metric.battery.toFixed(3));
