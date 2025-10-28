@@ -260,6 +260,7 @@
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/index-reading.js';
+		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -297,13 +298,10 @@
 			}
 		});
 		const getRange = () => {
-			const range = new URLSearchParams(window.location.search).get('range');
-			return +(range ?? 86400);
+			return +getParam('range', 86400);
 		};
 		const setRange = (range) => {
-			const params = new URLSearchParams(window.location.search);
-			params.set('range', range);
-			window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+			setParam('range', range);
 		};
 		deviceTabs();
 		const highlightRange = (range) => {
