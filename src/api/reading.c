@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "database.h"
 #include "device.h"
 #include "time.h"
 #include <sqlite3.h>
@@ -80,8 +81,7 @@ uint16_t reading_select(sqlite3 *database, bwt_t *bwt, reading_query_t *query, r
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -133,8 +133,7 @@ uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devic
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -180,8 +179,7 @@ uint16_t reading_insert(sqlite3 *database, reading_t *reading) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

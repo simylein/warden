@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "database.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -69,8 +70,7 @@ uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink) 
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -140,8 +140,7 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -221,8 +220,7 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -287,8 +285,7 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -441,8 +438,7 @@ uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

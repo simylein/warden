@@ -4,6 +4,7 @@
 #include "../lib/endian.h"
 #include "../lib/logger.h"
 #include "../lib/response.h"
+#include "database.h"
 #include "device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -64,8 +65,7 @@ uint16_t buffer_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -111,8 +111,7 @@ uint16_t buffer_insert(sqlite3 *database, buffer_t *buffer) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

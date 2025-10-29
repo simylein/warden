@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
+#include "database.h"
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
@@ -70,8 +71,7 @@ uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -268,8 +268,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -468,8 +467,7 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -550,8 +548,7 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -605,8 +602,7 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -636,8 +632,7 @@ uint16_t device_update(sqlite3 *database, device_t *device) {
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

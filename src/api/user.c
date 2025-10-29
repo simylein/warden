@@ -8,6 +8,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/sha256.h"
+#include "database.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -55,8 +56,7 @@ uint16_t user_existing(sqlite3 *database, user_t *user) {
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -116,8 +116,7 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -176,8 +175,7 @@ uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response) 
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -320,8 +318,7 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -376,8 +373,7 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 		status = 401;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -404,8 +400,7 @@ uint16_t user_delete(sqlite3 *database, user_t *user) {
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

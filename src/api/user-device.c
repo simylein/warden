@@ -3,6 +3,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "database.h"
 #include "device.h"
 #include <sqlite3.h>
 #include <stdint.h>
@@ -43,8 +44,7 @@ uint16_t user_device_insert(sqlite3 *database, user_device_t *user_device) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -72,8 +72,7 @@ uint16_t user_device_delete(sqlite3 *database, user_device_t *user_device) {
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 

@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "database.h"
 #include "decode.h"
 #include "device.h"
 #include <sqlite3.h>
@@ -72,8 +73,7 @@ uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink) {
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -145,8 +145,7 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, res
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -228,8 +227,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		status = 404;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
@@ -296,8 +294,7 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -349,8 +346,7 @@ uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t 
 			status = 0;
 			break;
 		} else {
-			error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-			status = 500;
+			status = database_error(database, result);
 			goto cleanup;
 		}
 	}
@@ -517,8 +513,7 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 		status = 409;
 		goto cleanup;
 	} else {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
+		status = database_error(database, result);
 		goto cleanup;
 	}
 
