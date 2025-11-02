@@ -459,7 +459,7 @@ int uplink_validate(uplink_t *uplink) {
 		return -1;
 	}
 
-	if (uplink->snr < -96 || uplink->snr > 48) {
+	if (uplink->snr < -112 || uplink->snr > 56) {
 		debug("invalid snr %hhd on uplink\n", uplink->snr);
 		return -1;
 	}
