@@ -204,8 +204,8 @@ int seed_downlink(sqlite3 *database) {
 	downlink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		uint8_t sf = (uint8_t)(rand() % 5 + 7);
+		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		time_t startup_at = time(NULL) - 24 * 60 * 60;
 		time_t sent_at = time(NULL);
 		while (sent_at > startup_at) {
@@ -228,8 +228,8 @@ int seed_downlink(sqlite3 *database) {
 					.airtime = 12 * 16 + (uint16_t)(rand() % 4096),
 					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
 					.bandwidth = 125 * 1000,
-					.tx_power = tx_power,
 					.sf = sf,
+					.tx_power = tx_power,
 					.sent_at = sent_at,
 					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
 			};
@@ -237,19 +237,19 @@ int seed_downlink(sqlite3 *database) {
 			if (downlink_insert(database, &downlink) != 0) {
 				return -1;
 			}
-			tx_power += (uint8_t)(rand() % 3 - 1);
-			if (tx_power < 2) {
-				tx_power += 1;
-			}
-			if (tx_power > 17) {
-				tx_power -= 1;
-			}
 			sf += (uint8_t)(rand() % 3 - 1);
 			if (sf < 7) {
 				sf += 1;
 			}
 			if (sf > 12) {
 				sf -= 1;
+			}
+			tx_power += (uint8_t)(rand() % 3 - 1);
+			if (tx_power < 2) {
+				tx_power += 1;
+			}
+			if (tx_power > 17) {
+				tx_power -= 1;
 			}
 			sent_at -= 280 + rand() % 40;
 			downlink_ids_len += 1;

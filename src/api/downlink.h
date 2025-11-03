@@ -16,8 +16,8 @@ typedef struct downlink_t {
 	uint16_t airtime;
 	uint32_t frequency;
 	uint32_t bandwidth;
-	uint8_t tx_power;
 	uint8_t sf;
+	uint8_t tx_power;
 	time_t sent_at;
 	uint8_t (*device_id)[16];
 } downlink_t;

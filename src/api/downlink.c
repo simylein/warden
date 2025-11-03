@@ -21,8 +21,8 @@ const char *downlink_schema = "create table downlink ("
 															"airtime real not null, "
 															"frequency integer not null, "
 															"bandwidth integer not null, "
-															"tx_power integer not null, "
 															"sf integer not null, "
+															"tx_power integer not null, "
 															"sent_at datetime not null, "
 															"device_id blob not null, "
 															"foreign key (device_id) references device(id) on delete cascade"
@@ -83,7 +83,7 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, kind, data, tx_power, sf, sent_at, downlink.device_id from downlink "
+	const char *sql = "select id, kind, data, sf, tx_power, sent_at, downlink.device_id from downlink "
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"order by sent_at desc "
 										"limit ? offset ?";
@@ -117,8 +117,8 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 3);
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 4);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 3);
+			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 4);
 			const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 5);
 			const uint8_t *device_id = sqlite3_column_blob(stmt, 6);
 			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 6);
@@ -131,8 +131,8 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(uint8_t));
 			body_write(response, data, data_len);
-			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &sf, sizeof(sf));
+			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 			body_write(response, device_id, device_id_len);
 			*downlinks_len += 1;
@@ -157,7 +157,7 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 	const char *sql = "select "
 										"downlink.id, downlink.kind, downlink.data, "
 										"downlink.airtime, downlink.frequency, downlink.bandwidth, "
-										"downlink.tx_power, downlink.sf, "
+										"downlink.sf, downlink.tx_power, "
 										"downlink.sent_at, downlink.device_id "
 										"from downlink "
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
@@ -193,8 +193,8 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		const double airtime = sqlite3_column_double(stmt, 3);
 		const uint32_t frequency = (uint32_t)sqlite3_column_int(stmt, 4);
 		const uint32_t bandwidth = (uint32_t)sqlite3_column_int(stmt, 5);
-		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 6);
-		const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 7);
+		const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 6);
+		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 7);
 		const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 8);
 		const uint8_t *device_id = sqlite3_column_blob(stmt, 9);
 		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 9);
@@ -210,8 +210,8 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		body_write(response, &(uint16_t[]){hton16((uint16_t)(airtime * 16 * 1000))}, sizeof(uint16_t));
 		body_write(response, &(uint32_t[]){hton32(frequency)}, sizeof(frequency));
 		body_write(response, &(uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
-		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &sf, sizeof(sf));
+		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 		body_write(response, device_id, device_id_len);
 		status = 0;
@@ -234,7 +234,7 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, kind, data, tx_power, sf, sent_at from downlink "
+	const char *sql = "select id, kind, data, sf, tx_power, sent_at from downlink "
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"where downlink.device_id = ? "
 										"order by sent_at desc "
@@ -270,15 +270,15 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 3);
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 4);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 3);
+			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 4);
 			const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 5);
 			body_write(response, id, id_len);
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(uint8_t));
 			body_write(response, data, data_len);
-			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &sf, sizeof(sf));
+			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 			*downlinks_len += 1;
 		} else if (result == SQLITE_DONE) {
@@ -336,17 +336,17 @@ int downlink_parse(downlink_t *downlink, request_t *request) {
 	memcpy(&downlink->bandwidth, body_read(request, sizeof(downlink->bandwidth)), sizeof(downlink->bandwidth));
 	downlink->bandwidth = ntoh32(downlink->bandwidth);
 
-	if (request->body.len < request->body.pos + sizeof(downlink->tx_power)) {
-		debug("missing tx power on downlink\n");
-		return -1;
-	}
-	downlink->tx_power = *(uint8_t *)body_read(request, sizeof(downlink->tx_power));
-
 	if (request->body.len < request->body.pos + sizeof(downlink->sf)) {
 		debug("missing sf on downlink\n");
 		return -1;
 	}
 	downlink->sf = *(uint8_t *)body_read(request, sizeof(downlink->sf));
+
+	if (request->body.len < request->body.pos + sizeof(downlink->tx_power)) {
+		debug("missing tx power on downlink\n");
+		return -1;
+	}
+	downlink->tx_power = *(uint8_t *)body_read(request, sizeof(downlink->tx_power));
 
 	if (request->body.len < request->body.pos + sizeof(downlink->sent_at)) {
 		debug("missing sent at on downlink\n");
@@ -385,13 +385,13 @@ int downlink_validate(downlink_t *downlink) {
 		return -1;
 	}
 
-	if (downlink->tx_power < 2 || downlink->tx_power > 17) {
-		debug("invalid tx power %hhu on downlink\n", downlink->tx_power);
+	if (downlink->sf < 6 || downlink->sf > 12) {
+		debug("invalid sf %hhu on downlink\n", downlink->sf);
 		return -1;
 	}
 
-	if (downlink->sf < 6 || downlink->sf > 12) {
-		debug("invalid sf %hhu on downlink\n", downlink->sf);
+	if (downlink->tx_power < 2 || downlink->tx_power > 17) {
+		debug("invalid tx power %hhu on downlink\n", downlink->tx_power);
 		return -1;
 	}
 
@@ -402,7 +402,7 @@ uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into downlink (id, kind, data, airtime, frequency, bandwidth, tx_power, sf, sent_at, device_id) "
+	const char *sql = "insert into downlink (id, kind, data, airtime, frequency, bandwidth, sf, tx_power, sent_at, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
@@ -417,8 +417,8 @@ uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink) {
 	sqlite3_bind_double(stmt, 3, (double)downlink->airtime / (16 * 1000));
 	sqlite3_bind_int(stmt, 4, (int)downlink->frequency);
 	sqlite3_bind_int(stmt, 5, (int)downlink->bandwidth);
-	sqlite3_bind_int(stmt, 6, downlink->tx_power);
-	sqlite3_bind_int(stmt, 7, downlink->sf);
+	sqlite3_bind_int(stmt, 6, downlink->sf);
+	sqlite3_bind_int(stmt, 7, downlink->tx_power);
 	sqlite3_bind_int64(stmt, 8, downlink->sent_at);
 	sqlite3_bind_blob(stmt, 9, downlink->device_id, sizeof(*downlink->device_id), SQLITE_STATIC);
 

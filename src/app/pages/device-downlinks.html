@@ -44,8 +44,8 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Kind</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Data</th>
-							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Tx power</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Sf</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Tx power</th>
 						</tr>
 					</thead>
 					<tbody id="downlinks">
@@ -129,12 +129,12 @@
 						paint(element.children[ind].children[2].children[0], [], ['w-56', 'h-4'], 'null');
 						colorNull(element.children[ind].children[2].children[0]);
 					}
-					paint(element.children[ind].children[3].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
+					paint(element.children[ind].children[3].children[0], [], ['w-4', 'h-4'], data[ind].sf);
 					fade(element.children[ind].children[3].children[0]);
-					colorTxPower(element.children[ind].children[3].children[0], data[ind].txPower);
-					paint(element.children[ind].children[4].children[0], [], ['w-4', 'h-4'], data[ind].sf);
+					colorSf(element.children[ind].children[3].children[0], data[ind].sf);
+					paint(element.children[ind].children[4].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
 					fade(element.children[ind].children[4].children[0]);
-					colorSf(element.children[ind].children[4].children[0], data[ind].sf);
+					colorTxPower(element.children[ind].children[4].children[0], data[ind].txPower);
 				}
 			});
 		};
@@ -161,8 +161,8 @@
 				downlink.id = binary.uuid();
 				downlink.kind = binary.byte();
 				downlink.data = binary.hex(binary.uint(8));
-				downlink.txPower = binary.uint(8);
 				downlink.sf = binary.uint(8);
+				downlink.txPower = binary.uint(8);
 				downlink.receivedAt = binary.uint(64);
 				downlinks.push(downlink);
 			}
