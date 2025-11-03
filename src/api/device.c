@@ -115,7 +115,11 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			"case when ?2 = 'photovoltaic' and ?3 = 'asc' then metric.photovoltaic end asc, "
 			"case when ?2 = 'photovoltaic' and ?3 = 'desc' then metric.photovoltaic end desc, "
 			"case when ?2 = 'battery' and ?3 = 'asc' then metric.battery end asc, "
-			"case when ?2 = 'battery' and ?3 = 'desc' then metric.battery end desc";
+			"case when ?2 = 'battery' and ?3 = 'desc' then metric.battery end desc, "
+			"case when ?2 = 'delay' and ?3 = 'asc' then buffer.delay end asc, "
+			"case when ?2 = 'delay' and ?3 = 'desc' then buffer.delay end desc, "
+			"case when ?2 = 'level' and ?3 = 'asc' then buffer.level end asc, "
+			"case when ?2 = 'level' and ?3 = 'desc' then buffer.level end desc";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {

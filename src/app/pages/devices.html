@@ -95,6 +95,24 @@
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
 								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
 							</th>
+							<th
+								id="delay"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('delay'); loadDevices()"
+							>
+								Delay
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="level"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('level'); loadDevices()"
+							>
+								Level
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
 						</tr>
 					</thead>
 					<tbody id="devices">
@@ -130,12 +148,14 @@
 	<script>
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/resize.js';
+		import './src/app/scripts/duration.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-device.js';
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/color-buffer.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
@@ -149,6 +169,8 @@
 			humidity: document.getElementById('humidity'),
 			photovoltaic: document.getElementById('photovoltaic'),
 			battery: document.getElementById('battery'),
+			delay: document.getElementById('delay'),
+			level: document.getElementById('level'),
 		};
 		const paintSorting = (column) => {
 			const element = columns[column];
@@ -185,6 +207,10 @@
 				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				loading(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -230,6 +256,21 @@
 						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[6].children[0]);
 					}
+					element.children[ind].children[7].onclick = () => (window.location.href = `/device/${data[ind].id}/buffers`);
+					fade(element.children[ind].children[7].children[0]);
+					element.children[ind].children[8].onclick = () => (window.location.href = `/device/${data[ind].id}/buffers`);
+					fade(element.children[ind].children[8].children[0]);
+					if (data[ind].buffer !== null && Number(data[ind].buffer.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
+						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], duration(data[ind].buffer.delay));
+						colorDelay(element.children[ind].children[7].children[0], data[ind].buffer.delay);
+						paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].buffer.level);
+						colorLevel(element.children[ind].children[8].children[0], data[ind].buffer.level);
+					} else {
+						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], 'null');
+						colorNull(element.children[ind].children[7].children[0]);
+						paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], 'null');
+						colorNull(element.children[ind].children[8].children[0]);
+					}
 				}
 			});
 		};
@@ -248,6 +289,10 @@
 				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
 				error(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				error(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
 			});
 		};
 		const parseDevices = async (response) => {
