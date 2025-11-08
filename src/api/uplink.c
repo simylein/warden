@@ -417,6 +417,12 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	}
 	uplink->sf = *(uint8_t *)body_read(request, sizeof(uplink->sf));
 
+	if (request->body.len < request->body.pos + sizeof(uplink->tx_power)) {
+		debug("missing tx power on uplink\n");
+		return -1;
+	}
+	uplink->tx_power = *(uint8_t *)body_read(request, sizeof(uplink->tx_power));
+
 	if (request->body.len < request->body.pos + sizeof(uplink->received_at)) {
 		debug("missing received at on uplink\n");
 		return -1;
