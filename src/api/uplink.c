@@ -475,6 +475,11 @@ int uplink_validate(uplink_t *uplink) {
 		return -1;
 	}
 
+	if (uplink->tx_power < 2 || uplink->tx_power > 17) {
+		debug("invalid tx power %hhu on uplink\n", uplink->tx_power);
+		return -1;
+	}
+
 	return 0;
 }
 
