@@ -26,6 +26,7 @@ const char *uplink_schema = "create table uplink ("
 														"rssi integer not null, "
 														"snr real not null, "
 														"sf integer not null, "
+														"tx_power integer not null, "
 														"received_at datetime not null, "
 														"device_id blob not null, "
 														"foreign key (device_id) references device(id) on delete cascade"
@@ -487,8 +488,9 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into uplink (id, kind, data, airtime, frequency, bandwidth, rssi, snr, sf, received_at, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
+	const char *sql = "insert into uplink (id, kind, data, airtime, frequency, bandwidth, "
+										"rssi, snr, sf, tx_power, received_at, device_id) "
+										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -505,8 +507,9 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	sqlite3_bind_int(stmt, 6, uplink->rssi);
 	sqlite3_bind_double(stmt, 7, (double)uplink->snr / 4);
 	sqlite3_bind_int(stmt, 8, uplink->sf);
-	sqlite3_bind_int64(stmt, 9, uplink->received_at);
-	sqlite3_bind_blob(stmt, 10, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 9, uplink->tx_power);
+	sqlite3_bind_int64(stmt, 10, uplink->received_at);
+	sqlite3_bind_blob(stmt, 11, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {

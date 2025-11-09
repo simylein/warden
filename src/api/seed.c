@@ -138,6 +138,7 @@ int seed_uplink(sqlite3 *database) {
 		int16_t rssi = (int16_t)(rand() % 128 - 157);
 		int8_t snr = (int8_t)(rand() % 144 - 96);
 		uint8_t sf = (uint8_t)(rand() % 5 + 7);
+		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		time_t startup_at = time(NULL) - 24 * 60 * 60;
 		time_t received_at = time(NULL);
 		while (received_at > startup_at) {
@@ -163,6 +164,7 @@ int seed_uplink(sqlite3 *database) {
 					.rssi = rssi,
 					.snr = snr,
 					.sf = sf,
+					.tx_power = tx_power,
 					.received_at = received_at,
 					.device_id = (uint8_t (*)[16])(&device_ids[index * sizeof(*((device_t *)0)->id)]),
 			};
@@ -190,6 +192,13 @@ int seed_uplink(sqlite3 *database) {
 			}
 			if (sf > 12) {
 				sf -= 1;
+			}
+			tx_power += (uint8_t)(rand() % 3 - 1);
+			if (tx_power < 2) {
+				tx_power += 1;
+			}
+			if (tx_power > 17) {
+				tx_power -= 1;
 			}
 			received_at -= 280 + rand() % 40;
 			uplink_ids_len += 1;
