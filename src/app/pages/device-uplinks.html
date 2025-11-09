@@ -47,6 +47,7 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Rssi</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Snr</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Sf</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Tx power</th>
 						</tr>
 					</thead>
 					<tbody id="uplinks">
@@ -88,6 +89,7 @@
 		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-signal.js';
 		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-tx-power.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -115,6 +117,8 @@
 				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
 				loading(element.children[ind].children[5].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4'], [], '');
 			});
 		};
 		const paintUplinks = (element, data) => {
@@ -141,6 +145,9 @@
 					paint(element.children[ind].children[5].children[0], [], ['w-4', 'h-4'], data[ind].sf);
 					fade(element.children[ind].children[5].children[0]);
 					colorSf(element.children[ind].children[5].children[0], data[ind].sf);
+					paint(element.children[ind].children[6].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
+					fade(element.children[ind].children[6].children[0]);
+					colorTxPower(element.children[ind].children[6].children[0], data[ind].txPower);
 				}
 			});
 		};
@@ -158,6 +165,8 @@
 				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
 				error(element.children[ind].children[5].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-4', 'h-4'], [], '');
 			});
 		};
 		const parseUplinks = async (response) => {
@@ -165,13 +174,14 @@
 			const binary = new Binary(buffer);
 			const uplinks = [];
 			while (binary.offset < buffer.byteLength) {
-				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, receivedAt: null, deviceId: null };
+				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, txPower: null, receivedAt: null, deviceId: null };
 				uplink.id = binary.uuid();
 				uplink.kind = binary.byte();
 				uplink.data = binary.hex(binary.uint(8));
 				uplink.rssi = binary.int(16);
 				uplink.snr = binary.int(8) / 4;
 				uplink.sf = binary.uint(8);
+				uplink.txPower = binary.uint(8);
 				uplink.receivedAt = binary.uint(64);
 				uplinks.push(uplink);
 			}
