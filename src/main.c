@@ -1,5 +1,7 @@
+#include "api/drop.h"
 #include "api/init.h"
 #include "api/seed.h"
+#include "api/wipe.h"
 #include "app/page.h"
 #include "lib/config.h"
 #include "lib/error.h"
@@ -114,6 +116,16 @@ int main(int argc, char *argv[]) {
 
 		if (cmds & 0x20 && seed(database) != 0) {
 			fatal("failed to seed database\n");
+			exit(1);
+		}
+
+		if (cmds & 0x40 && wipe(database) != 0) {
+			fatal("failed to wipe database\n");
+			exit(1);
+		}
+
+		if (cmds & 0x80 && drop(database) != 0) {
+			fatal("failed to drop database\n");
 			exit(1);
 		}
 

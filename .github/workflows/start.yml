@@ -15,6 +15,10 @@ jobs:
         run: ./warden --init
       - name: warden seed
         run: ./warden --seed
+      - name: warden wipe
+        run: ./warden --wipe
+      - name: warden drop
+        run: ./warden --drop
       - name: warden start
         run: |
           address=0.0.0.0

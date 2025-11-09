@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-const char *user_device_table = "user device";
+const char *user_device_table = "user_device";
 const char *user_device_schema = "create table user_device ("
 																 "user_id blob not null, "
 																 "device_id blob not null, "
