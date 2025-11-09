@@ -2,5 +2,6 @@
 
 #include "uplink.h"
 #include <sqlite3.h>
+#include <stdint.h>
 
-int decode(sqlite3 *database, uplink_t *uplink);
+uint16_t decode(sqlite3 *database, uplink_t *uplink);

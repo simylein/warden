@@ -238,13 +238,13 @@ int decode_kind_84(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 	return 0;
 }
 
-int decode(sqlite3 *database, uplink_t *uplink) {
+uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
 	case 0x00: {
 		if (decode_kind_00(uplink->data_len, uplink->received_at) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
 		return 0;
 	}
@@ -252,11 +252,12 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (reading_insert(database, &reading) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = reading_insert(database, &reading)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -264,11 +265,12 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (metric_insert(database, &metric) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = metric_insert(database, &metric)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -277,14 +279,15 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_03(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (reading_insert(database, &reading) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = reading_insert(database, &reading)) != 0) {
+			return status;
 		}
-		if (metric_insert(database, &metric) != 0) {
-			return -1;
+		if ((status = metric_insert(database, &metric)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -295,11 +298,12 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		device_t device = {
 				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
 		if (decode_kind_04(uplink->data, uplink->data_len, uplink->received_at, &device) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (device_update(database, &device) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = device_update(database, &device)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -307,11 +311,12 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		uint8_t id[16];
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_80(uplink->data, uplink->data_len, uplink->received_at, &buffer) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (buffer_insert(database, &buffer) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -320,14 +325,15 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_81(uplink->data, uplink->data_len, uplink->received_at, &reading, &buffer) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (reading_insert(database, &reading) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = reading_insert(database, &reading)) != 0) {
+			return status;
 		}
-		if (buffer_insert(database, &buffer) != 0) {
-			return -1;
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -336,14 +342,15 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_82(uplink->data, uplink->data_len, uplink->received_at, &metric, &buffer) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (metric_insert(database, &metric) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = metric_insert(database, &metric)) != 0) {
+			return status;
 		}
-		if (buffer_insert(database, &buffer) != 0) {
-			return -1;
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -353,17 +360,18 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_83(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric, &buffer) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (reading_insert(database, &reading) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = reading_insert(database, &reading)) != 0) {
+			return status;
 		}
-		if (metric_insert(database, &metric) != 0) {
-			return -1;
+		if ((status = metric_insert(database, &metric)) != 0) {
+			return status;
 		}
-		if (buffer_insert(database, &buffer) != 0) {
-			return -1;
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
 		}
 		return 0;
 	}
@@ -376,20 +384,21 @@ int decode(sqlite3 *database, uplink_t *uplink) {
 				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_84(uplink->data, uplink->data_len, uplink->received_at, &device, &buffer) == -1) {
-			error("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
-			return -1;
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
 		}
-		if (device_update(database, &device) != 0) {
-			return -1;
+		uint16_t status;
+		if ((status = device_update(database, &device)) != 0) {
+			return status;
 		}
-		if (buffer_insert(database, &buffer) != 0) {
-			return -1;
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
 		}
 		return 0;
 	}
 	default: {
-		error("unknown uplink kind %02x\n", uplink->kind);
-		return -1;
+		warn("unknown uplink kind %02x\n", uplink->kind);
+		return 400;
 	}
 	}
 }
