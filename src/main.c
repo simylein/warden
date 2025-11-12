@@ -9,8 +9,11 @@
 #include "lib/logger.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
+#include <errno.h>
+#include <pthread.h>
 #include <signal.h>
 #include <sqlite3.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,11 +44,7 @@ void stop(int sig) {
 	pthread_mutex_unlock(&thread_pool.lock);
 
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
-		if (sqlite3_close_v2(thread_pool.workers[index].arg.database) != SQLITE_OK) {
-			error("failed to close %s because %s\n", database_file, sqlite3_errmsg(thread_pool.workers[index].arg.database));
-		}
-		free(thread_pool.workers[index].arg.request_buffer);
-		free(thread_pool.workers[index].arg.response_buffer);
+		join(&thread_pool.workers[index], index);
 	}
 
 	free(queue.tasks);
@@ -147,6 +146,11 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	if ((errno = pthread_create(&thread_pool.scaler, NULL, &scaler, NULL)) != 0) {
+		fatal("failed to spawn scaler thread because %s\n", errno_str());
+		exit(1);
+	}
+
 	thread_pool.workers = malloc(most_workers * sizeof(*thread_pool.workers));
 	if (thread_pool.workers == NULL) {
 		fatal("failed to allocate %zu bytes for workers because %s\n", most_workers * sizeof(*thread_pool.workers), errno_str());
@@ -201,12 +205,11 @@ int main(int argc, char *argv[]) {
 		pthread_mutex_lock(&thread_pool.lock);
 
 		if (thread_pool.load >= thread_pool.size) {
-			debug("all worker threads currently busy\n");
-			uint8_t new_size = thread_pool.size + 1;
-			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
-				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
-				thread_pool.size = new_size;
-			}
+			pthread_cond_signal(&thread_pool.scale);
+		}
+
+		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers) {
+			pthread_cond_signal(&thread_pool.scale);
 		}
 
 		pthread_mutex_unlock(&thread_pool.lock);
