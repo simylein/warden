@@ -20,6 +20,8 @@
 #include <string.h>
 #include <unistd.h>
 
+bool stopping = false;
+
 int server_sock;
 struct sockaddr_in server_addr;
 
@@ -27,34 +29,11 @@ void stop(int sig) {
 	signal(sig, SIG_DFL);
 	trace("received signal %d\n", sig);
 
+	stopping = true;
+
 	if (close(server_sock) == -1) {
 		error("failed to close socket because %s\n", errno_str());
 	}
-
-	pthread_mutex_lock(&thread_pool.lock);
-
-	if (thread_pool.load > 0) {
-		info("waiting for %hhu threads...\n", thread_pool.load);
-	}
-	while (thread_pool.load > 0) {
-		trace("waiting for %hhu connections to close\n", thread_pool.load);
-		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
-	}
-
-	pthread_mutex_unlock(&thread_pool.lock);
-
-	for (uint8_t index = 0; index < thread_pool.size; index++) {
-		join(&thread_pool.workers[index], index);
-	}
-
-	free(queue.tasks);
-	free(thread_pool.workers);
-
-	page_close();
-	page_free();
-
-	info("graceful shutdown complete\n");
-	exit(0);
 }
 
 int main(int argc, char *argv[]) {
@@ -217,6 +196,10 @@ int main(int argc, char *argv[]) {
 		struct sockaddr_in client_addr;
 		int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &(socklen_t){sizeof(client_addr)});
 
+		if (stopping == true) {
+			break;
+		}
+
 		if (client_sock == -1) {
 			error("failed to accept client because %s\n", errno_str());
 			continue;
@@ -233,4 +216,29 @@ int main(int argc, char *argv[]) {
 		pthread_cond_signal(&queue.filled);
 		pthread_mutex_unlock(&queue.lock);
 	}
+
+	pthread_mutex_lock(&thread_pool.lock);
+
+	if (thread_pool.load > 0) {
+		info("waiting for %hhu threads...\n", thread_pool.load);
+	}
+	while (thread_pool.load > 0) {
+		trace("waiting for %hhu connections to close\n", thread_pool.load);
+		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
+	}
+
+	pthread_mutex_unlock(&thread_pool.lock);
+
+	for (uint8_t index = 0; index < thread_pool.size; index++) {
+		join(&thread_pool.workers[index], index);
+	}
+
+	free(queue.tasks);
+	free(thread_pool.workers);
+
+	page_close();
+	page_free();
+
+	info("graceful shutdown complete\n");
+	exit(0);
 }
