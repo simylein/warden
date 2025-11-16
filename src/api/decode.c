@@ -296,7 +296,13 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		char hardware[16];
 		time_t updated_at;
 		device_t device = {
-				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
+				.id = uplink->device_id,
+				.name = NULL,
+				.type = NULL,
+				.firmware = (char *)&firmware,
+				.hardware = (char *)&hardware,
+				.updated_at = &updated_at,
+		};
 		if (decode_kind_04(uplink->data, uplink->data_len, uplink->received_at, &device) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -381,7 +387,13 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		char hardware[16];
 		time_t updated_at;
 		device_t device = {
-				.id = uplink->device_id, .firmware = (char *)&firmware, .hardware = (char *)&hardware, .updated_at = &updated_at};
+				.id = uplink->device_id,
+				.name = NULL,
+				.type = NULL,
+				.firmware = (char *)&firmware,
+				.hardware = (char *)&hardware,
+				.updated_at = &updated_at,
+		};
 		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_84(uplink->data, uplink->data_len, uplink->received_at, &device, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);

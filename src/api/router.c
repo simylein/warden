@@ -25,6 +25,10 @@ const uint32_t permission_user_device_read = 0x01000000;
 const uint32_t permission_user_device_create = 0x02000000;
 const uint32_t permission_user_device_update = 0x04000000;
 const uint32_t permission_user_device_delete = 0x08000000;
+const uint32_t permission_device_read = 0x00100000;
+const uint32_t permission_device_create = 0x00200000;
+const uint32_t permission_device_update = 0x00400000;
+const uint32_t permission_device_delete = 0x00800000;
 const uint32_t permission_uplink_read = 0x00000010;
 const uint32_t permission_uplink_create = 0x00000020;
 const uint32_t permission_uplink_update = 0x00000040;
@@ -283,6 +287,15 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			device_find_one(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "patch", "/api/device/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_device_update, response) == true) {
+				device_modify(database, request, response);
+			}
 		}
 	}
 

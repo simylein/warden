@@ -11,6 +11,7 @@
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
 		onload="loadDevice()"
 	>
+		<notifications ref="./src/app/components/notifications.html" />
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<nav
 				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
@@ -24,16 +25,20 @@
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
 			<div
-				id="tabs"
-				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
+				class="flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
 			>
-				<a class="no-underline text-blue-600 dark:text-blue-400">Details</a>
-				<a class="no-underline text-black dark:text-white">Readings</a>
-				<a class="no-underline text-black dark:text-white">Metrics</a>
-				<a class="no-underline text-black dark:text-white">Buffers</a>
-				<a class="no-underline text-black dark:text-white">Signals</a>
-				<a class="no-underline text-black dark:text-white">Uplinks</a>
-				<a class="no-underline text-black dark:text-white">Downlinks</a>
+				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal overflow-x-auto scrollbar-none">
+					<a class="no-underline text-blue-600 dark:text-blue-400">Details</a>
+					<a class="no-underline text-black dark:text-white">Readings</a>
+					<a class="no-underline text-black dark:text-white">Metrics</a>
+					<a class="no-underline text-black dark:text-white">Buffers</a>
+					<a class="no-underline text-black dark:text-white">Signals</a>
+					<a class="no-underline text-black dark:text-white">Uplinks</a>
+					<a class="no-underline text-black dark:text-white">Downlinks</a>
+				</div>
+				<div id="update">
+					<icon-edit ref="./src/app/components/icon-edit.html" />
+				</div>
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
@@ -185,6 +190,52 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update device?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-name" class="mb-2 text-base font-normal">Name</label>
+						<input
+							id="update-name"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="name"
+							autofocus
+							onchange="updateForm.setValue('name', event.target.value)"
+							onblur="updateForm.setTouched('name', true)"
+						/>
+						<p id="update-name-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-type" class="mb-2 text-base font-normal">Type</label>
+						<input
+							id="update-type"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="type"
+							onchange="updateForm.setValue('type', event.target.value)"
+							onblur="updateForm.setTouched('type', true)"
+						/>
+						<p id="update-type-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -209,9 +260,16 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
+		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
+		const update = document.getElementById('update');
 		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('device') };
 		deviceTabs();
 		const loadingDevice = (element) => {
+			update.children[0].classList.remove('cursor-pointer');
+			update.children[0].classList.add('opacity-50', 'cursor-not-allowed');
+			update.children[0].onclick = null;
 			loading(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
 			loading(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
 			fade(element.children[2].children[1].children[0]);
@@ -244,6 +302,9 @@
 			loading(element.children[17].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const paintDevice = (element, data) => {
+			update.children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+			update.children[0].classList.add('cursor-pointer');
+			update.children[0].onclick = () => openUpdateDialog(data);
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4'], data.id);
 			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4'], data.name);
 			paint(element.children[2].children[1].children[0], [], ['w-24', 'h-4'], data.type);
@@ -337,6 +398,9 @@
 			}
 		};
 		const errorDevice = (element) => {
+			update.children[0].classList.remove('cursor-pointer');
+			update.children[0].classList.add('opacity-50', 'cursor-not-allowed');
+			update.children[0].onclick = null;
 			error(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
 			error(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
 			fade(element.children[2].children[1].children[0]);
@@ -452,6 +516,57 @@
 			async (context, response) => (context.data = await parseDevice(response)),
 			(context) => window.requestAnimationFrame(() => paintDevice(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorDevice(context.element))
+		);
+		const updateDialog = document.getElementById('update-dialog');
+		const openUpdateDialog = (device) => {
+			updateForm.setValue('name', device.name);
+			document.getElementById('update-name').value = device.name;
+			updateForm.setValue('type', device.type);
+			document.getElementById('update-type').value = device.type;
+			updateForm.setValue('deviceId', device.id);
+			updateForm.setTouched('deviceId', true);
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
+		};
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+				name: document.getElementById('update-name-validation'),
+				type: document.getElementById('update-type-validation'),
+			},
+			{
+				name: (value) => {
+					if (!value) return 'name is required';
+					if (value.length < 2) return 'name is too short';
+					if (value.length > 16) return 'name is too long';
+					if (!value.match(/^[a-z ]+$/)) return 'name must be lowercase letters';
+				},
+				type: (value) => {
+					if (!value) return 'type is required';
+					if (value.length < 2) return 'type is too short';
+					if (value.length > 12) return 'type is too long';
+					if (!value.match(/^[a-z]+$/)) return 'type must be lowercase letters';
+				},
+				deviceId: (value) => {
+					if (!value) return 'device id is required';
+					if (value.length !== 32) return 'device id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const data = new Blob([values.name, '\0', values.type, '\0', '\0', '\0']);
+				try {
+					await fetcher('patch', `/api/device/${values.deviceId}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully updated device ${values.deviceId.substring(0, 4)}`);
+					loadDevice(true);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
+			}
 		);
 	</script>
 </html>

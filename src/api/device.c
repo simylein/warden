@@ -562,6 +562,162 @@ cleanup:
 	return status;
 }
 
+int device_parse(device_t *device, request_t *request) {
+	request->body.pos = 0;
+
+	uint8_t stage = 0;
+
+	device->name_len = 0;
+	const uint8_t name_index = (uint8_t)request->body.pos;
+	while (stage == 0 && device->name_len < 16 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 1;
+		} else {
+			device->name_len++;
+		}
+	}
+	if (device->name_len != 0) {
+		device->name = &request->body.ptr[name_index];
+	} else {
+		device->name = NULL;
+	}
+	if (stage != 1) {
+		debug("found name with %hhu bytes\n", device->name_len);
+		return -1;
+	}
+
+	device->type_len = 0;
+	const uint8_t type_index = (uint8_t)request->body.pos;
+	while (stage == 1 && device->type_len < 12 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 2;
+		} else {
+			device->type_len++;
+		}
+	}
+	if (device->type_len != 0) {
+		device->type = &request->body.ptr[type_index];
+	} else {
+		device->type = NULL;
+	}
+	if (stage != 2) {
+		debug("found type with %hhu bytes\n", device->type_len);
+		return -1;
+	}
+
+	device->firmware_len = 0;
+	const uint8_t firmware_index = (uint8_t)request->body.pos;
+	while (stage == 2 && device->firmware_len < 12 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 3;
+		} else {
+			device->firmware_len++;
+		}
+	}
+	if (device->firmware_len != 0) {
+		device->firmware = &request->body.ptr[firmware_index];
+	} else {
+		device->firmware = NULL;
+	}
+	if (stage != 3) {
+		debug("found firmware with %hhu bytes\n", device->firmware_len);
+		return -1;
+	}
+
+	device->hardware_len = 0;
+	const uint8_t hardware_index = (uint8_t)request->body.pos;
+	while (stage == 3 && device->hardware_len < 12 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 4;
+		} else {
+			device->hardware_len++;
+		}
+	}
+	if (device->hardware_len != 0) {
+		device->hardware = &request->body.ptr[hardware_index];
+	} else {
+		device->hardware = NULL;
+	}
+	if (stage != 4) {
+		debug("found hardware with %hhu bytes\n", device->hardware_len);
+		return -1;
+	}
+
+	return 0;
+}
+
+int device_validate(device_t *device) {
+	if (device->name != NULL) {
+		if (device->name_len < 2) {
+			return -1;
+		}
+
+		uint8_t name_index = 0;
+		while (name_index < device->name_len) {
+			char *byte = &device->name[name_index];
+			if ((*byte < 'a' || *byte > 'z') && *byte != ' ') {
+				debug("name contains invalid character %02x\n", *byte);
+				return -1;
+			}
+			name_index++;
+		}
+	}
+
+	if (device->type != NULL) {
+		if (device->type_len < 2) {
+			return -1;
+		}
+
+		uint8_t type_index = 0;
+		while (type_index < device->type_len) {
+			char *byte = &device->type[type_index];
+			if (*byte < 'a' || *byte > 'z') {
+				debug("type contains invalid character %02x\n", *byte);
+				return -1;
+			}
+			type_index++;
+		}
+	}
+
+	if (device->firmware != NULL) {
+		if (device->firmware_len < 4) {
+			return -1;
+		}
+
+		uint8_t firmware_index = 0;
+		while (firmware_index < device->firmware_len) {
+			char *byte = &device->firmware[firmware_index];
+			if ((*byte < '0' || *byte > '9') && *byte != '.' && *byte != '-' && *byte != 'r' && *byte != 'c') {
+				debug("firmware contains invalid character %02x\n", *byte);
+				return -1;
+			}
+			firmware_index++;
+		}
+	}
+
+	if (device->hardware != NULL) {
+		if (device->hardware_len < 4) {
+			return -1;
+		}
+
+		uint8_t hardware_index = 0;
+		while (hardware_index < device->hardware_len) {
+			char *byte = &device->hardware[hardware_index];
+			if ((*byte < '0' || *byte > '9') && *byte != '.' && *byte != '-' && *byte != 'r' && *byte != 'c') {
+				debug("hardware contains invalid character %02x\n", *byte);
+				return -1;
+			}
+			hardware_index++;
+		}
+	}
+
+	return 0;
+}
+
 uint16_t device_insert(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -619,7 +775,10 @@ uint16_t device_update(sqlite3 *database, device_t *device) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "update device set firmware = ?, hardware = ?, updated_at = ? "
+	const char *sql = "update device "
+										"set name = coalesce(?, name), type = coalesce(?, type), "
+										"firmware = coalesce(?, firmware), hardware = coalesce(?, hardware), "
+										"updated_at = ? "
 										"where id = ?";
 	debug("%s\n", sql);
 
@@ -629,10 +788,28 @@ uint16_t device_update(sqlite3 *database, device_t *device) {
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, device->firmware, device->firmware_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, device->hardware, device->hardware_len, SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 3, *device->updated_at);
-	sqlite3_bind_blob(stmt, 4, *device->id, sizeof(*device->id), SQLITE_STATIC);
+	if (device->name != NULL) {
+		sqlite3_bind_text(stmt, 1, device->name, device->name_len, SQLITE_STATIC);
+	} else {
+		sqlite3_bind_null(stmt, 1);
+	}
+	if (device->type != NULL) {
+		sqlite3_bind_text(stmt, 2, device->type, device->type_len, SQLITE_STATIC);
+	} else {
+		sqlite3_bind_null(stmt, 2);
+	}
+	if (device->firmware != NULL) {
+		sqlite3_bind_text(stmt, 3, device->firmware, device->firmware_len, SQLITE_STATIC);
+	} else {
+		sqlite3_bind_null(stmt, 3);
+	}
+	if (device->hardware != NULL) {
+		sqlite3_bind_text(stmt, 4, device->hardware, device->hardware_len, SQLITE_STATIC);
+	} else {
+		sqlite3_bind_null(stmt, 4);
+	}
+	sqlite3_bind_int64(stmt, 5, *device->updated_at);
+	sqlite3_bind_blob(stmt, 6, *device->id, sizeof(*device->id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result != SQLITE_DONE) {
@@ -758,5 +935,43 @@ void device_find_by_user(sqlite3 *database, request_t *request, response_t *resp
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu devices\n", devices_len);
+	response->status = 200;
+}
+
+void device_modify(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	time_t now = time(NULL);
+	device_t device = {.id = &id, .updated_at = &now};
+	if (request->body.len == 0 || device_parse(&device, request) == -1 || device_validate(&device) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = device_update(database, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
 }
