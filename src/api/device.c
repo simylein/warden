@@ -659,7 +659,7 @@ int device_validate(device_t *device) {
 		uint8_t name_index = 0;
 		while (name_index < device->name_len) {
 			char *byte = &device->name[name_index];
-			if ((*byte < 'a' || *byte > 'z') && *byte != ' ') {
+			if ((*byte < 'a' || *byte > 'z') && (*byte < '0' || *byte > '9') && *byte != ' ') {
 				debug("name contains invalid character %02x\n", *byte);
 				return -1;
 			}

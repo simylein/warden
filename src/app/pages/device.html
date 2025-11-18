@@ -542,7 +542,7 @@
 					if (!value) return 'name is required';
 					if (value.length < 2) return 'name is too short';
 					if (value.length > 16) return 'name is too long';
-					if (!value.match(/^[a-z ]+$/)) return 'name must be lowercase letters';
+					if (!value.match(/^[a-z0-9 ]+$/)) return 'name must be lowercase letters or numbers';
 				},
 				type: (value) => {
 					if (!value) return 'type is required';
