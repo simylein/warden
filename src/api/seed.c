@@ -99,14 +99,11 @@ int seed_device(sqlite3 *database) {
 			name[ind] = (char)('a' + rand() % 26);
 		}
 
-		char *type;
-		uint8_t type_len;
-		if (rand() % 2 == 0) {
-			type = "indoor";
-			type_len = 6;
+		uint8_t (*zone_id)[16];
+		if (rand() % 5 == 0) {
+			zone_id = NULL;
 		} else {
-			type = "outdoor";
-			type_len = 7;
+			zone_id = &zone_ids[rand() % 2];
 		}
 
 		char firmware[16];
@@ -127,8 +124,7 @@ int seed_device(sqlite3 *database) {
 				.id = &device_ids[index],
 				.name = name,
 				.name_len = name_len,
-				.type = type,
-				.type_len = type_len,
+				.zone_id = zone_id,
 				.firmware = firmware_len == 0 ? NULL : firmware,
 				.firmware_len = firmware_len,
 				.hardware = hardware_len == 0 ? NULL : hardware,

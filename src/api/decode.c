@@ -298,7 +298,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		device_t device = {
 				.id = uplink->device_id,
 				.name = NULL,
-				.type = NULL,
+				.zone_id = NULL,
 				.firmware = (char *)&firmware,
 				.hardware = (char *)&hardware,
 				.updated_at = &updated_at,
@@ -389,7 +389,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		device_t device = {
 				.id = uplink->device_id,
 				.name = NULL,
-				.type = NULL,
+				.zone_id = NULL,
 				.firmware = (char *)&firmware,
 				.hardware = (char *)&hardware,
 				.updated_at = &updated_at,

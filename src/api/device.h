@@ -12,8 +12,7 @@ typedef struct device_t {
 	uint8_t (*id)[16];
 	char *name;
 	uint8_t name_len;
-	char *type;
-	uint8_t type_len;
+	uint8_t (*zone_id)[16];
 	char *firmware;
 	uint8_t firmware_len;
 	char *hardware;

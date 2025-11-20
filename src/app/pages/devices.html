@@ -8,7 +8,7 @@
 		<style></style>
 	</head>
 	<body
-		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
 		onload="loadDevices()"
 	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
@@ -51,11 +51,11 @@
 								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
 							</th>
 							<th
-								id="type"
+								id="zone"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('type'); loadDevices()"
+								onclick="paintSorting('zone'); loadDevices()"
 							>
-								Type
+								Zone
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
 								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
 							</th>
@@ -164,7 +164,7 @@
 		const columns = {
 			id: document.getElementById('id'),
 			name: document.getElementById('name'),
-			type: document.getElementById('type'),
+			zone: document.getElementById('zone'),
 			temperature: document.getElementById('temperature'),
 			humidity: document.getElementById('humidity'),
 			photovoltaic: document.getElementById('photovoltaic'),
@@ -223,9 +223,14 @@
 					element.children[ind].children[1].onclick = () => (window.location.href = `/device/${data[ind].id}`);
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].name);
 					element.children[ind].children[2].onclick = () => (window.location.href = `/device/${data[ind].id}`);
-					paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], data[ind].type);
 					fade(element.children[ind].children[2].children[0]);
-					colorDevice(element.children[ind].children[2].children[0], data[ind].type);
+					if (data[ind].zone !== null) {
+						paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], data[ind].zone.name);
+						colorZone(element.children[ind].children[2].children[0], data[ind].zone.color);
+					} else {
+						paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], 'null');
+						colorNull(element.children[ind].children[2].children[0]);
+					}
 					element.children[ind].children[3].onclick = () => (window.location.href = `/device/${data[ind].id}/readings`);
 					fade(element.children[ind].children[3].children[0]);
 					element.children[ind].children[4].onclick = () => (window.location.href = `/device/${data[ind].id}/readings`);
@@ -300,13 +305,22 @@
 			const binary = new Binary(buffer);
 			const devices = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, type: null, createdAt: null, updatedAt: null, reading: null, metric: null, buffer: null, uplink: null };
+				const device = { id: null, name: null, createdAt: null, updatedAt: null, zone: null, reading: null, metric: null, buffer: null, uplink: null };
 				device.id = binary.uuid();
 				device.name = binary.string();
-				device.type = binary.string();
 				device.createdAt = binary.uint(64);
 				if (binary.byte() !== 0) {
 					device.updatedAt = binary.uint(64);
+				}
+				if (binary.byte() !== 0) {
+					device.zone = {};
+					device.zone.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					device.zone.name = binary.string();
+				}
+				if (binary.byte() !== 0) {
+					device.zone.color = binary.hex(12);
 				}
 				if (binary.byte() !== 0) {
 					device.reading = {};
