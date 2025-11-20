@@ -10,4 +10,6 @@ const fade = (element) => {
 			element.classList.remove(cls);
 		}
 	}
+	element.style.removeProperty('color');
+	element.style.removeProperty('background-color');
 };
