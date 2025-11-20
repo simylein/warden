@@ -7,6 +7,7 @@
 #include "uplink.h"
 #include "user-device.h"
 #include "user.h"
+#include "zone.h"
 #include <sqlite3.h>
 #include <stdio.h>
 
@@ -46,6 +47,9 @@ int wipe(sqlite3 *database) {
 		return -1;
 	}
 	if (wipe_table(database, device_table) == -1) {
+		return -1;
+	}
+	if (wipe_table(database, zone_table) == -1) {
 		return -1;
 	}
 	if (wipe_table(database, uplink_table) == -1) {
