@@ -4,6 +4,9 @@ class Binary {
 	constructor(buffer) {
 		this.data = new DataView(buffer);
 	}
+	bool() {
+		return this.data.getUint8(this.offset++) == 1;
+	}
 	byte() {
 		return this.data.getUint8(this.offset++);
 	}
