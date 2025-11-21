@@ -542,10 +542,12 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"device.id, device.name, device.type, device.created_at, device.updated_at, "
+										"device.id, device.name, device.created_at, device.updated_at, "
+										"zone.id, zone.name, zone.color, "
 										"uplink.id, uplink.received_at "
 										"from device "
 										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+										"left join zone on zone.id = device.zone_id "
 										"left join uplink on uplink.id = "
 										"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
 										"order by device.name asc";
@@ -571,30 +573,53 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 			}
 			const uint8_t *name = sqlite3_column_text(stmt, 1);
 			const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const uint8_t *type = sqlite3_column_text(stmt, 2);
-			const size_t type_len = (size_t)sqlite3_column_bytes(stmt, 2);
-			const time_t created_at = (time_t)sqlite3_column_int64(stmt, 3);
-			const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 4);
-			const int updated_at_type = sqlite3_column_type(stmt, 4);
-			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 5);
-			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 5);
-			const int uplink_id_type = sqlite3_column_type(stmt, 5);
+			const time_t created_at = (time_t)sqlite3_column_int64(stmt, 2);
+			const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 3);
+			const int updated_at_type = sqlite3_column_type(stmt, 3);
+			const uint8_t *zone_id = sqlite3_column_blob(stmt, 4);
+			const size_t zone_id_len = (size_t)sqlite3_column_bytes(stmt, 4);
+			const int zone_id_type = sqlite3_column_type(stmt, 4);
+			if (zone_id_type != SQLITE_NULL && zone_id_len != sizeof(*((zone_t *)0)->id)) {
+				error("zone id length %zu does not match buffer length %zu\n", zone_id_len, sizeof(*((zone_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			const uint8_t *zone_name = sqlite3_column_text(stmt, 5);
+			const size_t zone_name_len = (size_t)sqlite3_column_bytes(stmt, 5);
+			const int zone_name_type = sqlite3_column_type(stmt, 5);
+			const uint8_t *zone_color = sqlite3_column_blob(stmt, 6);
+			const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 6);
+			const int zone_color_type = sqlite3_column_type(stmt, 6);
+			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 7);
+			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
+			const int uplink_id_type = sqlite3_column_type(stmt, 7);
 			if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
 				error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
 				status = 500;
 				goto cleanup;
 			}
-			const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 6);
-			const int uplink_received_at_type = sqlite3_column_type(stmt, 6);
+			const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 8);
+			const int uplink_received_at_type = sqlite3_column_type(stmt, 8);
 			body_write(response, id, id_len);
 			body_write(response, name, name_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, type, type_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
 			body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
 			body_write(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
 			if (updated_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+			}
+			body_write(response, (char[]){zone_id_type != SQLITE_NULL}, sizeof(char));
+			if (zone_id_type != SQLITE_NULL) {
+				body_write(response, zone_id, zone_id_len);
+			}
+			body_write(response, (char[]){zone_name_type != SQLITE_NULL}, sizeof(char));
+			if (zone_name_type != SQLITE_NULL) {
+				body_write(response, zone_name, zone_name_len);
+				body_write(response, (char[]){0x00}, sizeof(char));
+			}
+			body_write(response, (char[]){zone_color_type != SQLITE_NULL}, sizeof(char));
+			if (zone_color_type != SQLITE_NULL) {
+				body_write(response, zone_color, zone_color_len);
 			}
 			body_write(response, (char[]){uplink_id_type != SQLITE_NULL}, sizeof(char));
 			if (uplink_id_type != SQLITE_NULL) {
