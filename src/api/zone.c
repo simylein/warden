@@ -12,8 +12,8 @@ const char *zone_schema = "create table zone ("
 													"id blob primary key, "
 													"name text not null unique, "
 													"color blob not null, "
-													"created_at datetime not null, "
-													"updated_at datetime"
+													"created_at timestamp not null, "
+													"updated_at timestamp"
 													")";
 
 uint16_t zone_insert(sqlite3 *database, zone_t *zone) {

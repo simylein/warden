@@ -23,7 +23,7 @@ const char *downlink_schema = "create table downlink ("
 															"bandwidth integer not null, "
 															"sf integer not null, "
 															"tx_power integer not null, "
-															"sent_at datetime not null, "
+															"sent_at timestamp not null, "
 															"device_id blob not null, "
 															"foreign key (device_id) references device(id) on delete cascade"
 															")";

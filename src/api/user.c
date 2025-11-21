@@ -20,8 +20,8 @@ const char *user_schema = "create table user ("
 													"id blob primary key, "
 													"username text not null unique, "
 													"password blob not null, "
-													"signup_at datetime not null, "
-													"signin_at datetime not null, "
+													"signup_at timestamp not null, "
+													"signin_at timestamp not null, "
 													"permissions blob not null"
 													")";
 

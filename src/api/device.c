@@ -26,8 +26,8 @@ const char *device_schema = "create table device ("
 														"zone_id blob, "
 														"firmware text, "
 														"hardware text, "
-														"created_at datetime not null, "
-														"updated_at datetime, "
+														"created_at timestamp not null, "
+														"updated_at timestamp, "
 														"foreign key (zone_id) references zone(id) on delete set null"
 														")";
 
