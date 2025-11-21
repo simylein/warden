@@ -673,7 +673,7 @@ int device_parse(device_t *device, request_t *request) {
 		debug("missing zone id on device\n");
 		return -1;
 	}
-	device->id = (uint8_t (*)[16])body_read(request, sizeof(*device->id));
+	device->zone_id = (uint8_t (*)[16])body_read(request, sizeof(*device->zone_id));
 	stage = 2;
 
 	device->firmware_len = 0;
@@ -833,7 +833,7 @@ uint16_t device_update(sqlite3 *database, device_t *device) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "update device "
-										"set name = coalesce(?, name), type = coalesce(?, type), "
+										"set name = coalesce(?, name), zone_id = coalesce(?, zone_id), "
 										"firmware = coalesce(?, firmware), hardware = coalesce(?, hardware), "
 										"updated_at = ? "
 										"where id = ?";
@@ -869,6 +869,12 @@ uint16_t device_update(sqlite3 *database, device_t *device) {
 	sqlite3_bind_blob(stmt, 6, *device->id, sizeof(*device->id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
+	if (result == SQLITE_CONSTRAINT) {
+		warn("zone %02x%02x not found\n", (*device->zone_id)[0], (*device->zone_id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
 	if (result != SQLITE_DONE) {
 		status = database_error(database, result);
 		goto cleanup;

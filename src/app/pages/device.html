@@ -207,16 +207,16 @@
 						<p id="update-name-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start">
-						<label for="update-type" class="mb-2 text-base font-normal">Type</label>
+						<label for="update-zone-id" class="mb-2 text-base font-normal">Zone</label>
 						<input
-							id="update-type"
+							id="update-zone-id"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="type"
-							onchange="updateForm.setValue('type', event.target.value)"
-							onblur="updateForm.setTouched('type', true)"
+							placeholder="zone id"
+							onchange="updateForm.setValue('zoneId', event.target.value)"
+							onblur="updateForm.setTouched('zoneId', true)"
 						/>
-						<p id="update-type-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="update-zone-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -535,8 +535,8 @@
 		const openUpdateDialog = (device) => {
 			updateForm.setValue('name', device.name);
 			document.getElementById('update-name').value = device.name;
-			updateForm.setValue('type', device.type);
-			document.getElementById('update-type').value = device.type;
+			updateForm.setValue('zoneId', device.zone.id);
+			document.getElementById('update-zone-id').value = device.zone.id;
 			updateForm.setValue('deviceId', device.id);
 			updateForm.setTouched('deviceId', true);
 			updateDialog.showModal();
@@ -549,7 +549,7 @@
 			{
 				button: document.getElementById('update-button'),
 				name: document.getElementById('update-name-validation'),
-				type: document.getElementById('update-type-validation'),
+				zoneId: document.getElementById('update-zone-id-validation'),
 			},
 			{
 				name: (value) => {
@@ -558,11 +558,10 @@
 					if (value.length > 16) return 'name is too long';
 					if (!value.match(/^[a-z0-9 ]+$/)) return 'name must be lowercase letters or numbers';
 				},
-				type: (value) => {
-					if (!value) return 'type is required';
-					if (value.length < 2) return 'type is too short';
-					if (value.length > 12) return 'type is too long';
-					if (!value.match(/^[a-z]+$/)) return 'type must be lowercase letters';
+				zoneId: (value) => {
+					if (!value) return 'zone id is required';
+					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
 				},
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
@@ -571,7 +570,11 @@
 				},
 			},
 			async (values) => {
-				const data = new Blob([values.name, '\0', values.type, '\0', '\0', '\0']);
+				const bytes = new Uint8Array(values.zoneId.length / 2);
+				for (let ind = 0; ind < bytes.length; ind++) {
+					bytes[ind] = parseInt(values.zoneId.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([values.name, '\0', bytes, '\0', '\0']);
 				try {
 					await fetcher('patch', `/api/device/${values.deviceId}`, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', `Successfully updated device ${values.deviceId.substring(0, 4)}`);
