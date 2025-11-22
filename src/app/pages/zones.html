@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest measurements of your zones" />
+		<title>Warden zones</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
+		onload="loadZones()"
+	>
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<nav
+				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
+			>
+				<a href="/" class="no-underline text-black dark:text-white">Home</a>
+				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+				<a href="/zones" class="no-underline text-blue-600 dark:text-blue-400">Zones</a>
+				<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+				<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+				<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+			</nav>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th
+								id="id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('id'); loadZones()"
+							>
+								Id
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+								</svg>
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="name"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('name'); loadZones()"
+							>
+								Name
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="temperature"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('temperature'); loadZones()"
+							>
+								Temperature
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="humidity"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('humidity'); loadZones()"
+							>
+								Humidity
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="photovoltaic"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('photovoltaic'); loadZones()"
+							>
+								Photovoltaic
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="battery"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('battery'); loadZones()"
+							>
+								Battery
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="delay"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('delay'); loadZones()"
+							>
+								Delay
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="level"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('level'); loadZones()"
+							>
+								Level
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+						</tr>
+					</thead>
+					<tbody id="zones">
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+						<zone-row ref="./src/app/components/zone-row.html" />
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">warden {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/duration.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-device.js';
+		import './src/app/scripts/color-reading.js';
+		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/color-buffer.js';
+		import './src/app/scripts/search.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		const zones = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('zones') };
+		const columns = {
+			id: document.getElementById('id'),
+			name: document.getElementById('name'),
+			temperature: document.getElementById('temperature'),
+			humidity: document.getElementById('humidity'),
+			photovoltaic: document.getElementById('photovoltaic'),
+			battery: document.getElementById('battery'),
+			delay: document.getElementById('delay'),
+			level: document.getElementById('level'),
+		};
+		const paintSorting = (column) => {
+			const element = columns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
+		const loadingZones = (element) => {
+			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				loading(element.children[ind].children[1].children[0], ['w-16', 'h-4'], [], '');
+				fade(element.children[ind].children[2].children[0]);
+				loading(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				loading(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+			});
+		};
+		const paintZones = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
+					paint(element.children[ind].children[1].children[0], [], ['w-16', 'h-4'], data[ind].name);
+					fade(element.children[ind].children[1].children[0]);
+					colorZone(element.children[ind].children[1].children[0], data[ind].color);
+					fade(element.children[ind].children[2].children[0]);
+					fade(element.children[ind].children[3].children[0]);
+					if (data[ind].reading !== null && Number(data[ind].reading.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
+						paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], data[ind].reading.temperature.toFixed(2));
+						colorTemperature(element.children[ind].children[2].children[0], data[ind].reading.temperature);
+						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], data[ind].reading.humidity.toFixed(2));
+						colorHumidity(element.children[ind].children[3].children[0], data[ind].reading.humidity);
+					} else {
+						paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[2].children[0]);
+						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[3].children[0]);
+					}
+					fade(element.children[ind].children[4].children[0]);
+					fade(element.children[ind].children[5].children[0]);
+					if (data[ind].metric !== null && Number(data[ind].metric.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
+						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
+						colorPhotovoltaic(element.children[ind].children[4].children[0], data[ind].metric.photovoltaic);
+						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].metric.battery.toFixed(3));
+						colorBattery(element.children[ind].children[5].children[0], data[ind].metric.battery);
+					} else {
+						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[4].children[0]);
+						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[5].children[0]);
+					}
+					fade(element.children[ind].children[6].children[0]);
+					fade(element.children[ind].children[7].children[0]);
+					if (data[ind].buffer !== null && Number(data[ind].buffer.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
+						paint(element.children[ind].children[6].children[0], [], ['w-8', 'h-4'], duration(data[ind].buffer.delay));
+						colorDelay(element.children[ind].children[6].children[0], data[ind].buffer.delay);
+						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], data[ind].buffer.level);
+						colorLevel(element.children[ind].children[7].children[0], data[ind].buffer.level);
+					} else {
+						paint(element.children[ind].children[6].children[0], [], ['w-8', 'h-4'], 'null');
+						colorNull(element.children[ind].children[6].children[0]);
+						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], 'null');
+						colorNull(element.children[ind].children[7].children[0]);
+					}
+				}
+			});
+		};
+		const errorZones = (element) => {
+			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[1].children[0], ['w-16', 'h-4'], [], '');
+				fade(element.children[ind].children[2].children[0]);
+				error(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				error(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+			});
+		};
+		const parseZones = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const zones = [];
+			while (binary.offset < buffer.byteLength) {
+				const zone = { id: null, name: null, color: null, reading: null, metric: null, buffer: null };
+				zone.id = binary.uuid();
+				zone.name = binary.string();
+				zone.color = binary.hex(12);
+				if (binary.byte() !== 0) {
+					zone.reading = {};
+					zone.reading.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					zone.reading.temperature = binary.int(16) / 100;
+				}
+				if (binary.byte() !== 0) {
+					zone.reading.humidity = binary.uint(16) / 100;
+				}
+				if (binary.byte() !== 0) {
+					zone.reading.capturedAt = binary.uint(64);
+				}
+				if (binary.byte() !== 0) {
+					zone.metric = {};
+					zone.metric.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					zone.metric.photovoltaic = binary.uint(16) / 1000;
+				}
+				if (binary.byte() !== 0) {
+					zone.metric.battery = binary.uint(16) / 1000;
+				}
+				if (binary.byte() !== 0) {
+					zone.metric.capturedAt = binary.uint(64);
+				}
+				if (binary.byte() !== 0) {
+					zone.buffer = {};
+					zone.buffer.id = binary.uuid();
+				}
+				if (binary.byte() !== 0) {
+					zone.buffer.delay = binary.uint(32);
+				}
+				if (binary.byte() !== 0) {
+					zone.buffer.level = binary.uint(16);
+				}
+				if (binary.byte() !== 0) {
+					zone.buffer.capturedAt = binary.uint(64);
+				}
+				zones.push(zone);
+			}
+			return zones;
+		};
+		const loadZones = fetching(
+			zones,
+			(context) => window.requestAnimationFrame(() => loadingZones(context.element)),
+			(context) => {
+				const endpoint = `/api/zones?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseZones(response)),
+			(context) => window.requestAnimationFrame(() => paintZones(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorZones(context.element))
+		);
+	</script>
+</html>
