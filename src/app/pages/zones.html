@@ -284,9 +284,6 @@
 				zone.color = binary.hex(12);
 				if (binary.byte() !== 0) {
 					zone.reading = {};
-					zone.reading.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
 					zone.reading.temperature = binary.int(16) / 100;
 				}
 				if (binary.byte() !== 0) {
@@ -297,9 +294,6 @@
 				}
 				if (binary.byte() !== 0) {
 					zone.metric = {};
-					zone.metric.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
 					zone.metric.photovoltaic = binary.uint(16) / 1000;
 				}
 				if (binary.byte() !== 0) {
@@ -310,9 +304,6 @@
 				}
 				if (binary.byte() !== 0) {
 					zone.buffer = {};
-					zone.buffer.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
 					zone.buffer.delay = binary.uint(32);
 				}
 				if (binary.byte() !== 0) {

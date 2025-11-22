@@ -4,10 +4,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "buffer.h"
 #include "database.h"
-#include "metric.h"
-#include "reading.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -31,15 +28,12 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 	const char *sql =
 			"select "
 			"zone.id, zone.name, zone.color, "
-			"reading.id, "
 			"avg(reading.temperature) as reading_temperature, "
 			"avg(reading.humidity) as reading_humidity, "
 			"max(reading.captured_at), "
-			"metric.id, "
 			"avg(metric.photovoltaic) as metric_photovoltaic, "
 			"avg(metric.battery) as metric_battery, "
 			"max(metric.captured_at), "
-			"buffer.id, "
 			"avg(buffer.delay) as buffer_delay, "
 			"avg(buffer.level) as buffer_level, "
 			"max(buffer.captured_at) "
@@ -100,56 +94,28 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t *reading_id = sqlite3_column_blob(stmt, 3);
-			const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 3);
-			const int reading_id_type = sqlite3_column_type(stmt, 3);
-			if (reading_id_type != SQLITE_NULL && reading_id_len != sizeof(*((reading_t *)0)->id)) {
-				error("reading id length %zu does not match buffer length %zu\n", reading_id_len, sizeof(*((reading_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const double reading_temperature = sqlite3_column_double(stmt, 4);
-			const int reading_temperature_type = sqlite3_column_type(stmt, 4);
-			const double reading_humidity = sqlite3_column_double(stmt, 5);
-			const int reading_humidity_type = sqlite3_column_type(stmt, 5);
-			const time_t reading_captured_at = (time_t)sqlite3_column_int64(stmt, 6);
-			const int reading_captured_at_type = sqlite3_column_type(stmt, 6);
-			const uint8_t *metric_id = sqlite3_column_blob(stmt, 7);
-			const size_t metric_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
-			const int metric_id_type = sqlite3_column_type(stmt, 7);
-			if (metric_id_type != SQLITE_NULL && metric_id_len != sizeof(*((metric_t *)0)->id)) {
-				error("metric id length %zu does not match buffer length %zu\n", metric_id_len, sizeof(*((metric_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const double metric_photovoltaic = sqlite3_column_double(stmt, 8);
-			const int metric_photovoltaic_type = sqlite3_column_type(stmt, 8);
-			const double metric_battery = sqlite3_column_double(stmt, 9);
-			const int metric_battery_type = sqlite3_column_type(stmt, 9);
-			const time_t metric_captured_at = (time_t)sqlite3_column_int64(stmt, 10);
-			const int metric_captured_at_type = sqlite3_column_type(stmt, 10);
-			const uint8_t *buffer_id = sqlite3_column_blob(stmt, 11);
-			const size_t buffer_id_len = (size_t)sqlite3_column_bytes(stmt, 11);
-			const int buffer_id_type = sqlite3_column_type(stmt, 11);
-			if (buffer_id_type != SQLITE_NULL && buffer_id_len != sizeof(*((buffer_t *)0)->id)) {
-				error("buffer id length %zu does not match buffer length %zu\n", buffer_id_len, sizeof(*((buffer_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint32_t buffer_delay = (uint32_t)sqlite3_column_int(stmt, 12);
-			const int buffer_delay_type = sqlite3_column_type(stmt, 12);
-			const uint16_t buffer_level = (uint16_t)sqlite3_column_int(stmt, 13);
-			const int buffer_level_type = sqlite3_column_type(stmt, 13);
-			const time_t buffer_captured_at = (time_t)sqlite3_column_int64(stmt, 14);
-			const int buffer_captured_at_type = sqlite3_column_type(stmt, 14);
+			const double reading_temperature = sqlite3_column_double(stmt, 3);
+			const int reading_temperature_type = sqlite3_column_type(stmt, 3);
+			const double reading_humidity = sqlite3_column_double(stmt, 4);
+			const int reading_humidity_type = sqlite3_column_type(stmt, 4);
+			const time_t reading_captured_at = (time_t)sqlite3_column_int64(stmt, 5);
+			const int reading_captured_at_type = sqlite3_column_type(stmt, 5);
+			const double metric_photovoltaic = sqlite3_column_double(stmt, 6);
+			const int metric_photovoltaic_type = sqlite3_column_type(stmt, 6);
+			const double metric_battery = sqlite3_column_double(stmt, 7);
+			const int metric_battery_type = sqlite3_column_type(stmt, 7);
+			const time_t metric_captured_at = (time_t)sqlite3_column_int64(stmt, 8);
+			const int metric_captured_at_type = sqlite3_column_type(stmt, 8);
+			const uint32_t buffer_delay = (uint32_t)sqlite3_column_int(stmt, 9);
+			const int buffer_delay_type = sqlite3_column_type(stmt, 9);
+			const uint16_t buffer_level = (uint16_t)sqlite3_column_int(stmt, 10);
+			const int buffer_level_type = sqlite3_column_type(stmt, 10);
+			const time_t buffer_captured_at = (time_t)sqlite3_column_int64(stmt, 11);
+			const int buffer_captured_at_type = sqlite3_column_type(stmt, 11);
 			body_write(response, id, id_len);
 			body_write(response, name, name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
 			body_write(response, color, color_len);
-			body_write(response, (char[]){reading_id_type != SQLITE_NULL}, sizeof(char));
-			if (reading_id_type != SQLITE_NULL) {
-				body_write(response, reading_id, reading_id_len);
-			}
 			body_write(response, (char[]){reading_temperature_type != SQLITE_NULL}, sizeof(char));
 			if (reading_temperature_type != SQLITE_NULL) {
 				body_write(response, (uint16_t[]){hton16((uint16_t)(int16_t)(reading_temperature * 100))}, sizeof(uint16_t));
@@ -162,10 +128,6 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 			if (reading_captured_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 			}
-			body_write(response, (char[]){metric_id_type != SQLITE_NULL}, sizeof(char));
-			if (metric_id_type != SQLITE_NULL) {
-				body_write(response, metric_id, metric_id_len);
-			}
 			body_write(response, (char[]){metric_photovoltaic_type != SQLITE_NULL}, sizeof(char));
 			if (metric_photovoltaic_type != SQLITE_NULL) {
 				body_write(response, (uint16_t[]){hton16((uint16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
@@ -177,10 +139,6 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 			body_write(response, (char[]){metric_captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (metric_captured_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)metric_captured_at)}, sizeof(metric_captured_at));
-			}
-			body_write(response, (char[]){buffer_id_type != SQLITE_NULL}, sizeof(char));
-			if (buffer_id_type != SQLITE_NULL) {
-				body_write(response, buffer_id, buffer_id_len);
 			}
 			body_write(response, (char[]){buffer_delay_type != SQLITE_NULL}, sizeof(char));
 			if (buffer_delay_type != SQLITE_NULL) {
