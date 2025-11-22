@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../lib/bwt.h"
+#include "../lib/request.h"
+#include "../lib/response.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
@@ -23,4 +26,7 @@ typedef struct zone_query_t {
 extern const char *zone_table;
 extern const char *zone_schema;
 
+uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
 uint16_t zone_insert(sqlite3 *database, zone_t *zone);
+
+void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

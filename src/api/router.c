@@ -12,6 +12,7 @@
 #include "uplink.h"
 #include "user-device.h"
 #include "user.h"
+#include "zone.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -29,6 +30,10 @@ const uint32_t permission_device_read = 0x00100000;
 const uint32_t permission_device_create = 0x00200000;
 const uint32_t permission_device_update = 0x00400000;
 const uint32_t permission_device_delete = 0x00800000;
+const uint32_t permission_zone_read = 0x00010000;
+const uint32_t permission_zone_create = 0x00020000;
+const uint32_t permission_zone_update = 0x00040000;
+const uint32_t permission_zone_delete = 0x00080000;
 const uint32_t permission_uplink_read = 0x00000010;
 const uint32_t permission_uplink_create = 0x00000020;
 const uint32_t permission_uplink_update = 0x00000040;
@@ -345,6 +350,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			downlink_find_by_device(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/zones", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			zone_find(database, &bwt, request, response);
 		}
 	}
 
