@@ -41,10 +41,10 @@ int decode_kind_02(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 	}
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[0] << 4) | (uint16_t)((data[1] >> 4) & 0x0f);
-	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f * 2;
+	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
 
 	uint16_t battery_raw = (uint16_t)((data[1] & 0x0f) << 8) | (uint16_t)data[2];
-	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
+	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
 	metric->captured_at = received_at;
 
@@ -65,10 +65,10 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[4] << 4) | (uint16_t)((data[5] >> 4) & 0x0f);
-	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f * 2;
+	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
 
 	uint16_t battery_raw = (uint16_t)((data[5] & 0x0f) << 8) | (uint16_t)data[6];
-	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
+	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
 	reading->captured_at = received_at;
 	metric->captured_at = received_at;
@@ -154,10 +154,10 @@ int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 	}
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[0] << 4) | (uint16_t)((data[1] >> 4) & 0x0f);
-	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f * 2;
+	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
 
 	uint16_t battery_raw = (uint16_t)((data[1] & 0x0f) << 8) | (uint16_t)data[2];
-	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
+	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
 	buffer->delay = (uint32_t)(data[3] << 16) | (uint32_t)(data[4] << 8) | (uint16_t)data[5];
 	buffer->level = (uint16_t)(data[6] << 8) | (uint16_t)data[7];
@@ -184,10 +184,10 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[4] << 4) | (uint16_t)((data[5] >> 4) & 0x0f);
-	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f * 2;
+	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
 
 	uint16_t battery_raw = (uint16_t)((data[5] & 0x0f) << 8) | (uint16_t)data[6];
-	metric->battery = (battery_raw * 3.3f) / 4095.0f * 2;
+	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
 	buffer->delay = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint16_t)data[9];
 	buffer->level = (uint16_t)(data[10] << 8) | (uint16_t)data[11];
