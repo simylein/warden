@@ -14,6 +14,7 @@ extern file_t page_device_signals;
 extern file_t page_device_uplinks;
 extern file_t page_device_downlinks;
 extern file_t page_zones;
+extern file_t page_zone;
 extern file_t page_uplinks;
 extern file_t page_uplink;
 extern file_t page_downlinks;
