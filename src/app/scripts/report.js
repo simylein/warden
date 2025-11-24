@@ -14,6 +14,8 @@ const report = (err) => {
 				return 'Not Found';
 			case 405:
 				return 'Method Not Allowed';
+			case 409:
+				return 'Conflict';
 			case 414:
 				return 'URI Too Long';
 			case 431:
