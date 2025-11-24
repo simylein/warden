@@ -452,6 +452,47 @@ cleanup:
 	return status;
 }
 
+uint16_t zone_update(sqlite3 *database, zone_t *zone) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "update zone "
+										"set name = ?, "
+										"color = ?, "
+										"updated_at = ? "
+										"where id = ?";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_text(stmt, 1, zone->name, zone->name_len, SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 2, *zone->color, sizeof(*zone->color), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 3, *zone->updated_at);
+	sqlite3_bind_blob(stmt, 4, *zone->id, sizeof(*zone->id), SQLITE_STATIC);
+
+	int result = sqlite3_step(stmt);
+	if (result != SQLITE_DONE) {
+		status = database_error(database, result);
+		goto cleanup;
+	}
+
+	if (sqlite3_changes(database) == 0) {
+		warn("zone %02x%02x not found\n", (*zone->id)[0], (*zone->id)[1]);
+		status = 404;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	zone_query_t query;
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
@@ -516,5 +557,43 @@ void zone_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
+	response->status = 200;
+}
+
+void zone_modify(sqlite3 *database, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	time_t now = time(NULL);
+	zone_t zone = {.id = &id, .updated_at = &now};
+	if (request->body.len == 0 || zone_parse(&zone, request) == -1 || zone_validate(&zone) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = zone_update(database, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
 	response->status = 200;
 }
