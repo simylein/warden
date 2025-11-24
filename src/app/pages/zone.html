@@ -146,6 +146,88 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="update-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update zone?</h1>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-name" class="mb-2 text-base font-normal">Name</label>
+						<input
+							id="update-name"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="name"
+							autofocus
+							onchange="updateForm.setValue('name', event.target.value)"
+							onblur="updateForm.setTouched('name', true)"
+						/>
+						<p id="update-name-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="update-colors" class="mb-2 text-base font-normal">Color</label>
+						<div id="update-colors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), 'ea580cfb923cfff7ed431407'); updateForm.setValue('color', 'ea580cfb923cfff7ed431407'); updateForm.setTouched('color', true)"
+							>
+								Orange
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), 'ca8a04facc15fefce8422006'); updateForm.setValue('color', 'ca8a04facc15fefce8422006'); updateForm.setTouched('color', true)"
+							>
+								Yellow
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), '16a34a4ade80f0fdf4052e16'); updateForm.setValue('color', '16a34a4ade80f0fdf4052e16'); updateForm.setTouched('color', true)"
+							>
+								Green
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), '0d94882dd4bff0fdfa042f2e'); updateForm.setValue('color', '0d94882dd4bff0fdfa042f2e'); updateForm.setTouched('color', true)"
+							>
+								Teal
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), '0284c738bdf8f0f9ff082f49'); updateForm.setValue('color', '0284c738bdf8f0f9ff082f49'); updateForm.setTouched('color', true)"
+							>
+								Sky
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="highlightColor(document.getElementById('update-colors'), '4f46e5818cf8eef2ff1e1b4b'); updateForm.setValue('color', '4f46e5818cf8eef2ff1e1b4b'); updateForm.setTouched('color', true)"
+							>
+								Indigo
+							</button>
+						</div>
+						<p id="update-color-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -353,6 +435,92 @@
 			async (context, response) => (context.data = await parseZone(response)),
 			(context) => window.requestAnimationFrame(() => paintZone(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorZone(context.element))
+		);
+		const highlightColor = (element, color) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (color) {
+				case 'ea580cfb923cfff7ed431407':
+					fade(element.children[0]);
+					element.children[0].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					break;
+				case 'ca8a04facc15fefce8422006':
+					fade(element.children[1]);
+					element.children[1].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					break;
+				case '16a34a4ade80f0fdf4052e16':
+					fade(element.children[2]);
+					element.children[2].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case '0d94882dd4bff0fdfa042f2e':
+					fade(element.children[3]);
+					element.children[3].classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-100', 'dark:background-teal-900');
+					break;
+				case '0284c738bdf8f0f9ff082f49':
+					fade(element.children[4]);
+					element.children[4].classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-100', 'dark:background-sky-900');
+					break;
+				case '4f46e5818cf8eef2ff1e1b4b':
+					fade(element.children[5]);
+					element.children[5].classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-100', 'dark:background-indigo-900');
+					break;
+			}
+		};
+		const updateDialog = document.getElementById('update-dialog');
+		const openUpdateDialog = (zone) => {
+			updateForm.setValue('name', zone.name);
+			document.getElementById('update-name').value = zone.name;
+			updateForm.setValue('color', zone.color);
+			highlightColor(document.getElementById('update-colors'), zone.color);
+			updateForm.setValue('zoneId', zone.id);
+			updateForm.setTouched('zoneId', true);
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
+		};
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+				name: document.getElementById('update-name-validation'),
+				color: document.getElementById('update-color-validation'),
+			},
+			{
+				name: (value) => {
+					if (!value) return 'name is required';
+					if (value.length < 2) return 'name is too short';
+					if (value.length > 12) return 'name is too long';
+					if (!value.match(/^[a-z0-9]+$/)) return 'name must be lowercase letters or numbers';
+				},
+				color: (value) => {
+					if (!value) return 'color is required';
+					if (value.length !== 24) return 'color must be 24 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'color must be lowercase hexadecimal';
+				},
+				zoneId: (value) => {
+					if (!value) return 'zone id is required';
+					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(values.color.length / 2);
+				for (let ind = 0; ind < bytes.length; ind++) {
+					bytes[ind] = parseInt(values.color.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([values.name, '\0', bytes]);
+				try {
+					await fetcher('patch', `/api/zone/${values.zoneId}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully updated zone ${values.zoneId.substring(0, 4)}`);
+					loadZone(true);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
+			}
 		);
 	</script>
 </html>
