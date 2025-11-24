@@ -536,8 +536,10 @@
 		const openUpdateDialog = (device) => {
 			updateForm.setValue('name', device.name);
 			document.getElementById('update-name').value = device.name;
-			updateForm.setValue('zoneId', device.zone.id);
-			document.getElementById('update-zone-id').value = device.zone.id;
+			if (device.zone !== null) {
+				updateForm.setValue('zoneId', device.zone.id);
+				document.getElementById('update-zone-id').value = device.zone.id;
+			}
 			updateForm.setValue('deviceId', device.id);
 			updateForm.setTouched('deviceId', true);
 			updateDialog.showModal();
