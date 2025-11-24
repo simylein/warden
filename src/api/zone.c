@@ -478,3 +478,43 @@ void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *re
 	info("found %hhu zones\n", zones_len);
 	response->status = 200;
 }
+
+void zone_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	zone_t zone = {.id = &id};
+	uint16_t status = zone_existing(database, bwt, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	status = zone_select_one(database, bwt, &zone, response);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
+	response->status = 200;
+}

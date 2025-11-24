@@ -33,3 +33,4 @@ uint16_t zone_select_one(sqlite3 *database, bwt_t *bwt, zone_t *zone, response_t
 uint16_t zone_insert(sqlite3 *database, zone_t *zone);
 
 void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void zone_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

@@ -211,6 +211,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/zone/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve_zone(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
@@ -357,6 +364,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			zone_find(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/zone/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			zone_find_one(database, &bwt, request, response);
 		}
 	}
 
