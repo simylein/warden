@@ -383,6 +383,11 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 		const uint8_t *zone_color = sqlite3_column_blob(stmt, 8);
 		const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 8);
 		const int zone_color_type = sqlite3_column_type(stmt, 8);
+		if (zone_color_type != SQLITE_NULL && zone_color_len != sizeof(*((zone_t *)0)->color)) {
+			error("zone color length %zu does not match buffer length %zu\n", zone_color_len, sizeof(*((zone_t *)0)->color));
+			status = 500;
+			goto cleanup;
+		}
 		const uint8_t *reading_id = sqlite3_column_blob(stmt, 9);
 		const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 9);
 		const int reading_id_type = sqlite3_column_type(stmt, 9);
@@ -590,6 +595,11 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 			const uint8_t *zone_color = sqlite3_column_blob(stmt, 6);
 			const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 6);
 			const int zone_color_type = sqlite3_column_type(stmt, 6);
+			if (zone_color_type != SQLITE_NULL && zone_color_len != sizeof(*((zone_t *)0)->color)) {
+				error("zone color length %zu does not match buffer length %zu\n", zone_color_len, sizeof(*((zone_t *)0)->color));
+				status = 500;
+				goto cleanup;
+			}
 			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 7);
 			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
 			const int uplink_id_type = sqlite3_column_type(stmt, 7);
