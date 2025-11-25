@@ -18,6 +18,10 @@ typedef struct user_t {
 } user_t;
 
 typedef struct user_query_t {
+	const char *order;
+	size_t order_len;
+	const char *sort;
+	size_t sort_len;
 	uint8_t limit;
 	uint32_t offset;
 } user_query_t;

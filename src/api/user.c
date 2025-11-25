@@ -70,8 +70,16 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select id, username, signup_at, signin_at, permissions from user "
-										"order by username asc "
-										"limit ? offset ?";
+										"order by "
+										"case when ?1 = 'id' and ?2 = 'asc' then user.id end asc, "
+										"case when ?1 = 'id' and ?2 = 'desc' then user.id end desc, "
+										"case when ?1 = 'username' and ?2 = 'asc' then user.username end asc, "
+										"case when ?1 = 'username' and ?2 = 'desc' then user.username end desc, "
+										"case when ?1 = 'signupAt' and ?2 = 'asc' then user.signup_at end asc, "
+										"case when ?1 = 'signupAt' and ?2 = 'desc' then user.signup_at end desc, "
+										"case when ?1 = 'signinAt' and ?2 = 'asc' then user.signin_at end asc, "
+										"case when ?1 = 'signinAt' and ?2 = 'desc' then user.signin_at end desc "
+										"limit ?3 offset ?4";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -80,8 +88,10 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 		goto cleanup;
 	}
 
-	sqlite3_bind_int(stmt, 1, query->limit);
-	sqlite3_bind_int(stmt, 2, (int)query->offset);
+	sqlite3_bind_text(stmt, 1, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 3, query->limit);
+	sqlite3_bind_int64(stmt, 4, query->offset);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -419,7 +429,12 @@ cleanup:
 
 void user_find(sqlite3 *database, request_t *request, response_t *response) {
 	user_query_t query = {.limit = 16, .offset = 0};
-	if (request->search.len != 0) {
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}

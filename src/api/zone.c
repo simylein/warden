@@ -115,7 +115,8 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 			"case when ?2 = 'delay' and ?3 = 'asc' then buffer_delay end asc, "
 			"case when ?2 = 'delay' and ?3 = 'desc' then buffer_delay end desc, "
 			"case when ?2 = 'level' and ?3 = 'asc' then buffer_level end asc, "
-			"case when ?2 = 'level' and ?3 = 'desc' then buffer_level end desc";
+			"case when ?2 = 'level' and ?3 = 'desc' then buffer_level end desc "
+			"limit ?4 offset ?5";
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -124,8 +125,10 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 	}
 
 	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->order, query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 3, query->sort, query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 3, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 4, query->limit);
+	sqlite3_bind_int64(stmt, 5, query->offset);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -494,15 +497,13 @@ cleanup:
 }
 
 void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
-	zone_query_t query;
-	if (strnfind(request->search.ptr, request->search.len, "order=", "&", (const char **)&query.order, (size_t *)&query.order_len,
-							 16) == -1) {
+	zone_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
 		return;
 	}
 
-	if (strnfind(request->search.ptr, request->search.len, "sort=", "", (const char **)&query.sort, (size_t *)&query.sort_len,
-							 8) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}
