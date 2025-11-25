@@ -31,10 +31,45 @@
 						<tr
 							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
 						>
-							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Id</th>
-							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Username</th>
-							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Signup at</th>
-							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Signin at</th>
+							<th
+								id="id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('id'); loadUsers()"
+							>
+								Id
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
+									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+								</svg>
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="username"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('username'); loadUsers()"
+							>
+								Username
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="signup-at"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('signupAt'); loadUsers()"
+							>
+								Signup at
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
+							<th
+								id="signin-at"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="paintSorting('signinAt'); loadUsers()"
+							>
+								Signin at
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+							</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Permissions</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
@@ -96,6 +131,7 @@
 		import './src/app/scripts/resize.js';
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/state.js';
+		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
@@ -103,6 +139,32 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const users = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('users') };
+		const columns = {
+			id: document.getElementById('id'),
+			username: document.getElementById('username'),
+			signupAt: document.getElementById('signup-at'),
+			signinAt: document.getElementById('signin-at'),
+		};
+		const paintSorting = (column) => {
+			const element = columns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(columns).forEach((col) => {
+				columns[col].removeAttribute('sort');
+				columns[col].children[0].classList.add('hidden');
+				columns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
 		const loadingUsers = (element) => {
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
@@ -180,7 +242,10 @@
 		const loadUsers = fetching(
 			users,
 			(context) => window.requestAnimationFrame(() => loadingUsers(context.element)),
-			(context) => fetcher('get', '/api/users', null, { controller: context.controller }),
+			(context) => {
+				const endpoint = `/api/users?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
 			async (context, response) => (context.data = await parseUsers(response)),
 			(context) => window.requestAnimationFrame(() => paintUsers(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorUsers(context.element))
