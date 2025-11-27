@@ -12,16 +12,19 @@
 		onload="loadUplinks()"
 	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
-			<nav
-				class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal overflow-x-auto scrollbar-none"
-			>
-				<a href="/" class="no-underline text-black dark:text-white">Home</a>
-				<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
-				<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
-				<a href="/uplinks" class="no-underline text-blue-600 dark:text-blue-400">Uplinks</a>
-				<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
-				<a href="/users" class="no-underline text-black dark:text-white">Users</a>
-			</nav>
+			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
+				<nav class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-lg font-normal overflow-x-auto scrollbar-none">
+					<a href="/" class="no-underline text-black dark:text-white">Home</a>
+					<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+					<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
+					<a href="/uplinks" class="no-underline text-blue-600 dark:text-blue-400">Uplinks</a>
+					<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+				</nav>
+				<a href="/profile" class="flex text-black dark:text-white">
+					<icon-user ref="./src/app/components/icon-user.html" />
+				</a>
+			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
 			<div class="overflow-x-auto scrollbar-none">
