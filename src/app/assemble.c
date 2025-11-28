@@ -76,9 +76,10 @@ recursion:
 				assemble_ptr = assemble_ptr_new;
 			}
 
-			while (assemble_ind > 0 && assemble_ptr[assemble_ind] != '<') {
+			while (assemble_ind > 1 && assemble_ptr[assemble_ind - 1] != '<') {
 				assemble_ind -= 1;
 			}
+			assemble_ind -= 1;
 
 			memcpy(&assemble_ptr[assemble_ind], component.ptr, component.len);
 			assemble_ind += component.len;
