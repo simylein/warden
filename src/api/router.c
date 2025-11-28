@@ -273,6 +273,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/profile", &method_found, &pathname_found)) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve(&page_profile, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/signin", &method_found, &pathname_found) == true) {
 		serve(&page_signin, response);
 	}
