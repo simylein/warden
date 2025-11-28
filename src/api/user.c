@@ -492,6 +492,31 @@ void user_find_one(sqlite3 *database, request_t *request, response_t *response) 
 	response->status = 200;
 }
 
+void user_profile(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &bwt->id};
+	uint16_t status = user_existing(database, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	status = user_select_one(database, &user, response);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found profile %02x%02x\n", (*user.id)[0], (*user.id)[1]);
+	response->status = 200;
+}
+
 void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;

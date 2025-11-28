@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../lib/bwt.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include <sqlite3.h>
@@ -39,6 +40,7 @@ uint16_t user_delete(sqlite3 *database, user_t *user);
 
 void user_find(sqlite3 *database, request_t *request, response_t *response);
 void user_find_one(sqlite3 *database, request_t *request, response_t *response);
+void user_profile(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void user_signup(sqlite3 *database, request_t *request, response_t *response);
 void user_signin(sqlite3 *database, request_t *request, response_t *response);
 void user_remove(sqlite3 *database, request_t *request, response_t *response);

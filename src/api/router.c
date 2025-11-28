@@ -488,6 +488,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/profile", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			user_profile(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
 		user_signin(database, request, response);
 	}
