@@ -22,7 +22,7 @@
 					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
 				</nav>
 				<a href="/profile" class="flex text-black dark:text-white">
-					<icon-user ref="./src/app/components/icon-user.html" />
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
 				</a>
 			</div>
 		</header>
@@ -40,10 +40,8 @@
 								onclick="paintSorting('id'); loadZones()"
 							>
 								Id
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
-									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-								</svg>
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="name"
@@ -51,8 +49,8 @@
 								onclick="paintSorting('name'); loadZones()"
 							>
 								Name
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="temperature"
@@ -60,8 +58,8 @@
 								onclick="paintSorting('temperature'); loadZones()"
 							>
 								Temperature
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="humidity"
@@ -69,8 +67,8 @@
 								onclick="paintSorting('humidity'); loadZones()"
 							>
 								Humidity
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="photovoltaic"
@@ -78,8 +76,8 @@
 								onclick="paintSorting('photovoltaic'); loadZones()"
 							>
 								Photovoltaic
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="battery"
@@ -87,8 +85,8 @@
 								onclick="paintSorting('battery'); loadZones()"
 							>
 								Battery
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="delay"
@@ -96,8 +94,8 @@
 								onclick="paintSorting('delay'); loadZones()"
 							>
 								Delay
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="level"
@@ -105,8 +103,8 @@
 								onclick="paintSorting('level'); loadZones()"
 							>
 								Level
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 						</tr>
 					</thead>

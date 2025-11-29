@@ -23,7 +23,7 @@
 					<a href="/users" class="no-underline text-blue-600 dark:text-blue-400">Users</a>
 				</nav>
 				<a href="/profile" class="flex text-black dark:text-white">
-					<icon-user ref="./src/app/components/icon-user.html" />
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
 				</a>
 			</div>
 		</header>
@@ -41,10 +41,8 @@
 								onclick="paintSorting('id'); loadUsers()"
 							>
 								Id
-								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="h-3 w-3">
-									<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
-								</svg>
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="username"
@@ -52,8 +50,8 @@
 								onclick="paintSorting('username'); loadUsers()"
 							>
 								Username
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="signup-at"
@@ -61,8 +59,8 @@
 								onclick="paintSorting('signupAt'); loadUsers()"
 							>
 								Signup at
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
 								id="signin-at"
@@ -70,8 +68,8 @@
 								onclick="paintSorting('signinAt'); loadUsers()"
 							>
 								Signin at
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" />
-								<icon-chevron-up ref="./src/app/components/icon-chevron-down.html" />
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Permissions</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
