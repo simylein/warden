@@ -404,7 +404,7 @@ int downlink_validate(downlink_t *downlink) {
 		return -1;
 	}
 
-	if (downlink->preamble_len < 1 || downlink->preamble_len > 16) {
+	if (downlink->preamble_len < 6 || downlink->preamble_len > 21) {
 		debug("invalid preamble len %hhu on downlink\n", downlink->preamble_len);
 		return -1;
 	}

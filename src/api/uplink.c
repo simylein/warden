@@ -496,7 +496,7 @@ int uplink_validate(uplink_t *uplink) {
 		return -1;
 	}
 
-	if (uplink->preamble_len < 1 || uplink->preamble_len > 16) {
+	if (uplink->preamble_len < 6 || uplink->preamble_len > 21) {
 		debug("invalid preamble len %hhu on uplink\n", uplink->preamble_len);
 		return -1;
 	}
