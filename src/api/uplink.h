@@ -20,6 +20,7 @@ typedef struct uplink_t {
 	int8_t snr;
 	uint8_t sf;
 	uint8_t tx_power;
+	uint8_t preamble_len;
 	time_t received_at;
 	uint8_t (*device_id)[16];
 } uplink_t;

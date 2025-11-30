@@ -27,6 +27,7 @@ const char *uplink_schema = "create table uplink ("
 														"snr real not null, "
 														"sf integer not null, "
 														"tx_power integer not null, "
+														"preamble_len integer not null, "
 														"received_at timestamp not null, "
 														"device_id blob not null, "
 														"foreign key (device_id) references device(id) on delete cascade"
@@ -165,7 +166,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 	const char *sql = "select "
 										"uplink.id, uplink.kind, uplink.data, "
 										"uplink.airtime, uplink.frequency, uplink.bandwidth, "
-										"uplink.rssi, uplink.snr, uplink.sf, uplink.tx_power, "
+										"uplink.rssi, uplink.snr, uplink.sf, uplink.tx_power, uplink.preamble_len, "
 										"uplink.received_at, uplink.device_id "
 										"from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
@@ -205,9 +206,10 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		const double snr = sqlite3_column_double(stmt, 7);
 		const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 8);
 		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 9);
-		const time_t received_at = (time_t)sqlite3_column_int64(stmt, 10);
-		const uint8_t *device_id = sqlite3_column_blob(stmt, 11);
-		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 11);
+		const uint8_t preamble_len = (uint8_t)sqlite3_column_int(stmt, 10);
+		const time_t received_at = (time_t)sqlite3_column_int64(stmt, 11);
+		const uint8_t *device_id = sqlite3_column_blob(stmt, 12);
+		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 12);
 		if (device_id_len != sizeof(*((uplink_t *)0)->device_id)) {
 			error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((uplink_t *)0)->device_id));
 			status = 500;
@@ -224,6 +226,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
 		body_write(response, &sf, sizeof(sf));
 		body_write(response, &tx_power, sizeof(tx_power));
+		body_write(response, &preamble_len, sizeof(preamble_len));
 		body_write(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 		body_write(response, device_id, device_id_len);
 		status = 0;
@@ -430,6 +433,12 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	}
 	uplink->tx_power = *(uint8_t *)body_read(request, sizeof(uplink->tx_power));
 
+	if (request->body.len < request->body.pos + sizeof(uplink->preamble_len)) {
+		debug("missing preamble len on uplink\n");
+		return -1;
+	}
+	uplink->preamble_len = *(uint8_t *)body_read(request, sizeof(uplink->preamble_len));
+
 	if (request->body.len < request->body.pos + sizeof(uplink->received_at)) {
 		debug("missing received at on uplink\n");
 		return -1;
@@ -487,6 +496,11 @@ int uplink_validate(uplink_t *uplink) {
 		return -1;
 	}
 
+	if (uplink->preamble_len < 1 || uplink->preamble_len > 16) {
+		debug("invalid preamble len %hhu on uplink\n", uplink->preamble_len);
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -495,8 +509,8 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "insert into uplink (id, kind, data, airtime, frequency, bandwidth, "
-										"rssi, snr, sf, tx_power, received_at, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
+										"rssi, snr, sf, tx_power, preamble_len, received_at, device_id) "
+										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -514,8 +528,9 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	sqlite3_bind_double(stmt, 7, (double)uplink->snr / 4);
 	sqlite3_bind_int(stmt, 8, uplink->sf);
 	sqlite3_bind_int(stmt, 9, uplink->tx_power);
-	sqlite3_bind_int64(stmt, 10, uplink->received_at);
-	sqlite3_bind_blob(stmt, 11, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 10, uplink->preamble_len);
+	sqlite3_bind_int64(stmt, 11, uplink->received_at);
+	sqlite3_bind_blob(stmt, 12, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
