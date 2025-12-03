@@ -4,6 +4,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include "zone.h"
 #include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
@@ -29,7 +30,10 @@ extern const char *reading_schema;
 uint16_t reading_select(sqlite3 *database, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len);
 uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, reading_query_t *query, response_t *response,
 																	uint16_t *readings_len);
+uint16_t reading_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, reading_query_t *query, response_t *response,
+																uint16_t *readings_len);
 uint16_t reading_insert(sqlite3 *database, reading_t *reading);
 
 void reading_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void reading_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
