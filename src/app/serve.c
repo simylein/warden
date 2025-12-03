@@ -281,6 +281,32 @@ void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 	serve(&page_zone, response);
 }
 
+void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 6, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	zone_t zone = {.id = &id};
+	uint16_t status = zone_existing(database, bwt, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	serve(&page_zone_readings, response);
+}
+
 void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);

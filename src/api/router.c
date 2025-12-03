@@ -218,6 +218,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/zone/:id/readings", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve_zone_readings(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
