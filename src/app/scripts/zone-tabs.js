@@ -1,6 +1,9 @@
 const tabs = document.getElementById('tabs');
 const zoneTabs = () => {
-	const routes = [{ endpoint: '', search: {} }];
+	const routes = [
+		{ endpoint: '', search: {} },
+		{ endpoint: '/readings', search: { range: true } },
+	];
 	const pathname = window.location.pathname.substring(0, 38);
 	routes.forEach((route, index) => {
 		const params = new URLSearchParams();
