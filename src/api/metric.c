@@ -143,6 +143,73 @@ cleanup:
 	return status;
 }
 
+uint16_t metric_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, metric_query_t *query, response_t *response,
+															 uint16_t *metrics_len) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"avg(metric.photovoltaic), avg(metric.battery), "
+										"(metric.captured_at / ?) * ? as bucket_time, "
+										"user_device.device_id "
+										"from metric "
+										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
+										"join device on device.id = metric.device_id "
+										"where device.zone_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
+										"group by bucket_time, user_device.device_id "
+										"order by bucket_time desc";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_int(stmt, 1, query->bucket);
+	sqlite3_bind_int(stmt, 2, query->bucket);
+	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 4, zone->id, sizeof(*zone->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 5, query->from);
+	sqlite3_bind_int64(stmt, 6, query->to);
+
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			const double photovoltaic = sqlite3_column_double(stmt, 0);
+			const double battery = sqlite3_column_double(stmt, 1);
+			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
+			const uint8_t *device_id = sqlite3_column_blob(stmt, 3);
+			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 3);
+			if (device_id_len != sizeof(*((device_t *)0)->id)) {
+				error("id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((device_t *)0)->id));
+				status = 500;
+				goto cleanup;
+			}
+			if (response->body.len + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(captured_at) + device_id_len > response->body.cap) {
+				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
+				status = 500;
+				goto cleanup;
+			}
+			body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			body_write(response, device_id, device_id_len);
+			*metrics_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			status = database_error(database, result);
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
@@ -319,6 +386,88 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 
 	uint16_t metrics_len = 0;
 	status = metric_select_by_device(database, bwt, &device, &query, response, &metrics_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hu metrics\n", metrics_len);
+	response->status = 200;
+}
+
+void metric_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	const char *from;
+	size_t from_len;
+	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *to;
+	size_t to_len;
+	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	metric_query_t query = {.from = 0, .to = 0, .bucket = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
+		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+		response->status = 400;
+		return;
+	}
+
+	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
+		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+		response->status = 400;
+		return;
+	}
+
+	time_t range = query.to - query.from;
+	if (range <= 3600) {
+		query.bucket = 5;
+	} else if (range <= 10800) {
+		query.bucket = 15;
+	} else if (range <= 43200) {
+		query.bucket = 60;
+	} else if (range <= 86400) {
+		query.bucket = 120;
+	} else if (range <= 172800) {
+		query.bucket = 240;
+	} else if (range <= 345600) {
+		query.bucket = 480;
+	} else if (range <= 604800) {
+		query.bucket = 840;
+	} else if (range <= 1209600) {
+		query.bucket = 1680;
+	}
+
+	zone_t zone = {.id = &id};
+	uint16_t status = zone_existing(database, bwt, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint16_t metrics_len = 0;
+	status = metric_select_by_zone(database, bwt, &zone, &query, response, &metrics_len);
 	if (status != 0) {
 		response->status = status;
 		return;
