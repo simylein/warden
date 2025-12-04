@@ -18,6 +18,7 @@ void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, r
 
 void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 
 void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 
