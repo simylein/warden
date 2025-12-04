@@ -230,7 +230,9 @@
 						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[3].children[0]);
 					}
+					element.children[ind].children[4].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
 					fade(element.children[ind].children[4].children[0]);
+					element.children[ind].children[5].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
 					fade(element.children[ind].children[5].children[0]);
 					if (data[ind].metric !== null && Number(data[ind].metric.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
