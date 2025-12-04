@@ -562,7 +562,7 @@
 				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic, context.width));
 				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
 			},
-			async (context) => {
+			(context) => {
 				context.reload = getRange() / 360;
 				const from = Math.floor(Date.now() / 1000) - getRange();
 				const to = Math.floor(Date.now() / 1000);
