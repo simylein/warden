@@ -20,7 +20,7 @@ const coordinate = (collection, items, value, time, width) => {
 	const yRange = target.max.ceil - target.min.floor;
 	items.forEach((item) => {
 		const xPercent = width - ((Number(item[time]) - Number(collection[time].start)) / xRange) * width;
-		const yPercent = 100 - ((item[value] - target.min.floor) / yRange) * 100;
+		const yPercent = yRange === 0 ? 100 : 100 - ((item[value] - target.min.floor) / yRange) * 100;
 		target.points.push({ x: xPercent, y: yPercent, v: item[value], d: item?.device?.id ?? null });
 	});
 };
