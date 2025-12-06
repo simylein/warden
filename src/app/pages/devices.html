@@ -307,7 +307,7 @@
 			const binary = new Binary(buffer);
 			const devices = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, createdAt: null, updatedAt: null, zone: null, reading: null, metric: null, buffer: null, uplink: null };
+				const device = { id: null, name: null, createdAt: null, updatedAt: null, zone: null, reading: null, metric: null, buffer: null };
 				device.id = binary.uuid();
 				device.name = binary.string();
 				device.createdAt = binary.uint(64);
@@ -362,13 +362,6 @@
 				}
 				if (binary.byte() !== 0) {
 					device.buffer.capturedAt = binary.uint(64);
-				}
-				if (binary.byte() !== 0) {
-					device.uplink = {};
-					device.uplink.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
-					device.uplink.receivedAt = binary.uint(64);
 				}
 				devices.push(device);
 			}

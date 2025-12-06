@@ -92,8 +92,7 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			"zone.id, zone.name, zone.color, "
 			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
 			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at, "
-			"buffer.id, buffer.delay, buffer.level, buffer.captured_at, "
-			"uplink.id, uplink.received_at "
+			"buffer.id, buffer.delay, buffer.level, buffer.captured_at "
 			"from device "
 			"join user_device on user_device.device_id = device.id and user_device.user_id = ?1 "
 			"left join zone on zone.id = device.zone_id "
@@ -103,8 +102,6 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			"(select metric.id from metric where metric.device_id = device.id order by metric.captured_at desc limit 1) "
 			"left join buffer on buffer.id = "
 			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
-			"left join uplink on uplink.id = "
-			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
 			"order by "
 			"case when ?2 = 'id' and ?3 = 'asc' then device.id end asc, "
 			"case when ?2 = 'id' and ?3 = 'desc' then device.id end desc, "
@@ -215,16 +212,6 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			const int buffer_level_type = sqlite3_column_type(stmt, 17);
 			const time_t buffer_captured_at = (time_t)sqlite3_column_int64(stmt, 18);
 			const int buffer_captured_at_type = sqlite3_column_type(stmt, 18);
-			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 19);
-			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 19);
-			const int uplink_id_type = sqlite3_column_type(stmt, 19);
-			if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
-				error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 20);
-			const int uplink_received_at_type = sqlite3_column_type(stmt, 20);
 			body_write(response, id, id_len);
 			body_write(response, name, name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
@@ -293,14 +280,6 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			body_write(response, (char[]){buffer_captured_at_type != SQLITE_NULL}, sizeof(char));
 			if (buffer_captured_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
-			}
-			body_write(response, (char[]){uplink_id_type != SQLITE_NULL}, sizeof(char));
-			if (uplink_id_type != SQLITE_NULL) {
-				body_write(response, uplink_id, uplink_id_len);
-			}
-			body_write(response, (char[]){uplink_received_at_type != SQLITE_NULL}, sizeof(char));
-			if (uplink_received_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
 			}
 			*devices_len += 1;
 		} else if (result == SQLITE_DONE) {
