@@ -524,7 +524,8 @@ cleanup:
 	return status;
 }
 
-uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *response, uint8_t *devices_len) {
+uint16_t device_select_by_user(sqlite3 *database, user_t *user, device_query_t *query, response_t *response,
+															 uint8_t *devices_len) {
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
@@ -533,11 +534,24 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 										"zone.id, zone.name, zone.color, "
 										"uplink.id, uplink.received_at "
 										"from device "
-										"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
+										"join user_device on user_device.device_id = device.id and user_device.user_id = ?1 "
 										"left join zone on zone.id = device.zone_id "
 										"left join uplink on uplink.id = "
 										"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
-										"order by device.name asc";
+										"order by "
+										"case when ?2 = 'id' and ?3 = 'asc' then device.id end asc, "
+										"case when ?2 = 'id' and ?3 = 'desc' then device.id end desc, "
+										"case when ?2 = 'name' and ?3 = 'asc' then device.name end asc, "
+										"case when ?2 = 'name' and ?3 = 'desc' then device.name end desc, "
+										"case when ?2 = 'zone' and ?3 = 'asc' then zone.name end asc, "
+										"case when ?2 = 'zone' and ?3 = 'desc' then zone.name end desc, "
+										"case when ?2 = 'createdAt' and ?3 = 'asc' then device.created_at end asc, "
+										"case when ?2 = 'createdAt' and ?3 = 'desc' then device.created_at end desc, "
+										"case when ?2 = 'updatedAt' and ?3 = 'asc' then device.updated_at end asc, "
+										"case when ?2 = 'updatedAt' and ?3 = 'desc' then device.updated_at end desc, "
+										"case when ?2 = 'receivedAt' and ?3 = 'asc' then uplink.received_at end asc, "
+										"case when ?2 = 'receivedAt' and ?3 = 'desc' then uplink.received_at end desc "
+										"limit ?4 offset ?5";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -547,6 +561,10 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, response_t *resp
 	}
 
 	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 3, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 4, query->limit);
+	sqlite3_bind_int64(stmt, 5, query->offset);
 
 	while (true) {
 		int result = sqlite3_step(stmt);
@@ -945,11 +963,6 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 }
 
 void device_find_by_user(sqlite3 *database, request_t *request, response_t *response) {
-	if (request->search.len != 0) {
-		response->status = 400;
-		return;
-	}
-
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -965,6 +978,17 @@ void device_find_by_user(sqlite3 *database, request_t *request, response_t *resp
 		return;
 	}
 
+	device_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
+		response->status = 400;
+		return;
+	}
+
 	user_t user = {.id = &id};
 	uint16_t status = user_existing(database, &user);
 	if (status != 0) {
@@ -973,7 +997,7 @@ void device_find_by_user(sqlite3 *database, request_t *request, response_t *resp
 	}
 
 	uint8_t devices_len = 0;
-	status = device_select_by_user(database, &user, response, &devices_len);
+	status = device_select_by_user(database, &user, &query, response, &devices_len);
 	if (status != 0) {
 		response->status = status;
 		return;
