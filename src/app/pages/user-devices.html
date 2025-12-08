@@ -253,7 +253,7 @@
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				loading(element.children[ind].children[2].children[0], ['w-16', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
 				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
@@ -275,10 +275,10 @@
 					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].name);
 					fade(element.children[ind].children[2].children[0]);
 					if (data[ind].zone !== null) {
-						paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], data[ind].zone.name);
+						paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], data[ind].zone.name);
 						colorZone(element.children[ind].children[2].children[0], data[ind].zone.color);
 					} else {
-						paint(element.children[ind].children[2].children[0], [], ['w-16', 'h-4'], 'null');
+						paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], 'null');
 						colorNull(element.children[ind].children[2].children[0]);
 					}
 					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
@@ -308,7 +308,7 @@
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[2].children[0], ['w-16', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
 				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');

@@ -57,7 +57,7 @@
 								<p class="m-0">Name</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
@@ -272,7 +272,7 @@
 			update.children[0].onclick = null;
 			loading(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
 			fade(element.children[1].children[1].children[0]);
-			loading(element.children[1].children[1].children[0], ['w-16', 'h-4'], [], '');
+			loading(element.children[1].children[1].children[0], ['w-24', 'h-4'], [], '');
 			loading(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
 			fade(element.children[3].children[1].children[0]);
 			loading(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
@@ -300,7 +300,7 @@
 			update.children[0].classList.add('cursor-pointer');
 			update.children[0].onclick = () => openUpdateDialog(data);
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4'], data.id);
-			paint(element.children[1].children[1].children[0], [], ['w-16', 'h-4'], data.name);
+			paint(element.children[1].children[1].children[0], [], ['w-24', 'h-4'], data.name);
 			fade(element.children[1].children[1].children[0]);
 			colorZone(element.children[1].children[1].children[0], data.color);
 			paint(element.children[2].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.createdAt));
@@ -369,7 +369,7 @@
 			update.children[0].onclick = null;
 			error(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
 			fade(element.children[1].children[1].children[0]);
-			error(element.children[1].children[1].children[0], ['w-16', 'h-4'], [], '');
+			error(element.children[1].children[1].children[0], ['w-24', 'h-4'], [], '');
 			error(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
 			fade(element.children[3].children[1].children[0]);
 			error(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');

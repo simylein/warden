@@ -189,7 +189,7 @@
 				element.children[ind].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				fade(element.children[ind].children[1].children[0]);
-				loading(element.children[ind].children[1].children[0], ['w-16', 'h-4'], [], '');
+				loading(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
 				loading(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
@@ -212,7 +212,7 @@
 					element.children[ind].children[0].onclick = () => (window.location.href = `/zone/${data[ind].id}`);
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
 					element.children[ind].children[1].onclick = () => (window.location.href = `/zone/${data[ind].id}`);
-					paint(element.children[ind].children[1].children[0], [], ['w-16', 'h-4'], data[ind].name);
+					paint(element.children[ind].children[1].children[0], [], ['w-24', 'h-4'], data[ind].name);
 					fade(element.children[ind].children[1].children[0]);
 					colorZone(element.children[ind].children[1].children[0], data[ind].color);
 					element.children[ind].children[2].onclick = () => (window.location.href = `/zone/${data[ind].id}/readings`);
@@ -266,7 +266,7 @@
 				element.children[ind].classList.remove('cursor-pointer');
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
 				fade(element.children[ind].children[1].children[0]);
-				error(element.children[ind].children[1].children[0], ['w-16', 'h-4'], [], '');
+				error(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
 				error(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
