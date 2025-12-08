@@ -129,6 +129,15 @@ int main(int argc, char *argv[]) {
 		cache.devices[index].name_len = 0;
 	}
 
+	cache.zones = malloc(zones_size * sizeof(*cache.zones));
+	if (cache.zones == NULL) {
+		fatal("failed to allocate %zu bytes for cache because %s\n", zones_size * sizeof(*cache.zones), errno_str());
+		exit(1);
+	}
+	for (uint8_t index = 0; index < zones_size; index++) {
+		cache.zones[index].name_len = 0;
+	}
+
 	queue.tasks = malloc(queue_size * sizeof(*queue.tasks));
 	if (queue.tasks == NULL) {
 		fatal("failed to allocate %zu bytes for tasks because %s\n", queue_size * sizeof(*queue.tasks), errno_str());
@@ -244,6 +253,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	free(cache.devices);
+	free(cache.zones);
 
 	free(queue.tasks);
 	free(thread_pool.workers);

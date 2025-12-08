@@ -15,6 +15,7 @@ uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
 uint8_t devices_size = 64;
+uint8_t zones_size = 16;
 
 const char *bwt_key = "w77a61r72d64e65n6e";
 uint32_t bwt_ttl = 2764800;
