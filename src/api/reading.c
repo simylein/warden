@@ -482,6 +482,10 @@ void reading_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, res
 		return;
 	}
 
+	cache_zone_t cache_zone;
+	if (cache_zone_read(&cache_zone, &zone) != -1) {
+		header_write(response, "zone-name:%.*s\r\n", cache_zone.name_len, cache_zone.name);
+	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu readings\n", readings_len);

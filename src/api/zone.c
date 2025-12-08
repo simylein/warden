@@ -5,6 +5,7 @@
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "cache.h"
 #include "database.h"
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -344,6 +345,13 @@ uint16_t zone_select_one(sqlite3 *database, bwt_t *bwt, zone_t *zone, response_t
 		if (buffer_captured_at_type != SQLITE_NULL) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
 		}
+		cache_zone_t cache_zone;
+		memcpy(cache_zone.id, id, sizeof(cache_zone.id));
+		memcpy(cache_zone.name, name, name_len);
+		cache_zone.name_len = (uint8_t)name_len;
+		if (cache_zone_write(&cache_zone) == -1) {
+			warn("failed to cache zone %02x%02x\n", (*zone->id)[0], (*zone->id)[1]);
+		}
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("zone %02x%02x not found\n", (*zone->id)[0], (*zone->id)[1]);
@@ -555,6 +563,10 @@ void zone_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t
 		return;
 	}
 
+	cache_zone_t cache_zone;
+	if (cache_zone_read(&cache_zone, &zone) != -1) {
+		header_write(response, "zone-name:%.*s\r\n", cache_zone.name_len, cache_zone.name);
+	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
