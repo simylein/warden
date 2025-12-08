@@ -27,6 +27,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
 			<div
 				id="tabs"
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
@@ -230,20 +231,23 @@
 	<script>
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/index-reading.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		const title = document.getElementById('title');
 		const ranges = document.getElementById('ranges');
-		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
+		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
@@ -549,6 +553,7 @@
 			readings,
 			(context) => {
 				context.width = breakpoint(temperature.graph.clientWidth);
+				loadingDeviceTitle(title);
 				window.requestAnimationFrame(() => loadingTemperature(temperature, context.width));
 				window.requestAnimationFrame(() => loadingHumidity(humidity, context.width));
 			},
@@ -559,14 +564,19 @@
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseReadings(response)),
+			async (context, response) => {
+				context.data = await parseReadings(response);
+				context.response = response;
+			},
 			(context) => {
 				const summary = calculateReadings(context.data, context.width);
+				paintDeviceTitle(title, context.response);
 				window.requestAnimationFrame(() => paintTemperature(temperature, context.width, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, context.width, summary.humidity, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
+				errorDeviceTitle(title);
 				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
 				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
 			}

@@ -27,6 +27,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
 			<div
 				id="tabs"
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
@@ -85,6 +86,7 @@
 		</footer>
 	</body>
 	<script>
+		import './src/app/scripts/device-title.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/resize.js';
 		import './src/app/scripts/timestamp.js';
@@ -98,6 +100,7 @@
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
 		import './src/app/scripts/paginate.js';
+		const title = document.getElementById('title');
 		const tabs = document.getElementById('tabs');
 		tabs.children[0].href = `${window.location.pathname.substring(0, 40)}`;
 		tabs.children[1].href = `${window.location.pathname.substring(0, 40)}/readings`;
@@ -106,7 +109,7 @@
 		tabs.children[4].href = `${window.location.pathname.substring(0, 40)}/signals`;
 		tabs.children[5].href = `${window.location.pathname.substring(0, 40)}/uplinks`;
 		tabs.children[6].href = `${window.location.pathname.substring(0, 40)}/downlinks`;
-		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('uplinks') };
+		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('uplinks') };
 		const loadingUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
 				element.children[ind].classList.remove('cursor-pointer');
@@ -193,14 +196,26 @@
 		};
 		const loadUplinks = fetching(
 			uplinks,
-			(context) => window.requestAnimationFrame(() => loadingUplinks(context.element)),
+			(context) => {
+				loadingDeviceTitle(title);
+				window.requestAnimationFrame(() => loadingUplinks(context.element));
+			},
 			(context) => {
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?limit=${getLimit()}&offset=${getOffset()}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseUplinks(response)),
-			(context) => window.requestAnimationFrame(() => paintUplinks(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorUplinks(context.element))
+			async (context, response) => {
+				context.data = await parseUplinks(response);
+				context.response = response;
+			},
+			(context) => {
+				paintDeviceTitle(title, context.response);
+				window.requestAnimationFrame(() => paintUplinks(context.element, context.data));
+			},
+			(context) => {
+				errorDeviceTitle(title);
+				window.requestAnimationFrame(() => errorUplinks(context.element));
+			}
 		);
 	</script>
 </html>

@@ -27,6 +27,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
 			<div
 				id="tabs"
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
@@ -241,20 +242,23 @@
 		import './src/app/scripts/duration.js';
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-buffer.js';
 		import './src/app/scripts/index-buffer.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		const title = document.getElementById('title');
 		const ranges = document.getElementById('ranges');
-		const buffers = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
+		const buffers = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const delay = {
 			range: document.getElementById('delay-range'),
 			scale: document.getElementById('delay-scale'),
@@ -556,6 +560,7 @@
 			buffers,
 			(context) => {
 				context.width = breakpoint(delay.graph.clientWidth);
+				loadingDeviceTitle(title);
 				window.requestAnimationFrame(() => loadingDelay(delay, context.width));
 				window.requestAnimationFrame(() => loadingLevel(level, context.width));
 			},
@@ -566,14 +571,19 @@
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseBuffers(response)),
+			async (context, response) => {
+				context.data = await parseBuffers(response);
+				context.response = response;
+			},
 			(context) => {
 				const summary = calculateBuffers(context.data, context.width);
+				paintDeviceTitle(title, context.response);
 				window.requestAnimationFrame(() => paintDelay(delay, context.width, summary.delay, summary.capturedAt));
 				window.requestAnimationFrame(() => paintLevel(level, context.width, summary.level, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
+				errorDeviceTitle(title);
 				window.requestAnimationFrame(() => errorDelay(delay, context.width));
 				window.requestAnimationFrame(() => errorLevel(level, context.width));
 			}

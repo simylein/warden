@@ -28,6 +28,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
 			<div
 				class="flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
 			>
@@ -253,6 +254,7 @@
 	<script>
 		import './src/app/scripts/duration.js';
 		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/fade.js';
@@ -267,8 +269,9 @@
 		import './src/app/scripts/formik.js';
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
+		const title = document.getElementById('title');
 		const update = document.getElementById('update');
-		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('device') };
+		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('device') };
 		deviceTabs();
 		const loadingDevice = (element) => {
 			update.children[0].classList.remove('cursor-pointer');
@@ -529,11 +532,23 @@
 		};
 		const loadDevice = fetching(
 			device,
-			(context) => window.requestAnimationFrame(() => loadingDevice(context.element)),
+			(context) => {
+				loadingDeviceTitle(title);
+				window.requestAnimationFrame(() => loadingDevice(context.element));
+			},
 			(context) => fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
-			async (context, response) => (context.data = await parseDevice(response)),
-			(context) => window.requestAnimationFrame(() => paintDevice(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDevice(context.element))
+			async (context, response) => {
+				context.data = await parseDevice(response);
+				context.response = response;
+			},
+			(context) => {
+				paintDeviceTitle(title, context.response);
+				window.requestAnimationFrame(() => paintDevice(context.element, context.data));
+			},
+			(context) => {
+				errorDeviceTitle(title);
+				window.requestAnimationFrame(() => errorDevice(context.element));
+			}
 		);
 		const updateDialog = document.getElementById('update-dialog');
 		const openUpdateDialog = (device) => {
