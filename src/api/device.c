@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
+#include "cache.h"
 #include "database.h"
 #include "metric.h"
 #include "reading.h"
@@ -509,6 +510,15 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 		if (uplink_received_at_type != SQLITE_NULL) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
 		}
+		cache_device_t cache_device;
+		memcpy(cache_device.id, id, sizeof(cache_device.id));
+		memcpy(cache_device.name, name, name_len);
+		cache_device.name_len = (uint8_t)name_len;
+		memcpy(cache_device.zone_name, zone_name, zone_name_len);
+		cache_device.zone_name_len = (uint8_t)zone_name_len;
+		if (cache_device_write(&cache_device) == -1) {
+			warn("failed to cache device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
+		}
 		status = 0;
 	} else if (result == SQLITE_DONE) {
 		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
@@ -956,6 +966,13 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 		return;
 	}
 
+	cache_device_t cache_device;
+	if (cache_device_read(&cache_device, &device) != -1) {
+		header_write(response, "device-name:%.*s\r\n", cache_device.name_len, cache_device.name);
+		if (cache_device.zone_name_len != 0) {
+			header_write(response, "device-zone-name:%.*s\r\n", cache_device.zone_name_len, cache_device.zone_name);
+		}
+	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found device %02x%02x\n", (*device.id)[0], (*device.id)[1]);

@@ -6,6 +6,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "cache.h"
 #include "database.h"
 #include "device.h"
 #include "time.h"
@@ -391,6 +392,13 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
+	cache_device_t cache_device;
+	if (cache_device_read(&cache_device, &device) != -1) {
+		header_write(response, "device-name:%.*s\r\n", cache_device.name_len, cache_device.name);
+		if (cache_device.zone_name_len != 0) {
+			header_write(response, "device-zone-name:%.*s\r\n", cache_device.zone_name_len, cache_device.zone_name);
+		}
+	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu metrics\n", metrics_len);

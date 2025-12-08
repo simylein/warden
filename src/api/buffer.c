@@ -4,6 +4,7 @@
 #include "../lib/endian.h"
 #include "../lib/logger.h"
 #include "../lib/response.h"
+#include "cache.h"
 #include "database.h"
 #include "device.h"
 #include <sqlite3.h>
@@ -196,6 +197,13 @@ void buffer_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
+	cache_device_t cache_device;
+	if (cache_device_read(&cache_device, &device) != -1) {
+		header_write(response, "device-name:%.*s\r\n", cache_device.name_len, cache_device.name);
+		if (cache_device.zone_name_len != 0) {
+			header_write(response, "device-zone-name:%.*s\r\n", cache_device.zone_name_len, cache_device.zone_name);
+		}
+	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu buffers\n", buffers_len);
