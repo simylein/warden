@@ -27,6 +27,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-24 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"></h1>
 			<div
 				id="tabs"
 				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
@@ -232,20 +233,23 @@
 	<script>
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/zone-tabs.js';
+		import './src/app/scripts/zone-title.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-metric.js';
 		import './src/app/scripts/index-metric.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		const title = document.getElementById('title');
 		const ranges = document.getElementById('ranges');
-		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
+		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
 			scale: document.getElementById('photovoltaic-scale'),
@@ -571,6 +575,7 @@
 			metrics,
 			(context) => {
 				context.width = breakpoint(photovoltaic.graph.clientWidth);
+				loadingZoneTitle(title);
 				window.requestAnimationFrame(() => loadingPhotovoltaic(photovoltaic, context.width));
 				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
 			},
@@ -581,14 +586,19 @@
 				const endpoint = `/api/zone/${window.location.pathname.substring(6)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseMetrics(response)),
+			async (context, response) => {
+				context.data = await parseMetrics(response);
+				context.response = response;
+			},
 			(context) => {
 				const summary = calculateMetrics(context.data, context.width);
+				paintZoneTitle(title, context.response);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, context.width, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, context.width, summary.battery, summary.capturedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
+				errorZoneTitle(title);
 				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
 				window.requestAnimationFrame(() => errorBattery(battery, context.width));
 			}

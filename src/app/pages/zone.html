@@ -28,6 +28,7 @@
 			</div>
 		</header>
 		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-24 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"></h1>
 			<div
 				class="flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
 			>
@@ -246,6 +247,7 @@
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/duration.js';
 		import './src/app/scripts/zone-tabs.js';
+		import './src/app/scripts/zone-title.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/fade.js';
@@ -260,8 +262,9 @@
 		import './src/app/scripts/formik.js';
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
+		const title = document.getElementById('title');
 		const update = document.getElementById('update');
-		const zone = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('zone') };
+		const zone = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('zone') };
 		zoneTabs();
 		const loadingZone = (element) => {
 			update.children[0].classList.remove('cursor-pointer');
@@ -434,11 +437,23 @@
 		};
 		const loadZone = fetching(
 			zone,
-			(context) => window.requestAnimationFrame(() => loadingZone(context.element)),
+			(context) => {
+				loadingZoneTitle(title);
+				window.requestAnimationFrame(() => loadingZone(context.element));
+			},
 			(context) => fetcher('get', `/api/zone/${window.location.pathname.substring(6)}`, null, { controller: context.controller }),
-			async (context, response) => (context.data = await parseZone(response)),
-			(context) => window.requestAnimationFrame(() => paintZone(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorZone(context.element))
+			async (context, response) => {
+				context.data = await parseZone(response);
+				context.response = response;
+			},
+			(context) => {
+				paintZoneTitle(title, context.response);
+				window.requestAnimationFrame(() => paintZone(context.element, context.data));
+			},
+			(context) => {
+				errorZoneTitle(title);
+				window.requestAnimationFrame(() => errorZone(context.element));
+			}
 		);
 		const highlightColor = (element, color) => {
 			array(element.children.length).forEach((ind) => {
