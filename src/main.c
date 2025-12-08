@@ -1,3 +1,4 @@
+#include "api/cache.h"
 #include "api/drop.h"
 #include "api/init.h"
 #include "api/seed.h"
@@ -119,6 +120,15 @@ int main(int argc, char *argv[]) {
 
 	info("starting warden application\n");
 
+	cache.devices = malloc(devices_size * sizeof(*cache.devices));
+	if (cache.devices == NULL) {
+		fatal("failed to allocate %zu bytes for cache because %s\n", devices_size * sizeof(*cache.devices), errno_str());
+		exit(1);
+	}
+	for (uint8_t index = 0; index < devices_size; index++) {
+		cache.devices[index].name_len = 0;
+	}
+
 	queue.tasks = malloc(queue_size * sizeof(*queue.tasks));
 	if (queue.tasks == NULL) {
 		fatal("failed to allocate %zu bytes for tasks because %s\n", queue_size * sizeof(*queue.tasks), errno_str());
@@ -232,6 +242,8 @@ int main(int argc, char *argv[]) {
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
 		join(&thread_pool.workers[index], index);
 	}
+
+	free(cache.devices);
 
 	free(queue.tasks);
 	free(thread_pool.workers);

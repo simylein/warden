@@ -13,6 +13,8 @@ extern uint8_t queue_size;
 extern uint8_t least_workers;
 extern uint8_t most_workers;
 
+extern uint8_t devices_size;
+
 extern const char *bwt_key;
 extern uint32_t bwt_ttl;
 
