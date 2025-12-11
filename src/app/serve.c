@@ -284,8 +284,8 @@ void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
-	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
-		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
 		response->status = 400;
 		return;
 	}
@@ -310,8 +310,8 @@ void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
-	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
-		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
 		response->status = 400;
 		return;
 	}
