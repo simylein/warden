@@ -423,6 +423,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/zone/:id/buffers", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			buffer_find_by_zone(database, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/api/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
