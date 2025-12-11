@@ -21,6 +21,7 @@ file_t page_zones = {.path = "./src/app/pages/zones.html", .lock = PTHREAD_RWLOC
 file_t page_zone = {.path = "./src/app/pages/zone.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_zone_readings = {.path = "./src/app/pages/zone-readings.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_zone_metrics = {.path = "./src/app/pages/zone-metrics.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_zone_buffers = {.path = "./src/app/pages/zone-buffers.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_uplinks = {.path = "./src/app/pages/uplinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_uplink = {.path = "./src/app/pages/uplink.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_downlinks = {.path = "./src/app/pages/downlinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -60,6 +61,7 @@ file_t *pages[] = {
 		&page_zone,
 		&page_zone_readings,
 		&page_zone_metrics,
+		&page_zone_buffers,
 		&page_uplinks,
 		&page_uplink,
 		&page_downlinks,
