@@ -368,9 +368,7 @@
 					const i = indexDelay(point.v);
 					const last = ind === 0 ? point : points[ind - 1];
 					let type = delay.paths[index * 6 + i].length === 0 ? 'M' : 'L';
-					if (last.x - point.x > distance * 8) {
-						type = 'M';
-					} else if (memo !== null && memo !== i) {
+					if (memo !== null && memo !== i) {
 						const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
 						delay.paths[index * 6 + memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
 						delay.paths[index * 6 + i].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
@@ -480,9 +478,7 @@
 					const i = indexLevel(point.v);
 					const last = ind === 0 ? point : points[ind - 1];
 					let type = level.paths[index * 6 + i].length === 0 ? 'M' : 'L';
-					if (last.x - point.x > distance * 8) {
-						type = 'M';
-					} else if (memo !== null && memo !== i) {
+					if (memo !== null && memo !== i) {
 						const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
 						level.paths[index * 6 + memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
 						level.paths[index * 6 + i].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
