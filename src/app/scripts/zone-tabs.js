@@ -4,6 +4,7 @@ const zoneTabs = () => {
 		{ endpoint: '', search: {} },
 		{ endpoint: '/readings', search: { range: true } },
 		{ endpoint: '/metrics', search: { range: true } },
+		{ endpoint: '/buffers', search: { range: true } },
 	];
 	const pathname = window.location.pathname.substring(0, 38);
 	routes.forEach((route, index) => {

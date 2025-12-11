@@ -245,7 +245,9 @@
 						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[5].children[0]);
 					}
+					element.children[ind].children[6].onclick = () => (window.location.href = `/zone/${data[ind].id}/buffers`);
 					fade(element.children[ind].children[6].children[0]);
+					element.children[ind].children[7].onclick = () => (window.location.href = `/zone/${data[ind].id}/buffers`);
 					fade(element.children[ind].children[7].children[0]);
 					if (data[ind].buffer !== null && Number(data[ind].buffer.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 						paint(element.children[ind].children[6].children[0], [], ['w-8', 'h-4'], duration(data[ind].buffer.delay));
