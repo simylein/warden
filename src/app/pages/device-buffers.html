@@ -131,12 +131,7 @@
 						</div>
 						<div class="relative flex flex-col">
 							<svg id="delay-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-								<path
-									class="stroke-neutral-200 dark:stroke-neutral-800"
-									fill="none"
-									stroke-width="2"
-									d="M 0 53 L 1 36 L 2 33 L 3 32 L 4 38 L 5 35 L 6 29 L 7 39 L 8 43 L 9 57 L 10 72 L 11 73 L 12 74 L 13 57 L 14 47 L 15 35 L 16 36 L 17 51 L 18 52 L 19 47 L 20 37 L 21 33 L 22 40 L 23 25 L 24 43 L 25 47 L 26 31 L 27 39 L 28 39 L 29 47 L 30 33 L 31 35 L 32 30 L 33 31 L 34 31 L 35 38 L 36 36 L 37 43 L 38 59 L 39 69 L 40 65 L 41 75 L 42 57 L 43 56 L 44 57 L 45 70 L 46 80 L 47 73 L 48 91 L 49 79 L 50 92 L 51 82 L 52 82 L 53 62 L 54 67 L 55 79 L 56 86 L 57 90 L 58 80 L 59 92 L 60 87 L 61 90 L 62 94 L 63 93 L 64 85 L 65 67 L 66 58 L 67 43 L 68 54 L 69 50 L 70 40 L 71 41 L 72 42 L 73 57 L 74 62 L 75 46 L 76 55 L 77 59 L 78 75 L 79 76 L 80 57 L 81 49 L 82 66 L 83 51 L 84 71 L 85 74 L 86 54 L 87 56 L 88 50 L 89 55 L 90 69 L 91 81 L 92 64 L 93 84 L 94 82 L 95 93 L 96 77 L 97 71 L 98 85 L 99 95 L 100 86"
-								/>
+								<path ref="./src/app/components/graph-delay-path.html" />
 								<path ref="./src/app/components/graph-delay-paths.html" />
 							</svg>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
@@ -182,12 +177,7 @@
 						</div>
 						<div class="relative flex flex-col">
 							<svg id="level-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-								<path
-									class="stroke-neutral-200 dark:stroke-neutral-800"
-									fill="none"
-									stroke-width="2"
-									d="M 0 64 L 1 72 L 2 81 L 3 88 L 4 92 L 5 74 L 6 93 L 7 84 L 8 71 L 9 71 L 10 82 L 11 69 L 12 54 L 13 64 L 14 73 L 15 55 L 16 51 L 17 40 L 18 28 L 19 30 L 20 29 L 21 33 L 22 46 L 23 65 L 24 79 L 25 94 L 26 81 L 27 91 L 28 92 L 29 76 L 30 92 L 31 84 L 32 66 L 33 69 L 34 68 L 35 74 L 36 66 L 37 68 L 38 56 L 39 50 L 40 58 L 41 46 L 42 66 L 43 69 L 44 69 L 45 50 L 46 50 L 47 49 L 48 39 L 49 56 L 50 61 L 51 46 L 52 51 L 53 62 L 54 77 L 55 94 L 56 87 L 57 83 L 58 65 L 59 74 L 60 69 L 61 77 L 62 91 L 63 78 L 64 66 L 65 61 L 66 71 L 67 64 L 68 61 L 69 80 L 70 93 L 71 81 L 72 95 L 73 95 L 74 84 L 75 91 L 76 82 L 77 73 L 78 70 L 79 87 L 80 86 L 81 95 L 82 82 L 83 73 L 84 53 L 85 35 L 86 34 L 87 36 L 88 33 L 89 31 L 90 29 L 91 26 L 92 27 L 93 29 L 94 34 L 95 32 L 96 43 L 97 47 L 98 41 L 99 38 L 100 32"
-								/>
+								<path ref="./src/app/components/graph-level-path.html" />
 								<path ref="./src/app/components/graph-level-paths.html" />
 							</svg>
 							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
@@ -239,6 +229,7 @@
 		import './src/app/scripts/math.js';
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/fade.js';
+		import './src/app/scripts/skeleton-buffer.js';
 		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-buffer.js';
 		import './src/app/scripts/index-buffer.js';
@@ -261,16 +252,6 @@
 			graph: document.getElementById('level-graph'),
 			label: document.getElementById('level-label'),
 		};
-		const delaySkeleton = [
-			53, 36, 33, 32, 38, 35, 29, 39, 43, 57, 72, 73, 74, 57, 47, 35, 36, 51, 52, 47, 37, 33, 40, 25, 43, 47, 31, 39, 39, 47, 33, 35, 30, 31, 31, 38, 36, 43,
-			59, 69, 65, 75, 57, 56, 57, 70, 80, 73, 91, 79, 92, 82, 82, 62, 67, 79, 86, 90, 80, 92, 87, 90, 94, 93, 85, 67, 58, 43, 54, 50, 40, 41, 42, 57, 62, 46,
-			55, 59, 75, 76, 57, 49, 66, 51, 71, 74, 54, 56, 50, 55, 69, 81, 64, 84, 82, 93, 77, 71, 85, 95, 86,
-		];
-		const levelSkeleton = [
-			64, 72, 81, 88, 92, 74, 93, 84, 71, 71, 82, 69, 54, 64, 73, 55, 51, 40, 28, 30, 29, 33, 46, 65, 79, 94, 81, 91, 92, 76, 92, 84, 66, 69, 68, 74, 66, 68,
-			56, 50, 58, 46, 66, 69, 69, 50, 50, 49, 39, 56, 61, 46, 51, 62, 77, 94, 87, 83, 65, 74, 69, 77, 91, 78, 66, 61, 71, 64, 61, 80, 93, 81, 95, 95, 84, 91,
-			82, 73, 70, 87, 86, 95, 82, 73, 53, 35, 34, 36, 33, 31, 29, 26, 27, 29, 34, 32, 43, 47, 41, 38, 32,
-		];
 		window.addEventListener('resize', () => {
 			const width = breakpoint(delay.graph.clientWidth);
 			if (width !== buffers.width) {
