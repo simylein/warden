@@ -248,6 +248,8 @@ int main(int argc, char *argv[]) {
 
 	pthread_mutex_unlock(&thread_pool.lock);
 
+	pthread_cancel(thread_pool.scaler);
+	pthread_join(thread_pool.scaler, NULL);
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
 		join(&thread_pool.workers[index], index);
 	}
