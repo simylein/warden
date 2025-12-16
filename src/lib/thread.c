@@ -154,7 +154,5 @@ void *scaler(void *args) {
 				thread_pool.size = new_size;
 			}
 		}
-
-		pthread_mutex_unlock(&thread_pool.lock);
 	}
 }
