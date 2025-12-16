@@ -9,13 +9,13 @@
 #include "cache.h"
 #include "database.h"
 #include "device.h"
-#include "time.h"
 #include "zone.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 const char *reading_table = "reading";
 const char *reading_schema = "create table reading ("

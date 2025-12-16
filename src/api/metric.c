@@ -9,12 +9,13 @@
 #include "cache.h"
 #include "database.h"
 #include "device.h"
-#include "time.h"
+#include "zone.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 const char *metric_table = "metric";
 const char *metric_schema = "create table metric ("
