@@ -9,7 +9,7 @@
 	</head>
 	<body
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
-		onload="loadReadings(); loadMetrics()"
+		onload="loadReadings(); loadMetrics(); loadBuffers()"
 	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
@@ -31,7 +31,7 @@
 				<button
 					value="1209600"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(1209600); setRange(1209600); loadReadings(); loadMetrics()"
+					onclick="highlightRange(1209600); setRange(1209600); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
@@ -39,7 +39,7 @@
 				<button
 					value="604800"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(604800); setRange(604800); loadReadings(); loadMetrics()"
+					onclick="highlightRange(604800); setRange(604800); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
@@ -47,7 +47,7 @@
 				<button
 					value="345600"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(345600); setRange(345600); loadReadings(); loadMetrics()"
+					onclick="highlightRange(345600); setRange(345600); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
@@ -55,7 +55,7 @@
 				<button
 					value="172800"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(172800); setRange(172800); loadReadings(); loadMetrics()"
+					onclick="highlightRange(172800); setRange(172800); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
@@ -63,7 +63,7 @@
 				<button
 					value="86400"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(86400); setRange(86400); loadReadings(); loadMetrics()"
+					onclick="highlightRange(86400); setRange(86400); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
@@ -71,7 +71,7 @@
 				<button
 					value="43200"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(43200); setRange(43200); loadReadings(); loadMetrics()"
+					onclick="highlightRange(43200); setRange(43200); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
@@ -79,7 +79,7 @@
 				<button
 					value="21600"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(21600); setRange(21600); loadReadings(); loadMetrics()"
+					onclick="highlightRange(21600); setRange(21600); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
@@ -87,7 +87,7 @@
 				<button
 					value="10800"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(10800); setRange(10800); loadReadings(); loadMetrics()"
+					onclick="highlightRange(10800); setRange(10800); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
@@ -95,7 +95,7 @@
 				<button
 					value="3600"
 					class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-					onclick="highlightRange(3600); setRange(3600); loadReadings(); loadMetrics()"
+					onclick="highlightRange(3600); setRange(3600); loadReadings(); loadMetrics(); loadBuffers()"
 				>
 					<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
 					<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
@@ -585,6 +585,248 @@
 					</div>
 				</div>
 			</div>
+			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+					<h2 class="m-0 text-base font-normal">Delay</h2>
+					<p id="delay-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				</div>
+				<div class="overflow-x-auto scrollbar-none">
+					<div
+						id="delay-guide"
+						class="h-4 mb-1 sm:mb-2 flex gap-2 sm:gap-4 md:gap-2 lg:gap-4 text-xs font-normal text-nowrap background-neutral-200 dark:background-neutral-800"
+					>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-red-400/80 dark:background-red-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-orange-400/80 dark:background-orange-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-amber-400/80 dark:background-amber-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-yellow-400/80 dark:background-yellow-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-lime-400/80 dark:background-lime-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-green-400/80 dark:background-green-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-emerald-400/80 dark:background-emerald-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-teal-400/80 dark:background-teal-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-cyan-400/80 dark:background-cyan-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-sky-400/80 dark:background-sky-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-blue-400/80 dark:background-blue-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-indigo-400/80 dark:background-indigo-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-violet-400/80 dark:background-violet-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-purple-400/80 dark:background-purple-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-fuchsia-400/80 dark:background-fuchsia-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-pink-400/80 dark:background-pink-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-rose-400/80 dark:background-rose-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+					</div>
+				</div>
+				<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+					<div id="delay-scale" class="flex flex-col text-xs text-end">
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+					</div>
+					<div class="relative flex flex-col">
+						<svg id="delay-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<path ref="./src/app/components/graph-delay-path.html" />
+							<path ref="./src/app/components/graph-multi-paths.html" />
+						</svg>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+					</div>
+					<div></div>
+					<div id="delay-label" class="w-full flex justify-around text-xs">
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+					</div>
+				</div>
+			</div>
+			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+					<h2 class="m-0 text-base font-normal">Level</h2>
+					<p id="level-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				</div>
+				<div class="overflow-x-auto scrollbar-none">
+					<div
+						id="level-guide"
+						class="h-4 mb-1 sm:mb-2 flex gap-2 sm:gap-4 md:gap-2 lg:gap-4 text-xs font-normal text-nowrap background-neutral-200 dark:background-neutral-800"
+					>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-red-400/80 dark:background-red-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-orange-400/80 dark:background-orange-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-amber-400/80 dark:background-amber-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-yellow-400/80 dark:background-yellow-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-lime-400/80 dark:background-lime-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-green-400/80 dark:background-green-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-emerald-400/80 dark:background-emerald-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-teal-400/80 dark:background-teal-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-cyan-400/80 dark:background-cyan-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-sky-400/80 dark:background-sky-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-blue-400/80 dark:background-blue-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-indigo-400/80 dark:background-indigo-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-violet-400/80 dark:background-violet-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-purple-400/80 dark:background-purple-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-fuchsia-400/80 dark:background-fuchsia-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-pink-400/80 dark:background-pink-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+						<div class="items-center flex gap-1">
+							<span class="hidden w-2 h-2 background-rose-400/80 dark:background-rose-600/80"></span>
+							<label class="text-neutral-600 dark:text-neutral-400"></label>
+						</div>
+					</div>
+				</div>
+				<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+					<div id="level-scale" class="flex flex-col text-xs text-end">
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+					</div>
+					<div class="relative flex flex-col">
+						<svg id="level-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<path ref="./src/app/components/graph-level-path.html" />
+							<path ref="./src/app/components/graph-multi-paths.html" />
+						</svg>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+					</div>
+					<div></div>
+					<div id="level-label" class="w-full flex justify-around text-xs">
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+					</div>
+				</div>
+			</div>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -596,6 +838,7 @@
 		</footer>
 	</body>
 	<script>
+		import './src/app/scripts/duration.js';
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
@@ -604,9 +847,11 @@
 		import './src/app/scripts/graph.js';
 		import './src/app/scripts/skeleton-reading.js';
 		import './src/app/scripts/skeleton-metric.js';
+		import './src/app/scripts/skeleton-buffer.js';
 		import './src/app/scripts/fade.js';
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/color-buffer.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
@@ -614,6 +859,7 @@
 		const ranges = document.getElementById('ranges');
 		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
+		const buffers = { retries: 0, reload: null, timeout: null, controller: null, data: null, width: null };
 		const temperature = {
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
@@ -641,6 +887,20 @@
 			guide: document.getElementById('battery-guide'),
 			graph: document.getElementById('battery-graph'),
 			label: document.getElementById('battery-label'),
+		};
+		const delay = {
+			range: document.getElementById('delay-range'),
+			scale: document.getElementById('delay-scale'),
+			guide: document.getElementById('delay-guide'),
+			graph: document.getElementById('delay-graph'),
+			label: document.getElementById('delay-label'),
+		};
+		const level = {
+			range: document.getElementById('level-range'),
+			scale: document.getElementById('level-scale'),
+			guide: document.getElementById('level-guide'),
+			graph: document.getElementById('level-graph'),
+			label: document.getElementById('level-label'),
 		};
 		window.addEventListener('resize', () => {
 			const temperatureWidth = breakpoint(temperature.graph.clientWidth);
@@ -1184,6 +1444,252 @@
 				}
 			});
 		};
+		const loadingDelay = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (delaySkeleton.length - 1);
+					const skeleton = delaySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintDelay = (element, width, delay, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / (element.label.children.length - 1);
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
+				});
+			}
+			if (delay.min.abs !== null && delay.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range.children[0], [], [], duration(delay.min.abs));
+				fade(element.range.children[0]);
+				colorDelay(element.range.children[0], delay.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], duration(delay.max.abs));
+				fade(element.range.children[2]);
+				colorDelay(element.range.children[2], delay.max.abs);
+			}
+			if (delay.min.floor !== null && delay.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (delay.max.ceil - delay.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], duration(delay.min.floor + ind * interval));
+				});
+			}
+			const devices = Array.from(new Set(delay.points.map((point) => point.d))).sort();
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
+			delay.points.forEach((point) => {
+				const index = mappings.get(point.d);
+				delay.devices[index].push(point);
+			});
+			delay.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = delay.paths[index + 1].length === 0 ? 'M' : 'L';
+					delay.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (delaySkeleton.length - 1);
+			const skeleton = delaySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				delay.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
+		};
+		const errorDelay = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			error(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (delaySkeleton.length - 1);
+					const skeleton = delaySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const loadingLevel = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (levelSkeleton.length - 1);
+					const skeleton = levelSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintLevel = (element, width, level, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / (element.label.children.length - 1);
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
+				});
+			}
+			if (level.min.abs !== null && level.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range.children[0], [], [], level.min.abs.toFixed(0));
+				fade(element.range.children[0]);
+				colorLevel(element.range.children[0], level.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], level.max.abs.toFixed(0));
+				fade(element.range.children[2]);
+				colorLevel(element.range.children[2], level.max.abs);
+			}
+			if (level.min.floor !== null && level.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (level.max.ceil - level.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], (level.min.floor + ind * interval).toFixed(0));
+				});
+			}
+			const devices = Array.from(new Set(level.points.map((point) => point.d))).sort();
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
+			level.points.forEach((point) => {
+				const index = mappings.get(point.d);
+				level.devices[index].push(point);
+			});
+			level.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = level.paths[index + 1].length === 0 ? 'M' : 'L';
+					level.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (levelSkeleton.length - 1);
+			const skeleton = levelSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				level.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
+		};
+		const errorLevel = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			error(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (levelSkeleton.length - 1);
+					const skeleton = levelSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
 		const calculateReadings = (data, width) => {
 			const readings = {
 				temperature: {
@@ -1270,6 +1776,49 @@
 			}
 			return metrics;
 		};
+		const calculateBuffers = (data, width) => {
+			const buffers = {
+				delay: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					devices: array(delay.guide.children.length).map(() => []),
+					paths: array(delay.graph.children.length).map(() => []),
+				},
+				level: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					devices: array(level.guide.children.length).map(() => []),
+					paths: array(level.graph.children.length).map(() => []),
+				},
+				capturedAt: { start: null, end: null },
+			};
+			if (data !== null) {
+				buffers.capturedAt.start = Math.floor(Date.now() / 1000);
+				buffers.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				envelope(buffers, data, 'delay');
+				envelope(buffers, data, 'level');
+				coordinate(buffers, data, 'delay', 'capturedAt', width);
+				coordinate(buffers, data, 'level', 'capturedAt', width);
+			}
+			return buffers;
+		};
+		const parseBuffers = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const buffers = [];
+			while (binary.offset < buffer.byteLength) {
+				const buffer = { delay: null, level: null, capturedAt: null, device: null };
+				buffer.delay = binary.uint(32);
+				buffer.level = binary.uint(16);
+				buffer.capturedAt = binary.uint(64);
+				buffer.device = {};
+				buffer.device.id = binary.uuid();
+				buffers.push(buffer);
+			}
+			return buffers;
+		};
 		const loadReadings = fetching(
 			readings,
 			(context) => {
@@ -1320,6 +1869,32 @@
 			(context) => {
 				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
 				window.requestAnimationFrame(() => errorBattery(battery, context.width));
+			}
+		);
+		const loadBuffers = fetching(
+			buffers,
+			(context) => {
+				context.width = breakpoint(delay.graph.clientWidth);
+				window.requestAnimationFrame(() => loadingDelay(delay, context.width));
+				window.requestAnimationFrame(() => loadingLevel(level, context.width));
+			},
+			(context) => {
+				context.reload = getRange() / 360;
+				const from = Math.floor(Date.now() / 1000) - getRange();
+				const to = Math.floor(Date.now() / 1000);
+				const endpoint = `/api/buffers?from=${from}&to=${to}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseBuffers(response)),
+			(context) => {
+				const summary = calculateBuffers(context.data, context.width);
+				window.requestAnimationFrame(() => paintDelay(delay, context.width, summary.delay, summary.capturedAt));
+				window.requestAnimationFrame(() => paintLevel(level, context.width, summary.level, summary.capturedAt));
+				highlightRange(getRange());
+			},
+			(context) => {
+				window.requestAnimationFrame(() => errorDelay(delay, context.width));
+				window.requestAnimationFrame(() => errorLevel(level, context.width));
 			}
 		);
 	</script>
