@@ -193,10 +193,10 @@
 			paint(element.children[5].children[1].children[0], [], ['w-15', 'h-4'], data.bandwidth);
 			paint(element.children[6].children[1].children[0], [], ['w-9', 'h-4'], data.rssi);
 			fade(element.children[6].children[1].children[0]);
-			colorRssi(element.children[6].children[1].children[0], data.rssi);
+			colorRssi(element.children[6].children[1].children[0], data.rssi, data.sf);
 			paint(element.children[7].children[1].children[0], [], ['w-12', 'h-4'], data.snr);
 			fade(element.children[7].children[1].children[0]);
-			colorSnr(element.children[7].children[1].children[0], data.snr);
+			colorSnr(element.children[7].children[1].children[0], data.snr, data.sf);
 			paint(element.children[8].children[1].children[0], [], ['w-4', 'h-4'], data.sf);
 			fade(element.children[8].children[1].children[0]);
 			colorSf(element.children[8].children[1].children[0], data.sf);

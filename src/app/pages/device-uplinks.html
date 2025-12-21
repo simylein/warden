@@ -145,10 +145,10 @@
 					}
 					paint(element.children[ind].children[3].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
 					fade(element.children[ind].children[3].children[0]);
-					colorRssi(element.children[ind].children[3].children[0], data[ind].rssi);
+					colorRssi(element.children[ind].children[3].children[0], data[ind].rssi, data[ind].sf);
 					paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].snr);
 					fade(element.children[ind].children[4].children[0]);
-					colorSnr(element.children[ind].children[4].children[0], data[ind].snr);
+					colorSnr(element.children[ind].children[4].children[0], data[ind].snr, data[ind].sf);
 					paint(element.children[ind].children[5].children[0], [], ['w-4', 'h-4'], data[ind].sf);
 					fade(element.children[ind].children[5].children[0]);
 					colorSf(element.children[ind].children[5].children[0], data[ind].sf);

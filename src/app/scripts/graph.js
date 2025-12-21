@@ -21,6 +21,6 @@ const coordinate = (collection, items, value, time, width) => {
 	items.forEach((item) => {
 		const xPercent = width - ((Number(item[time]) - Number(collection[time].start)) / xRange) * width;
 		const yPercent = yRange === 0 ? 100 : 100 - ((item[value] - target.min.floor) / yRange) * 100;
-		target.points.push({ x: xPercent, y: yPercent, v: item[value], d: item?.device?.id ?? null });
+		target.points.push({ x: xPercent, y: yPercent, v: item[value], d: item?.device?.id ?? null, sf: item?.sf ?? null });
 	});
 };

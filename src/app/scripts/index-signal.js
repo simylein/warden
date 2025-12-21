@@ -1,33 +1,37 @@
-const indexRssi = (value) => {
+const indexRssi = (rssi, sf) => {
+	const floor = -116 - (sf - 6) * 2.25;
+	const width = 9 + (sf - 6) * 0.25;
 	switch (true) {
-		case value < -125:
+		case rssi < floor + width * 1:
 			return 1;
-		case value >= -125 && value < -115:
+		case rssi >= floor + width * 1 && rssi < floor + width * 2:
 			return 2;
-		case value >= -115 && value < -100:
+		case rssi >= floor + width * 2 && rssi < floor + width * 3:
 			return 3;
-		case value >= -100 && value < -80:
+		case rssi >= floor + width * 3 && rssi < floor + width * 4:
 			return 4;
-		case value >= -80 && value < -60:
+		case rssi >= floor + width * 4 && rssi < floor + width * 5:
 			return 5;
-		case value >= -60:
+		case rssi >= floor + width * 5:
 			return 6;
 	}
 };
 
-const indexSnr = (value) => {
+const indexSnr = (snr, sf) => {
+	const floor = -3 - (sf - 6) * 2.25;
+	const width = 2 + (sf - 6) * 0.25;
 	switch (true) {
-		case value < -15:
+		case snr < floor + width * 1:
 			return 1;
-		case value >= -15 && value < -10:
+		case snr >= floor + width * 1 && snr < floor + width * 2:
 			return 2;
-		case value >= -10 && value < -5:
+		case snr >= floor + width * 2 && snr < floor + width * 3:
 			return 3;
-		case value >= -5 && value < 0:
+		case snr >= floor + width * 3 && snr < floor + width * 4:
 			return 4;
-		case value >= 0 && value < 5:
+		case snr >= floor + width * 4 && snr < floor + width * 5:
 			return 5;
-		case value >= 5:
+		case snr >= floor + width * 5:
 			return 6;
 	}
 };

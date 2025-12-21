@@ -307,7 +307,7 @@
 				}
 			});
 		};
-		const paintRssi = (element, width, rssi, receivedAt) => {
+		const paintRssi = (element, width, rssi, sf, receivedAt) => {
 			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
@@ -319,11 +319,11 @@
 				paint(element.range, [], ['w-28', 'h-4']);
 				paint(element.range.children[0], [], [], rssi.min.abs.toFixed(0));
 				fade(element.range.children[0]);
-				colorRssi(element.range.children[0], rssi.min.abs);
+				colorRssi(element.range.children[0], rssi.min.abs, sf.max.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], rssi.max.abs.toFixed(0));
 				fade(element.range.children[2]);
-				colorRssi(element.range.children[2], rssi.max.abs);
+				colorRssi(element.range.children[2], rssi.max.abs, sf.min.abs);
 			}
 			if (rssi.min.floor !== null && rssi.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -335,7 +335,7 @@
 			let memo = null;
 			const distance = width / rssi.points.length;
 			rssi.points.forEach((point, ind) => {
-				const index = indexRssi(point.v);
+				const index = indexRssi(point.v, point.sf);
 				const last = ind === 0 ? point : rssi.points[ind - 1];
 				let type = rssi.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
@@ -411,7 +411,7 @@
 				}
 			});
 		};
-		const paintSnr = (element, width, snr, receivedAt) => {
+		const paintSnr = (element, width, snr, sf, receivedAt) => {
 			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
 			if (receivedAt.start !== null && receivedAt.end !== null) {
 				array(element.label.children.length).forEach((ind) => {
@@ -423,11 +423,11 @@
 				paint(element.range, [], ['w-28', 'h-4']);
 				paint(element.range.children[0], [], [], snr.min.abs.toFixed(2));
 				fade(element.range.children[0]);
-				colorSnr(element.range.children[0], snr.min.abs);
+				colorSnr(element.range.children[0], snr.min.abs, sf.max.abs);
 				paint(element.range.children[1], [], [], ' - ');
 				paint(element.range.children[2], [], [], snr.max.abs.toFixed(2));
 				fade(element.range.children[2]);
-				colorSnr(element.range.children[2], snr.max.abs);
+				colorSnr(element.range.children[2], snr.max.abs, sf.min.abs);
 			}
 			if (snr.min.floor !== null && snr.max.ceil !== null) {
 				const scaleLength = element.scale.children.length;
@@ -439,7 +439,7 @@
 			let memo = null;
 			const distance = width / snr.points.length;
 			snr.points.forEach((point, ind) => {
-				const index = indexSnr(point.v);
+				const index = indexSnr(point.v, point.sf);
 				const last = ind === 0 ? point : snr.points[ind - 1];
 				let type = snr.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
@@ -505,6 +505,10 @@
 					points: [],
 					paths: array(snr.graph.children.length).map(() => []),
 				},
+				sf: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+				},
 				receivedAt: { start: null, end: null },
 			};
 			if (data !== null) {
@@ -512,6 +516,7 @@
 				signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				envelope(signals, data, 'rssi');
 				envelope(signals, data, 'snr');
+				envelope(signals, data, 'sf');
 				coordinate(signals, data, 'rssi', 'receivedAt', width);
 				coordinate(signals, data, 'snr', 'receivedAt', width);
 			}
@@ -553,8 +558,8 @@
 			(context) => {
 				const summary = calculateSignals(context.data, context.width);
 				paintDeviceTitle(title, context.response);
-				window.requestAnimationFrame(() => paintRssi(rssi, context.width, summary.rssi, summary.receivedAt));
-				window.requestAnimationFrame(() => paintSnr(snr, context.width, summary.snr, summary.receivedAt));
+				window.requestAnimationFrame(() => paintRssi(rssi, context.width, summary.rssi, summary.sf, summary.receivedAt));
+				window.requestAnimationFrame(() => paintSnr(snr, context.width, summary.snr, summary.sf, summary.receivedAt));
 				highlightRange(getRange());
 			},
 			(context) => {
