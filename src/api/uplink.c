@@ -321,7 +321,7 @@ uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t 
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select "
-										"avg(uplink.rssi), avg(uplink.snr), "
+										"avg(uplink.rssi), avg(uplink.snr), avg(uplink.sf), "
 										"(uplink.received_at / ?) * ? as bucket_time "
 										"from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
@@ -348,9 +348,11 @@ uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t 
 		if (result == SQLITE_ROW) {
 			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 0);
 			const double snr = sqlite3_column_double(stmt, 1);
-			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 2);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 2);
+			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 3);
 			body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
 			body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			body_write(response, &sf, sizeof(sf));
 			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
 			*signals_len += 1;
 		} else if (result == SQLITE_DONE) {

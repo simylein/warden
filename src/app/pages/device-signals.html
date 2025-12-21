@@ -522,9 +522,10 @@
 			const binary = new Binary(buffer);
 			const signals = [];
 			while (binary.offset < buffer.byteLength) {
-				const signal = { rssi: null, snr: null, receivedAt: null };
+				const signal = { rssi: null, snr: null, sf: null, receivedAt: null };
 				signal.rssi = binary.int(16);
 				signal.snr = binary.int(8) / 4;
+				signal.sf = binary.uint(8);
 				signal.receivedAt = binary.uint(64);
 				signals.push(signal);
 			}
