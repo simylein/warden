@@ -27,6 +27,7 @@ const char *uplink_schema = "create table uplink ("
 														"rssi integer not null, "
 														"snr real not null, "
 														"sf integer not null, "
+														"cr integer not null, "
 														"tx_power integer not null, "
 														"preamble_len integer not null, "
 														"received_at timestamp not null, "
@@ -430,6 +431,12 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	}
 	uplink->sf = *(uint8_t *)body_read(request, sizeof(uplink->sf));
 
+	if (request->body.len < request->body.pos + sizeof(uplink->cr)) {
+		debug("missing cr on uplink\n");
+		return -1;
+	}
+	uplink->cr = *(uint8_t *)body_read(request, sizeof(uplink->cr));
+
 	if (request->body.len < request->body.pos + sizeof(uplink->tx_power)) {
 		debug("missing tx power on uplink\n");
 		return -1;
@@ -494,6 +501,11 @@ int uplink_validate(uplink_t *uplink) {
 		return -1;
 	}
 
+	if (uplink->cr < 5 || uplink->cr > 8) {
+		debug("invalid cr %hhu on uplink\n", uplink->cr);
+		return -1;
+	}
+
 	if (uplink->tx_power < 2 || uplink->tx_power > 17) {
 		debug("invalid tx power %hhu on uplink\n", uplink->tx_power);
 		return -1;
@@ -512,8 +524,8 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "insert into uplink (id, kind, data, airtime, frequency, bandwidth, "
-										"rssi, snr, sf, tx_power, preamble_len, received_at, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
+										"rssi, snr, sf, cr, tx_power, preamble_len, received_at, device_id) "
+										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -530,10 +542,11 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	sqlite3_bind_int(stmt, 6, uplink->rssi);
 	sqlite3_bind_double(stmt, 7, (double)uplink->snr / 4);
 	sqlite3_bind_int(stmt, 8, uplink->sf);
-	sqlite3_bind_int(stmt, 9, uplink->tx_power);
-	sqlite3_bind_int(stmt, 10, uplink->preamble_len);
-	sqlite3_bind_int64(stmt, 11, uplink->received_at);
-	sqlite3_bind_blob(stmt, 12, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
+	sqlite3_bind_int(stmt, 9, uplink->cr);
+	sqlite3_bind_int(stmt, 10, uplink->tx_power);
+	sqlite3_bind_int(stmt, 11, uplink->preamble_len);
+	sqlite3_bind_int64(stmt, 12, uplink->received_at);
+	sqlite3_bind_blob(stmt, 13, uplink->device_id, sizeof(*uplink->device_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {

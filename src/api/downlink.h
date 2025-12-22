@@ -17,6 +17,7 @@ typedef struct downlink_t {
 	uint32_t frequency;
 	uint32_t bandwidth;
 	uint8_t sf;
+	uint8_t cr;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t sent_at;
