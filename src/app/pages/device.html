@@ -186,7 +186,39 @@
 						</tr>
 						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Kind</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
 								<p class="m-0">Received at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Downlink id</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-80 h-4 text-blue-600 dark:text-blue-400 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Kind</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Sent at</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
 								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
@@ -306,7 +338,15 @@
 			fade(element.children[16].children[1].children[0]);
 			loading(element.children[16].children[1].children[0], ['w-80', 'h-4'], ['cursor-pointer'], '');
 			fade(element.children[17].children[1].children[0]);
-			loading(element.children[17].children[1].children[0], ['w-40', 'h-4'], [], '');
+			loading(element.children[17].children[1].children[0], ['w-5', 'h-4'], [], '');
+			fade(element.children[18].children[1].children[0]);
+			loading(element.children[18].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(element.children[19].children[1].children[0]);
+			loading(element.children[19].children[1].children[0], ['w-80', 'h-4'], ['cursor-pointer'], '');
+			fade(element.children[20].children[1].children[0]);
+			loading(element.children[20].children[1].children[0], ['w-5', 'h-4'], [], '');
+			fade(element.children[21].children[1].children[0]);
+			loading(element.children[21].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const paintDevice = (element, data) => {
 			update.children[0].classList.remove('opacity-50', 'cursor-not-allowed');
@@ -397,16 +437,37 @@
 			}
 			fade(element.children[16].children[1].children[0]);
 			fade(element.children[17].children[1].children[0]);
+			fade(element.children[18].children[1].children[0]);
 			if (data.uplink !== null) {
 				element.children[16].children[1].children[0].classList.add('cursor-pointer');
 				element.children[16].children[1].children[0].onclick = () => (window.location.href = `/uplink/${data.uplink.id}`);
 				paint(element.children[16].children[1].children[0], ['text-blue-600', 'dark:text-blue-400'], ['w-80', 'h-4'], data.uplink.id);
-				paint(element.children[17].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.uplink.receivedAt));
+				paint(element.children[17].children[1].children[0], [], ['w-5', 'h-4'], data.uplink.kind.toString(16).padStart(2, '0'));
+				paint(element.children[18].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.uplink.receivedAt));
 			} else {
 				paint(element.children[16].children[1].children[0], [], ['w-80', 'h-4'], 'null');
 				colorNull(element.children[16].children[1].children[0]);
-				paint(element.children[17].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				paint(element.children[17].children[1].children[0], [], ['w-5', 'h-4'], 'null');
 				colorNull(element.children[17].children[1].children[0]);
+				paint(element.children[18].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(element.children[18].children[1].children[0]);
+			}
+			fade(element.children[19].children[1].children[0]);
+			fade(element.children[20].children[1].children[0]);
+			fade(element.children[21].children[1].children[0]);
+			if (data.uplink !== null) {
+				element.children[19].children[1].children[0].classList.add('cursor-pointer');
+				element.children[19].children[1].children[0].onclick = () => (window.location.href = `/downlink/${data.downlink.id}`);
+				paint(element.children[19].children[1].children[0], ['text-blue-600', 'dark:text-blue-400'], ['w-80', 'h-4'], data.downlink.id);
+				paint(element.children[20].children[1].children[0], [], ['w-5', 'h-4'], data.downlink.kind.toString(16).padStart(2, '0'));
+				paint(element.children[21].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.downlink.sentAt));
+			} else {
+				paint(element.children[19].children[1].children[0], [], ['w-80', 'h-4'], 'null');
+				colorNull(element.children[19].children[1].children[0]);
+				paint(element.children[20].children[1].children[0], [], ['w-5', 'h-4'], 'null');
+				colorNull(element.children[20].children[1].children[0]);
+				paint(element.children[21].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(element.children[21].children[1].children[0]);
 			}
 		};
 		const errorDevice = (element) => {
@@ -442,7 +503,15 @@
 			fade(element.children[16].children[1].children[0]);
 			error(element.children[16].children[1].children[0], ['w-80', 'h-4'], ['cursor-pointer'], '');
 			fade(element.children[17].children[1].children[0]);
-			error(element.children[17].children[1].children[0], ['w-40', 'h-4'], [], '');
+			error(element.children[17].children[1].children[0], ['w-5', 'h-4'], [], '');
+			fade(element.children[18].children[1].children[0]);
+			error(element.children[18].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(element.children[19].children[1].children[0]);
+			error(element.children[19].children[1].children[0], ['w-80', 'h-4'], ['cursor-pointer'], '');
+			fade(element.children[20].children[1].children[0]);
+			error(element.children[20].children[1].children[0], ['w-5', 'h-4'], [], '');
+			fade(element.children[21].children[1].children[0]);
+			error(element.children[21].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const parseDevice = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -459,6 +528,7 @@
 				metric: null,
 				buffer: null,
 				uplink: null,
+				downlink: null,
 			};
 			device.id = binary.uuid();
 			device.name = binary.string();
@@ -526,7 +596,20 @@
 				device.uplink.id = binary.uuid();
 			}
 			if (binary.byte() !== 0) {
+				device.uplink.kind = binary.byte();
+			}
+			if (binary.byte() !== 0) {
 				device.uplink.receivedAt = binary.uint(64);
+			}
+			if (binary.byte() !== 0) {
+				device.downlink = {};
+				device.downlink.id = binary.uuid();
+			}
+			if (binary.byte() !== 0) {
+				device.downlink.kind = binary.byte();
+			}
+			if (binary.byte() !== 0) {
+				device.downlink.sentAt = binary.uint(64);
 			}
 			return device;
 		};

@@ -8,6 +8,7 @@
 #include "buffer.h"
 #include "cache.h"
 #include "database.h"
+#include "downlink.h"
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
@@ -308,7 +309,8 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
 			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at, "
 			"buffer.id, buffer.delay, buffer.level, buffer.captured_at, "
-			"uplink.id, uplink.received_at "
+			"uplink.id, uplink.kind, uplink.received_at, "
+			"downlink.id, downlink.kind, downlink.sent_at "
 			"from device "
 			"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
 			"left join zone on zone.id = device.zone_id "
@@ -320,6 +322,8 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
 			"left join uplink on uplink.id = "
 			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
+			"left join downlink on downlink.id = "
+			"(select id from downlink where device_id = device.id order by downlink.sent_at desc limit 1) "
 			"where device.id = ?";
 	debug("%s\n", sql);
 
@@ -421,8 +425,22 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 			status = 500;
 			goto cleanup;
 		}
-		const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 22);
-		const int uplink_received_at_type = sqlite3_column_type(stmt, 22);
+		const uint8_t uplink_kind = (uint8_t)sqlite3_column_int(stmt, 22);
+		const int uplink_kind_type = sqlite3_column_type(stmt, 22);
+		const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 23);
+		const int uplink_received_at_type = sqlite3_column_type(stmt, 23);
+		const uint8_t *downlink_id = sqlite3_column_blob(stmt, 24);
+		const size_t downlink_id_len = (size_t)sqlite3_column_bytes(stmt, 24);
+		const int downlink_id_type = sqlite3_column_type(stmt, 24);
+		if (downlink_id_type != SQLITE_NULL && downlink_id_len != sizeof(*((downlink_t *)0)->id)) {
+			error("downlink id length %zu does not match buffer length %zu\n", downlink_id_len, sizeof(*((downlink_t *)0)->id));
+			status = 500;
+			goto cleanup;
+		}
+		const uint8_t downlink_kind = (uint8_t)sqlite3_column_int(stmt, 25);
+		const int downlink_kind_type = sqlite3_column_type(stmt, 25);
+		const time_t downlink_sent_at = (time_t)sqlite3_column_int64(stmt, 26);
+		const int downlink_sent_at_type = sqlite3_column_type(stmt, 26);
 		body_write(response, id, id_len);
 		body_write(response, name, name_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
@@ -506,9 +524,25 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 		if (uplink_id_type != SQLITE_NULL) {
 			body_write(response, uplink_id, uplink_id_len);
 		}
+		body_write(response, (char[]){uplink_kind_type != SQLITE_NULL}, sizeof(char));
+		if (uplink_kind_type != SQLITE_NULL) {
+			body_write(response, &uplink_kind, sizeof(uplink_kind));
+		}
 		body_write(response, (char[]){uplink_received_at_type != SQLITE_NULL}, sizeof(char));
 		if (uplink_received_at_type != SQLITE_NULL) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
+		}
+		body_write(response, (char[]){downlink_id_type != SQLITE_NULL}, sizeof(char));
+		if (downlink_id_type != SQLITE_NULL) {
+			body_write(response, downlink_id, downlink_id_len);
+		}
+		body_write(response, (char[]){downlink_kind_type != SQLITE_NULL}, sizeof(char));
+		if (downlink_kind_type != SQLITE_NULL) {
+			body_write(response, &downlink_kind, sizeof(downlink_kind));
+		}
+		body_write(response, (char[]){downlink_sent_at_type != SQLITE_NULL}, sizeof(char));
+		if (downlink_sent_at_type != SQLITE_NULL) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)downlink_sent_at)}, sizeof(downlink_sent_at));
 		}
 		cache_device_t cache_device;
 		memcpy(cache_device.id, id, sizeof(cache_device.id));
