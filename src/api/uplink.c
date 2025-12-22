@@ -168,7 +168,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 	const char *sql = "select "
 										"uplink.id, uplink.kind, uplink.data, "
 										"uplink.airtime, uplink.frequency, uplink.bandwidth, "
-										"uplink.rssi, uplink.snr, uplink.sf, uplink.tx_power, uplink.preamble_len, "
+										"uplink.rssi, uplink.snr, uplink.sf, uplink.cr, uplink.tx_power, uplink.preamble_len, "
 										"uplink.received_at, uplink.device_id "
 										"from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
@@ -207,11 +207,12 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 6);
 		const double snr = sqlite3_column_double(stmt, 7);
 		const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 8);
-		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 9);
-		const uint8_t preamble_len = (uint8_t)sqlite3_column_int(stmt, 10);
-		const time_t received_at = (time_t)sqlite3_column_int64(stmt, 11);
-		const uint8_t *device_id = sqlite3_column_blob(stmt, 12);
-		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 12);
+		const uint8_t cr = (uint8_t)sqlite3_column_int(stmt, 9);
+		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 10);
+		const uint8_t preamble_len = (uint8_t)sqlite3_column_int(stmt, 11);
+		const time_t received_at = (time_t)sqlite3_column_int64(stmt, 12);
+		const uint8_t *device_id = sqlite3_column_blob(stmt, 13);
+		const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 13);
 		if (device_id_len != sizeof(*((uplink_t *)0)->device_id)) {
 			error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((uplink_t *)0)->device_id));
 			status = 500;
@@ -227,6 +228,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
 		body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
 		body_write(response, &sf, sizeof(sf));
+		body_write(response, &cr, sizeof(cr));
 		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &preamble_len, sizeof(preamble_len));
 		body_write(response, &(uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
