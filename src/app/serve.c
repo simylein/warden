@@ -414,8 +414,8 @@ void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_
 void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
-	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
-		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
+	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
 		response->status = 400;
 		return;
 	}
@@ -440,8 +440,8 @@ void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 void serve_user_devices(sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
-	if (uuid_len != sizeof(*((downlink_t *)0)->id) * 2) {
-		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((downlink_t *)0)->id) * 2);
+	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
 		response->status = 400;
 		return;
 	}
