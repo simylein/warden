@@ -283,6 +283,15 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			if (buffer_captured_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
 			}
+			cache_device_t cache_device;
+			memcpy(cache_device.id, id, sizeof(cache_device.id));
+			memcpy(cache_device.name, name, name_len);
+			cache_device.name_len = (uint8_t)name_len;
+			memcpy(cache_device.zone_name, zone_name, zone_name_len);
+			cache_device.zone_name_len = (uint8_t)zone_name_len;
+			if (cache_device_write(&cache_device) == -1) {
+				warn("failed to cache device %02x%02x\n", id[0], id[1]);
+			}
 			*devices_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;

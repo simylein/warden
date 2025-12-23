@@ -208,6 +208,13 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 			if (buffer_captured_at_type != SQLITE_NULL) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
 			}
+			cache_zone_t cache_zone;
+			memcpy(cache_zone.id, id, sizeof(cache_zone.id));
+			memcpy(cache_zone.name, name, name_len);
+			cache_zone.name_len = (uint8_t)name_len;
+			if (cache_zone_write(&cache_zone) == -1) {
+				warn("failed to cache zone %02x%02x\n", id[0], id[1]);
+			}
 			*zones_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
