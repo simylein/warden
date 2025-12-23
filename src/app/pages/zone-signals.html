@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View signals from your zone" />
+		<title>Warden zone signals</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadSignals()"
+	>
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
+				<nav class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-lg font-normal overflow-x-auto scrollbar-none">
+					<a href="/" class="no-underline text-black dark:text-white">Home</a>
+					<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+					<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
+					<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+					<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+				</nav>
+				<a href="/profile" class="flex text-black dark:text-white">
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
+				</a>
+			</div>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-24 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span></h1>
+			<div
+				id="tabs"
+				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
+			>
+				<a class="no-underline text-black dark:text-white">Details</a>
+				<a class="no-underline text-black dark:text-white">Readings</a>
+				<a class="no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Buffers</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Signals</a>
+			</div>
+			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
+				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
+					<button
+						value="1209600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(1209600); setRange(1209600); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
+					</button>
+					<button
+						value="604800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(604800); setRange(604800); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
+					</button>
+					<button
+						value="345600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(345600); setRange(345600); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
+					</button>
+					<button
+						value="172800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(172800); setRange(172800); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
+					</button>
+					<button
+						value="86400"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(86400); setRange(86400); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
+					</button>
+					<button
+						value="43200"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(43200); setRange(43200); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
+					</button>
+					<button
+						value="21600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(21600); setRange(21600); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
+					</button>
+					<button
+						value="10800"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(10800); setRange(10800); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
+					</button>
+					<button
+						value="3600"
+						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
+						onclick="highlightRange(3600); setRange(3600); zoneTabs(); loadSignals()"
+					>
+						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
+						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
+					</button>
+				</div>
+				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+						<h2 class="m-0 text-base font-normal">Rssi</h2>
+						<p id="rssi-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+						<div id="rssi-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<svg id="rssi-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<path ref="./src/app/components/graph-rssi-path.html" />
+								<path ref="./src/app/components/graph-rssi-paths.html" />
+								<path ref="./src/app/components/graph-rssi-paths.html" />
+								<path ref="./src/app/components/graph-rssi-paths.html" />
+								<path ref="./src/app/components/graph-rssi-paths.html" />
+							</svg>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="rssi-label" class="w-full flex justify-around text-xs">
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+						<h2 class="m-0 text-base font-normal">Snr</h2>
+						<p id="snr-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+					</div>
+					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+						<div id="snr-scale" class="flex flex-col text-xs text-end">
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+						<div class="relative flex flex-col">
+							<svg id="snr-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+								<path ref="./src/app/components/graph-snr-path.html" />
+								<path ref="./src/app/components/graph-snr-paths.html" />
+								<path ref="./src/app/components/graph-snr-paths.html" />
+								<path ref="./src/app/components/graph-snr-paths.html" />
+								<path ref="./src/app/components/graph-snr-paths.html" />
+							</svg>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+							<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						</div>
+						<div></div>
+						<div id="snr-label" class="w-full flex justify-around text-xs">
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden sm:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+							<label class="hidden lg:inline w-8 h-3 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">warden {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/breakpoint.js';
+		import './src/app/scripts/zone-tabs.js';
+		import './src/app/scripts/zone-title.js';
+		import './src/app/scripts/timespan.js';
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/math.js';
+		import './src/app/scripts/graph.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/skeleton-signal.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-signal.js';
+		import './src/app/scripts/index-signal.js';
+		import './src/app/scripts/search.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		const title = document.getElementById('title');
+		const ranges = document.getElementById('ranges');
+		const signals = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
+		const rssi = {
+			range: document.getElementById('rssi-range'),
+			scale: document.getElementById('rssi-scale'),
+			graph: document.getElementById('rssi-graph'),
+			label: document.getElementById('rssi-label'),
+		};
+		const snr = {
+			range: document.getElementById('snr-range'),
+			scale: document.getElementById('snr-scale'),
+			graph: document.getElementById('snr-graph'),
+			label: document.getElementById('snr-label'),
+		};
+		window.addEventListener('resize', () => {
+			const width = breakpoint(rssi.graph.clientWidth);
+			if (width !== signals.width) {
+				signals.width = width;
+				const summary = calculateSignals(signals.data, signals.width);
+				window.requestAnimationFrame(() => paintRssi(rssi, signals.width, summary.rssi, summary.receivedAt));
+				window.requestAnimationFrame(() => paintSnr(snr, signals.width, summary.snr, summary.receivedAt));
+			}
+		});
+		const getRange = () => {
+			return +getParam('range', 86400);
+		};
+		const setRange = (range) => {
+			setParam('range', range);
+		};
+		zoneTabs();
+		const highlightRange = (range) => {
+			array(ranges.children.length).forEach((ind) => {
+				if (+ranges.children[ind].getAttribute('value') === range) {
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.add('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.remove('text-black', 'dark:text-white');
+					});
+				} else {
+					array(ranges.children[ind].children.length).forEach((i) => {
+						ranges.children[ind].children[i].classList.remove('text-blue-600', 'dark:text-blue-400');
+						ranges.children[ind].children[i].classList.add('text-black', 'dark:text-white');
+					});
+				}
+			});
+		};
+		highlightRange(getRange());
+		const loadingRssi = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (rssiSkeleton.length - 1);
+					const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintRssi = (element, width, rssi, sf, receivedAt) => {
+			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
+			if (receivedAt.start !== null && receivedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
+				});
+			}
+			if (rssi.min.abs !== null && rssi.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range.children[0], [], [], rssi.min.abs.toFixed(0));
+				fade(element.range.children[0]);
+				colorRssi(element.range.children[0], rssi.min.abs, sf.max.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], rssi.max.abs.toFixed(0));
+				fade(element.range.children[2]);
+				colorRssi(element.range.children[2], rssi.max.abs, sf.min.abs);
+			}
+			if (rssi.min.floor !== null && rssi.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (rssi.max.ceil - rssi.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], (rssi.min.floor + ind * interval).toFixed(0));
+				});
+			}
+			const devices = Array.from(new Set(rssi.points.map((point) => point.d))).sort();
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			rssi.points.forEach((point) => {
+				const index = mappings.get(point.d);
+				rssi.devices[index].push(point);
+			});
+			rssi.devices.forEach((points, index) => {
+				let memo = null;
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const i = indexRssi(point.v, sf.points[ind].v);
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = rssi.paths[index * 6 + i].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					} else if (memo !== null && memo !== i) {
+						const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+						rssi.paths[index * 6 + memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+						rssi.paths[index * 6 + i].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+						type = 'L';
+					}
+					memo = i;
+					rssi.paths[index * 6 + i].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (rssiSkeleton.length - 1);
+			const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (receivedAt.start !== null && receivedAt.end !== null) {
+				rssi.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
+		};
+		const errorRssi = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			error(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (rssiSkeleton.length - 1);
+					const skeleton = rssiSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const loadingSnr = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (snrSkeleton.length - 1);
+					const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintSnr = (element, width, snr, sf, receivedAt) => {
+			const interval = (Number(receivedAt.end) - Number(receivedAt.start)) / (element.label.children.length - 1);
+			if (receivedAt.start !== null && receivedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
+				});
+			}
+			if (snr.min.abs !== null && snr.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range.children[0], [], [], snr.min.abs.toFixed(2));
+				fade(element.range.children[0]);
+				colorSnr(element.range.children[0], snr.min.abs, sf.max.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], snr.max.abs.toFixed(2));
+				fade(element.range.children[2]);
+				colorSnr(element.range.children[2], snr.max.abs, sf.min.abs);
+			}
+			if (snr.min.floor !== null && snr.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (snr.max.ceil - snr.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], (snr.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			const devices = Array.from(new Set(snr.points.map((point) => point.d))).sort();
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			snr.points.forEach((point) => {
+				const index = mappings.get(point.d);
+				snr.devices[index].push(point);
+			});
+			snr.devices.forEach((points, index) => {
+				let memo = null;
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const i = indexSnr(point.v, sf.points[ind].v);
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = snr.paths[index * 6 + i].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					} else if (memo !== null && memo !== i) {
+						const mid = { x: (last.x + point.x) / 2, y: (last.y + point.y) / 2 };
+						snr.paths[index * 6 + memo].push(`L ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+						snr.paths[index * 6 + i].push(`M ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`);
+						type = 'L';
+					}
+					memo = i;
+					snr.paths[index * 6 + i].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (snrSkeleton.length - 1);
+			const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (receivedAt.start !== null && receivedAt.end !== null) {
+				snr.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
+		};
+		const errorSnr = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			error(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (snrSkeleton.length - 1);
+					const skeleton = snrSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const calculateSignals = (data, width) => {
+			const signals = {
+				rssi: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					devices: array((rssi.graph.children.length - 1) / 6).map(() => []),
+					paths: array(rssi.graph.children.length).map(() => []),
+				},
+				snr: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+					devices: array((snr.graph.children.length - 1) / 6).map(() => []),
+					paths: array(snr.graph.children.length).map(() => []),
+				},
+				sf: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					points: [],
+				},
+				receivedAt: { start: null, end: null },
+			};
+			if (data !== null) {
+				signals.receivedAt.start = Math.floor(Date.now() / 1000);
+				signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				envelope(signals, data, 'rssi');
+				envelope(signals, data, 'snr');
+				envelope(signals, data, 'sf');
+				coordinate(signals, data, 'rssi', 'receivedAt', width);
+				coordinate(signals, data, 'snr', 'receivedAt', width);
+				coordinate(signals, data, 'sf', 'receivedAt', width);
+			}
+			return signals;
+		};
+		const parseSignals = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const signals = [];
+			while (binary.offset < buffer.byteLength) {
+				const signal = { rssi: null, snr: null, sf: null, receivedAt: null, device: null };
+				signal.rssi = binary.int(16);
+				signal.snr = binary.int(8) / 4;
+				signal.sf = binary.uint(8);
+				signal.receivedAt = binary.uint(64);
+				signal.device = {};
+				signal.device.id = binary.uuid();
+				signals.push(signal);
+			}
+			return signals;
+		};
+		const loadSignals = fetching(
+			signals,
+			(context) => {
+				context.width = breakpoint(rssi.graph.clientWidth);
+				loadingZoneTitle(title);
+				window.requestAnimationFrame(() => loadingRssi(rssi, context.width));
+				window.requestAnimationFrame(() => loadingSnr(snr, context.width));
+			},
+			(context) => {
+				context.reload = getRange() / 360;
+				const from = Math.floor(Date.now() / 1000) - getRange();
+				const to = Math.floor(Date.now() / 1000);
+				const endpoint = `/api/zone/${window.location.pathname.substring(6)}?from=${from}&to=${to}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => {
+				context.data = await parseSignals(response);
+				context.response = response;
+			},
+			(context) => {
+				const summary = calculateSignals(context.data, context.width);
+				paintZoneTitle(title, context.response);
+				window.requestAnimationFrame(() => paintRssi(rssi, context.width, summary.rssi, summary.sf, summary.receivedAt));
+				window.requestAnimationFrame(() => paintSnr(snr, context.width, summary.snr, summary.sf, summary.receivedAt));
+				highlightRange(getRange());
+			},
+			(context) => {
+				errorZoneTitle(title);
+				window.requestAnimationFrame(() => errorRssi(rssi, context.width));
+				window.requestAnimationFrame(() => errorSnr(snr, context.width));
+			}
+		);
+	</script>
+</html>
