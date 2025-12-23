@@ -335,7 +335,7 @@
 			let memo = null;
 			const distance = width / rssi.points.length;
 			rssi.points.forEach((point, ind) => {
-				const index = indexRssi(point.v, point.sf);
+				const index = indexRssi(point.v, sf.points[ind].v);
 				const last = ind === 0 ? point : rssi.points[ind - 1];
 				let type = rssi.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
@@ -439,7 +439,7 @@
 			let memo = null;
 			const distance = width / snr.points.length;
 			snr.points.forEach((point, ind) => {
-				const index = indexSnr(point.v, point.sf);
+				const index = indexSnr(point.v, sf.points[ind].v);
 				const last = ind === 0 ? point : snr.points[ind - 1];
 				let type = snr.paths[index].length === 0 ? 'M' : 'L';
 				if (last.x - point.x > distance * 8) {
@@ -508,6 +508,7 @@
 				sf: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					points: [],
 				},
 				receivedAt: { start: null, end: null },
 			};
@@ -519,6 +520,7 @@
 				envelope(signals, data, 'sf');
 				coordinate(signals, data, 'rssi', 'receivedAt', width);
 				coordinate(signals, data, 'snr', 'receivedAt', width);
+				coordinate(signals, data, 'sf', 'receivedAt', width);
 			}
 			return signals;
 		};
