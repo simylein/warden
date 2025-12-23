@@ -372,6 +372,69 @@ cleanup:
 	return status;
 }
 
+uint16_t uplink_signal_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, uplink_signal_query_t *query,
+																			response_t *response, uint16_t *signals_len) {
+	uint16_t status;
+	sqlite3_stmt *stmt;
+
+	const char *sql = "select "
+										"avg(uplink.rssi), avg(uplink.snr), avg(uplink.sf), "
+										"(uplink.received_at / ?) * ? as bucket_time, uplink.device_id "
+										"from uplink "
+										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
+										"join device on device.id = uplink.device_id "
+										"where device.zone_id = ? and uplink.received_at >= ? and uplink.received_at <= ? "
+										"group by bucket_time, user_device.device_id "
+										"order by bucket_time desc";
+	debug("%s\n", sql);
+
+	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
+		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+		status = 500;
+		goto cleanup;
+	}
+
+	sqlite3_bind_int(stmt, 1, query->bucket);
+	sqlite3_bind_int(stmt, 2, query->bucket);
+	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 4, zone->id, sizeof(*zone->id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 5, query->from);
+	sqlite3_bind_int64(stmt, 6, query->to);
+
+	while (true) {
+		int result = sqlite3_step(stmt);
+		if (result == SQLITE_ROW) {
+			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 0);
+			const double snr = sqlite3_column_double(stmt, 1);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 2);
+			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 3);
+			const uint8_t *device_id = sqlite3_column_blob(stmt, 4);
+			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 4);
+			if (device_id_len != sizeof(*((uplink_t *)0)->device_id)) {
+				error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((uplink_t *)0)->device_id));
+				status = 500;
+				goto cleanup;
+			}
+			body_write(response, &(uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+			body_write(response, &(uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
+			body_write(response, &sf, sizeof(sf));
+			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+			body_write(response, device_id, device_id_len);
+			*signals_len += 1;
+		} else if (result == SQLITE_DONE) {
+			status = 0;
+			break;
+		} else {
+			status = database_error(database, result);
+			goto cleanup;
+		}
+	}
+
+cleanup:
+	sqlite3_finalize(stmt);
+	return status;
+}
+
 int uplink_parse(uplink_t *uplink, request_t *request) {
 	request->body.pos = 0;
 
@@ -808,6 +871,92 @@ void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *requ
 		if (cache_device.zone_name_len != 0) {
 			header_write(response, "device-zone-name:%.*s\r\n", cache_device.zone_name_len, cache_device.zone_name);
 		}
+	}
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hu signals\n", signals_len);
+	response->status = 200;
+}
+
+void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	const char *from;
+	size_t from_len;
+	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *to;
+	size_t to_len;
+	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uplink_signal_query_t query = {.from = 0, .to = 0, .bucket = 0};
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
+		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+		response->status = 400;
+		return;
+	}
+
+	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
+		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+		response->status = 400;
+		return;
+	}
+
+	time_t range = query.to - query.from;
+	if (range <= 3600) {
+		query.bucket = 5;
+	} else if (range <= 10800) {
+		query.bucket = 15;
+	} else if (range <= 43200) {
+		query.bucket = 60;
+	} else if (range <= 86400) {
+		query.bucket = 120;
+	} else if (range <= 172800) {
+		query.bucket = 240;
+	} else if (range <= 345600) {
+		query.bucket = 480;
+	} else if (range <= 604800) {
+		query.bucket = 840;
+	} else if (range <= 1209600) {
+		query.bucket = 1680;
+	}
+
+	zone_t zone = {.id = &id};
+	uint16_t status = zone_existing(database, bwt, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint16_t signals_len = 0;
+	status = uplink_signal_select_by_zone(database, bwt, &zone, &query, response, &signals_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	cache_zone_t cache_zone;
+	if (cache_zone_read(&cache_zone, &zone) != -1) {
+		header_write(response, "zone-name:%.*s\r\n", cache_zone.name_len, cache_zone.name);
 	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
