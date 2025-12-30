@@ -1,5 +1,6 @@
 #include "../lib/logger.h"
 #include "buffer.h"
+#include "config.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -475,6 +476,38 @@ int seed_buffer(sqlite3 *database) {
 	return 0;
 }
 
+int seed_config(sqlite3 *database) {
+	uint8_t uplink_ind = 0;
+
+	time_t captured_at = time(NULL);
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint8_t id[16];
+		config_t config = {
+				.id = &id,
+				.led_debug = uplink_ind % 4 == 0,
+				.reading_enable = uplink_ind % 8 != 0,
+				.metric_enable = uplink_ind % 4 == 0,
+				.buffer_enable = uplink_ind % 4 != 0,
+				.reading_interval = (uint16_t)(30 + rand() % 30),
+				.metric_interval = (uint16_t)(60 + rand() % 60),
+				.buffer_interval = (uint16_t)(15 + rand() % 15),
+				.captured_at = captured_at,
+				.device_id = &device_ids[index],
+				.uplink_id = &uplink_ids[uplink_ind],
+		};
+
+		if (config_insert(database, &config) != 0) {
+			return -1;
+		}
+
+		captured_at -= 50 + rand() % 20;
+		uplink_ind += 1;
+	}
+
+	info("seeded table config\n");
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -503,6 +536,9 @@ int seed(sqlite3 *database) {
 		return -1;
 	}
 	if (seed_buffer(database) == -1) {
+		return -1;
+	}
+	if (seed_config(database) == -1) {
 		return -1;
 	}
 

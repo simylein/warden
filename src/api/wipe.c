@@ -1,5 +1,6 @@
 #include "../lib/logger.h"
 #include "buffer.h"
+#include "config.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -65,6 +66,9 @@ int wipe(sqlite3 *database) {
 		return -1;
 	}
 	if (wipe_table(database, buffer_table) == -1) {
+		return -1;
+	}
+	if (wipe_table(database, config_table) == -1) {
 		return -1;
 	}
 
