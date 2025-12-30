@@ -115,7 +115,7 @@ int decode_kind_80(uint8_t *data, uint8_t data_len, time_t received_at, buffer_t
 		return -1;
 	}
 
-	buffer->delay = (uint32_t)(data[0] << 16) | (uint32_t)(data[1] << 8) | (uint16_t)data[2];
+	buffer->delay = (uint32_t)(data[0] << 16) | (uint32_t)(data[1] << 8) | (uint32_t)data[2];
 	buffer->level = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
 
 	buffer->captured_at = received_at;
@@ -136,7 +136,7 @@ int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
-	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint16_t)data[6];
+	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint32_t)data[6];
 	buffer->level = (uint16_t)(data[7] << 8) | (uint16_t)data[8];
 
 	reading->captured_at = received_at - buffer->delay;
@@ -159,7 +159,7 @@ int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 	uint16_t battery_raw = (uint16_t)((data[1] & 0x0f) << 8) | (uint16_t)data[2];
 	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
-	buffer->delay = (uint32_t)(data[3] << 16) | (uint32_t)(data[4] << 8) | (uint16_t)data[5];
+	buffer->delay = (uint32_t)(data[3] << 16) | (uint32_t)(data[4] << 8) | (uint32_t)data[5];
 	buffer->level = (uint16_t)(data[6] << 8) | (uint16_t)data[7];
 
 	metric->captured_at = received_at - buffer->delay;
@@ -189,7 +189,7 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	uint16_t battery_raw = (uint16_t)((data[5] & 0x0f) << 8) | (uint16_t)data[6];
 	metric->battery = (battery_raw * 3.3f) / 4095.0f;
 
-	buffer->delay = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint16_t)data[9];
+	buffer->delay = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint32_t)data[9];
 	buffer->level = (uint16_t)(data[10] << 8) | (uint16_t)data[11];
 
 	reading->captured_at = received_at - buffer->delay;
@@ -226,7 +226,7 @@ int decode_kind_84(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 		device->hardware_len += (uint8_t)sprintf(&device->hardware[device->hardware_len], "-rc%hhu", hardware_rc);
 	}
 
-	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint16_t)data[6];
+	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint32_t)data[6];
 	buffer->level = (uint16_t)(data[7] << 8) | (uint16_t)data[8];
 
 	*device->updated_at = received_at;
