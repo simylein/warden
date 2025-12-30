@@ -1,5 +1,7 @@
+#include "../lib/format.h"
 #include "../lib/logger.h"
 #include "buffer.h"
+#include "config.h"
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
@@ -106,6 +108,31 @@ int decode_kind_04(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 
 	trace("firmware %.*s hardware %.*s captured_at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
 				device->hardware, *device->updated_at);
+	return 0;
+}
+
+int decode_kind_05(uint8_t *data, uint8_t data_len, time_t received_at, config_t *config) {
+	if (data_len != 7) {
+		error("uplink data len must be 7 bytes\n");
+		return -1;
+	}
+
+	config->led_debug = data[0] & 0x80;
+	config->reading_enable = data[0] & 0x40;
+	config->metric_enable = data[0] & 0x20;
+	config->buffer_enable = data[0] & 0x10;
+
+	config->reading_interval = (uint16_t)(data[1] << 8) | (uint16_t)data[2];
+	config->metric_interval = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
+	config->buffer_interval = (uint16_t)(data[5] << 8) | (uint16_t)data[6];
+
+	config->captured_at = received_at;
+
+	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured_at %lu\n", human_bool(config->led_debug),
+				human_bool(config->reading_enable), human_bool(config->metric_enable), human_bool(config->buffer_enable),
+				config->captured_at);
+	trace("reading interval %hu metric interval %hu buffer interval %hu captured_at %lu\n", config->reading_interval,
+				config->metric_interval, config->buffer_interval, config->captured_at);
 	return 0;
 }
 
@@ -238,6 +265,36 @@ int decode_kind_84(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 	return 0;
 }
 
+int decode_kind_85(uint8_t *data, uint8_t data_len, time_t received_at, config_t *config, buffer_t *buffer) {
+	if (data_len != 12) {
+		error("uplink data len must be 12 bytes\n");
+		return -1;
+	}
+
+	config->led_debug = data[0] & 0x80;
+	config->reading_enable = data[0] & 0x40;
+	config->metric_enable = data[0] & 0x20;
+	config->buffer_enable = data[0] & 0x10;
+
+	config->reading_interval = (uint16_t)(data[1] << 8) | (uint16_t)data[2];
+	config->metric_interval = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
+	config->buffer_interval = (uint16_t)(data[5] << 8) | (uint16_t)data[6];
+
+	buffer->delay = (uint32_t)(data[7] << 16) | (uint32_t)(data[8] << 8) | (uint32_t)data[9];
+	buffer->level = (uint16_t)(data[10] << 8) | (uint16_t)data[11];
+
+	config->captured_at = received_at - buffer->delay;
+	buffer->captured_at = received_at;
+
+	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured_at %lu\n", human_bool(config->led_debug),
+				human_bool(config->reading_enable), human_bool(config->metric_enable), human_bool(config->buffer_enable),
+				config->captured_at);
+	trace("reading interval %hu metric interval %hu buffer interval %hu captured_at %lu\n", config->reading_interval,
+				config->metric_interval, config->buffer_interval, config->captured_at);
+	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	return 0;
+}
+
 uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
@@ -309,6 +366,19 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = device_update(database, &device)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x05: {
+		uint8_t id[16];
+		config_t config = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_05(uplink->data, uplink->data_len, uplink->received_at, &config) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = config_insert(database, &config)) != 0) {
 			return status;
 		}
 		return 0;
@@ -401,6 +471,23 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = device_update(database, &device)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x85: {
+		uint8_t id[16];
+		config_t config = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_85(uplink->data, uplink->data_len, uplink->received_at, &config, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = config_insert(database, &config)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(database, &buffer)) != 0) {
