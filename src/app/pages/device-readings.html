@@ -41,80 +41,7 @@
 				<a class="no-underline text-black dark:text-white">Downlinks</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
-				<div id="ranges" class="flex gap-2 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-none text-nowrap">
-					<button
-						value="1209600"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(1209600); setRange(1209600); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">14d</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">14 days</p>
-					</button>
-					<button
-						value="604800"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(604800); setRange(604800); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">7d</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">7 days</p>
-					</button>
-					<button
-						value="345600"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(345600); setRange(345600); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">4d</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">4 days</p>
-					</button>
-					<button
-						value="172800"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(172800); setRange(172800); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">2d</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">2 days</p>
-					</button>
-					<button
-						value="86400"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(86400); setRange(86400); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">24h</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">24 hours</p>
-					</button>
-					<button
-						value="43200"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(43200); setRange(43200); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">12h</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">12 hours</p>
-					</button>
-					<button
-						value="21600"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(21600); setRange(21600); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">6h</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">6 hours</p>
-					</button>
-					<button
-						value="10800"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(10800); setRange(10800); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">3h</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">3 hours</p>
-					</button>
-					<button
-						value="3600"
-						class="p-1 md:p-1.5 lg:p-2 border-none background-neutral-100 dark:background-neutral-900 cursor-pointer"
-						onclick="highlightRange(3600); setRange(3600); deviceTabs(); loadReadings()"
-					>
-						<p class="sm:hidden m-0 text-base font-normal text-black dark:text-white">60m</p>
-						<p class="hidden sm:block m-0 text-base font-normal text-black dark:text-white">60 minutes</p>
-					</button>
-				</div>
+				<filter-ranges ref="./src/app/components/filter-ranges.html" id="ranges" />
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 						<h2 class="m-0 text-base font-normal">Temperature</h2>
@@ -283,6 +210,12 @@
 			});
 		};
 		highlightRange(getRange());
+		const onRangeChange = (range) => {
+			highlightRange(range);
+			setRange(range);
+			deviceTabs();
+			loadReadings();
+		};
 		const loadingTemperature = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
