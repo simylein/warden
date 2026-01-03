@@ -12,6 +12,7 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

@@ -177,6 +177,32 @@ void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	serve(&page_device_buffers, response);
 }
 
+void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 8, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(database, bwt, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	serve(&page_device_config, response);
+}
+
 void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
