@@ -8,7 +8,7 @@
 		<style></style>
 	</head>
 	<body
-		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
 		onload="loadMetrics()"
 	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
@@ -42,7 +42,10 @@
 				<a class="no-underline text-black dark:text-white">Downlinks</a>
 			</div>
 			<div class="flex flex-col gap-2 sm:gap-3 lg:gap-4">
-				<filter-ranges ref="./src/app/components/filter-ranges.html" id="ranges" />
+				<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-none">
+					<filter-ranges ref="./src/app/components/filter-ranges.html" id="ranges" />
+					<filter-times ref="./src/app/components/filter-times.html" id="times" />
+				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
@@ -104,6 +107,7 @@
 		import './src/app/scripts/breakpoint.js';
 		import './src/app/scripts/device-tabs.js';
 		import './src/app/scripts/device-title.js';
+		import './src/app/scripts/datetime.js';
 		import './src/app/scripts/timespan.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
@@ -120,6 +124,7 @@
 		import './src/app/scripts/fetching.js';
 		const title = document.getElementById('title');
 		const ranges = document.getElementById('ranges');
+		const times = document.getElementById('times');
 		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
@@ -142,7 +147,18 @@
 				window.requestAnimationFrame(() => paintBattery(battery, metrics.width, summary.battery, summary.capturedAt));
 			}
 		});
+		const getFrom = () => {
+			return getParam('from', null);
+		};
+		const getTo = () => {
+			return getParam('to', null);
+		};
 		const getRange = () => {
+			const from = getFrom();
+			const to = getTo();
+			if (from !== null && to !== null) {
+				return +to - +from;
+			}
 			return +getParam('range', 86400);
 		};
 		const setRange = (range) => {
@@ -164,12 +180,40 @@
 				}
 			});
 		};
-		highlightRange(getRange());
+		const paintTimes = (from, to) => {
+			if (from === null) {
+				times.children[0].value = '';
+			} else {
+				times.children[0].value = datetime(from);
+			}
+			if (from === null) {
+				times.children[1].value = '';
+			} else {
+				times.children[1].value = datetime(to);
+			}
+		};
+		if (getFrom() === null && getTo() === null) {
+			highlightRange(getRange());
+		} else {
+			paintTimes(getFrom(), getTo());
+		}
 		const onRangeChange = (range) => {
 			highlightRange(range);
 			setRange(range);
-			deviceTabs();
+			paintTimes(null, null);
+			setParam('from', null);
+			setParam('to', null);
 			loadMetrics();
+			deviceTabs();
+		};
+		const onTimeChange = (key, value) => {
+			setParam(key, Math.floor(new Date(value).getTime() / 1000));
+			if (getFrom() !== null && getTo() !== null) {
+				highlightRange(null);
+				setRange(null);
+				loadMetrics();
+				deviceTabs();
+			}
 		};
 		const loadingPhotovoltaic = (element, width) => {
 			array(element.label.children.length).forEach((ind) => {
@@ -396,8 +440,15 @@
 				capturedAt: { start: null, end: null },
 			};
 			if (data !== null) {
-				metrics.capturedAt.start = Math.floor(Date.now() / 1000);
-				metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				const from = getFrom();
+				const to = getTo();
+				if (from !== null || to !== null) {
+					metrics.capturedAt.start = +to;
+					metrics.capturedAt.end = +from;
+				} else {
+					metrics.capturedAt.start = Math.floor(Date.now() / 1000);
+					metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
+				}
 				envelope(metrics, data, 'photovoltaic');
 				envelope(metrics, data, 'battery');
 				coordinate(metrics, data, 'photovoltaic', 'capturedAt', width);
@@ -427,9 +478,13 @@
 				window.requestAnimationFrame(() => loadingBattery(battery, context.width));
 			},
 			(context) => {
-				context.reload = getRange() / 360;
-				const from = Math.floor(Date.now() / 1000) - getRange();
-				const to = Math.floor(Date.now() / 1000);
+				let from = getFrom();
+				let to = getTo();
+				if (from === null || to === null) {
+					context.reload = getRange() / 360;
+					from = Math.floor(Date.now() / 1000) - getRange();
+					to = Math.floor(Date.now() / 1000);
+				}
 				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
@@ -442,7 +497,9 @@
 				paintDeviceTitle(title, context.response);
 				window.requestAnimationFrame(() => paintPhotovoltaic(photovoltaic, context.width, summary.photovoltaic, summary.capturedAt));
 				window.requestAnimationFrame(() => paintBattery(battery, context.width, summary.battery, summary.capturedAt));
-				highlightRange(getRange());
+				if (getFrom() === null || getTo() === null) {
+					highlightRange(getRange());
+				}
 			},
 			(context) => {
 				errorDeviceTitle(title);
