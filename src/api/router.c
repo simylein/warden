@@ -5,6 +5,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
+#include "config.h"
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
@@ -34,6 +35,10 @@ const uint32_t permission_zone_read = 0x00010000;
 const uint32_t permission_zone_create = 0x00020000;
 const uint32_t permission_zone_update = 0x00040000;
 const uint32_t permission_zone_delete = 0x00080000;
+const uint32_t permission_config_read = 0x00001000;
+const uint32_t permission_config_create = 0x00002000;
+const uint32_t permission_config_update = 0x00004000;
+const uint32_t permission_config_delete = 0x00008000;
 const uint32_t permission_uplink_read = 0x00000010;
 const uint32_t permission_uplink_create = 0x00000020;
 const uint32_t permission_uplink_update = 0x00000040;
@@ -385,6 +390,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			buffer_find_by_device(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/config", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			config_find_one_by_device(database, &bwt, request, response);
 		}
 	}
 
