@@ -49,14 +49,7 @@
 						<p id="delay-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="delay-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+						<graph-scale ref="./src/app/components/graph-scale.html" id="delay-scale" />
 						<div class="relative flex flex-col">
 							<svg id="delay-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path ref="./src/app/components/graph-delay-path.html" />
@@ -95,14 +88,7 @@
 						<p id="level-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="level-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+						<graph-scale ref="./src/app/components/graph-scale.html" id="level-scale" />
 						<div class="relative flex flex-col">
 							<svg id="level-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path ref="./src/app/components/graph-level-path.html" />

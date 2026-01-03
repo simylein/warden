@@ -46,14 +46,7 @@
 						<p id="rssi-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="rssi-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+						<graph-scale ref="./src/app/components/graph-scale.html" id="rssi-scale" />
 						<div class="relative flex flex-col">
 							<svg id="rssi-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path ref="./src/app/components/graph-rssi-path.html" />
@@ -95,14 +88,7 @@
 						<p id="snr-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
-						<div id="snr-scale" class="flex flex-col text-xs text-end">
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-							<label class="min-w-7 h-3 mt-5 text-neutral-600 dark:text-neutral-400 background-neutral-200 dark:background-neutral-800"></label>
-						</div>
+						<graph-scale ref="./src/app/components/graph-scale.html" id="snr-scale" />
 						<div class="relative flex flex-col">
 							<svg id="snr-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
 								<path ref="./src/app/components/graph-snr-path.html" />
