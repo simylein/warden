@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest configuration of your device" />
+		<title>Warden device config</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
+		onload="loadConfig()"
+	>
+		<notifications ref="./src/app/components/notifications.html" />
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
+				<nav class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-lg font-normal overflow-x-auto scrollbar-none">
+					<a href="/" class="no-underline text-black dark:text-white">Home</a>
+					<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+					<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
+					<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+					<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+				</nav>
+				<a href="/profile" class="flex text-black dark:text-white">
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
+				</a>
+			</div>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
+			<div
+				class="flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
+			>
+				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal overflow-x-auto scrollbar-none">
+					<a class="no-underline text-black dark:text-white">Details</a>
+					<a class="no-underline text-black dark:text-white">Readings</a>
+					<a class="no-underline text-black dark:text-white">Metrics</a>
+					<a class="no-underline text-black dark:text-white">Buffers</a>
+					<a class="no-underline text-blue-600 dark:text-blue-400">Config</a>
+					<a class="no-underline text-black dark:text-white">Signals</a>
+					<a class="no-underline text-black dark:text-white">Uplinks</a>
+					<a class="no-underline text-black dark:text-white">Downlinks</a>
+				</div>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<tbody id="config">
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Led debug</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-8 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Reading enable</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-8 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Metric enable</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-8 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Buffer enable</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-8 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Reading interval</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Metric interval</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Buffer interval</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-10 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Captured at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">warden {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/duration.js';
+		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-boolean.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/report.js';
+		const title = document.getElementById('title');
+		const config = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('config') };
+		deviceTabs();
+		const loadingConfig = (element) => {
+			fade(element.children[0].children[1].children[0]);
+			loading(element.children[0].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[1].children[1].children[0]);
+			loading(element.children[1].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[2].children[1].children[0]);
+			loading(element.children[2].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[3].children[1].children[0]);
+			loading(element.children[3].children[1].children[0], ['w-8', 'h-4'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-10', 'h-4'], [], '');
+			loading(element.children[5].children[1].children[0], ['w-10', 'h-4'], [], '');
+			loading(element.children[6].children[1].children[0], ['w-10', 'h-4'], [], '');
+			loading(element.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
+		};
+		const paintConfig = (element, data) => {
+			if (data.ledDebug !== null) {
+				paint(element.children[0].children[1].children[0], [], ['w-8', 'h-4'], data.ledDebug);
+				colorBoolean(element.children[0].children[1].children[0], data.ledDebug);
+			} else {
+				paint(element.children[0].children[1].children[0], [], ['w-8', 'h-4'], 'null');
+				colorNull(element.children[0].children[1].children[0]);
+			}
+			if (data.readingEnable !== null) {
+				paint(element.children[1].children[1].children[0], [], ['w-8', 'h-4'], data.readingEnable);
+				colorBoolean(element.children[1].children[1].children[0], data.readingEnable);
+			} else {
+				paint(element.children[1].children[1].children[0], [], ['w-8', 'h-4'], 'null');
+				colorNull(element.children[1].children[1].children[0]);
+			}
+			if (data.metricEnable !== null) {
+				paint(element.children[2].children[1].children[0], [], ['w-8', 'h-4'], data.metricEnable);
+				colorBoolean(element.children[2].children[1].children[0], data.metricEnable);
+			} else {
+				paint(element.children[2].children[1].children[0], [], ['w-8', 'h-4'], 'null');
+				colorNull(element.children[2].children[1].children[0]);
+			}
+			if (data.bufferEnable !== null) {
+				paint(element.children[3].children[1].children[0], [], ['w-8', 'h-4'], data.bufferEnable);
+				colorBoolean(element.children[3].children[1].children[0], data.bufferEnable);
+			} else {
+				paint(element.children[3].children[1].children[0], [], ['w-8', 'h-4'], 'null');
+				colorNull(element.children[3].children[1].children[0]);
+			}
+			if (data.readingInterval !== null) {
+				paint(element.children[4].children[1].children[0], [], ['w-10', 'h-4'], data.readingInterval);
+				fade(element.children[4].children[1].children[0]);
+			} else {
+				paint(element.children[4].children[1].children[0], [], ['w-10', 'h-4'], 'null');
+				colorNull(element.children[4].children[1].children[0]);
+			}
+			if (data.metricInterval !== null) {
+				paint(element.children[5].children[1].children[0], [], ['w-10', 'h-4'], data.metricInterval);
+				fade(element.children[5].children[1].children[0]);
+			} else {
+				paint(element.children[5].children[1].children[0], [], ['w-10', 'h-4'], 'null');
+				colorNull(element.children[5].children[1].children[0]);
+			}
+			if (data.bufferInterval !== null) {
+				paint(element.children[6].children[1].children[0], [], ['w-10', 'h-4'], data.bufferInterval);
+				fade(element.children[6].children[1].children[0]);
+			} else {
+				paint(element.children[6].children[1].children[0], [], ['w-10', 'h-4'], 'null');
+				colorNull(element.children[6].children[1].children[0]);
+			}
+			if (data.capturedAt !== null) {
+				paint(element.children[7].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.capturedAt));
+				fade(element.children[7].children[1].children[0]);
+			} else {
+				paint(element.children[7].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(element.children[7].children[1].children[0]);
+			}
+		};
+		const errorConfig = (element) => {
+			fade(element.children[0].children[1].children[0]);
+			error(element.children[0].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[1].children[1].children[0]);
+			error(element.children[1].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[2].children[1].children[0]);
+			error(element.children[2].children[1].children[0], ['w-8', 'h-4'], [], '');
+			fade(element.children[3].children[1].children[0]);
+			error(element.children[3].children[1].children[0], ['w-8', 'h-4'], [], '');
+			error(element.children[4].children[1].children[0], ['w-10', 'h-4'], [], '');
+			error(element.children[5].children[1].children[0], ['w-10', 'h-4'], [], '');
+			error(element.children[6].children[1].children[0], ['w-10', 'h-4'], [], '');
+			error(element.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
+		};
+		const parseConfig = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const config = {
+				ledDebug: null,
+				readingEnable: null,
+				metricEnable: null,
+				bufferEnable: null,
+				readingInterval: null,
+				metricInterval: null,
+				bufferInterval: null,
+				capturedAt: null,
+			};
+			if (response.status !== 204) {
+				config.ledDebug = binary.bool();
+				config.readingEnable = binary.bool();
+				config.metricEnable = binary.bool();
+				config.bufferEnable = binary.bool();
+				config.readingInterval = binary.uint(16);
+				config.metricInterval = binary.uint(16);
+				config.bufferInterval = binary.uint(16);
+				config.capturedAt = binary.uint(64);
+			}
+			return config;
+		};
+		const loadConfig = fetching(
+			config,
+			(context) => {
+				loadingDeviceTitle(title);
+				window.requestAnimationFrame(() => loadingConfig(context.element));
+			},
+			(context) => fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
+			async (context, response) => {
+				context.data = await parseConfig(response);
+				context.response = response;
+			},
+			(context) => {
+				paintDeviceTitle(title, context.response);
+				window.requestAnimationFrame(() => paintConfig(context.element, context.data));
+			},
+			(context) => {
+				errorDeviceTitle(title);
+				window.requestAnimationFrame(() => errorConfig(context.element));
+			}
+		);
+	</script>
+</html>

@@ -5,6 +5,7 @@ const deviceTabs = () => {
 		{ endpoint: '/readings', search: { range: true } },
 		{ endpoint: '/metrics', search: { range: true } },
 		{ endpoint: '/buffers', search: { range: true } },
+		{ endpoint: '/config', search: {} },
 		{ endpoint: '/signals', search: { range: true } },
 		{ endpoint: '/uplinks', search: {} },
 		{ endpoint: '/downlinks', search: {} },
