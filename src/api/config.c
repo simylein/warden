@@ -16,6 +16,7 @@ const char *config_schema = "create table config ("
 														"reading_interval integer not null, "
 														"metric_interval integer not null, "
 														"buffer_interval integer not null, "
+														"captured_at timestamp not null, "
 														"uplink_id blob not null unique, "
 														"device_id blob not null, "
 														"foreign key (uplink_id) references uplink(id) on delete cascade, "
@@ -27,8 +28,8 @@ uint16_t config_insert(sqlite3 *database, config_t *config) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "insert into config (id, led_debug, reading_enable, metric_enable, buffer_enable, "
-										"reading_interval, metric_interval, buffer_interval, uplink_id, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
+										"reading_interval, metric_interval, buffer_interval, captured_at, uplink_id, device_id) "
+										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
 	debug("%s\n", sql);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
@@ -44,8 +45,9 @@ uint16_t config_insert(sqlite3 *database, config_t *config) {
 	sqlite3_bind_int(stmt, 5, config->reading_interval);
 	sqlite3_bind_int(stmt, 6, config->metric_interval);
 	sqlite3_bind_int(stmt, 7, config->buffer_interval);
-	sqlite3_bind_blob(stmt, 8, config->uplink_id, sizeof(*config->uplink_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 9, config->device_id, sizeof(*config->device_id), SQLITE_STATIC);
+	sqlite3_bind_int64(stmt, 8, config->captured_at);
+	sqlite3_bind_blob(stmt, 9, config->uplink_id, sizeof(*config->uplink_id), SQLITE_STATIC);
+	sqlite3_bind_blob(stmt, 10, config->device_id, sizeof(*config->device_id), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
