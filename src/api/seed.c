@@ -26,7 +26,7 @@ uint32_t uplink_ids_len;
 uint8_t (*downlink_ids)[16];
 uint32_t downlink_ids_len;
 
-int seed_user(sqlite3 *database) {
+int seed_user(sqlite3 *database, const char *table) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
 	char *passwords[] = {".go4Alice", ".go4Bob", ".go4Charlie", ".go4Dave"};
 
@@ -52,11 +52,11 @@ int seed_user(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table user\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_zone(sqlite3 *database) {
+int seed_zone(sqlite3 *database, const char *table) {
 	char *names[] = {"indoor", "outdoor"};
 	uint8_t colors[][12] = {
 			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
@@ -82,11 +82,11 @@ int seed_zone(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table zone\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_device(sqlite3 *database) {
+int seed_device(sqlite3 *database, const char *table) {
 	device_ids_len = (uint8_t)(8 + rand() % 16);
 	device_ids = malloc(device_ids_len * sizeof(*device_ids));
 	if (device_ids == NULL) {
@@ -137,11 +137,11 @@ int seed_device(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table device\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_user_device(sqlite3 *database) {
+int seed_user_device(sqlite3 *database, const char *table) {
 	for (uint8_t index = 0; index < user_ids_len; index++) {
 		for (uint8_t ind = 0; ind < device_ids_len; ind++) {
 			if (rand() % 2 == 0) {
@@ -157,11 +157,11 @@ int seed_user_device(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table user device\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_uplink(sqlite3 *database) {
+int seed_uplink(sqlite3 *database, const char *table) {
 	uplink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -253,11 +253,11 @@ int seed_uplink(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table uplink\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_downlink(sqlite3 *database) {
+int seed_downlink(sqlite3 *database, const char *table) {
 	downlink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -331,11 +331,11 @@ int seed_downlink(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table downlink\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_reading(sqlite3 *database) {
+int seed_reading(sqlite3 *database, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -376,11 +376,11 @@ int seed_reading(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table reading\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_metric(sqlite3 *database) {
+int seed_metric(sqlite3 *database, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -421,11 +421,11 @@ int seed_metric(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table metric\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_buffer(sqlite3 *database) {
+int seed_buffer(sqlite3 *database, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -472,11 +472,11 @@ int seed_buffer(sqlite3 *database) {
 		}
 	}
 
-	info("seeded table buffer\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
-int seed_config(sqlite3 *database) {
+int seed_config(sqlite3 *database, const char *table) {
 	uint8_t uplink_ind = 0;
 
 	time_t captured_at = time(NULL);
@@ -504,41 +504,41 @@ int seed_config(sqlite3 *database) {
 		uplink_ind += 1;
 	}
 
-	info("seeded table config\n");
+	info("seeded table %s\n", table);
 	return 0;
 }
 
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
-	if (seed_user(database) == -1) {
+	if (seed_user(database, user_table) == -1) {
 		return -1;
 	}
-	if (seed_zone(database) == -1) {
+	if (seed_zone(database, zone_table) == -1) {
 		return -1;
 	}
-	if (seed_device(database) == -1) {
+	if (seed_device(database, device_table) == -1) {
 		return -1;
 	}
-	if (seed_user_device(database) == -1) {
+	if (seed_user_device(database, user_device_table) == -1) {
 		return -1;
 	}
-	if (seed_uplink(database) == -1) {
+	if (seed_uplink(database, uplink_table) == -1) {
 		return -1;
 	}
-	if (seed_downlink(database) == -1) {
+	if (seed_downlink(database, downlink_table) == -1) {
 		return -1;
 	}
-	if (seed_reading(database) == -1) {
+	if (seed_reading(database, reading_table) == -1) {
 		return -1;
 	}
-	if (seed_metric(database) == -1) {
+	if (seed_metric(database, metric_table) == -1) {
 		return -1;
 	}
-	if (seed_buffer(database) == -1) {
+	if (seed_buffer(database, buffer_table) == -1) {
 		return -1;
 	}
-	if (seed_config(database) == -1) {
+	if (seed_config(database, config_table) == -1) {
 		return -1;
 	}
 
