@@ -5,6 +5,7 @@
 #include "metric.h"
 #include "reading.h"
 #include "uplink.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -117,10 +118,10 @@ int decode_kind_05(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 		return -1;
 	}
 
-	config->led_debug = data[0] & 0x80;
-	config->reading_enable = data[0] & 0x40;
-	config->metric_enable = data[0] & 0x20;
-	config->buffer_enable = data[0] & 0x10;
+	config->led_debug = (bool)(data[0] & 0x80);
+	config->reading_enable = (bool)(data[0] & 0x40);
+	config->metric_enable = (bool)(data[0] & 0x20);
+	config->buffer_enable = (bool)(data[0] & 0x10);
 
 	config->reading_interval = (uint16_t)(data[1] << 8) | (uint16_t)data[2];
 	config->metric_interval = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
@@ -271,10 +272,10 @@ int decode_kind_85(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 		return -1;
 	}
 
-	config->led_debug = data[0] & 0x80;
-	config->reading_enable = data[0] & 0x40;
-	config->metric_enable = data[0] & 0x20;
-	config->buffer_enable = data[0] & 0x10;
+	config->led_debug = (bool)(data[0] & 0x80);
+	config->reading_enable = (bool)(data[0] & 0x40);
+	config->metric_enable = (bool)(data[0] & 0x20);
+	config->buffer_enable = (bool)(data[0] & 0x10);
 
 	config->reading_interval = (uint16_t)(data[1] << 8) | (uint16_t)data[2];
 	config->metric_interval = (uint16_t)(data[3] << 8) | (uint16_t)data[4];
