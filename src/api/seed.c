@@ -4,6 +4,7 @@
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
+#include "radio.h"
 #include "reading.h"
 #include "uplink.h"
 #include "user-device.h"
@@ -508,6 +509,39 @@ int seed_config(sqlite3 *database, const char *table) {
 	return 0;
 }
 
+int seed_radio(sqlite3 *database, const char *table) {
+	uint8_t uplink_ind = 0;
+
+	time_t captured_at = time(NULL);
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint8_t id[16];
+		radio_t radio = {
+				.id = &id,
+				.frequency = (uint32_t)(433225000 + (rand() % 7) * 200000),
+				.bandwidth = (uint32_t)(62500 + (rand() % 4) * 62500),
+				.coding_rate = (uint8_t)(5 + rand() % 4),
+				.spreading_factor = (uint8_t)(6 + rand() % 7),
+				.preamble_length = (uint8_t)(6 + rand() % 16),
+				.tx_power = (uint8_t)(2 + rand() % 16),
+				.sync_word = 0x12,
+				.checksum = rand() % 2,
+				.captured_at = captured_at,
+				.device_id = &device_ids[index],
+				.uplink_id = &uplink_ids[uplink_ind],
+		};
+
+		if (radio_insert(database, &radio) != 0) {
+			return -1;
+		}
+
+		captured_at -= 50 + rand() % 20;
+		uplink_ind += 1;
+	}
+
+	info("seeded table %s\n", table);
+	return 0;
+}
+
 int seed(sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
@@ -539,6 +573,9 @@ int seed(sqlite3 *database) {
 		return -1;
 	}
 	if (seed_config(database, config_table) == -1) {
+		return -1;
+	}
+	if (seed_radio(database, radio_table) == -1) {
 		return -1;
 	}
 

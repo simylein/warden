@@ -4,6 +4,7 @@
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
+#include "radio.h"
 #include "reading.h"
 #include "uplink.h"
 #include "user-device.h"
@@ -67,6 +68,9 @@ int init(sqlite3 *database) {
 		return -1;
 	}
 	if (init_table(database, config_table, config_schema) == -1) {
+		return -1;
+	}
+	if (init_table(database, radio_table, radio_schema) == -1) {
 		return -1;
 	}
 
