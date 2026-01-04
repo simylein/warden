@@ -9,6 +9,7 @@
 #include "device.h"
 #include "downlink.h"
 #include "metric.h"
+#include "radio.h"
 #include "reading.h"
 #include "uplink.h"
 #include "user-device.h"
@@ -39,6 +40,10 @@ const uint32_t permission_config_read = 0x00001000;
 const uint32_t permission_config_create = 0x00002000;
 const uint32_t permission_config_update = 0x00004000;
 const uint32_t permission_config_delete = 0x00008000;
+const uint32_t permission_radio_read = 0x00000100;
+const uint32_t permission_radio_create = 0x00000200;
+const uint32_t permission_radio_update = 0x00000400;
+const uint32_t permission_radio_delete = 0x00000800;
 const uint32_t permission_uplink_read = 0x00000010;
 const uint32_t permission_uplink_create = 0x00000020;
 const uint32_t permission_uplink_update = 0x00000040;
@@ -404,6 +409,13 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			config_find_one_by_device(database, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/radio", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			radio_find_one_by_device(database, &bwt, request, response);
 		}
 	}
 
