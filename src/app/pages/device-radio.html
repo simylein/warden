@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest radio parameters of your device" />
+		<title>Warden device radio</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
+		onload="loadRadio()"
+	>
+		<notifications ref="./src/app/components/notifications.html" />
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
+				<nav class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-lg font-normal overflow-x-auto scrollbar-none">
+					<a href="/" class="no-underline text-black dark:text-white">Home</a>
+					<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+					<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
+					<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+					<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+				</nav>
+				<a href="/profile" class="flex text-black dark:text-white">
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
+				</a>
+			</div>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
+			<div
+				class="flex flex-row items-center justify-between gap-2 sm:gap-3 lg:gap-4 border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600"
+			>
+				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal overflow-x-auto scrollbar-none">
+					<a class="no-underline text-black dark:text-white">Details</a>
+					<a class="no-underline text-black dark:text-white">Readings</a>
+					<a class="no-underline text-black dark:text-white">Metrics</a>
+					<a class="no-underline text-black dark:text-white">Buffers</a>
+					<a class="no-underline text-black dark:text-white">Config</a>
+					<a class="no-underline text-blue-600 dark:text-blue-400">Radio</a>
+					<a class="no-underline text-black dark:text-white">Signals</a>
+					<a class="no-underline text-black dark:text-white">Uplinks</a>
+					<a class="no-underline text-black dark:text-white">Downlinks</a>
+				</div>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<tbody id="radio">
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Frequency</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Bandwidth</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-15 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Coding rate</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-3 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Spreading factor</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Preamble length</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Tx power</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-4 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Sync word</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-5 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Checksum</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-8 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Captured at</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">warden {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/duration.js';
+		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-cr.js';
+		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-preamble-len.js';
+		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/color-boolean.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/report.js';
+		const title = document.getElementById('title');
+		const radio = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('radio') };
+		deviceTabs();
+		const loadingRadio = (element) => {
+			loading(element.children[0].children[1].children[0], ['w-24', 'h-4'], [], '');
+			loading(element.children[1].children[1].children[0], ['w-15', 'h-4'], [], '');
+			loading(element.children[2].children[1].children[0], ['w-3', 'h-4'], [], '');
+			loading(element.children[3].children[1].children[0], ['w-4', 'h-4'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-4', 'h-4'], [], '');
+			loading(element.children[5].children[1].children[0], ['w-4', 'h-4'], [], '');
+			loading(element.children[6].children[1].children[0], ['w-5', 'h-4'], [], '');
+			loading(element.children[7].children[1].children[0], ['w-8', 'h-4'], [], '');
+			loading(element.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
+		};
+		const paintRadio = (element, data) => {
+			if (data.frequency !== null) {
+				paint(element.children[0].children[1].children[0], [], ['w-24', 'h-4'], data.frequency);
+				fade(element.children[0].children[1].children[0]);
+			} else {
+				paint(element.children[0].children[1].children[0], [], ['w-24', 'h-4'], 'null');
+				colorNull(element.children[0].children[1].children[0]);
+			}
+			if (data.bandwidth !== null) {
+				paint(element.children[1].children[1].children[0], [], ['w-15', 'h-4'], data.bandwidth);
+				fade(element.children[1].children[1].children[0]);
+			} else {
+				paint(element.children[1].children[1].children[0], [], ['w-15', 'h-4'], 'null');
+				colorNull(element.children[1].children[1].children[0]);
+			}
+			if (data.codingRate !== null) {
+				paint(element.children[2].children[1].children[0], [], ['w-3', 'h-4'], data.codingRate);
+				colorCr(element.children[2].children[1].children[0], data.codingRate);
+			} else {
+				paint(element.children[2].children[1].children[0], [], ['w-3', 'h-4'], 'null');
+				colorNull(element.children[2].children[1].children[0]);
+			}
+			if (data.spreadingFactor !== null) {
+				paint(element.children[3].children[1].children[0], [], ['w-4', 'h-4'], data.spreadingFactor);
+				colorSf(element.children[3].children[1].children[0], data.spreadingFactor);
+			} else {
+				paint(element.children[3].children[1].children[0], [], ['w-4', 'h-4'], 'null');
+				colorNull(element.children[3].children[1].children[0]);
+			}
+			if (data.preambleLength !== null) {
+				paint(element.children[4].children[1].children[0], [], ['w-4', 'h-4'], data.preambleLength);
+				colorPreambleLen(element.children[4].children[1].children[0], data.preambleLength);
+			} else {
+				paint(element.children[4].children[1].children[0], [], ['w-4', 'h-4'], 'null');
+				colorNull(element.children[4].children[1].children[0]);
+			}
+			if (data.txPower !== null) {
+				paint(element.children[5].children[1].children[0], [], ['w-4', 'h-4'], data.txPower);
+				colorTxPower(element.children[5].children[1].children[0], data.txPower);
+			} else {
+				paint(element.children[5].children[1].children[0], [], ['w-4', 'h-4'], 'null');
+				colorNull(element.children[5].children[1].children[0]);
+			}
+			if (data.syncWord !== null) {
+				paint(element.children[6].children[1].children[0], [], ['w-5', 'h-4'], data.syncWord);
+				fade(element.children[6].children[1].children[0]);
+			} else {
+				paint(element.children[6].children[1].children[0], [], ['w-5', 'h-4'], 'null');
+				colorNull(element.children[6].children[1].children[0]);
+			}
+			if (data.checksum !== null) {
+				paint(element.children[7].children[1].children[0], [], ['w-8', 'h-4'], data.checksum);
+				colorBoolean(element.children[7].children[1].children[0], data.checksum);
+			} else {
+				paint(element.children[7].children[1].children[0], [], ['w-8', 'h-4'], 'null');
+				colorNull(element.children[7].children[1].children[0]);
+			}
+			if (data.capturedAt !== null) {
+				paint(element.children[8].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.capturedAt));
+				fade(element.children[8].children[1].children[0]);
+			} else {
+				paint(element.children[8].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(element.children[8].children[1].children[0]);
+			}
+		};
+		const errorRadio = (element) => {
+			error(element.children[0].children[1].children[0], ['w-24', 'h-4'], [], '');
+			error(element.children[1].children[1].children[0], ['w-15', 'h-4'], [], '');
+			error(element.children[2].children[1].children[0], ['w-3', 'h-4'], [], '');
+			error(element.children[3].children[1].children[0], ['w-4', 'h-4'], [], '');
+			error(element.children[4].children[1].children[0], ['w-4', 'h-4'], [], '');
+			error(element.children[5].children[1].children[0], ['w-4', 'h-4'], [], '');
+			error(element.children[6].children[1].children[0], ['w-5', 'h-4'], [], '');
+			error(element.children[7].children[1].children[0], ['w-8', 'h-4'], [], '');
+			error(element.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
+		};
+		const parseRadio = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const radio = {
+				frequency: null,
+				bandwidth: null,
+				codingRate: null,
+				spreadingFactor: null,
+				preambleLength: null,
+				txPower: null,
+				syncWord: null,
+				checksum: null,
+				capturedAt: null,
+			};
+			if (response.status !== 204) {
+				radio.frequency = binary.uint(32);
+				radio.bandwidth = binary.uint(32);
+				radio.codingRate = binary.uint(8);
+				radio.spreadingFactor = binary.uint(8);
+				radio.preambleLength = binary.uint(8);
+				radio.txPower = binary.uint(8);
+				radio.syncWord = binary.hex(1);
+				radio.checksum = binary.bool();
+				radio.capturedAt = binary.uint(64);
+			}
+			return radio;
+		};
+		const loadRadio = fetching(
+			radio,
+			(context) => {
+				loadingDeviceTitle(title);
+				window.requestAnimationFrame(() => loadingRadio(context.element));
+			},
+			(context) => fetcher('get', `/api/device/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
+			async (context, response) => {
+				context.data = await parseRadio(response);
+				context.response = response;
+			},
+			(context) => {
+				paintDeviceTitle(title, context.response);
+				window.requestAnimationFrame(() => paintRadio(context.element, context.data));
+			},
+			(context) => {
+				errorDeviceTitle(title);
+				window.requestAnimationFrame(() => errorRadio(context.element));
+			}
+		);
+	</script>
+</html>
