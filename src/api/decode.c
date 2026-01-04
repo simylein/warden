@@ -32,7 +32,7 @@ int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 
 	reading->captured_at = received_at;
 
-	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+	trace("temperature %.2f humidity %.2f captured at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
 	return 0;
 }
 
@@ -50,7 +50,7 @@ int decode_kind_02(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 
 	metric->captured_at = received_at;
 
-	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("photovoltaic %.3f battery %.3f captured at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
 	return 0;
 }
 
@@ -75,8 +75,8 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	reading->captured_at = received_at;
 	metric->captured_at = received_at;
 
-	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
-	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("temperature %.2f humidity %.2f captured at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+	trace("photovoltaic %.3f battery %.3f captured at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
 	return 0;
 }
 
@@ -106,7 +106,7 @@ int decode_kind_04(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 
 	*device->updated_at = received_at;
 
-	trace("firmware %.*s hardware %.*s captured_at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
+	trace("firmware %.*s hardware %.*s captured at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
 				device->hardware, *device->updated_at);
 	return 0;
 }
@@ -128,10 +128,10 @@ int decode_kind_05(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 
 	config->captured_at = received_at;
 
-	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured_at %lu\n", human_bool(config->led_debug),
+	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured at %lu\n", human_bool(config->led_debug),
 				human_bool(config->reading_enable), human_bool(config->metric_enable), human_bool(config->buffer_enable),
 				config->captured_at);
-	trace("reading interval %hu metric interval %hu buffer interval %hu captured_at %lu\n", config->reading_interval,
+	trace("reading interval %hu metric interval %hu buffer interval %hu captured at %lu\n", config->reading_interval,
 				config->metric_interval, config->buffer_interval, config->captured_at);
 	return 0;
 }
@@ -147,7 +147,7 @@ int decode_kind_80(uint8_t *data, uint8_t data_len, time_t received_at, buffer_t
 
 	buffer->captured_at = received_at;
 
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -169,8 +169,8 @@ int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	reading->captured_at = received_at - buffer->delay;
 	buffer->captured_at = received_at;
 
-	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("temperature %.2f humidity %.2f captured at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -192,8 +192,8 @@ int decode_kind_82(uint8_t *data, uint8_t data_len, time_t received_at, metric_t
 	metric->captured_at = received_at - buffer->delay;
 	buffer->captured_at = received_at;
 
-	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("photovoltaic %.3f battery %.3f captured at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -223,9 +223,9 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	metric->captured_at = received_at - buffer->delay;
 	buffer->captured_at = received_at;
 
-	trace("temperature %.2f humidity %.2f captured_at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
-	trace("photovoltaic %.3f battery %.3f captured_at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("temperature %.2f humidity %.2f captured at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+	trace("photovoltaic %.3f battery %.3f captured at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -259,9 +259,9 @@ int decode_kind_84(uint8_t *data, uint8_t data_len, time_t received_at, device_t
 	*device->updated_at = received_at;
 	buffer->captured_at = received_at;
 
-	trace("firmware %.*s hardware %.*s captured_at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
+	trace("firmware %.*s hardware %.*s captured at %lu\n", device->firmware_len, device->firmware, device->hardware_len,
 				device->hardware, *device->updated_at);
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
@@ -286,12 +286,12 @@ int decode_kind_85(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 	config->captured_at = received_at - buffer->delay;
 	buffer->captured_at = received_at;
 
-	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured_at %lu\n", human_bool(config->led_debug),
+	trace("led debug %s reading enable %s metric enable %s buffer enable %s captured at %lu\n", human_bool(config->led_debug),
 				human_bool(config->reading_enable), human_bool(config->metric_enable), human_bool(config->buffer_enable),
 				config->captured_at);
-	trace("reading interval %hu metric interval %hu buffer interval %hu captured_at %lu\n", config->reading_interval,
+	trace("reading interval %hu metric interval %hu buffer interval %hu captured at %lu\n", config->reading_interval,
 				config->metric_interval, config->buffer_interval, config->captured_at);
-	trace("delay %u level %hu captured_at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
 	return 0;
 }
 
