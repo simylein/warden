@@ -136,7 +136,7 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 			body_write(response, data, data_len);
 			body_write(response, &sf, sizeof(sf));
 			body_write(response, &tx_power, sizeof(tx_power));
-			body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
+			body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 			body_write(response, device_id, device_id_len);
 			*downlinks_len += 1;
 		} else if (result == SQLITE_DONE) {
@@ -212,14 +212,14 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		body_write(response, &kind, sizeof(kind));
 		body_write(response, &data_len, sizeof(uint8_t));
 		body_write(response, data, data_len);
-		body_write(response, &(uint16_t[]){hton16((uint16_t)(airtime * 16 * 1000))}, sizeof(uint16_t));
-		body_write(response, &(uint32_t[]){hton32(frequency)}, sizeof(frequency));
-		body_write(response, &(uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
+		body_write(response, (uint16_t[]){hton16((uint16_t)(airtime * 16 * 1000))}, sizeof(uint16_t));
+		body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
+		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
 		body_write(response, &sf, sizeof(sf));
 		body_write(response, &cr, sizeof(cr));
 		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &preamble_len, sizeof(preamble_len));
-		body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
+		body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 		body_write(response, device_id, device_id_len);
 		status = 0;
 	} else if (result == SQLITE_DONE) {
@@ -286,7 +286,7 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 			body_write(response, data, data_len);
 			body_write(response, &sf, sizeof(sf));
 			body_write(response, &tx_power, sizeof(tx_power));
-			body_write(response, &(uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
+			body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
 			*downlinks_len += 1;
 		} else if (result == SQLITE_DONE) {
 			status = 0;
