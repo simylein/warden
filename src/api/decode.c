@@ -3,6 +3,7 @@
 #include "buffer.h"
 #include "config.h"
 #include "metric.h"
+#include "radio.h"
 #include "reading.h"
 #include "uplink.h"
 #include <stdbool.h>
@@ -134,6 +135,30 @@ int decode_kind_05(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 				config->captured_at);
 	trace("reading interval %hu metric interval %hu buffer interval %hu captured at %lu\n", config->reading_interval,
 				config->metric_interval, config->buffer_interval, config->captured_at);
+	return 0;
+}
+
+int decode_kind_06(uint8_t *data, uint8_t data_len, time_t received_at, radio_t *radio) {
+	if (data_len != 13) {
+		error("uplink data len must be 13 bytes\n");
+		return -1;
+	}
+
+	radio->frequency = (uint32_t)(data[0] << 24) | (uint32_t)(data[1] << 16) | (uint32_t)(data[2] << 8) | (uint32_t)data[3];
+	radio->bandwidth = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint32_t)data[6];
+	radio->coding_rate = data[7];
+	radio->spreading_factor = data[8];
+	radio->preamble_length = data[9];
+	radio->tx_power = data[10];
+	radio->sync_word = data[11];
+	radio->checksum = (bool)(data[12] & 0x01);
+
+	radio->captured_at = received_at;
+
+	trace("frequency %u bandwidth %u coding rate %hhu spreading factor %hhu\n", radio->frequency, radio->bandwidth,
+				radio->coding_rate, radio->spreading_factor);
+	trace("preamble length %hhu tx power %hhu sync word %02x checksum %s captured at %lu\n", radio->preamble_length,
+				radio->tx_power, radio->sync_word, human_bool(radio->checksum), radio->captured_at);
 	return 0;
 }
 
@@ -296,6 +321,35 @@ int decode_kind_85(uint8_t *data, uint8_t data_len, time_t received_at, config_t
 	return 0;
 }
 
+int decode_kind_86(uint8_t *data, uint8_t data_len, time_t received_at, radio_t *radio, buffer_t *buffer) {
+	if (data_len != 18) {
+		error("uplink data len must be 18 bytes\n");
+		return -1;
+	}
+
+	radio->frequency = (uint32_t)(data[0] << 24) | (uint32_t)(data[1] << 16) | (uint32_t)(data[2] << 8) | (uint32_t)data[3];
+	radio->bandwidth = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint32_t)data[6];
+	radio->coding_rate = data[7];
+	radio->spreading_factor = data[8];
+	radio->preamble_length = data[9];
+	radio->tx_power = data[10];
+	radio->sync_word = data[11];
+	radio->checksum = (bool)(data[12] & 0x01);
+
+	buffer->delay = (uint32_t)(data[13] << 16) | (uint32_t)(data[14] << 8) | (uint32_t)data[15];
+	buffer->level = (uint16_t)(data[16] << 8) | (uint16_t)data[17];
+
+	radio->captured_at = received_at - buffer->delay;
+	buffer->captured_at = received_at;
+
+	trace("frequency %u bandwidth %u coding rate %hhu spreading factor %hhu\n", radio->frequency, radio->bandwidth,
+				radio->coding_rate, radio->spreading_factor);
+	trace("preamble length %hhu tx power %hhu sync word %02x checksum %s captured at %lu\n", radio->preamble_length,
+				radio->tx_power, radio->sync_word, human_bool(radio->checksum), radio->captured_at);
+	trace("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+	return 0;
+}
+
 uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
@@ -380,6 +434,19 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = config_insert(database, &config)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x06: {
+		uint8_t id[16];
+		radio_t radio = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_06(uplink->data, uplink->data_len, uplink->received_at, &radio) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = radio_insert(database, &radio)) != 0) {
 			return status;
 		}
 		return 0;
@@ -489,6 +556,23 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = config_insert(database, &config)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(database, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x86: {
+		uint8_t id[16];
+		radio_t radio = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		if (decode_kind_86(uplink->data, uplink->data_len, uplink->received_at, &radio, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = radio_insert(database, &radio)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(database, &buffer)) != 0) {
