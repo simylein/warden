@@ -11,6 +11,7 @@
 
 typedef struct uplink_t {
 	uint8_t (*id)[16];
+	uint16_t frame;
 	uint8_t kind;
 	uint8_t *data;
 	uint8_t data_len;
