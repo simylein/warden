@@ -63,6 +63,7 @@
 					</tbody>
 				</table>
 			</div>
+			<pagination ref="./src/app/components/pagination.html" class="pt-2 sm:pt-3 lg:pt-4" />
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -106,6 +107,7 @@
 				fade(element.children[ind].children[7].children[0]);
 				loading(element.children[ind].children[7].children[0], ['w-4', 'h-4'], [], '');
 			});
+			loadingPagination();
 		};
 		const paintUplinks = (element, data) => {
 			resize(element, data.length > 0 ? data.length : 1);
@@ -137,6 +139,7 @@
 					colorTxPower(element.children[ind].children[7].children[0], data[ind].txPower);
 				}
 			});
+			paintPagination();
 		};
 		const errorUplinks = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -156,6 +159,7 @@
 				fade(element.children[ind].children[7].children[0]);
 				error(element.children[ind].children[7].children[0], ['w-4', 'h-4'], [], '');
 			});
+			errorPagination();
 		};
 		const parseUplinks = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -184,5 +188,6 @@
 			(context) => window.requestAnimationFrame(() => paintUplinks(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorUplinks(context.element))
 		);
+		const onPaginate = () => loadUplinks();
 	</script>
 </html>

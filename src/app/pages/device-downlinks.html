@@ -75,6 +75,7 @@
 					</tbody>
 				</table>
 			</div>
+			<pagination ref="./src/app/components/pagination.html" class="pt-2 sm:pt-3 lg:pt-4" />
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -116,6 +117,7 @@
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-4', 'h-4'], [], '');
 			});
+			loadingPagination();
 		};
 		const paintDownlinks = (element, data) => {
 			resize(element, data.length > 0 ? data.length : 1);
@@ -140,6 +142,7 @@
 					colorTxPower(element.children[ind].children[4].children[0], data[ind].txPower);
 				}
 			});
+			paintPagination();
 		};
 		const errorDownlinks = (element) => {
 			array(element.children.length).forEach((ind) => {
@@ -154,6 +157,7 @@
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-4', 'h-4'], [], '');
 			});
+			errorPagination();
 		};
 		const parseDownlinks = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -194,5 +198,6 @@
 				window.requestAnimationFrame(() => errorDownlinks(context.element));
 			}
 		);
+		const onPaginate = () => loadDownlinks();
 	</script>
 </html>
