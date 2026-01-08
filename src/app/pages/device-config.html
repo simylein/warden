@@ -43,6 +43,9 @@
 					<a class="no-underline text-black dark:text-white">Uplinks</a>
 					<a class="no-underline text-black dark:text-white">Downlinks</a>
 				</div>
+				<div id="update">
+					<icon-edit ref="./src/app/components/icon-edit.html" class="w-5 lg:w-6 h-5 lg:h-6 opacity-50 cursor-not-allowed" />
+				</div>
 			</div>
 			<div class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
@@ -114,6 +117,151 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="update-dialog" class="w-full max-w-96 md:max-w-xs p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update device config?</h1>
+					<div class="flex flex-col md:flex-row gap-4">
+						<div class="flex flex-col gap-4 md:gap-5">
+							<div class="w-full flex flex-col items-start">
+								<label for="update-led-debug" class="mb-2 text-base font-normal">Led debug</label>
+								<div id="update-led-debug" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-led-debug'), false); updateForm.setValue('ledDebug', false); updateForm.setTouched('ledDebug', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-led-debug'), true); updateForm.setValue('ledDebug', true); updateForm.setTouched('ledDebug', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="update-led-debug-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-reading-enable" class="mb-2 text-base font-normal">Reading enable</label>
+								<div id="update-reading-enable" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-reading-enable'), false); updateForm.setValue('readingEnable', false); updateForm.setTouched('readingEnable', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-reading-enable'), true); updateForm.setValue('readingEnable', true); updateForm.setTouched('readingEnable', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="update-reading-enable-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-metric-enable" class="mb-2 text-base font-normal">Metric enable</label>
+								<div id="update-metric-enable" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-metric-enable'), false); updateForm.setValue('metricEnable', false); updateForm.setTouched('metricEnable', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-metric-enable'), true); updateForm.setValue('metricEnable', true); updateForm.setTouched('metricEnable', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="update-metric-enable-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-buffer-enable" class="mb-2 text-base font-normal">Buffer enable</label>
+								<div id="update-buffer-enable" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-buffer-enable'), false); updateForm.setValue('bufferEnable', false); updateForm.setTouched('bufferEnable', true)"
+									>
+										false
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="highlightBoolean(document.getElementById('update-buffer-enable'), true); updateForm.setValue('bufferEnable', true); updateForm.setTouched('bufferEnable', true)"
+									>
+										true
+									</button>
+								</div>
+								<p id="update-buffer-enable-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+						</div>
+						<div class="w-full flex flex-col gap-4">
+							<div class="hidden md:block h-14"></div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-reading-interval" class="mb-2 text-base font-normal">Reading interval</label>
+								<input
+									id="update-reading-interval"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="reading interval"
+									autofocus
+									onchange="updateForm.setValue('readingInterval', event.target.value)"
+									onblur="updateForm.setTouched('readingInterval', true)"
+								/>
+								<p id="update-reading-interval-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-metric-interval" class="mb-2 text-base font-normal">Metric interval</label>
+								<input
+									id="update-metric-interval"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="metric interval"
+									onchange="updateForm.setValue('metricInterval', event.target.value)"
+									onblur="updateForm.setTouched('metricInterval', true)"
+								/>
+								<p id="update-metric-interval-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+							<div class="w-full flex flex-col items-start">
+								<label for="update-buffer-interval" class="mb-2 text-base font-normal">Buffer interval</label>
+								<input
+									id="update-buffer-interval"
+									type="text"
+									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+									placeholder="buffer interval"
+									onchange="updateForm.setValue('bufferInterval', event.target.value)"
+									onblur="updateForm.setTouched('bufferInterval', true)"
+								/>
+								<p id="update-buffer-interval-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+							</div>
+						</div>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -125,6 +273,7 @@
 		</footer>
 	</body>
 	<script>
+		import './src/app/scripts/array.js';
 		import './src/app/scripts/duration.js';
 		import './src/app/scripts/device-tabs.js';
 		import './src/app/scripts/device-title.js';
@@ -136,11 +285,17 @@
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/formik.js';
 		import './src/app/scripts/report.js';
+		import './src/app/scripts/notification.js';
 		const title = document.getElementById('title');
+		const update = document.getElementById('update');
 		const config = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('config') };
 		deviceTabs();
 		const loadingConfig = (element) => {
+			update.children[0].classList.remove('cursor-pointer');
+			update.children[0].classList.add('opacity-50', 'cursor-not-allowed');
+			update.children[0].onclick = null;
 			fade(element.children[0].children[1].children[0]);
 			loading(element.children[0].children[1].children[0], ['w-8', 'h-4'], [], '');
 			fade(element.children[1].children[1].children[0]);
@@ -155,6 +310,9 @@
 			loading(element.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const paintConfig = (element, data) => {
+			update.children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+			update.children[0].classList.add('cursor-pointer');
+			update.children[0].onclick = () => openUpdateDialog(data);
 			if (data.ledDebug !== null) {
 				paint(element.children[0].children[1].children[0], [], ['w-8', 'h-4'], data.ledDebug);
 				colorBoolean(element.children[0].children[1].children[0], data.ledDebug);
@@ -213,6 +371,9 @@
 			}
 		};
 		const errorConfig = (element) => {
+			update.children[0].classList.remove('cursor-pointer');
+			update.children[0].classList.add('opacity-50', 'cursor-not-allowed');
+			update.children[0].onclick = null;
 			fade(element.children[0].children[1].children[0]);
 			error(element.children[0].children[1].children[0], ['w-8', 'h-4'], [], '');
 			fade(element.children[1].children[1].children[0]);
@@ -269,6 +430,129 @@
 			(context) => {
 				errorDeviceTitle(title);
 				window.requestAnimationFrame(() => errorConfig(context.element));
+			}
+		);
+		const highlightBoolean = (element, value) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (value) {
+				case false:
+					fade(element.children[0]);
+					element.children[0].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					break;
+				case true:
+					fade(element.children[1]);
+					element.children[1].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+			}
+		};
+		const updateDialog = document.getElementById('update-dialog');
+		const openUpdateDialog = (config) => {
+			if (config.ledDebug !== null) {
+				updateForm.setValue('ledDebug', config.ledDebug);
+				document.getElementById('update-led-debug').value = config.ledDebug;
+			}
+			highlightBoolean(document.getElementById('update-led-debug'), config.ledDebug);
+			if (config.readingEnable !== null) {
+				updateForm.setValue('readingEnable', config.readingEnable);
+				document.getElementById('update-reading-enable').value = config.readingEnable;
+			}
+			highlightBoolean(document.getElementById('update-reading-enable'), config.readingEnable);
+			if (config.metricEnable !== null) {
+				updateForm.setValue('metricEnable', config.metricEnable);
+				document.getElementById('update-metric-enable').value = config.metricEnable;
+			}
+			highlightBoolean(document.getElementById('update-metric-enable'), config.metricEnable);
+			if (config.bufferEnable !== null) {
+				updateForm.setValue('bufferEnable', config.bufferEnable);
+				document.getElementById('update-buffer-enable').value = config.bufferEnable;
+			}
+			highlightBoolean(document.getElementById('update-buffer-enable'), config.bufferEnable);
+			if (config.readingInterval !== null) {
+				updateForm.setValue('readingInterval', `${config.readingInterval}`);
+				document.getElementById('update-reading-interval').value = config.readingInterval;
+			}
+			if (config.metricInterval !== null) {
+				updateForm.setValue('metricInterval', `${config.metricInterval}`);
+				document.getElementById('update-metric-interval').value = config.metricInterval;
+			}
+			if (config.bufferInterval !== null) {
+				updateForm.setValue('bufferInterval', `${config.bufferInterval}`);
+				document.getElementById('update-buffer-interval').value = config.bufferInterval;
+			}
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
+		};
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+				ledDebug: document.getElementById('update-led-debug-validation'),
+				readingEnable: document.getElementById('update-reading-enable-validation'),
+				metricEnable: document.getElementById('update-metric-enable-validation'),
+				bufferEnable: document.getElementById('update-buffer-enable-validation'),
+				readingInterval: document.getElementById('update-reading-interval-validation'),
+				metricInterval: document.getElementById('update-metric-interval-validation'),
+				bufferInterval: document.getElementById('update-buffer-interval-validation'),
+			},
+			{
+				ledDebug: (value) => {
+					if (value === null) return 'led debug is required';
+					if (value !== false && value !== true) return 'led debug must be a boolean';
+				},
+				readingEnable: (value) => {
+					if (value === null) return 'reading enable is required';
+					if (value !== false && value !== true) return 'reading enable must be a boolean';
+				},
+				metricEnable: (value) => {
+					if (value === null) return 'metric enable is required';
+					if (value !== false && value !== true) return 'metric enable must be a boolean';
+				},
+				bufferEnable: (value) => {
+					if (value === null) return 'buffer enable is required';
+					if (value !== false && value !== true) return 'buffer enable must be a boolean';
+				},
+				readingInterval: (value) => {
+					if (!value) return 'reading interval is required';
+					if (!value.match(/^[0-9]+$/)) return 'reading interval must be a number';
+					if (+value < 8) return 'reading interval must be min 8';
+					if (+value > 4096) return 'reading interval must be max 4096';
+				},
+				metricInterval: (value) => {
+					if (!value) return 'metric interval is required';
+					if (!value.match(/^[0-9]+$/)) return 'metric interval must be a number';
+					if (+value < 8) return 'metric interval must be min 8';
+					if (+value > 4096) return 'metric interval must be max 4096';
+				},
+				bufferInterval: (value) => {
+					if (!value) return 'buffer interval is required';
+					if (!value.match(/^[0-9]+$/)) return 'buffer interval must be a number';
+					if (+value < 8) return 'buffer interval must be min 8';
+					if (+value > 4096) return 'buffer interval must be max 4096';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(10);
+				const view = new DataView(bytes.buffer);
+				view.setUint8(0, values.ledDebug);
+				view.setUint8(1, values.readingEnable);
+				view.setUint8(2, values.metricEnable);
+				view.setUint8(3, values.bufferEnable);
+				view.setUint16(4, values.readingInterval);
+				view.setUint16(6, values.metricInterval);
+				view.setUint16(8, values.bufferInterval);
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('patch', `/api/device/${window.location.pathname.substring(8)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', `Successfully updated device config ${values.deviceId.substring(0, 4)}`);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
 			}
 		);
 	</script>
