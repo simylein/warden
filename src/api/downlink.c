@@ -42,7 +42,8 @@ uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink) 
 										"from downlink "
 										"left join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"where downlink.id = ?";
-	debug("%s\n", sql);
+	debug("select existing downlink %02x%02x for user %02x%02x\n", (*downlink->id)[0], (*downlink->id)[1], bwt->id[0],
+				bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -91,7 +92,7 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"order by sent_at desc "
 										"limit ? offset ?";
-	debug("%s\n", sql);
+	debug("select downlinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -166,7 +167,7 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 										"from downlink "
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"where downlink.id = ?";
-	debug("%s\n", sql);
+	debug("select downlink %02x%02x for user %02x%02x\n", (*downlink->id)[0], (*downlink->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -249,7 +250,8 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 										"where downlink.device_id = ? "
 										"order by sent_at desc "
 										"limit ? offset ?";
-	debug("%s\n", sql);
+	debug("select downlinks for device %02x%02x limit %hhu offset %u\n", (*device->id)[0], (*device->id)[1], query->limit,
+				query->offset);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -444,7 +446,8 @@ uint16_t downlink_insert(sqlite3 *database, downlink_t *downlink) {
 	const char *sql = "insert into downlink (id, frame, kind, data, airtime, frequency, bandwidth, "
 										"sf, cr, tx_power, preamble_len, sent_at, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert downlink for device %02x%02x sent at %lu\n", (*downlink->device_id)[0], (*downlink->device_id)[1],
+				downlink->sent_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

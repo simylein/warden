@@ -46,7 +46,7 @@ uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink) {
 										"from uplink "
 										"left join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"where uplink.id = ?";
-	debug("%s\n", sql);
+	debug("select existing uplink %02x%02x for user %02x%02x\n", (*uplink->id)[0], (*uplink->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -95,7 +95,7 @@ uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, res
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"order by received_at desc "
 										"limit ? offset ?";
-	debug("%s\n", sql);
+	debug("select uplinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -174,7 +174,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 										"from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"where uplink.id = ?";
-	debug("%s\n", sql);
+	debug("select uplink %02x%02x for user %02x%02x\n", (*uplink->id)[0], (*uplink->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -261,7 +261,8 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 										"where uplink.device_id = ? "
 										"order by received_at desc "
 										"limit ? offset ?";
-	debug("%s\n", sql);
+	debug("select uplinks for device %02x%02x limit %hhu offset %u\n", (*device->id)[0], (*device->id)[1], query->limit,
+				query->offset);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -334,7 +335,8 @@ uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t 
 										"where uplink.device_id = ? and uplink.received_at >= ? and uplink.received_at <= ? "
 										"group by bucket_time "
 										"order by bucket_time desc";
-	debug("%s\n", sql);
+	debug("select signals for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
+				query->to, query->bucket);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -389,7 +391,8 @@ uint16_t uplink_signal_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zon
 										"where device.zone_id = ? and uplink.received_at >= ? and uplink.received_at <= ? "
 										"group by bucket_time, user_device.device_id "
 										"order by bucket_time desc";
-	debug("%s\n", sql);
+	debug("select signals for zone %02x%02x from %lu to %lu bucket %hu\n", (*zone->id)[0], (*zone->id)[1], query->from, query->to,
+				query->bucket);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -601,7 +604,8 @@ uint16_t uplink_insert(sqlite3 *database, uplink_t *uplink) {
 	const char *sql = "insert into uplink (id, frame, kind, data, airtime, frequency, bandwidth, "
 										"rssi, snr, sf, cr, tx_power, preamble_len, received_at, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert uplink for device %02x%02x received at %lu\n", (*uplink->device_id)[0], (*uplink->device_id)[1],
+				uplink->received_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

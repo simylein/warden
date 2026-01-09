@@ -42,7 +42,8 @@ uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, res
 										"where metric.captured_at >= ? and metric.captured_at <= ? "
 										"group by bucket_time, user_device.device_id "
 										"order by bucket_time desc";
-	debug("%s\n", sql);
+	debug("select metrics for user %02x%02x from %lu to %lu bucket %hu\n", bwt->id[0], bwt->id[1], query->from, query->to,
+				query->bucket);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -106,7 +107,8 @@ uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 										"where metric.device_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
 										"group by bucket_time "
 										"order by bucket_time desc";
-	debug("%s\n", sql);
+	debug("select metrics for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
+				query->to, query->bucket);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -160,7 +162,8 @@ uint16_t metric_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, metr
 										"where device.zone_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
 										"group by bucket_time, user_device.device_id "
 										"order by bucket_time desc";
-	debug("%s\n", sql);
+	debug("select metrics for zone %02x%02x from %lu to %lu bucket %hu\n", (*zone->id)[0], (*zone->id)[1], query->from, query->to,
+				query->bucket);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -218,7 +221,8 @@ uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
 
 	const char *sql = "insert into metric (id, photovoltaic, battery, captured_at, uplink_id, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
+				metric->captured_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

@@ -24,7 +24,8 @@ uint16_t user_device_insert(sqlite3 *database, user_device_t *user_device) {
 
 	const char *sql = "insert into user_device (user_id, device_id) "
 										"values (?, ?)";
-	debug("%s\n", sql);
+	debug("insert user %02x%02x device %02x%02x\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
+				(*user_device->device_id)[0], (*user_device->device_id)[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -59,7 +60,8 @@ uint16_t user_device_delete(sqlite3 *database, user_device_t *user_device) {
 
 	const char *sql = "delete from user_device "
 										"where user_id = ? and device_id = ?";
-	debug("%s\n", sql);
+	debug("delete user %02x%02x device %02x%02x\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
+				(*user_device->device_id)[0], (*user_device->device_id)[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

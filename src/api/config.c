@@ -44,7 +44,7 @@ uint16_t config_select_one_by_device(sqlite3 *database, bwt_t *bwt, device_t *de
 										"where config.device_id = ? "
 										"order by captured_at desc "
 										"limit 1";
-	debug("%s\n", sql);
+	debug("select config for device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -95,7 +95,8 @@ uint16_t config_insert(sqlite3 *database, config_t *config) {
 	const char *sql = "insert into config (id, led_debug, reading_enable, metric_enable, buffer_enable, "
 										"reading_interval, metric_interval, buffer_interval, captured_at, uplink_id, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert config for device %02x%02x captured at %lu\n", (*config->device_id)[0], (*config->device_id)[1],
+				config->captured_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

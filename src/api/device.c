@@ -43,7 +43,7 @@ uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
 										"from device "
 										"left join user_device on user_device.device_id = device.id and user_device.user_id = ? "
 										"where device.id = ?";
-	debug("%s\n", sql);
+	debug("select existing device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -124,7 +124,8 @@ uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, res
 			"case when ?2 = 'level' and ?3 = 'asc' then buffer.level end asc, "
 			"case when ?2 = 'level' and ?3 = 'desc' then buffer.level end desc "
 			"limit ?4 offset ?5";
-	debug("%s\n", sql);
+	debug("select devices for user %02x%02x order by %.*s:%.*s\n", bwt->id[0], bwt->id[1], (int)query->order_len, query->order,
+				(int)query->sort_len, query->sort);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -334,7 +335,7 @@ uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, resp
 			"left join downlink on downlink.id = "
 			"(select id from downlink where device_id = device.id order by downlink.sent_at desc limit 1) "
 			"where device.id = ?";
-	debug("%s\n", sql);
+	debug("select device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -605,7 +606,8 @@ uint16_t device_select_by_user(sqlite3 *database, user_t *user, device_query_t *
 										"case when ?2 = 'receivedAt' and ?3 = 'asc' then uplink.received_at end asc, "
 										"case when ?2 = 'receivedAt' and ?3 = 'desc' then uplink.received_at end desc "
 										"limit ?4 offset ?5";
-	debug("%s\n", sql);
+	debug("select devices for user %02x%02x order by %.*s:%.*s\n", (*user->id)[0], (*user->id)[1], (int)query->order_len,
+				query->order, (int)query->sort_len, query->sort);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -840,7 +842,7 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 
 	const char *sql = "insert into device (id, name, zone_id, firmware, hardware, created_at) "
 										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert device name %*.s created at %lu\n", device->name_len, device->name, *device->created_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -864,7 +866,7 @@ uint16_t device_insert(sqlite3 *database, device_t *device) {
 	} else {
 		sqlite3_bind_null(stmt, 4);
 	}
-	sqlite3_bind_int64(stmt, 5, time(NULL));
+	sqlite3_bind_int64(stmt, 5, *device->created_at);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {

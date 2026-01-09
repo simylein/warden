@@ -45,7 +45,7 @@ uint16_t radio_select_one_by_device(sqlite3 *database, bwt_t *bwt, device_t *dev
 										"where radio.device_id = ? "
 										"order by captured_at desc "
 										"limit 1";
-	debug("%s\n", sql);
+	debug("select radio for device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -98,7 +98,8 @@ uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
 	const char *sql = "insert into radio (id, frequency, bandwidth, coding_rate, spreading_factor, "
 										"preamble_length, tx_power, sync_word, checksum, captured_at, uplink_id, device_id) "
 										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert radio for device %02x%02x captured at %lu\n", (*radio->device_id)[0], (*radio->device_id)[1],
+				radio->captured_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

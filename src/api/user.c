@@ -30,7 +30,7 @@ uint16_t user_existing(sqlite3 *database, user_t *user) {
 	sqlite3_stmt *stmt;
 
 	const char *sql = "select user.id from user where user.id = ?";
-	debug("%s\n", sql);
+	debug("select existing user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -80,7 +80,7 @@ uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *respons
 										"case when ?1 = 'signinAt' and ?2 = 'asc' then user.signin_at end asc, "
 										"case when ?1 = 'signinAt' and ?2 = 'desc' then user.signin_at end desc "
 										"limit ?3 offset ?4";
-	debug("%s\n", sql);
+	debug("select users order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len, query->sort);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -142,7 +142,7 @@ uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response) 
 
 	const char *sql = "select id, username, signup_at, signin_at, permissions from user "
 										"where id = ?";
-	debug("%s\n", sql);
+	debug("select user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -285,7 +285,7 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 
 	const char *sql = "insert into user (id, username, password, signup_at, signin_at, permissions) "
 										"values (randomblob(16), ?, ?, ?, ?, ?) returning id, permissions";
-	debug("%s\n", sql);
+	debug("insert user %.*s signup at %lu\n", user->username_len, user->username, *user->signup_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -295,13 +295,12 @@ uint16_t user_insert(sqlite3 *database, user_t *user) {
 
 	uint8_t hash[32];
 	sha256(user->password, user->password_len, &hash);
-	time_t now = time(NULL);
 	memset(user->permissions, 0x00, sizeof(*user->permissions));
 
 	sqlite3_bind_text(stmt, 1, user->username, user->username_len, SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, hash, sizeof(hash), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 3, now);
-	sqlite3_bind_int64(stmt, 4, now);
+	sqlite3_bind_int64(stmt, 3, *user->signup_at);
+	sqlite3_bind_int64(stmt, 4, *user->signin_at);
 	sqlite3_bind_blob(stmt, 5, user->permissions, sizeof(*user->permissions), SQLITE_STATIC);
 
 	int result = sqlite3_step(stmt);
@@ -343,7 +342,7 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 
 	const char *sql = "update user set signin_at = ? "
 										"where username = ? and password = ? returning id, permissions";
-	debug("%s\n", sql);
+	debug("update user %02x%02x signin at %lu\n", (*user->id)[0], (*user->id)[1], *user->signin_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -353,9 +352,8 @@ uint16_t user_update(sqlite3 *database, user_t *user) {
 
 	uint8_t hash[32];
 	sha256(user->password, user->password_len, &hash);
-	time_t now = time(NULL);
 
-	sqlite3_bind_int64(stmt, 1, now);
+	sqlite3_bind_int64(stmt, 1, *user->signin_at);
 	sqlite3_bind_text(stmt, 2, user->username, user->username_len, SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 3, hash, sizeof(hash), SQLITE_STATIC);
 
@@ -398,7 +396,7 @@ uint16_t user_delete(sqlite3 *database, user_t *user) {
 
 	const char *sql = "delete from user "
 										"where id = ?";
-	debug("%s\n", sql);
+	debug("delete user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -524,8 +522,9 @@ void user_signup(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	uint8_t id[16];
+	time_t now = time(NULL);
 	uint8_t permissions[4];
-	user_t user = {.id = &id, .permissions = &permissions};
+	user_t user = {.id = &id, .permissions = &permissions, .signup_at = &now, .signin_at = &now};
 	if (request->body.len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
 		response->status = 400;
 		return;
@@ -563,6 +562,7 @@ void user_signin(sqlite3 *database, request_t *request, response_t *response) {
 		return;
 	}
 
+	user.signin_at = (time_t[]){time(NULL)};
 	uint16_t status = user_update(database, &user);
 	if (status != 0) {
 		response->status = status;

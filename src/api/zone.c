@@ -34,7 +34,7 @@ uint16_t zone_existing(sqlite3 *database, bwt_t *bwt, zone_t *zone) {
 										"join device on device.zone_id = zone.id "
 										"left join user_device on user_device.device_id = device.id and user_device.user_id = ? "
 										"where zone.id = ?";
-	debug("%s\n", sql);
+	debug("select existing zone %02x%02x for user %02x%02x\n", (*zone->id)[0], (*zone->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -118,6 +118,8 @@ uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, respons
 			"case when ?2 = 'level' and ?3 = 'asc' then buffer_level end asc, "
 			"case when ?2 = 'level' and ?3 = 'desc' then buffer_level end desc "
 			"limit ?4 offset ?5";
+	debug("select zones for user %02x%02x order by %.*s:%.*s\n", bwt->id[0], bwt->id[1], (int)query->order_len, query->order,
+				(int)query->sort_len, query->sort);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -257,7 +259,7 @@ uint16_t zone_select_one(sqlite3 *database, bwt_t *bwt, zone_t *zone, response_t
 			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
 			"where zone.id = ? "
 			"group by zone.id";
-	debug("%s\n", sql);
+	debug("select zone %02x%02x for user %02x%02x\n", (*zone->id)[0], (*zone->id)[1], bwt->id[0], bwt->id[1]);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -433,7 +435,7 @@ uint16_t zone_insert(sqlite3 *database, zone_t *zone) {
 
 	const char *sql = "insert into zone (id, name, color, created_at) "
 										"values (randomblob(16), ?, ?, ?) returning id";
-	debug("%s\n", sql);
+	debug("insert zone name %.*s created at %lu\n", zone->name_len, zone->name, *zone->created_at);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
@@ -443,7 +445,7 @@ uint16_t zone_insert(sqlite3 *database, zone_t *zone) {
 
 	sqlite3_bind_text(stmt, 1, zone->name, zone->name_len, SQLITE_STATIC);
 	sqlite3_bind_blob(stmt, 2, zone->color, sizeof(*zone->color), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 3, time(NULL));
+	sqlite3_bind_int64(stmt, 3, *zone->created_at);
 
 	int result = sqlite3_step(stmt);
 	if (result == SQLITE_ROW) {
@@ -479,7 +481,7 @@ uint16_t zone_update(sqlite3 *database, zone_t *zone) {
 										"color = ?, "
 										"updated_at = ? "
 										"where id = ?";
-	debug("%s\n", sql);
+	debug("update zone %02x%02x name %.*s\n", (*zone->id)[0], (*zone->id)[1], zone->name_len, zone->name);
 
 	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
 		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));

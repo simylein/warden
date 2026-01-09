@@ -46,6 +46,8 @@ int seed_user(sqlite3 *database, const char *table) {
 				.password = passwords[index],
 				.password_len = (uint8_t)strlen(passwords[index]),
 				.permissions = &permissions,
+				.signup_at = (time_t[]){time(NULL)},
+				.signin_at = (time_t[]){time(NULL)},
 		};
 
 		if (user_insert(database, &user) != 0) {
@@ -76,6 +78,7 @@ int seed_zone(sqlite3 *database, const char *table) {
 				.name = names[index],
 				.name_len = (uint8_t)strlen(names[index]),
 				.color = &colors[index],
+				.created_at = (time_t[]){time(NULL)},
 		};
 
 		if (zone_insert(database, &zone) != 0) {
@@ -131,6 +134,7 @@ int seed_device(sqlite3 *database, const char *table) {
 				.firmware_len = firmware_len,
 				.hardware = hardware_len == 0 ? NULL : hardware,
 				.hardware_len = hardware_len,
+				.created_at = (time_t[]){time(NULL)},
 		};
 
 		if (device_insert(database, &device) != 0) {
