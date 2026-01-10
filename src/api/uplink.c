@@ -258,7 +258,7 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, kind, data, rssi, snr, sf, tx_power, received_at from uplink "
+	const char *sql = "select id, frame, kind, data, rssi, snr, sf, tx_power, received_at from uplink "
 										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
 										"where uplink.device_id = ? "
 										"order by received_at desc "
@@ -287,20 +287,22 @@ uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 1);
-			const uint8_t *data = sqlite3_column_blob(stmt, 2);
-			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 2);
+			const uint16_t frame = (uint16_t)sqlite3_column_int(stmt, 1);
+			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 2);
+			const uint8_t *data = sqlite3_column_blob(stmt, 3);
+			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
 			if (data_len > UINT8_MAX) {
 				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 				status = 500;
 				goto cleanup;
 			}
-			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 3);
-			const double snr = sqlite3_column_double(stmt, 4);
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 5);
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 6);
-			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 7);
+			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 4);
+			const double snr = sqlite3_column_double(stmt, 5);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 6);
+			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 7);
+			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 8);
 			body_write(response, id, id_len);
+			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(uint8_t));
 			body_write(response, data, data_len);

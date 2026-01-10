@@ -247,7 +247,7 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 	uint16_t status;
 	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, kind, data, sf, tx_power, sent_at from downlink "
+	const char *sql = "select id, frame, kind, data, sf, tx_power, sent_at from downlink "
 										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
 										"where downlink.device_id = ? "
 										"order by sent_at desc "
@@ -276,18 +276,20 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 1);
-			const uint8_t *data = sqlite3_column_blob(stmt, 2);
-			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 2);
+			const uint16_t frame = (uint16_t)sqlite3_column_int(stmt, 1);
+			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 2);
+			const uint8_t *data = sqlite3_column_blob(stmt, 3);
+			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
 			if (data_len > UINT8_MAX) {
 				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 				status = 500;
 				goto cleanup;
 			}
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 3);
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 4);
-			const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 5);
+			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 4);
+			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 5);
+			const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 6);
 			body_write(response, id, id_len);
+			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(uint8_t));
 			body_write(response, data, data_len);
