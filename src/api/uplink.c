@@ -201,7 +201,7 @@ uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, resp
 		const uint8_t *data = sqlite3_column_blob(stmt, 3);
 		const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
 		if (data_len > UINT8_MAX) {
-			error("data length %zu exceeds buffer length %hhu\n", id_len, UINT8_MAX);
+			error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 			status = 500;
 			goto cleanup;
 		}

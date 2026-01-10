@@ -119,7 +119,7 @@ uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query,
 			const uint8_t *data = sqlite3_column_blob(stmt, 3);
 			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
 			if (data_len > UINT8_MAX) {
-				error("data length %zu exceeds buffer length %hhu\n", id_len, UINT8_MAX);
+				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 				status = 500;
 				goto cleanup;
 			}
@@ -194,7 +194,7 @@ uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink
 		const uint8_t *data = sqlite3_column_blob(stmt, 3);
 		const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
 		if (data_len > UINT8_MAX) {
-			error("data length %zu exceeds buffer length %hhu\n", id_len, UINT8_MAX);
+			error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 			status = 500;
 			goto cleanup;
 		}
@@ -280,7 +280,7 @@ uint16_t downlink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *devi
 			const uint8_t *data = sqlite3_column_blob(stmt, 2);
 			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 2);
 			if (data_len > UINT8_MAX) {
-				error("data length %zu exceeds buffer length %hhu\n", id_len, UINT8_MAX);
+				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
 				status = 500;
 				goto cleanup;
 			}
