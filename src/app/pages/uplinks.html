@@ -35,6 +35,7 @@
 						>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Device id</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Frame</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Kind</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Data</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Rssi</th>
@@ -95,17 +96,18 @@
 				element.children[ind].onclick = null;
 				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				loading(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
-				fade(element.children[ind].children[3].children[0]);
-				loading(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				loading(element.children[ind].children[3].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-9', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-9', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				loading(element.children[ind].children[6].children[0], ['w-4', 'h-4'], [], '');
+				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				loading(element.children[ind].children[7].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				loading(element.children[ind].children[8].children[0], ['w-4', 'h-4'], [], '');
 			});
 			loadingPagination();
 		};
@@ -117,26 +119,27 @@
 					element.children[ind].onclick = () => (window.location.href = `/uplink/${data[ind].id}`);
 					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].receivedAt));
 					paint(element.children[ind].children[1].children[0], [], ['w-10', 'h-4'], data[ind].deviceId.substring(0, 4));
-					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4'], data[ind].kind.toString(16).padStart(2, '0'));
+					paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], data[ind].frame);
+					paint(element.children[ind].children[3].children[0], [], ['w-5', 'h-4'], data[ind].kind.toString(16).padStart(2, '0'));
 					if (data[ind].data.length !== 0) {
-						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4'], data[ind].data);
-						fade(element.children[ind].children[3].children[0]);
+						paint(element.children[ind].children[4].children[0], [], ['w-56', 'h-4'], data[ind].data);
+						fade(element.children[ind].children[4].children[0]);
 					} else {
-						paint(element.children[ind].children[3].children[0], [], ['w-56', 'h-4'], 'null');
-						colorNull(element.children[ind].children[3].children[0]);
+						paint(element.children[ind].children[4].children[0], [], ['w-56', 'h-4'], 'null');
+						colorNull(element.children[ind].children[4].children[0]);
 					}
-					paint(element.children[ind].children[4].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
-					fade(element.children[ind].children[4].children[0]);
-					colorRssi(element.children[ind].children[4].children[0], data[ind].rssi, data[ind].sf);
-					paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].snr);
+					paint(element.children[ind].children[5].children[0], [], ['w-9', 'h-4'], data[ind].rssi);
 					fade(element.children[ind].children[5].children[0]);
-					colorSnr(element.children[ind].children[5].children[0], data[ind].snr, data[ind].sf);
-					paint(element.children[ind].children[6].children[0], [], ['w-4', 'h-4'], data[ind].sf);
+					colorRssi(element.children[ind].children[5].children[0], data[ind].rssi, data[ind].sf);
+					paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], data[ind].snr);
 					fade(element.children[ind].children[6].children[0]);
-					colorSf(element.children[ind].children[6].children[0], data[ind].sf);
-					paint(element.children[ind].children[7].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
+					colorSnr(element.children[ind].children[6].children[0], data[ind].snr, data[ind].sf);
+					paint(element.children[ind].children[7].children[0], [], ['w-4', 'h-4'], data[ind].sf);
 					fade(element.children[ind].children[7].children[0]);
-					colorTxPower(element.children[ind].children[7].children[0], data[ind].txPower);
+					colorSf(element.children[ind].children[7].children[0], data[ind].sf);
+					paint(element.children[ind].children[8].children[0], [], ['w-4', 'h-4'], data[ind].txPower);
+					fade(element.children[ind].children[8].children[0]);
+					colorTxPower(element.children[ind].children[8].children[0], data[ind].txPower);
 				}
 			});
 			paintPagination();
@@ -147,17 +150,18 @@
 				element.children[ind].onclick = null;
 				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-10', 'h-4'], [], '');
-				error(element.children[ind].children[2].children[0], ['w-5', 'h-4'], [], '');
-				fade(element.children[ind].children[3].children[0]);
-				error(element.children[ind].children[3].children[0], ['w-56', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				error(element.children[ind].children[3].children[0], ['w-5', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-9', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-56', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-9', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				error(element.children[ind].children[6].children[0], ['w-4', 'h-4'], [], '');
+				error(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				error(element.children[ind].children[7].children[0], ['w-4', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				error(element.children[ind].children[8].children[0], ['w-4', 'h-4'], [], '');
 			});
 			errorPagination();
 		};
@@ -166,8 +170,9 @@
 			const binary = new Binary(buffer);
 			const uplinks = [];
 			while (binary.offset < buffer.byteLength) {
-				const uplink = { id: null, kind: null, data: null, rssi: null, snr: null, sf: null, txPower: null, receivedAt: null, deviceId: null };
+				const uplink = { id: null, frame: null, kind: null, data: null, rssi: null, snr: null, sf: null, txPower: null, receivedAt: null, deviceId: null };
 				uplink.id = binary.uuid();
+				uplink.frame = binary.uint(16);
 				uplink.kind = binary.byte();
 				uplink.data = binary.hex(binary.uint(8));
 				uplink.rssi = binary.int(16);
