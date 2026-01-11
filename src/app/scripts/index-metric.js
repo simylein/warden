@@ -17,17 +17,17 @@ const indexPhotovoltaic = (photovoltaic) => {
 
 const indexBattery = (battery) => {
 	switch (true) {
-		case battery < 2.0:
+		case battery < 2.16:
 			return 1;
-		case battery >= 2.0 && battery < 2.04:
+		case battery >= 2.16 && battery < 2.26:
 			return 2;
-		case battery >= 2.04 && battery < 2.1:
+		case battery >= 2.26 && battery < 2.34:
 			return 3;
-		case battery >= 2.1 && battery < 2.18:
+		case battery >= 2.34 && battery < 2.4:
 			return 4;
-		case battery >= 2.18 && battery < 2.28:
+		case battery >= 2.4 && battery < 2.44:
 			return 5;
-		case battery >= 2.28:
+		case battery >= 2.44:
 			return 6;
 	}
 };
