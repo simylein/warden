@@ -46,8 +46,7 @@ uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink);
 
 uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
 uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, response_t *response);
-uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, uplink_query_t *query, response_t *response,
-																 uint16_t *uplinks_len);
+uint16_t uplink_select_by_device(device_t *device, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
 uint16_t uplink_signal_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, uplink_signal_query_t *query,
 																				response_t *response, uint16_t *signals_len);
 uint16_t uplink_signal_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, uplink_signal_query_t *query,

@@ -2,6 +2,7 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
+#include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
@@ -10,11 +11,14 @@
 #include "database.h"
 #include "decode.h"
 #include "device.h"
+#include <fcntl.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 const char *uplink_table = "uplink";
 const char *uplink_schema = "create table uplink ("
@@ -35,6 +39,25 @@ const char *uplink_schema = "create table uplink ("
 														"device_id blob not null, "
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
+
+const struct uplink_row_t {
+	uint8_t id;
+	uint8_t frame;
+	uint8_t kind;
+	uint8_t data_len;
+	uint8_t data;
+	uint8_t airtime;
+	uint8_t frequency;
+	uint8_t bandwidth;
+	uint8_t rssi;
+	uint8_t snr;
+	uint8_t sf;
+	uint8_t cr;
+	uint8_t tx_power;
+	uint8_t preamble_len;
+	uint8_t received_at;
+	uint8_t size;
+} uplink_row = {0, 16, 18, 19, 20, 52, 54, 58, 62, 64, 65, 66, 67, 68, 69, 77};
 
 uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink) {
 	uint16_t status;
@@ -253,76 +276,105 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, uplink_query_t *query, response_t *response,
-																 uint16_t *uplinks_len) {
+uint16_t uplink_select_by_device(device_t *device, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select id, frame, kind, data, rssi, snr, sf, tx_power, received_at from uplink "
-										"join user_device on user_device.device_id = uplink.device_id and user_device.user_id = ? "
-										"where uplink.device_id = ? "
-										"order by received_at desc "
-										"limit ? offset ?";
-	debug("select uplinks for device %02x%02x limit %hhu offset %u\n", (*device->id)[0], (*device->id)[1], query->limit,
-				query->offset);
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[64];
+	if (sprintf(file, "./data/%.*s/uplink.data", (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	int fd = open(file, O_RDONLY);
+	if (fd == -1) {
+		error("failed to open %s because %s\n", file, errno_str());
+		return 500;
+	}
+
+	uint8_t *row = malloc(uplink_row.size);
+	if (row == NULL) {
+		error("failed to allocate %hhu bytes for uplink because %s\n", uplink_row.size, errno_str());
+		return 500;
+	}
+
+	struct flock fl = {.l_type = F_RDLCK, .l_whence = SEEK_SET, .l_start = 0, .l_len = 0};
+	if (fcntl(fd, F_SETLKW, &fl) == -1) {
+		error("failed to rdlock %s because %s\n", file, errno_str());
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 3, query->limit);
-	sqlite3_bind_int(stmt, 4, (int)query->offset);
+	struct stat file_stat;
+	if (fstat(fd, &file_stat) == -1) {
+		error("failed to stat %s because %s\n", file, errno_str());
+		status = 500;
+		goto cleanup;
+	}
 
+	debug("select uplinks for device %02x%02x limit %hhu offset %u\n", (*device->id)[0], (*device->id)[1], query->limit,
+				query->offset);
+
+	off_t offset = file_stat.st_size - uplink_row.size - query->offset * uplink_row.size;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((uplink_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((uplink_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint16_t frame = (uint16_t)sqlite3_column_int(stmt, 1);
-			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 2);
-			const uint8_t *data = sqlite3_column_blob(stmt, 3);
-			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
-			if (data_len > UINT8_MAX) {
-				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
-				status = 500;
-				goto cleanup;
-			}
-			const int16_t rssi = (int16_t)sqlite3_column_int(stmt, 4);
-			const double snr = sqlite3_column_double(stmt, 5);
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 6);
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 7);
-			const time_t received_at = (time_t)sqlite3_column_int64(stmt, 8);
-			body_write(response, id, id_len);
-			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
-			body_write(response, &kind, sizeof(kind));
-			body_write(response, &data_len, sizeof(uint8_t));
-			body_write(response, data, data_len);
-			body_write(response, (uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-			body_write(response, (uint8_t[]){(uint8_t)(int8_t)(snr * 4)}, sizeof(uint8_t));
-			body_write(response, &sf, sizeof(sf));
-			body_write(response, &tx_power, sizeof(tx_power));
-			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-			*uplinks_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset < 0) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (lseek(fd, offset, SEEK_SET) == -1) {
+			error("failed to seek to offset %zu on file %s because %s\n", (size_t)offset, file, errno_str());
+			status = 500;
 			goto cleanup;
 		}
+		ssize_t bytes = read(fd, row, uplink_row.size);
+		if (bytes == -1) {
+			error("failed read %hhu bytes from %s because %s\n", uplink_row.size, file, errno_str());
+			status = 500;
+			goto cleanup;
+		}
+		if (bytes == 0 || *uplinks_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		if (bytes != uplink_row.size) {
+			error("failed to fully read %hhu bytes from %s because %s\n", uplink_row.size, file, errno_str());
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])database_blob(row, uplink_row.id);
+		uint16_t frame = database_uint16(row, uplink_row.frame);
+		uint8_t kind = database_uint8(row, uplink_row.kind);
+		uint8_t data_len = database_uint8(row, uplink_row.data_len);
+		uint8_t (*data)[32] = (uint8_t (*)[32])database_blob(row, uplink_row.data);
+		int16_t rssi = database_int16(row, uplink_row.rssi);
+		int8_t snr = database_int8(row, uplink_row.snr);
+		uint8_t sf = database_uint8(row, uplink_row.sf);
+		uint8_t tx_power = database_uint8(row, uplink_row.tx_power);
+		time_t received_at = (time_t)database_uint64(row, uplink_row.received_at);
+		body_write(response, id, sizeof(*id));
+		body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
+		body_write(response, &kind, sizeof(kind));
+		body_write(response, &data_len, sizeof(data_len));
+		body_write(response, data, data_len);
+		body_write(response, (uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
+		body_write(response, &snr, sizeof(snr));
+		body_write(response, &sf, sizeof(sf));
+		body_write(response, &tx_power, sizeof(tx_power));
+		body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
+		*uplinks_len += 1;
+		offset -= uplink_row.size;
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	if (close(fd) == -1) {
+		error("failed to close %s because %s\n", file, errno_str());
+	}
+	free(row);
 	return status;
 }
 
@@ -788,8 +840,8 @@ void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 		return;
 	}
 
-	uint16_t uplinks_len = 0;
-	status = uplink_select_by_device(database, bwt, &device, &query, response, &uplinks_len);
+	uint8_t uplinks_len = 0;
+	status = uplink_select_by_device(&device, &query, response, &uplinks_len);
 	if (status != 0) {
 		response->status = status;
 		return;

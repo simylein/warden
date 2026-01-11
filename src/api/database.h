@@ -15,4 +15,4 @@ int16_t database_int16(uint8_t *row, uint8_t row_ind);
 int32_t database_int32(uint8_t *row, uint8_t row_ind);
 int64_t database_int64(uint8_t *row, uint8_t row_ind);
 
-uint8_t *database_blob(uint8_t *row, uint8_t row_ind, uint8_t blob_len);
+uint8_t *database_blob(uint8_t *row, uint8_t row_ind);
