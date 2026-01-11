@@ -12,6 +12,7 @@ warden
 
 # database
 warden.sqlite
+data
 
 # logs
 *.log
