@@ -65,7 +65,7 @@ int64_t database_int64(uint8_t *row, uint8_t row_ind) {
 	return value;
 }
 
-uint8_t *database_blob(uint8_t *row, uint8_t row_ind, uint8_t blob_len) {
+uint8_t *database_blob(uint8_t *row, uint8_t row_ind) {
 	uint8_t *value = &row[row_ind];
 	return value;
 }
