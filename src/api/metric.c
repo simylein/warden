@@ -2,7 +2,9 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
+#include "../lib/error.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
@@ -10,6 +12,7 @@
 #include "database.h"
 #include "device.h"
 #include "zone.h"
+#include <fcntl.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -28,6 +31,15 @@ const char *metric_schema = "create table metric ("
 														"foreign key (uplink_id) references uplink(id) on delete cascade, "
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
+
+const struct metric_row_t {
+	uint8_t id;
+	uint8_t photovoltaic;
+	uint8_t battery;
+	uint8_t captured_at;
+	uint8_t uplink_id;
+	uint8_t size;
+} metric_row = {0, 16, 18, 20, 28, 44};
 
 uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
 	uint16_t status;
@@ -94,56 +106,61 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, metric_query_t *query, response_t *response,
-																 uint16_t *metrics_len) {
+uint16_t metric_select_by_device(device_t *device, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"avg(metric.photovoltaic), avg(metric.battery), "
-										"(metric.captured_at / ?) * ? as bucket_time "
-										"from metric "
-										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
-										"where metric.device_id = ? and metric.captured_at >= ? and metric.captured_at <= ? "
-										"group by bucket_time "
-										"order by bucket_time desc";
-	debug("select metrics for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
-				query->to, query->bucket);
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[64];
+	if (sprintf(file, "./data/%.*s/metric.data", (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	uint8_t *row = malloc(metric_row.size);
+	if (row == NULL) {
+		error("failed to allocate %hhu bytes for metric because %s\n", metric_row.size, errno_str());
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_int(stmt, 1, query->bucket);
-	sqlite3_bind_int(stmt, 2, query->bucket);
-	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 4, device->id, sizeof(*device->id), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 5, query->from);
-	sqlite3_bind_int64(stmt, 6, query->to);
+	debug("select metrics for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
+				query->to, query->bucket);
 
+	off_t offset = stmt.stat.st_size - metric_row.size;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const double photovoltaic = sqlite3_column_double(stmt, 0);
-			const double battery = sqlite3_column_double(stmt, 1);
-			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
-			body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
-			body_write(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
-			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			*metrics_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset < 0) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, row, metric_row.size) == -1) {
+			status = 500;
 			goto cleanup;
 		}
+		uint16_t photovoltaic = octet_uint16_read(row, metric_row.photovoltaic);
+		uint16_t battery = octet_uint16_read(row, metric_row.battery);
+		time_t captured_at = (time_t)octet_uint64_read(row, metric_row.captured_at);
+		if (captured_at > query->from && captured_at < query->to) {
+			body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
+			body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			*metrics_len += 1;
+		}
+		offset -= metric_row.size;
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
+	free(row);
 	return status;
 }
 
@@ -215,49 +232,57 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_insert(sqlite3 *database, metric_t *metric) {
+uint16_t metric_insert(metric_t *metric) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into metric (id, photovoltaic, battery, captured_at, uplink_id, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
-	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
-				metric->captured_at);
+	for (uint8_t index = 0; index < sizeof(*metric->id); index++) {
+		(*metric->id)[index] = (uint8_t)(rand() % 0xff);
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), metric->device_id, sizeof(*metric->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[64];
+	if (sprintf(file, "./data/%.*s/metric.data", (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	uint8_t *row = malloc(metric_row.size);
+	if (row == NULL) {
+		error("failed to allocate %hhu bytes for metric because %s\n", metric_row.size, errno_str());
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_double(stmt, 1, metric->photovoltaic);
-	sqlite3_bind_double(stmt, 2, metric->battery);
-	sqlite3_bind_int64(stmt, 3, metric->captured_at);
-	sqlite3_bind_blob(stmt, 4, metric->uplink_id, sizeof(*metric->uplink_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 5, metric->device_id, sizeof(*metric->device_id), SQLITE_STATIC);
+	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
+				metric->captured_at);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*metric->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*metric->id));
-			status = 500;
-			goto cleanup;
-		}
-		memcpy(metric->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("metric is conflicting because %s\n", sqlite3_errmsg(database));
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
+	octet_blob_write(row, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
+	octet_uint16_write(row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
+	octet_uint16_write(row, metric_row.battery, (uint16_t)(metric->battery * 1000));
+	octet_uint64_write(row, metric_row.captured_at, (uint64_t)metric->captured_at);
+	octet_blob_write(row, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
+
+	off_t offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, row, metric_row.size) == -1) {
+		status = 500;
 		goto cleanup;
 	}
 
+	status = 0;
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
+	free(row);
 	return status;
 }
 
@@ -391,7 +416,7 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	uint16_t metrics_len = 0;
-	status = metric_select_by_device(database, bwt, &device, &query, response, &metrics_len);
+	status = metric_select_by_device(&device, &query, response, &metrics_len);
 	if (status != 0) {
 		response->status = status;
 		return;
