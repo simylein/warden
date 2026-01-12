@@ -166,7 +166,7 @@ int seed_user_device(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_uplink(sqlite3 *database, const char *table) {
+int seed_uplink(const char *table) {
 	uplink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -210,7 +210,7 @@ int seed_uplink(sqlite3 *database, const char *table) {
 					.device_id = &device_ids[index],
 			};
 
-			if (uplink_insert(database, &uplink) != 0) {
+			if (uplink_insert(&uplink) != 0) {
 				return -1;
 			}
 			frame -= 1;
@@ -567,7 +567,7 @@ int seed(sqlite3 *database) {
 	if (seed_user_device(database, user_device_table) == -1) {
 		return -1;
 	}
-	if (seed_uplink(database, uplink_table) == -1) {
+	if (seed_uplink(uplink_table) == -1) {
 		return -1;
 	}
 	if (seed_downlink(database, downlink_table) == -1) {
