@@ -459,7 +459,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -476,7 +476,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = reading_insert(&reading)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -493,7 +493,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -514,7 +514,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -541,7 +541,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = device_update(database, &device)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -558,7 +558,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = config_insert(database, &config)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;
@@ -575,7 +575,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = radio_insert(database, &radio)) != 0) {
 			return status;
 		}
-		if ((status = buffer_insert(database, &buffer)) != 0) {
+		if ((status = buffer_insert(&buffer)) != 0) {
 			return status;
 		}
 		return 0;

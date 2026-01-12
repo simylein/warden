@@ -436,7 +436,7 @@ int seed_metric(const char *table) {
 	return 0;
 }
 
-int seed_buffer(sqlite3 *database, const char *table) {
+int seed_buffer(const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -455,7 +455,7 @@ int seed_buffer(sqlite3 *database, const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (buffer_insert(database, &buffer) != 0) {
+			if (buffer_insert(&buffer) != 0) {
 				return -1;
 			}
 			bool increase = rand() % 4 == 0;
@@ -579,7 +579,7 @@ int seed(sqlite3 *database) {
 	if (seed_metric(metric_table) == -1) {
 		return -1;
 	}
-	if (seed_buffer(database, buffer_table) == -1) {
+	if (seed_buffer(buffer_table) == -1) {
 		return -1;
 	}
 	if (seed_config(database, config_table) == -1) {
