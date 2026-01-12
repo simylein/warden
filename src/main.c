@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 bool stopping = false;
@@ -38,6 +39,8 @@ void stop(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+	srand((unsigned int)time(NULL));
+
 	signal(SIGINT, &stop);
 	signal(SIGTERM, &stop);
 
