@@ -346,7 +346,7 @@ int seed_downlink(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_reading(sqlite3 *database, const char *table) {
+int seed_reading(const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -365,7 +365,7 @@ int seed_reading(sqlite3 *database, const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (reading_insert(database, &reading) != 0) {
+			if (reading_insert(&reading) != 0) {
 				return -1;
 			}
 			temperature += ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
@@ -573,7 +573,7 @@ int seed(sqlite3 *database) {
 	if (seed_downlink(database, downlink_table) == -1) {
 		return -1;
 	}
-	if (seed_reading(database, reading_table) == -1) {
+	if (seed_reading(reading_table) == -1) {
 		return -1;
 	}
 	if (seed_metric(database, metric_table) == -1) {
