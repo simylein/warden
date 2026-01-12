@@ -391,7 +391,7 @@ int seed_reading(const char *table) {
 	return 0;
 }
 
-int seed_metric(sqlite3 *database, const char *table) {
+int seed_metric(const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -410,7 +410,7 @@ int seed_metric(sqlite3 *database, const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (metric_insert(database, &metric) != 0) {
+			if (metric_insert(&metric) != 0) {
 				return -1;
 			}
 			photovoltaic += ((float)rand() / (float)RAND_MAX) * 0.2f - 0.1f;
@@ -576,7 +576,7 @@ int seed(sqlite3 *database) {
 	if (seed_reading(reading_table) == -1) {
 		return -1;
 	}
-	if (seed_metric(database, metric_table) == -1) {
+	if (seed_metric(metric_table) == -1) {
 		return -1;
 	}
 	if (seed_buffer(database, buffer_table) == -1) {

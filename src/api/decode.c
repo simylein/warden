@@ -381,7 +381,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = metric_insert(database, &metric)) != 0) {
+		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
 		return 0;
@@ -398,7 +398,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = reading_insert(&reading)) != 0) {
 			return status;
 		}
-		if ((status = metric_insert(database, &metric)) != 0) {
+		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
 		return 0;
@@ -490,7 +490,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = metric_insert(database, &metric)) != 0) {
+		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(database, &buffer)) != 0) {
@@ -511,7 +511,7 @@ uint16_t decode(sqlite3 *database, uplink_t *uplink) {
 		if ((status = reading_insert(&reading)) != 0) {
 			return status;
 		}
-		if ((status = metric_insert(database, &metric)) != 0) {
+		if ((status = metric_insert(&metric)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(database, &buffer)) != 0) {
