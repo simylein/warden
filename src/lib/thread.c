@@ -38,12 +38,6 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 		return -1;
 	}
 
-	int exec_error = sqlite3_exec(worker->arg.database, "pragma foreign_keys = on", NULL, NULL, NULL);
-	if (exec_error != SQLITE_OK) {
-		logger("failed to enforce foreign key constraints because %s\n", sqlite3_errmsg(worker->arg.database));
-		return -1;
-	}
-
 	sqlite3_busy_timeout(worker->arg.database, database_timeout);
 
 	worker->arg.request_buffer = malloc(receive_buffer * sizeof(char));
