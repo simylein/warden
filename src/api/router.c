@@ -135,7 +135,7 @@ bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
 	return true;
 }
 
-void route(sqlite3 *database, request_t *request, response_t *response) {
+void route(const char *db, sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
@@ -387,21 +387,21 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/device/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			reading_find_by_device(database, &bwt, request, response);
+			reading_find_by_device(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			metric_find_by_device(database, &bwt, request, response);
+			metric_find_by_device(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			buffer_find_by_device(database, &bwt, request, response);
+			buffer_find_by_device(db, database, &bwt, request, response);
 		}
 	}
 
@@ -422,14 +422,14 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/device/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_signal_find_by_device(database, &bwt, request, response);
+			uplink_signal_find_by_device(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_find_by_device(database, &bwt, request, response);
+			uplink_find_by_device(db, database, &bwt, request, response);
 		}
 	}
 
@@ -507,7 +507,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_uplink_create, response) == true) {
-				uplink_create(database, request, response);
+				uplink_create(db, database, request, response);
 			}
 		}
 	}

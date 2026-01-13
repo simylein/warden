@@ -32,14 +32,14 @@ const char *metric_schema = "create table metric ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-const struct metric_row_t {
-	uint8_t id;
-	uint8_t photovoltaic;
-	uint8_t battery;
-	uint8_t captured_at;
-	uint8_t uplink_id;
-	uint8_t size;
-} metric_row = {0, 16, 18, 20, 28, 44};
+const metric_row_t metric_row = {
+		.id = 0,
+		.photovoltaic = 16,
+		.battery = 18,
+		.captured_at = 20,
+		.uplink_id = 28,
+		.size = 44,
+};
 
 uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
 	uint16_t status;
@@ -106,7 +106,8 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_select_by_device(device_t *device, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
+uint16_t metric_select_by_device(const char *db, device_t *device, metric_query_t *query, response_t *response,
+																 uint16_t *metrics_len) {
 	uint16_t status;
 
 	char uuid[32];
@@ -115,8 +116,8 @@ uint16_t metric_select_by_device(device_t *device, metric_query_t *query, respon
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/metric.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/metric.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -232,7 +233,7 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_insert(metric_t *metric) {
+uint16_t metric_insert(const char *db, metric_t *metric) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*metric->id); index++) {
@@ -245,8 +246,8 @@ uint16_t metric_insert(metric_t *metric) {
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/metric.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/metric.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -346,7 +347,7 @@ void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	response->status = 200;
 }
 
-void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void metric_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -416,7 +417,7 @@ void metric_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	uint16_t metrics_len = 0;
-	status = metric_select_by_device(&device, &query, response, &metrics_len);
+	status = metric_select_by_device(db, &device, &query, response, &metrics_len);
 	if (status != 0) {
 		response->status = status;
 		return;

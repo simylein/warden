@@ -108,7 +108,7 @@ void handle(sqlite3 *database, char *request_buffer, char *response_buffer, int 
 				reqs.header.len, reqs.body.len);
 	req("%.*s %.*s %s\n", (int)reqs.method.len, reqs.method.ptr, (int)reqs.pathname.len, reqs.pathname.ptr, bytes_buffer);
 
-	route(database, &reqs, &resp);
+	route("data", database, &reqs, &resp);
 
 	size_t response_length = response(&reqs, &resp, response_buffer);
 

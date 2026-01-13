@@ -24,15 +24,27 @@ typedef struct reading_query_t {
 	uint16_t bucket;
 } reading_query_t;
 
+typedef struct reading_row_t {
+	uint8_t id;
+	uint8_t temperature;
+	uint8_t humidity;
+	uint8_t captured_at;
+	uint8_t uplink_id;
+	uint8_t size;
+} reading_row_t;
+
+extern const reading_row_t reading_row;
+
 extern const char *reading_table;
 extern const char *reading_schema;
 
 uint16_t reading_select(sqlite3 *database, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len);
-uint16_t reading_select_by_device(device_t *device, reading_query_t *query, response_t *response, uint16_t *readings_len);
+uint16_t reading_select_by_device(const char *db, device_t *device, reading_query_t *query, response_t *response,
+																	uint16_t *readings_len);
 uint16_t reading_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, reading_query_t *query, response_t *response,
 																uint16_t *readings_len);
-uint16_t reading_insert(reading_t *reading);
+uint16_t reading_insert(const char *db, reading_t *reading);
 
 void reading_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void reading_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void reading_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x20 && seed(database) != 0) {
+		if (cmds & 0x20 && seed("data", database) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}
