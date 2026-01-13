@@ -32,14 +32,14 @@ const char *buffer_schema = "create table buffer ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-const struct buffer_row_t {
-	uint8_t id;
-	uint8_t delay;
-	uint8_t level;
-	uint8_t captured_at;
-	uint8_t uplink_id;
-	uint8_t size;
-} buffer_row = {0, 16, 20, 22, 30, 46};
+const buffer_row_t buffer_row = {
+		.id = 0,
+		.delay = 16,
+		.level = 20,
+		.captured_at = 22,
+		.uplink_id = 30,
+		.size = 46,
+};
 
 uint16_t buffer_select(sqlite3 *database, bwt_t *bwt, buffer_query_t *query, response_t *response, uint16_t *buffers_len) {
 	uint16_t status;
@@ -106,7 +106,8 @@ cleanup:
 	return status;
 }
 
-uint16_t buffer_select_by_device(device_t *device, buffer_query_t *query, response_t *response, uint16_t *buffers_len) {
+uint16_t buffer_select_by_device(const char *db, device_t *device, buffer_query_t *query, response_t *response,
+																 uint16_t *buffers_len) {
 	uint16_t status;
 
 	char uuid[32];
@@ -115,8 +116,8 @@ uint16_t buffer_select_by_device(device_t *device, buffer_query_t *query, respon
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/buffer.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/buffer.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -232,7 +233,7 @@ cleanup:
 	return status;
 }
 
-uint16_t buffer_insert(buffer_t *buffer) {
+uint16_t buffer_insert(const char *db, buffer_t *buffer) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*buffer->id); index++) {
@@ -245,8 +246,8 @@ uint16_t buffer_insert(buffer_t *buffer) {
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/buffer.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/buffer.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -346,7 +347,7 @@ void buffer_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	response->status = 200;
 }
 
-void buffer_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void buffer_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -416,7 +417,7 @@ void buffer_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	uint16_t buffers_len = 0;
-	status = buffer_select_by_device(&device, &query, response, &buffers_len);
+	status = buffer_select_by_device(db, &device, &query, response, &buffers_len);
 	if (status != 0) {
 		response->status = status;
 		return;

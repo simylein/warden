@@ -2,4 +2,4 @@
 
 #include <sqlite3.h>
 
-int seed(sqlite3 *database);
+int seed(const char *db, sqlite3 *database);

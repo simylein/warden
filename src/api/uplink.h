@@ -39,6 +39,27 @@ typedef struct uplink_signal_query_t {
 	uint16_t bucket;
 } uplink_signal_query_t;
 
+typedef struct uplink_row_t {
+	uint8_t id;
+	uint8_t frame;
+	uint8_t kind;
+	uint8_t data_len;
+	uint8_t data;
+	uint8_t airtime;
+	uint8_t frequency;
+	uint8_t bandwidth;
+	uint8_t rssi;
+	uint8_t snr;
+	uint8_t sf;
+	uint8_t cr;
+	uint8_t tx_power;
+	uint8_t preamble_len;
+	uint8_t received_at;
+	uint8_t size;
+} uplink_row_t;
+
+extern const uplink_row_t uplink_row;
+
 extern const char *uplink_table;
 extern const char *uplink_schema;
 
@@ -46,16 +67,17 @@ uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink);
 
 uint16_t uplink_select(sqlite3 *database, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
 uint16_t uplink_select_one(sqlite3 *database, bwt_t *bwt, uplink_t *uplink, response_t *response);
-uint16_t uplink_select_by_device(device_t *device, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
-uint16_t uplink_signal_select_by_device(device_t *device, uplink_signal_query_t *query, response_t *response,
+uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_t *query, response_t *response,
+																 uint8_t *uplinks_len);
+uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink_signal_query_t *query, response_t *response,
 																				uint16_t *signals_len);
 uint16_t uplink_signal_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, uplink_signal_query_t *query,
 																			response_t *response, uint16_t *signals_len);
-uint16_t uplink_insert(uplink_t *uplink);
+uint16_t uplink_insert(const char *db, uplink_t *uplink);
 
 void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void uplink_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void uplink_signal_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void uplink_create(sqlite3 *database, request_t *request, response_t *response);
+void uplink_create(const char *db, sqlite3 *database, request_t *request, response_t *response);

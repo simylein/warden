@@ -39,24 +39,24 @@ const char *uplink_schema = "create table uplink ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-const struct uplink_row_t {
-	uint8_t id;
-	uint8_t frame;
-	uint8_t kind;
-	uint8_t data_len;
-	uint8_t data;
-	uint8_t airtime;
-	uint8_t frequency;
-	uint8_t bandwidth;
-	uint8_t rssi;
-	uint8_t snr;
-	uint8_t sf;
-	uint8_t cr;
-	uint8_t tx_power;
-	uint8_t preamble_len;
-	uint8_t received_at;
-	uint8_t size;
-} uplink_row = {0, 16, 18, 19, 20, 52, 54, 58, 62, 64, 65, 66, 67, 68, 69, 77};
+const uplink_row_t uplink_row = {
+		.id = 0,
+		.frame = 16,
+		.kind = 18,
+		.data_len = 19,
+		.data = 20,
+		.airtime = 52,
+		.frequency = 54,
+		.bandwidth = 58,
+		.rssi = 62,
+		.snr = 64,
+		.sf = 65,
+		.cr = 66,
+		.tx_power = 67,
+		.preamble_len = 68,
+		.received_at = 69,
+		.size = 77,
+};
 
 uint16_t uplink_existing(sqlite3 *database, bwt_t *bwt, uplink_t *uplink) {
 	uint16_t status;
@@ -275,7 +275,8 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_select_by_device(device_t *device, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
+uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_t *query, response_t *response,
+																 uint8_t *uplinks_len) {
 	uint16_t status;
 
 	char uuid[32];
@@ -284,8 +285,8 @@ uint16_t uplink_select_by_device(device_t *device, uplink_query_t *query, respon
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/uplink.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -345,7 +346,7 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_signal_select_by_device(device_t *device, uplink_signal_query_t *query, response_t *response,
+uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink_signal_query_t *query, response_t *response,
 																				uint16_t *signals_len) {
 	uint16_t status;
 
@@ -355,8 +356,8 @@ uint16_t uplink_signal_select_by_device(device_t *device, uplink_signal_query_t 
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/uplink.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -626,7 +627,7 @@ int uplink_validate(uplink_t *uplink) {
 	return 0;
 }
 
-uint16_t uplink_insert(uplink_t *uplink) {
+uint16_t uplink_insert(const char *db, uplink_t *uplink) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*uplink->id); index++) {
@@ -639,8 +640,8 @@ uint16_t uplink_insert(uplink_t *uplink) {
 		return 500;
 	}
 
-	char file[64];
-	if (sprintf(file, "./data/%.*s/uplink.data", (int)sizeof(uuid), uuid) == -1) {
+	char file[128];
+	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -771,7 +772,7 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	response->status = 200;
 }
 
-void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void uplink_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -822,7 +823,7 @@ void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	uint8_t uplinks_len = 0;
-	status = uplink_select_by_device(&device, &query, response, &uplinks_len);
+	status = uplink_select_by_device(db, &device, &query, response, &uplinks_len);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -841,7 +842,7 @@ void uplink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	response->status = 200;
 }
 
-void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void uplink_signal_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -911,7 +912,7 @@ void uplink_signal_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *requ
 	}
 
 	uint16_t signals_len = 0;
-	status = uplink_signal_select_by_device(&device, &query, response, &signals_len);
+	status = uplink_signal_select_by_device(db, &device, &query, response, &signals_len);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -1016,7 +1017,7 @@ void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *reques
 	response->status = 200;
 }
 
-void uplink_create(sqlite3 *database, request_t *request, response_t *response) {
+void uplink_create(const char *db, sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -1029,13 +1030,13 @@ void uplink_create(sqlite3 *database, request_t *request, response_t *response) 
 		return;
 	}
 
-	uint16_t status = uplink_insert(&uplink);
+	uint16_t status = uplink_insert(db, &uplink);
 	if (status != 0) {
 		response->status = status;
 		return;
 	}
 
-	if ((status = decode(database, &uplink)) != 0) {
+	if ((status = decode(db, database, &uplink)) != 0) {
 		response->status = status;
 		return;
 	}

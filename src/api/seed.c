@@ -166,7 +166,7 @@ int seed_user_device(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_uplink(const char *table) {
+int seed_uplink(const char *db, const char *table) {
 	uplink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -210,7 +210,7 @@ int seed_uplink(const char *table) {
 					.device_id = &device_ids[index],
 			};
 
-			if (uplink_insert(&uplink) != 0) {
+			if (uplink_insert(db, &uplink) != 0) {
 				return -1;
 			}
 			frame -= 1;
@@ -346,7 +346,7 @@ int seed_downlink(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_reading(const char *table) {
+int seed_reading(const char *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -365,7 +365,7 @@ int seed_reading(const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (reading_insert(&reading) != 0) {
+			if (reading_insert(db, &reading) != 0) {
 				return -1;
 			}
 			temperature += ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
@@ -391,7 +391,7 @@ int seed_reading(const char *table) {
 	return 0;
 }
 
-int seed_metric(const char *table) {
+int seed_metric(const char *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -410,7 +410,7 @@ int seed_metric(const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (metric_insert(&metric) != 0) {
+			if (metric_insert(db, &metric) != 0) {
 				return -1;
 			}
 			photovoltaic += ((float)rand() / (float)RAND_MAX) * 0.2f - 0.1f;
@@ -436,7 +436,7 @@ int seed_metric(const char *table) {
 	return 0;
 }
 
-int seed_buffer(const char *table) {
+int seed_buffer(const char *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -455,7 +455,7 @@ int seed_buffer(const char *table) {
 					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
-			if (buffer_insert(&buffer) != 0) {
+			if (buffer_insert(db, &buffer) != 0) {
 				return -1;
 			}
 			bool increase = rand() % 4 == 0;
@@ -552,7 +552,7 @@ int seed_radio(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed(sqlite3 *database) {
+int seed(const char *db, sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
 	if (seed_user(database, user_table) == -1) {
@@ -567,19 +567,19 @@ int seed(sqlite3 *database) {
 	if (seed_user_device(database, user_device_table) == -1) {
 		return -1;
 	}
-	if (seed_uplink(uplink_table) == -1) {
+	if (seed_uplink(db, uplink_table) == -1) {
 		return -1;
 	}
 	if (seed_downlink(database, downlink_table) == -1) {
 		return -1;
 	}
-	if (seed_reading(reading_table) == -1) {
+	if (seed_reading(db, reading_table) == -1) {
 		return -1;
 	}
-	if (seed_metric(metric_table) == -1) {
+	if (seed_metric(db, metric_table) == -1) {
 		return -1;
 	}
-	if (seed_buffer(buffer_table) == -1) {
+	if (seed_buffer(db, buffer_table) == -1) {
 		return -1;
 	}
 	if (seed_config(database, config_table) == -1) {
