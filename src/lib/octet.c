@@ -50,7 +50,7 @@ ssize_t octet_row_read(octet_stmt_t *stmt, const char *file, off_t offset, uint8
 	}
 
 	if (bytes != row_size) {
-		error("failed to fully read %hhu bytes from %s because %s\n", row_size, file, errno_str());
+		error("failed to fully read %hhu bytes from %s\n", row_size, file);
 		return -1;
 	}
 
@@ -130,6 +130,11 @@ uint8_t *octet_blob_read(uint8_t *row, uint8_t row_ind) {
 	return value;
 }
 
+char *octet_text_read(uint8_t *row, uint8_t row_ind) {
+	char *value = (char *)&row[row_ind];
+	return value;
+}
+
 void octet_uint8_write(uint8_t *row, uint8_t row_ind, uint8_t value) { row[row_ind] = value; }
 
 void octet_uint16_write(uint8_t *row, uint8_t row_ind, uint16_t value) {
@@ -181,5 +186,9 @@ void octet_int64_write(uint8_t *row, uint8_t row_ind, int64_t value) {
 }
 
 void octet_blob_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t value_len) {
+	memcpy(&row[row_ind], value, value_len);
+}
+
+void octet_text_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len) {
 	memcpy(&row[row_ind], value, value_len);
 }
