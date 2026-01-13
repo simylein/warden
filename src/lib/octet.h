@@ -26,6 +26,7 @@ int32_t octet_int32_read(uint8_t *row, uint8_t row_ind);
 int64_t octet_int64_read(uint8_t *row, uint8_t row_ind);
 
 uint8_t *octet_blob_read(uint8_t *row, uint8_t row_ind);
+char *octet_text_read(uint8_t *row, uint8_t row_ind);
 
 void octet_uint8_write(uint8_t *row, uint8_t row_ind, uint8_t value);
 void octet_uint16_write(uint8_t *row, uint8_t row_ind, uint16_t value);
@@ -38,3 +39,4 @@ void octet_int32_write(uint8_t *row, uint8_t row_ind, int32_t value);
 void octet_int64_write(uint8_t *row, uint8_t row_ind, int64_t value);
 
 void octet_blob_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t value_len);
+void octet_text_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len);
