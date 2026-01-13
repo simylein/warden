@@ -343,7 +343,7 @@ void route(const char *db, sqlite3 *database, request_t *request, response_t *re
 	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_find(database, &bwt, request, response);
+			device_find(db, &bwt, request, response);
 		}
 	}
 
@@ -371,7 +371,7 @@ void route(const char *db, sqlite3 *database, request_t *request, response_t *re
 	if (endpoint(request, "get", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_find_one(database, &bwt, request, response);
+			device_find_one(db, database, &bwt, request, response);
 		}
 	}
 

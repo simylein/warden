@@ -2,18 +2,17 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
+#include "../lib/error.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "buffer.h"
 #include "cache.h"
 #include "database.h"
-#include "downlink.h"
-#include "metric.h"
-#include "reading.h"
 #include "uplink.h"
 #include "user.h"
 #include "zone.h"
+#include <fcntl.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -32,6 +31,138 @@ const char *device_schema = "create table device ("
 														"updated_at timestamp, "
 														"foreign key (zone_id) references zone(id) on delete set null"
 														")";
+
+const device_row_t device_row = {
+		.id = 0,
+		.name_len = 16,
+		.name = 17,
+		.firmware_len = 33,
+		.firmware = 34,
+		.hardware_len = 46,
+		.hardware = 47,
+		.created_at = 59,
+		.updated_at_null = 67,
+		.updated_at = 68,
+		.zone_null = 76,
+		.zone_id = 77,
+		.zone_name_len = 93,
+		.zone_name = 94,
+		.zone_color = 106,
+		.reading_null = 118,
+		.reading_id = 119,
+		.reading_temperature = 135,
+		.reading_humidity = 137,
+		.reading_captured_at = 139,
+		.metric_null = 147,
+		.metric_id = 148,
+		.metric_photovoltaic = 164,
+		.metric_battery = 166,
+		.metric_captured_at = 168,
+		.buffer_null = 176,
+		.buffer_id = 177,
+		.buffer_delay = 193,
+		.buffer_level = 197,
+		.buffer_captured_at = 199,
+		.size = 207,
+};
+
+int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
+	if (query->order_len == 2 && memcmp(query->order, "id", query->order_len) == 0) {
+		uint64_t id_alpha = octet_uint64_read(alpha, device_row.id);
+		uint64_t id_bravo = octet_uint64_read(bravo, device_row.id);
+		int result = (id_alpha > id_bravo) - (id_alpha < id_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 4 && memcmp(query->order, "name", query->order_len) == 0) {
+		uint8_t name_len_alpha = octet_uint8_read(alpha, device_row.name_len);
+		char *name_alpha = octet_text_read(alpha, device_row.name);
+		uint8_t name_len_bravo = octet_uint8_read(bravo, device_row.name_len);
+		char *name_bravo = octet_text_read(bravo, device_row.name);
+		int result = memcmp(name_alpha, name_bravo, name_len_alpha < name_len_bravo ? name_len_alpha : name_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 4 && memcmp(query->order, "zone", query->order_len) == 0) {
+		uint8_t zone_len_alpha = octet_uint8_read(alpha, device_row.zone_name_len);
+		char *zone_alpha = octet_text_read(alpha, device_row.zone_name);
+		uint8_t zone_len_bravo = octet_uint8_read(bravo, device_row.zone_name_len);
+		char *zone_bravo = octet_text_read(bravo, device_row.zone_name);
+		int result = memcmp(zone_alpha, zone_bravo, zone_len_alpha < zone_len_bravo ? zone_len_alpha : zone_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 11 && memcmp(query->order, "temperature", query->order_len) == 0) {
+		int16_t temperature_alpha = octet_int16_read(alpha, device_row.reading_temperature);
+		int16_t temperature_bravo = octet_int16_read(bravo, device_row.reading_temperature);
+		int result = (temperature_alpha > temperature_bravo) - (temperature_alpha < temperature_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "humidity", query->order_len) == 0) {
+		uint16_t humidity_alpha = octet_uint16_read(alpha, device_row.reading_humidity);
+		uint16_t humidity_bravo = octet_uint16_read(bravo, device_row.reading_humidity);
+		int result = (humidity_alpha > humidity_bravo) - (humidity_alpha < humidity_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 12 && memcmp(query->order, "photovoltaic", query->order_len) == 0) {
+		uint16_t photovoltaic_alpha = octet_uint16_read(alpha, device_row.metric_photovoltaic);
+		uint16_t photovoltaic_bravo = octet_uint16_read(bravo, device_row.metric_photovoltaic);
+		int result = (photovoltaic_alpha > photovoltaic_bravo) - (photovoltaic_alpha < photovoltaic_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 7 && memcmp(query->order, "battery", query->order_len) == 0) {
+		uint16_t battery_alpha = octet_uint16_read(alpha, device_row.metric_battery);
+		uint16_t battery_bravo = octet_uint16_read(bravo, device_row.metric_battery);
+		int result = (battery_alpha > battery_bravo) - (battery_alpha < battery_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 5 && memcmp(query->order, "delay", query->order_len) == 0) {
+		uint32_t delay_alpha = octet_uint32_read(alpha, device_row.buffer_delay);
+		uint32_t delay_bravo = octet_uint32_read(bravo, device_row.buffer_delay);
+		int result = (delay_alpha > delay_bravo) - (delay_alpha < delay_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 5 && memcmp(query->order, "level", query->order_len) == 0) {
+		uint16_t level_alpha = octet_uint16_read(alpha, device_row.buffer_level);
+		uint16_t level_bravo = octet_uint16_read(bravo, device_row.buffer_level);
+		int result = (level_alpha > level_bravo) - (level_alpha < level_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	return 0;
+}
 
 uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
 	uint16_t status;
@@ -84,497 +215,283 @@ cleanup:
 	return status;
 }
 
-uint16_t device_select(sqlite3 *database, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
+uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
+	uint8_t *row = NULL;
+	uint8_t *table = NULL;
 
-	const char *sql =
-			"select "
-			"device.id, device.name, device.created_at, device.updated_at, "
-			"zone.id, zone.name, zone.color, "
-			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
-			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at, "
-			"buffer.id, buffer.delay, buffer.level, buffer.captured_at "
-			"from device "
-			"join user_device on user_device.device_id = device.id and user_device.user_id = ?1 "
-			"left join zone on zone.id = device.zone_id "
-			"left join reading on reading.id = "
-			"(select reading.id from reading where reading.device_id = device.id order by reading.captured_at desc limit 1) "
-			"left join metric on metric.id = "
-			"(select metric.id from metric where metric.device_id = device.id order by metric.captured_at desc limit 1) "
-			"left join buffer on buffer.id = "
-			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
-			"order by "
-			"case when ?2 = 'id' and ?3 = 'asc' then device.id end asc, "
-			"case when ?2 = 'id' and ?3 = 'desc' then device.id end desc, "
-			"case when ?2 = 'name' and ?3 = 'asc' then device.name end asc, "
-			"case when ?2 = 'name' and ?3 = 'desc' then device.name end desc, "
-			"case when ?2 = 'zone' and ?3 = 'asc' then zone.name end asc, "
-			"case when ?2 = 'zone' and ?3 = 'desc' then zone.name end desc, "
-			"case when ?2 = 'temperature' and ?3 = 'asc' then reading.temperature end asc, "
-			"case when ?2 = 'temperature' and ?3 = 'desc' then reading.temperature end desc, "
-			"case when ?2 = 'humidity' and ?3 = 'asc' then reading.humidity end asc, "
-			"case when ?2 = 'humidity' and ?3 = 'desc' then reading.humidity end desc, "
-			"case when ?2 = 'photovoltaic' and ?3 = 'asc' then metric.photovoltaic end asc, "
-			"case when ?2 = 'photovoltaic' and ?3 = 'desc' then metric.photovoltaic end desc, "
-			"case when ?2 = 'battery' and ?3 = 'asc' then metric.battery end asc, "
-			"case when ?2 = 'battery' and ?3 = 'desc' then metric.battery end desc, "
-			"case when ?2 = 'delay' and ?3 = 'asc' then buffer.delay end asc, "
-			"case when ?2 = 'delay' and ?3 = 'desc' then buffer.delay end desc, "
-			"case when ?2 = 'level' and ?3 = 'asc' then buffer.level end asc, "
-			"case when ?2 = 'level' and ?3 = 'desc' then buffer.level end desc "
-			"limit ?4 offset ?5";
+	char file[128];
+	if (sprintf(file, "%s/device.data", db) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	table = malloc((size_t)stmt.stat.st_size);
+	if (table == NULL) {
+		error("failed to allocate %zu bytes for uplink because %s\n", (size_t)stmt.stat.st_size, errno_str());
+		status = 500;
+		goto cleanup;
+	}
+
+	row = malloc(device_row.size);
+	if (row == NULL) {
+		error("failed to allocate %hhu bytes for uplink because %s\n", device_row.size, errno_str());
+		status = 500;
+		goto cleanup;
+	}
+
 	debug("select devices for user %02x%02x order by %.*s:%.*s\n", bwt->id[0], bwt->id[1], (int)query->order_len, query->order,
 				(int)query->sort_len, query->sort);
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 3, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 4, query->limit);
-	sqlite3_bind_int64(stmt, 5, query->offset);
-
+	off_t offset = 0;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((device_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((device_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *name = sqlite3_column_text(stmt, 1);
-			const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const time_t created_at = (time_t)sqlite3_column_int64(stmt, 2);
-			const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 3);
-			const int updated_at_type = sqlite3_column_type(stmt, 3);
-			const uint8_t *zone_id = sqlite3_column_blob(stmt, 4);
-			const size_t zone_id_len = (size_t)sqlite3_column_bytes(stmt, 4);
-			const int zone_id_type = sqlite3_column_type(stmt, 4);
-			if (zone_id_type != SQLITE_NULL && zone_id_len != sizeof(*((zone_t *)0)->id)) {
-				error("zone id length %zu does not match buffer length %zu\n", zone_id_len, sizeof(*((zone_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *zone_name = sqlite3_column_text(stmt, 5);
-			const size_t zone_name_len = (size_t)sqlite3_column_bytes(stmt, 5);
-			const int zone_name_type = sqlite3_column_type(stmt, 5);
-			const uint8_t *zone_color = sqlite3_column_blob(stmt, 6);
-			const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 6);
-			const int zone_color_type = sqlite3_column_type(stmt, 6);
-			if (zone_color_type != SQLITE_NULL && zone_color_len != sizeof(*((zone_t *)0)->color)) {
-				error("zone color length %zu does not match buffer length %zu\n", zone_color_len, sizeof(*((zone_t *)0)->color));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *reading_id = sqlite3_column_blob(stmt, 7);
-			const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
-			const int reading_id_type = sqlite3_column_type(stmt, 7);
-			if (reading_id_type != SQLITE_NULL && reading_id_len != sizeof(*((reading_t *)0)->id)) {
-				error("reading id length %zu does not match buffer length %zu\n", reading_id_len, sizeof(*((reading_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const double reading_temperature = sqlite3_column_double(stmt, 8);
-			const int reading_temperature_type = sqlite3_column_type(stmt, 8);
-			const double reading_humidity = sqlite3_column_double(stmt, 9);
-			const int reading_humidity_type = sqlite3_column_type(stmt, 9);
-			const time_t reading_captured_at = (time_t)sqlite3_column_int64(stmt, 10);
-			const int reading_captured_at_type = sqlite3_column_type(stmt, 10);
-			const uint8_t *metric_id = sqlite3_column_blob(stmt, 11);
-			const size_t metric_id_len = (size_t)sqlite3_column_bytes(stmt, 11);
-			const int metric_id_type = sqlite3_column_type(stmt, 11);
-			if (metric_id_type != SQLITE_NULL && metric_id_len != sizeof(*((metric_t *)0)->id)) {
-				error("metric id length %zu does not match buffer length %zu\n", metric_id_len, sizeof(*((metric_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const double metric_photovoltaic = sqlite3_column_double(stmt, 12);
-			const int metric_photovoltaic_type = sqlite3_column_type(stmt, 12);
-			const double metric_battery = sqlite3_column_double(stmt, 13);
-			const int metric_battery_type = sqlite3_column_type(stmt, 13);
-			const time_t metric_captured_at = (time_t)sqlite3_column_int64(stmt, 14);
-			const int metric_captured_at_type = sqlite3_column_type(stmt, 14);
-			const uint8_t *buffer_id = sqlite3_column_blob(stmt, 15);
-			const size_t buffer_id_len = (size_t)sqlite3_column_bytes(stmt, 15);
-			const int buffer_id_type = sqlite3_column_type(stmt, 15);
-			if (buffer_id_type != SQLITE_NULL && buffer_id_len != sizeof(*((buffer_t *)0)->id)) {
-				error("buffer id length %zu does not match buffer length %zu\n", buffer_id_len, sizeof(*((buffer_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint32_t buffer_delay = (uint32_t)sqlite3_column_int(stmt, 16);
-			const int buffer_delay_type = sqlite3_column_type(stmt, 16);
-			const uint16_t buffer_level = (uint16_t)sqlite3_column_int(stmt, 17);
-			const int buffer_level_type = sqlite3_column_type(stmt, 17);
-			const time_t buffer_captured_at = (time_t)sqlite3_column_int64(stmt, 18);
-			const int buffer_captured_at_type = sqlite3_column_type(stmt, 18);
-			body_write(response, id, id_len);
-			body_write(response, name, name_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
-			body_write(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
-			if (updated_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
-			}
-			body_write(response, (char[]){zone_id_type != SQLITE_NULL}, sizeof(char));
-			if (zone_id_type != SQLITE_NULL) {
-				body_write(response, zone_id, zone_id_len);
-			}
-			body_write(response, (char[]){zone_name_type != SQLITE_NULL}, sizeof(char));
-			if (zone_name_type != SQLITE_NULL) {
-				body_write(response, zone_name, zone_name_len);
-				body_write(response, (char[]){0x00}, sizeof(char));
-			}
-			body_write(response, (char[]){zone_color_type != SQLITE_NULL}, sizeof(char));
-			if (zone_color_type != SQLITE_NULL) {
-				body_write(response, zone_color, zone_color_len);
-			}
-			body_write(response, (char[]){reading_id_type != SQLITE_NULL}, sizeof(char));
-			if (reading_id_type != SQLITE_NULL) {
-				body_write(response, reading_id, reading_id_len);
-			}
-			body_write(response, (char[]){reading_temperature_type != SQLITE_NULL}, sizeof(char));
-			if (reading_temperature_type != SQLITE_NULL) {
-				body_write(response, (uint16_t[]){hton16((uint16_t)(int16_t)(reading_temperature * 100))}, sizeof(uint16_t));
-			}
-			body_write(response, (char[]){reading_humidity_type != SQLITE_NULL}, sizeof(char));
-			if (reading_humidity_type != SQLITE_NULL) {
-				body_write(response, (uint16_t[]){hton16((uint16_t)(reading_humidity * 100))}, sizeof(uint16_t));
-			}
-			body_write(response, (char[]){reading_captured_at_type != SQLITE_NULL}, sizeof(char));
-			if (reading_captured_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
-			}
-			body_write(response, (char[]){metric_id_type != SQLITE_NULL}, sizeof(char));
-			if (metric_id_type != SQLITE_NULL) {
-				body_write(response, metric_id, metric_id_len);
-			}
-			body_write(response, (char[]){metric_photovoltaic_type != SQLITE_NULL}, sizeof(char));
-			if (metric_photovoltaic_type != SQLITE_NULL) {
-				body_write(response, (uint16_t[]){hton16((uint16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
-			}
-			body_write(response, (char[]){metric_battery_type != SQLITE_NULL}, sizeof(char));
-			if (metric_battery_type != SQLITE_NULL) {
-				body_write(response, (uint16_t[]){hton16((uint16_t)(metric_battery * 1000))}, sizeof(uint16_t));
-			}
-			body_write(response, (char[]){metric_captured_at_type != SQLITE_NULL}, sizeof(char));
-			if (metric_captured_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)metric_captured_at)}, sizeof(metric_captured_at));
-			}
-			body_write(response, (char[]){buffer_id_type != SQLITE_NULL}, sizeof(char));
-			if (buffer_id_type != SQLITE_NULL) {
-				body_write(response, buffer_id, buffer_id_len);
-			}
-			body_write(response, (char[]){buffer_delay_type != SQLITE_NULL}, sizeof(char));
-			if (buffer_delay_type != SQLITE_NULL) {
-				body_write(response, (uint32_t[]){hton32(buffer_delay)}, sizeof(buffer_delay));
-			}
-			body_write(response, (char[]){buffer_level_type != SQLITE_NULL}, sizeof(char));
-			if (buffer_level_type != SQLITE_NULL) {
-				body_write(response, (uint16_t[]){hton16(buffer_level)}, sizeof(buffer_level));
-			}
-			body_write(response, (char[]){buffer_captured_at_type != SQLITE_NULL}, sizeof(char));
-			if (buffer_captured_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
-			}
-			cache_device_t cache_device;
-			memcpy(cache_device.id, id, sizeof(cache_device.id));
-			memcpy(cache_device.name, name, name_len);
-			cache_device.name_len = (uint8_t)name_len;
-			memcpy(cache_device.zone_name, zone_name, zone_name_len);
-			cache_device.zone_name_len = (uint8_t)zone_name_len;
-			if (cache_device_write(&cache_device) == -1) {
-				warn("failed to cache device %02x%02x\n", id[0], id[1]);
-			}
-			*devices_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, &table[offset], device_row.size) == -1) {
+			status = 500;
 			goto cleanup;
+		}
+		offset += device_row.size;
+	}
+
+	for (uint8_t index = 0; index < stmt.stat.st_size / device_row.size - 1; index++) {
+		for (uint8_t ind = index + 1; ind < stmt.stat.st_size / device_row.size; ind++) {
+			if (device_rowcmp(&table[index * device_row.size], &table[ind * device_row.size], query) > 0) {
+				memcpy(row, &table[index * device_row.size], device_row.size);
+				memcpy(&table[index * device_row.size], &table[ind * device_row.size], device_row.size);
+				memcpy(&table[ind * device_row.size], row, device_row.size);
+			}
 		}
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
-
-uint16_t device_select_one(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql =
-			"select "
-			"device.id, device.name, device.firmware, device.hardware, device.created_at, device.updated_at, "
-			"zone.id, zone.name, zone.color, "
-			"reading.id, reading.temperature, reading.humidity, reading.captured_at, "
-			"metric.id, metric.photovoltaic, metric.battery, metric.captured_at, "
-			"buffer.id, buffer.delay, buffer.level, buffer.captured_at, "
-			"uplink.id, uplink.kind, uplink.received_at, "
-			"downlink.id, downlink.kind, downlink.sent_at "
-			"from device "
-			"join user_device on user_device.device_id = device.id and user_device.user_id = ? "
-			"left join zone on zone.id = device.zone_id "
-			"left join reading on reading.id = "
-			"(select reading.id from reading where reading.device_id = device.id order by reading.captured_at desc limit 1) "
-			"left join metric on metric.id = "
-			"(select metric.id from metric where metric.device_id = device.id order by metric.captured_at desc limit 1) "
-			"left join buffer on buffer.id = "
-			"(select buffer.id from buffer where buffer.device_id = device.id order by buffer.captured_at desc limit 1) "
-			"left join uplink on uplink.id = "
-			"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
-			"left join downlink on downlink.id = "
-			"(select id from downlink where device_id = device.id order by downlink.sent_at desc limit 1) "
-			"where device.id = ?";
-	debug("select device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*((device_t *)0)->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((device_t *)0)->id));
-			status = 500;
-			goto cleanup;
+	offset = device_row.size * query->offset;
+	while (true) {
+		if (offset >= stmt.stat.st_size || *devices_len >= query->limit) {
+			status = 0;
+			break;
 		}
-		const uint8_t *name = sqlite3_column_text(stmt, 1);
-		const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
-		const uint8_t *firmware = sqlite3_column_text(stmt, 2);
-		const size_t firmware_len = (size_t)sqlite3_column_bytes(stmt, 2);
-		const int firmware_type = sqlite3_column_type(stmt, 2);
-		const uint8_t *hardware = sqlite3_column_text(stmt, 3);
-		const size_t hardware_len = (size_t)sqlite3_column_bytes(stmt, 3);
-		const int hardware_type = sqlite3_column_type(stmt, 3);
-		const time_t created_at = (time_t)sqlite3_column_int64(stmt, 4);
-		const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 5);
-		const int updated_at_type = sqlite3_column_type(stmt, 5);
-		const uint8_t *zone_id = sqlite3_column_blob(stmt, 6);
-		const size_t zone_id_len = (size_t)sqlite3_column_bytes(stmt, 6);
-		const int zone_id_type = sqlite3_column_type(stmt, 6);
-		if (zone_id_type != SQLITE_NULL && zone_id_len != sizeof(*((zone_t *)0)->id)) {
-			error("zone id length %zu does not match buffer length %zu\n", zone_id_len, sizeof(*((zone_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const uint8_t *zone_name = sqlite3_column_text(stmt, 7);
-		const size_t zone_name_len = (size_t)sqlite3_column_bytes(stmt, 7);
-		const int zone_name_type = sqlite3_column_type(stmt, 7);
-		const uint8_t *zone_color = sqlite3_column_blob(stmt, 8);
-		const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 8);
-		const int zone_color_type = sqlite3_column_type(stmt, 8);
-		if (zone_color_type != SQLITE_NULL && zone_color_len != sizeof(*((zone_t *)0)->color)) {
-			error("zone color length %zu does not match buffer length %zu\n", zone_color_len, sizeof(*((zone_t *)0)->color));
-			status = 500;
-			goto cleanup;
-		}
-		const uint8_t *reading_id = sqlite3_column_blob(stmt, 9);
-		const size_t reading_id_len = (size_t)sqlite3_column_bytes(stmt, 9);
-		const int reading_id_type = sqlite3_column_type(stmt, 9);
-		if (reading_id_type != SQLITE_NULL && reading_id_len != sizeof(*((reading_t *)0)->id)) {
-			error("reading id length %zu does not match buffer length %zu\n", reading_id_len, sizeof(*((reading_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const double reading_temperature = sqlite3_column_double(stmt, 10);
-		const int reading_temperature_type = sqlite3_column_type(stmt, 10);
-		const double reading_humidity = sqlite3_column_double(stmt, 11);
-		const int reading_humidity_type = sqlite3_column_type(stmt, 11);
-		const time_t reading_captured_at = (time_t)sqlite3_column_int64(stmt, 12);
-		const int reading_captured_at_type = sqlite3_column_type(stmt, 12);
-		const uint8_t *metric_id = sqlite3_column_blob(stmt, 13);
-		const size_t metric_id_len = (size_t)sqlite3_column_bytes(stmt, 13);
-		const int metric_id_type = sqlite3_column_type(stmt, 13);
-		if (metric_id_type != SQLITE_NULL && metric_id_len != sizeof(*((metric_t *)0)->id)) {
-			error("metric id length %zu does not match buffer length %zu\n", metric_id_len, sizeof(*((metric_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const double metric_photovoltaic = sqlite3_column_double(stmt, 14);
-		const int metric_photovoltaic_type = sqlite3_column_type(stmt, 14);
-		const double metric_battery = sqlite3_column_double(stmt, 15);
-		const int metric_battery_type = sqlite3_column_type(stmt, 15);
-		const time_t metric_captured_at = (time_t)sqlite3_column_int64(stmt, 16);
-		const int metric_captured_at_type = sqlite3_column_type(stmt, 16);
-		const uint8_t *buffer_id = sqlite3_column_blob(stmt, 17);
-		const size_t buffer_id_len = (size_t)sqlite3_column_bytes(stmt, 17);
-		const int buffer_id_type = sqlite3_column_type(stmt, 17);
-		if (buffer_id_type != SQLITE_NULL && buffer_id_len != sizeof(*((buffer_t *)0)->id)) {
-			error("buffer id length %zu does not match buffer length %zu\n", buffer_id_len, sizeof(*((buffer_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const uint32_t buffer_delay = (uint32_t)sqlite3_column_int(stmt, 18);
-		const int buffer_delay_type = sqlite3_column_type(stmt, 18);
-		const uint16_t buffer_level = (uint16_t)sqlite3_column_int(stmt, 19);
-		const int buffer_level_type = sqlite3_column_type(stmt, 19);
-		const time_t buffer_captured_at = (time_t)sqlite3_column_int64(stmt, 20);
-		const int buffer_captured_at_type = sqlite3_column_type(stmt, 20);
-		const uint8_t *uplink_id = sqlite3_column_blob(stmt, 21);
-		const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 21);
-		const int uplink_id_type = sqlite3_column_type(stmt, 21);
-		if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
-			error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const uint8_t uplink_kind = (uint8_t)sqlite3_column_int(stmt, 22);
-		const int uplink_kind_type = sqlite3_column_type(stmt, 22);
-		const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 23);
-		const int uplink_received_at_type = sqlite3_column_type(stmt, 23);
-		const uint8_t *downlink_id = sqlite3_column_blob(stmt, 24);
-		const size_t downlink_id_len = (size_t)sqlite3_column_bytes(stmt, 24);
-		const int downlink_id_type = sqlite3_column_type(stmt, 24);
-		if (downlink_id_type != SQLITE_NULL && downlink_id_len != sizeof(*((downlink_t *)0)->id)) {
-			error("downlink id length %zu does not match buffer length %zu\n", downlink_id_len, sizeof(*((downlink_t *)0)->id));
-			status = 500;
-			goto cleanup;
-		}
-		const uint8_t downlink_kind = (uint8_t)sqlite3_column_int(stmt, 25);
-		const int downlink_kind_type = sqlite3_column_type(stmt, 25);
-		const time_t downlink_sent_at = (time_t)sqlite3_column_int64(stmt, 26);
-		const int downlink_sent_at_type = sqlite3_column_type(stmt, 26);
-		body_write(response, id, id_len);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], device_row.id);
+		uint8_t name_len = octet_uint8_read(&table[offset], device_row.name_len);
+		char *name = octet_text_read(&table[offset], device_row.name);
+		time_t created_at = (time_t)octet_uint64_read(&table[offset], device_row.created_at);
+		uint8_t updated_at_null = octet_uint8_read(&table[offset], device_row.updated_at_null);
+		time_t updated_at = (time_t)octet_uint64_read(&table[offset], device_row.updated_at);
+		uint8_t zone_null = octet_uint8_read(&table[offset], device_row.zone_null);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], device_row.zone_id);
+		uint8_t zone_name_len = octet_uint8_read(&table[offset], device_row.zone_name_len);
+		char *zone_name = octet_text_read(&table[offset], device_row.zone_name);
+		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&table[offset], device_row.zone_color);
+		uint8_t reading_null = octet_uint8_read(&table[offset], device_row.reading_null);
+		uint8_t (*reading_id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], device_row.reading_id);
+		int16_t reading_temperature = octet_int16_read(&table[offset], device_row.reading_temperature);
+		uint16_t reading_humidity = octet_uint16_read(&table[offset], device_row.reading_humidity);
+		time_t reading_captured_at = (time_t)octet_uint64_read(&table[offset], device_row.reading_captured_at);
+		uint8_t metric_null = octet_uint8_read(&table[offset], device_row.metric_null);
+		uint8_t (*metric_id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], device_row.metric_id);
+		uint16_t metric_photovoltaic = octet_uint16_read(&table[offset], device_row.metric_photovoltaic);
+		uint16_t metric_battery = octet_uint16_read(&table[offset], device_row.metric_battery);
+		time_t metric_captured_at = (time_t)octet_uint64_read(&table[offset], device_row.metric_captured_at);
+		uint8_t buffer_null = octet_uint8_read(&table[offset], device_row.buffer_null);
+		uint8_t (*buffer_id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], device_row.buffer_id);
+		uint32_t buffer_delay = octet_uint32_read(&table[offset], device_row.buffer_delay);
+		uint16_t buffer_level = octet_uint16_read(&table[offset], device_row.buffer_level);
+		time_t buffer_captured_at = (time_t)octet_uint64_read(&table[offset], device_row.buffer_captured_at);
+		body_write(response, id, sizeof(*id));
 		body_write(response, name, name_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
-		body_write(response, (char[]){firmware_type != SQLITE_NULL}, sizeof(char));
-		if (firmware_type != SQLITE_NULL) {
-			body_write(response, firmware, firmware_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-		}
-		body_write(response, (char[]){hardware_type != SQLITE_NULL}, sizeof(char));
-		if (hardware_type != SQLITE_NULL) {
-			body_write(response, hardware, hardware_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-		}
 		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
-		body_write(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
-		if (updated_at_type != SQLITE_NULL) {
+		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+		if (updated_at_null != 0x00) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
 		}
-		body_write(response, (char[]){zone_id_type != SQLITE_NULL}, sizeof(char));
-		if (zone_id_type != SQLITE_NULL) {
-			body_write(response, zone_id, zone_id_len);
-		}
-		body_write(response, (char[]){zone_name_type != SQLITE_NULL}, sizeof(char));
-		if (zone_name_type != SQLITE_NULL) {
+		body_write(response, (uint8_t[]){zone_null != 0x00}, sizeof(zone_null));
+		if (zone_null != 0x00) {
+			body_write(response, zone_id, sizeof(*zone_id));
 			body_write(response, zone_name, zone_name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, zone_color, sizeof(*zone_color));
 		}
-		body_write(response, (char[]){zone_color_type != SQLITE_NULL}, sizeof(char));
-		if (zone_color_type != SQLITE_NULL) {
-			body_write(response, zone_color, zone_color_len);
-		}
-		body_write(response, (char[]){reading_id_type != SQLITE_NULL}, sizeof(char));
-		if (reading_id_type != SQLITE_NULL) {
-			body_write(response, reading_id, reading_id_len);
-		}
-		body_write(response, (char[]){reading_temperature_type != SQLITE_NULL}, sizeof(char));
-		if (reading_temperature_type != SQLITE_NULL) {
-			body_write(response, (uint16_t[]){hton16((uint16_t)(int16_t)(reading_temperature * 100))}, sizeof(uint16_t));
-		}
-		body_write(response, (char[]){reading_humidity_type != SQLITE_NULL}, sizeof(char));
-		if (reading_humidity_type != SQLITE_NULL) {
-			body_write(response, (uint16_t[]){hton16((uint16_t)(reading_humidity * 100))}, sizeof(uint16_t));
-		}
-		body_write(response, (char[]){reading_captured_at_type != SQLITE_NULL}, sizeof(char));
-		if (reading_captured_at_type != SQLITE_NULL) {
+		body_write(response, (uint8_t[]){reading_null != 0x00}, sizeof(reading_null));
+		if (reading_null != 0x00) {
+			body_write(response, reading_id, sizeof(*reading_id));
+			body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
+			body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
 			body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 		}
-		body_write(response, (char[]){metric_id_type != SQLITE_NULL}, sizeof(char));
-		if (metric_id_type != SQLITE_NULL) {
-			body_write(response, metric_id, metric_id_len);
-		}
-		body_write(response, (char[]){metric_photovoltaic_type != SQLITE_NULL}, sizeof(char));
-		if (metric_photovoltaic_type != SQLITE_NULL) {
-			body_write(response, (uint16_t[]){hton16((uint16_t)(metric_photovoltaic * 1000))}, sizeof(uint16_t));
-		}
-		body_write(response, (char[]){metric_battery_type != SQLITE_NULL}, sizeof(char));
-		if (metric_battery_type != SQLITE_NULL) {
-			body_write(response, (uint16_t[]){hton16((uint16_t)(metric_battery * 1000))}, sizeof(uint16_t));
-		}
-		body_write(response, (char[]){metric_captured_at_type != SQLITE_NULL}, sizeof(char));
-		if (metric_captured_at_type != SQLITE_NULL) {
+		body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
+		if (metric_null != 0x00) {
+			body_write(response, metric_id, sizeof(*metric_id));
+			body_write(response, (uint16_t[]){hton16(metric_photovoltaic)}, sizeof(metric_photovoltaic));
+			body_write(response, (uint16_t[]){hton16(metric_battery)}, sizeof(metric_battery));
 			body_write(response, (uint64_t[]){hton64((uint64_t)metric_captured_at)}, sizeof(metric_captured_at));
 		}
-		body_write(response, (char[]){buffer_id_type != SQLITE_NULL}, sizeof(char));
-		if (buffer_id_type != SQLITE_NULL) {
-			body_write(response, buffer_id, buffer_id_len);
-		}
-		body_write(response, (char[]){buffer_delay_type != SQLITE_NULL}, sizeof(char));
-		if (buffer_delay_type != SQLITE_NULL) {
+		body_write(response, (uint8_t[]){buffer_null != 0x00}, sizeof(buffer_null));
+		if (buffer_null != 0x00) {
+			body_write(response, buffer_id, sizeof(*buffer_id));
 			body_write(response, (uint32_t[]){hton32(buffer_delay)}, sizeof(buffer_delay));
-		}
-		body_write(response, (char[]){buffer_level_type != SQLITE_NULL}, sizeof(char));
-		if (buffer_level_type != SQLITE_NULL) {
 			body_write(response, (uint16_t[]){hton16(buffer_level)}, sizeof(buffer_level));
-		}
-		body_write(response, (char[]){buffer_captured_at_type != SQLITE_NULL}, sizeof(char));
-		if (buffer_captured_at_type != SQLITE_NULL) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
-		}
-		body_write(response, (char[]){uplink_id_type != SQLITE_NULL}, sizeof(char));
-		if (uplink_id_type != SQLITE_NULL) {
-			body_write(response, uplink_id, uplink_id_len);
-		}
-		body_write(response, (char[]){uplink_kind_type != SQLITE_NULL}, sizeof(char));
-		if (uplink_kind_type != SQLITE_NULL) {
-			body_write(response, &uplink_kind, sizeof(uplink_kind));
-		}
-		body_write(response, (char[]){uplink_received_at_type != SQLITE_NULL}, sizeof(char));
-		if (uplink_received_at_type != SQLITE_NULL) {
-			body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
-		}
-		body_write(response, (char[]){downlink_id_type != SQLITE_NULL}, sizeof(char));
-		if (downlink_id_type != SQLITE_NULL) {
-			body_write(response, downlink_id, downlink_id_len);
-		}
-		body_write(response, (char[]){downlink_kind_type != SQLITE_NULL}, sizeof(char));
-		if (downlink_kind_type != SQLITE_NULL) {
-			body_write(response, &downlink_kind, sizeof(downlink_kind));
-		}
-		body_write(response, (char[]){downlink_sent_at_type != SQLITE_NULL}, sizeof(char));
-		if (downlink_sent_at_type != SQLITE_NULL) {
-			body_write(response, (uint64_t[]){hton64((uint64_t)downlink_sent_at)}, sizeof(downlink_sent_at));
 		}
 		cache_device_t cache_device;
 		memcpy(cache_device.id, id, sizeof(cache_device.id));
 		memcpy(cache_device.name, name, name_len);
-		cache_device.name_len = (uint8_t)name_len;
+		cache_device.name_len = name_len;
 		memcpy(cache_device.zone_name, zone_name, zone_name_len);
-		cache_device.zone_name_len = (uint8_t)zone_name_len;
+		cache_device.zone_name_len = zone_name_len;
 		if (cache_device_write(&cache_device) == -1) {
-			warn("failed to cache device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
+			warn("failed to cache device %02x%02x\n", (*id)[0], (*id)[1]);
 		}
-		status = 0;
-	} else if (result == SQLITE_DONE) {
-		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
-		status = 404;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
+		*devices_len += 1;
+		offset += device_row.size;
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
+	free(row);
+	free(table);
+	return status;
+}
+
+uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, response_t *response) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/device.data", db) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	uint8_t *row = malloc(device_row.size);
+	if (row == NULL) {
+		error("failed to allocate %hhu bytes for device because %s\n", device_row.size, errno_str());
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, row, device_row.size) == -1) {
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.id);
+		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
+			uint8_t name_len = octet_uint8_read(row, device_row.name_len);
+			char *name = octet_text_read(row, device_row.name);
+			uint8_t firmware_len = octet_uint8_read(row, device_row.firmware_len);
+			char *firmware = octet_text_read(row, device_row.firmware);
+			uint8_t hardware_len = octet_uint8_read(row, device_row.hardware_len);
+			char *hardware = octet_text_read(row, device_row.hardware);
+			time_t created_at = (time_t)octet_uint64_read(row, device_row.created_at);
+			uint8_t updated_at_null = octet_uint8_read(row, device_row.updated_at_null);
+			time_t updated_at = (time_t)octet_uint64_read(row, device_row.updated_at);
+			uint8_t zone_null = octet_uint8_read(row, device_row.zone_null);
+			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.zone_id);
+			uint8_t zone_name_len = octet_uint8_read(row, device_row.zone_name_len);
+			char *zone_name = octet_text_read(row, device_row.zone_name);
+			uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(row, device_row.zone_color);
+			uint8_t reading_null = octet_uint8_read(row, device_row.reading_null);
+			uint8_t (*reading_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.reading_id);
+			int16_t reading_temperature = octet_int16_read(row, device_row.reading_temperature);
+			uint16_t reading_humidity = octet_uint16_read(row, device_row.reading_humidity);
+			time_t reading_captured_at = (time_t)octet_uint64_read(row, device_row.reading_captured_at);
+			uint8_t metric_null = octet_uint8_read(row, device_row.metric_null);
+			uint8_t (*metric_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.metric_id);
+			uint16_t metric_photovoltaic = octet_uint16_read(row, device_row.metric_photovoltaic);
+			uint16_t metric_battery = octet_uint16_read(row, device_row.metric_battery);
+			time_t metric_captured_at = (time_t)octet_uint64_read(row, device_row.metric_captured_at);
+			uint8_t buffer_null = octet_uint8_read(row, device_row.buffer_null);
+			uint8_t (*buffer_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.buffer_id);
+			uint32_t buffer_delay = octet_uint32_read(row, device_row.buffer_delay);
+			uint16_t buffer_level = octet_uint16_read(row, device_row.buffer_level);
+			time_t buffer_captured_at = (time_t)octet_uint64_read(row, device_row.buffer_captured_at);
+			uint8_t uplink_null = 0x00;
+			uint8_t downlink_null = 0x00;
+			body_write(response, id, sizeof(*id));
+			body_write(response, name, name_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, (uint8_t[]){firmware_len != 0}, sizeof(firmware_len));
+			if (firmware_len != 0) {
+				body_write(response, firmware, firmware_len);
+				body_write(response, (char[]){0x00}, sizeof(char));
+			}
+			body_write(response, (uint8_t[]){hardware_len != 0}, sizeof(hardware_len));
+			if (hardware_len != 0) {
+				body_write(response, hardware, hardware_len);
+				body_write(response, (char[]){0x00}, sizeof(char));
+			}
+			body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+			body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+			if (updated_at_null != 0x00) {
+				body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+			}
+			body_write(response, (uint8_t[]){zone_null != 0x00}, sizeof(zone_null));
+			if (zone_null != 0x00) {
+				body_write(response, zone_id, sizeof(*zone_id));
+				body_write(response, zone_name, zone_name_len);
+				body_write(response, (char[]){0x00}, sizeof(char));
+				body_write(response, zone_color, sizeof(*zone_color));
+			}
+			body_write(response, (uint8_t[]){reading_null != 0x00}, sizeof(reading_null));
+			if (reading_null != 0x00) {
+				body_write(response, reading_id, sizeof(*reading_id));
+				body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
+				body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
+				body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
+			}
+			body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
+			if (metric_null != 0x00) {
+				body_write(response, metric_id, sizeof(*metric_id));
+				body_write(response, (uint16_t[]){hton16(metric_photovoltaic)}, sizeof(metric_photovoltaic));
+				body_write(response, (uint16_t[]){hton16(metric_battery)}, sizeof(metric_battery));
+				body_write(response, (uint64_t[]){hton64((uint64_t)metric_captured_at)}, sizeof(metric_captured_at));
+			}
+			body_write(response, (uint8_t[]){buffer_null != 0x00}, sizeof(buffer_null));
+			if (buffer_null != 0x00) {
+				body_write(response, buffer_id, sizeof(*buffer_id));
+				body_write(response, (uint32_t[]){hton32(buffer_delay)}, sizeof(buffer_delay));
+				body_write(response, (uint16_t[]){hton16(buffer_level)}, sizeof(buffer_level));
+				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
+			}
+			body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+			body_write(response, (uint8_t[]){downlink_null != 0x00}, sizeof(downlink_null));
+			cache_device_t cache_device;
+			memcpy(cache_device.id, id, sizeof(cache_device.id));
+			memcpy(cache_device.name, name, name_len);
+			cache_device.name_len = name_len;
+			memcpy(cache_device.zone_name, zone_name, zone_name_len);
+			cache_device.zone_name_len = zone_name_len;
+			if (cache_device_write(&cache_device) == -1) {
+				warn("failed to cache device %02x%02x\n", (*id)[0], (*id)[1]);
+			}
+			status = 0;
+			break;
+		}
+		offset += device_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	free(row);
 	return status;
 }
 
@@ -952,7 +869,7 @@ cleanup:
 	return status;
 }
 
-void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void device_find(const char *db, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
@@ -965,7 +882,7 @@ void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	}
 
 	uint8_t devices_len = 0;
-	uint16_t status = device_select(database, bwt, &query, response, &devices_len);
+	uint16_t status = device_select(db, bwt, &query, response, &devices_len);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -977,7 +894,7 @@ void device_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	response->status = 200;
 }
 
-void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void device_find_one(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -1005,7 +922,7 @@ void device_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 		return;
 	}
 
-	status = device_select_one(database, bwt, &device, response);
+	status = device_select_one(db, bwt, &device, response);
 	if (status != 0) {
 		response->status = status;
 		return;
