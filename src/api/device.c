@@ -344,8 +344,12 @@ uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, respon
 		memcpy(cache_device.id, id, sizeof(cache_device.id));
 		memcpy(cache_device.name, name, name_len);
 		cache_device.name_len = name_len;
-		memcpy(cache_device.zone_name, zone_name, zone_name_len);
-		cache_device.zone_name_len = zone_name_len;
+		if (zone_null != 0x00) {
+			memcpy(cache_device.zone_name, zone_name, zone_name_len);
+			cache_device.zone_name_len = zone_name_len;
+		} else {
+			cache_device.zone_name_len = 0;
+		}
 		if (cache_device_write(&cache_device) == -1) {
 			warn("failed to cache device %02x%02x\n", (*id)[0], (*id)[1]);
 		}
@@ -478,8 +482,12 @@ uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, respons
 			memcpy(cache_device.id, id, sizeof(cache_device.id));
 			memcpy(cache_device.name, name, name_len);
 			cache_device.name_len = name_len;
-			memcpy(cache_device.zone_name, zone_name, zone_name_len);
-			cache_device.zone_name_len = zone_name_len;
+			if (zone_null != 0x00) {
+				memcpy(cache_device.zone_name, zone_name, zone_name_len);
+				cache_device.zone_name_len = zone_name_len;
+			} else {
+				cache_device.zone_name_len = 0;
+			}
 			if (cache_device_write(&cache_device) == -1) {
 				warn("failed to cache device %02x%02x\n", (*id)[0], (*id)[1]);
 			}
