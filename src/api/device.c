@@ -2,7 +2,6 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
-#include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "../lib/request.h"
@@ -215,13 +214,13 @@ cleanup:
 	return status;
 }
 
-uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
+uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
-	uint8_t *row = NULL;
-	uint8_t *table = NULL;
+	uint8_t *row = db->buffer;
+	uint8_t *table = &db->buffer[device_row.size];
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db) == -1) {
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -232,16 +231,8 @@ uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, respon
 		goto cleanup;
 	}
 
-	table = malloc((size_t)stmt.stat.st_size);
-	if (table == NULL) {
-		error("failed to allocate %zu bytes for uplink because %s\n", (size_t)stmt.stat.st_size, errno_str());
-		status = 500;
-		goto cleanup;
-	}
-
-	row = malloc(device_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for uplink because %s\n", device_row.size, errno_str());
+	if (stmt.stat.st_size > db->buffer_len - device_row.size) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->buffer_len - device_row.size);
 		status = 500;
 		goto cleanup;
 	}
@@ -359,23 +350,15 @@ uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, respon
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
-	free(table);
 	return status;
 }
 
-uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, response_t *response) {
+uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t *response) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db) == -1) {
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
 		error("failed to sprintf to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(device_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for device because %s\n", device_row.size, errno_str());
 		return 500;
 	}
 
@@ -393,41 +376,41 @@ uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, respons
 			status = 404;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, row, device_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->buffer, device_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.id);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
-			uint8_t name_len = octet_uint8_read(row, device_row.name_len);
-			char *name = octet_text_read(row, device_row.name);
-			uint8_t firmware_len = octet_uint8_read(row, device_row.firmware_len);
-			char *firmware = octet_text_read(row, device_row.firmware);
-			uint8_t hardware_len = octet_uint8_read(row, device_row.hardware_len);
-			char *hardware = octet_text_read(row, device_row.hardware);
-			time_t created_at = (time_t)octet_uint64_read(row, device_row.created_at);
-			uint8_t updated_at_null = octet_uint8_read(row, device_row.updated_at_null);
-			time_t updated_at = (time_t)octet_uint64_read(row, device_row.updated_at);
-			uint8_t zone_null = octet_uint8_read(row, device_row.zone_null);
-			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.zone_id);
-			uint8_t zone_name_len = octet_uint8_read(row, device_row.zone_name_len);
-			char *zone_name = octet_text_read(row, device_row.zone_name);
-			uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(row, device_row.zone_color);
-			uint8_t reading_null = octet_uint8_read(row, device_row.reading_null);
-			uint8_t (*reading_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.reading_id);
-			int16_t reading_temperature = octet_int16_read(row, device_row.reading_temperature);
-			uint16_t reading_humidity = octet_uint16_read(row, device_row.reading_humidity);
-			time_t reading_captured_at = (time_t)octet_uint64_read(row, device_row.reading_captured_at);
-			uint8_t metric_null = octet_uint8_read(row, device_row.metric_null);
-			uint8_t (*metric_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.metric_id);
-			uint16_t metric_photovoltaic = octet_uint16_read(row, device_row.metric_photovoltaic);
-			uint16_t metric_battery = octet_uint16_read(row, device_row.metric_battery);
-			time_t metric_captured_at = (time_t)octet_uint64_read(row, device_row.metric_captured_at);
-			uint8_t buffer_null = octet_uint8_read(row, device_row.buffer_null);
-			uint8_t (*buffer_id)[16] = (uint8_t (*)[16])octet_blob_read(row, device_row.buffer_id);
-			uint32_t buffer_delay = octet_uint32_read(row, device_row.buffer_delay);
-			uint16_t buffer_level = octet_uint16_read(row, device_row.buffer_level);
-			time_t buffer_captured_at = (time_t)octet_uint64_read(row, device_row.buffer_captured_at);
+			uint8_t name_len = octet_uint8_read(db->buffer, device_row.name_len);
+			char *name = octet_text_read(db->buffer, device_row.name);
+			uint8_t firmware_len = octet_uint8_read(db->buffer, device_row.firmware_len);
+			char *firmware = octet_text_read(db->buffer, device_row.firmware);
+			uint8_t hardware_len = octet_uint8_read(db->buffer, device_row.hardware_len);
+			char *hardware = octet_text_read(db->buffer, device_row.hardware);
+			time_t created_at = (time_t)octet_uint64_read(db->buffer, device_row.created_at);
+			uint8_t updated_at_null = octet_uint8_read(db->buffer, device_row.updated_at_null);
+			time_t updated_at = (time_t)octet_uint64_read(db->buffer, device_row.updated_at);
+			uint8_t zone_null = octet_uint8_read(db->buffer, device_row.zone_null);
+			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.zone_id);
+			uint8_t zone_name_len = octet_uint8_read(db->buffer, device_row.zone_name_len);
+			char *zone_name = octet_text_read(db->buffer, device_row.zone_name);
+			uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(db->buffer, device_row.zone_color);
+			uint8_t reading_null = octet_uint8_read(db->buffer, device_row.reading_null);
+			uint8_t (*reading_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.reading_id);
+			int16_t reading_temperature = octet_int16_read(db->buffer, device_row.reading_temperature);
+			uint16_t reading_humidity = octet_uint16_read(db->buffer, device_row.reading_humidity);
+			time_t reading_captured_at = (time_t)octet_uint64_read(db->buffer, device_row.reading_captured_at);
+			uint8_t metric_null = octet_uint8_read(db->buffer, device_row.metric_null);
+			uint8_t (*metric_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.metric_id);
+			uint16_t metric_photovoltaic = octet_uint16_read(db->buffer, device_row.metric_photovoltaic);
+			uint16_t metric_battery = octet_uint16_read(db->buffer, device_row.metric_battery);
+			time_t metric_captured_at = (time_t)octet_uint64_read(db->buffer, device_row.metric_captured_at);
+			uint8_t buffer_null = octet_uint8_read(db->buffer, device_row.buffer_null);
+			uint8_t (*buffer_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.buffer_id);
+			uint32_t buffer_delay = octet_uint32_read(db->buffer, device_row.buffer_delay);
+			uint16_t buffer_level = octet_uint16_read(db->buffer, device_row.buffer_level);
+			time_t buffer_captured_at = (time_t)octet_uint64_read(db->buffer, device_row.buffer_captured_at);
 			uint8_t uplink_null = 0x00;
 			uint8_t downlink_null = 0x00;
 			body_write(response, id, sizeof(*id));
@@ -499,7 +482,6 @@ uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, respons
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -761,60 +743,67 @@ int device_validate(device_t *device) {
 	return 0;
 }
 
-uint16_t device_insert(sqlite3 *database, device_t *device) {
+uint16_t device_insert(octet_t *db, device_t *device) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into device (id, name, zone_id, firmware, hardware, created_at) "
-										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
-	debug("insert device name %*.s created at %lu\n", device->name_len, device->name, *device->created_at);
+	for (uint8_t index = 0; index < sizeof(*device->id); index++) {
+		(*device->id)[index] = (uint8_t)(rand() % 0xff);
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_text(stmt, 1, device->name, device->name_len, SQLITE_STATIC);
+	debug("insert device name %*.s created at %lu\n", device->name_len, device->name, *device->created_at);
+
+	octet_blob_write(db->buffer, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
+	octet_uint8_write(db->buffer, device_row.name_len, device->name_len);
+	octet_text_write(db->buffer, device_row.name, (char *)device->name, device->name_len);
 	if (device->zone_id != NULL) {
-		sqlite3_bind_blob(stmt, 2, device->zone_id, sizeof(*device->zone_id), SQLITE_STATIC);
+		octet_uint8_write(db->buffer, device_row.zone_null, 0x01);
+		octet_blob_write(db->buffer, device_row.zone_id, (uint8_t *)device->zone_id, sizeof(*device->zone_id));
+		octet_uint8_write(db->buffer, device_row.zone_name_len, device->zone_name_len);
+		octet_text_write(db->buffer, device_row.zone_name, (char *)device->zone_name, device->zone_name_len);
+		octet_blob_write(db->buffer, device_row.zone_color, (uint8_t *)device->zone_color, sizeof(*device->zone_color));
 	} else {
-		sqlite3_bind_null(stmt, 2);
+		octet_uint8_write(db->buffer, device_row.zone_null, 0x00);
 	}
 	if (device->firmware != NULL) {
-		sqlite3_bind_text(stmt, 3, device->firmware, device->firmware_len, SQLITE_STATIC);
+		octet_uint8_write(db->buffer, device_row.firmware_len, device->firmware_len);
+		octet_text_write(db->buffer, device_row.firmware, device->firmware, device->firmware_len);
 	} else {
-		sqlite3_bind_null(stmt, 3);
+		octet_uint8_write(db->buffer, device_row.firmware_len, 0);
 	}
 	if (device->hardware != NULL) {
-		sqlite3_bind_text(stmt, 4, device->hardware, device->hardware_len, SQLITE_STATIC);
+		octet_uint8_write(db->buffer, device_row.hardware_len, device->hardware_len);
+		octet_text_write(db->buffer, device_row.hardware, device->hardware, device->hardware_len);
 	} else {
-		sqlite3_bind_null(stmt, 4);
+		octet_uint8_write(db->buffer, device_row.hardware_len, 0);
 	}
-	sqlite3_bind_int64(stmt, 5, *device->created_at);
+	octet_uint64_write(db->buffer, device_row.created_at, (uint64_t)*device->created_at);
+	octet_uint8_write(db->buffer, device_row.updated_at_null, 0x00);
+	octet_uint8_write(db->buffer, device_row.reading_null, 0x00);
+	octet_uint8_write(db->buffer, device_row.metric_null, 0x00);
+	octet_uint8_write(db->buffer, device_row.buffer_null, 0x00);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*device->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*device->id));
-			status = 500;
-			goto cleanup;
-		}
-		memcpy(device->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("device name %.*s already taken\n", (int)device->name_len, device->name);
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
+	off_t offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->buffer, device_row.size) == -1) {
+		status = 500;
 		goto cleanup;
 	}
+
+	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -877,7 +866,7 @@ cleanup:
 	return status;
 }
 
-void device_find(const char *db, bwt_t *bwt, request_t *request, response_t *response) {
+void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
 		response->status = 400;
@@ -902,7 +891,7 @@ void device_find(const char *db, bwt_t *bwt, request_t *request, response_t *res
 	response->status = 200;
 }
 
-void device_find_one(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../lib/bwt.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "user.h"
@@ -13,6 +14,9 @@ typedef struct device_t {
 	char *name;
 	uint8_t name_len;
 	uint8_t (*zone_id)[16];
+	char *zone_name;
+	uint8_t zone_name_len;
+	uint8_t (*zone_color)[12];
 	char *firmware;
 	uint8_t firmware_len;
 	char *hardware;
@@ -71,14 +75,14 @@ extern const char *device_schema;
 
 uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device);
 
-uint16_t device_select(const char *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len);
-uint16_t device_select_one(const char *db, bwt_t *bwt, device_t *device, response_t *response);
+uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len);
+uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t device_select_by_user(sqlite3 *database, user_t *user, device_query_t *query, response_t *response,
 															 uint8_t *devices_len);
-uint16_t device_insert(sqlite3 *database, device_t *device);
+uint16_t device_insert(octet_t *db, device_t *device);
 uint16_t device_update(sqlite3 *database, device_t *device);
 
-void device_find(const char *db, bwt_t *bwt, request_t *request, response_t *response);
-void device_find_one(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_by_user(sqlite3 *database, request_t *request, response_t *response);
 void device_modify(sqlite3 *database, request_t *request, response_t *response);

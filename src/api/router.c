@@ -2,6 +2,7 @@
 #include "../app/serve.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
@@ -135,7 +136,7 @@ bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
 	return true;
 }
 
-void route(const char *db, sqlite3 *database, request_t *request, response_t *response) {
+void route(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 

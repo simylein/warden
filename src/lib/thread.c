@@ -32,6 +32,14 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	worker->arg.id = id;
 	trace("spawning worker thread %hhu\n", id);
 
+	worker->arg.db.directory = database_directory;
+	worker->arg.db.buffer = malloc(database_buffer * sizeof(char));
+	if (worker->arg.db.buffer == NULL) {
+		logger("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
+		return -1;
+	}
+	worker->arg.db.buffer_len = database_buffer * sizeof(char);
+
 	int db_error = sqlite3_open_v2(database_file, &worker->arg.database, SQLITE_OPEN_READWRITE, NULL);
 	if (db_error != SQLITE_OK) {
 		logger("failed to open %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
@@ -78,6 +86,7 @@ int join(worker_t *worker, uint8_t id) {
 		return -1;
 	}
 
+	free(worker->arg.db.buffer);
 	free(worker->arg.request_buffer);
 	free(worker->arg.response_buffer);
 
@@ -110,7 +119,7 @@ void *thread(void *args) {
 		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, thread_pool.load);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		handle(arg->database, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
+		handle(arg->db, arg->database, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
 
 		pthread_mutex_lock(&thread_pool.lock);
 		thread_pool.load--;

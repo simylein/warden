@@ -1,5 +1,6 @@
 #include "../lib/format.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "buffer.h"
 #include "config.h"
 #include "metric.h"
@@ -350,7 +351,7 @@ int decode_kind_86(uint8_t *data, uint8_t data_len, time_t received_at, radio_t 
 	return 0;
 }
 
-uint16_t decode(const char *db, sqlite3 *database, uplink_t *uplink) {
+uint16_t decode(octet_t *db, sqlite3 *database, uplink_t *uplink) {
 	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
 	case 0x00: {

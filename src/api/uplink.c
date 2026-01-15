@@ -2,7 +2,6 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
-#include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "../lib/request.h"
@@ -275,7 +274,7 @@ cleanup:
 	return status;
 }
 
-uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_t *query, response_t *response,
+uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *query, response_t *response,
 																 uint8_t *uplinks_len) {
 	uint16_t status;
 
@@ -286,14 +285,8 @@ uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(uplink_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for uplink because %s\n", uplink_row.size, errno_str());
 		return 500;
 	}
 
@@ -312,20 +305,20 @@ uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, row, uplink_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->buffer, uplink_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(row, uplink_row.id);
-		uint16_t frame = octet_uint16_read(row, uplink_row.frame);
-		uint8_t kind = octet_uint8_read(row, uplink_row.kind);
-		uint8_t data_len = octet_uint8_read(row, uplink_row.data_len);
-		uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(row, uplink_row.data);
-		int16_t rssi = octet_int16_read(row, uplink_row.rssi);
-		int8_t snr = octet_int8_read(row, uplink_row.snr);
-		uint8_t sf = octet_uint8_read(row, uplink_row.sf);
-		uint8_t tx_power = octet_uint8_read(row, uplink_row.tx_power);
-		time_t received_at = (time_t)octet_uint64_read(row, uplink_row.received_at);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, uplink_row.id);
+		uint16_t frame = octet_uint16_read(db->buffer, uplink_row.frame);
+		uint8_t kind = octet_uint8_read(db->buffer, uplink_row.kind);
+		uint8_t data_len = octet_uint8_read(db->buffer, uplink_row.data_len);
+		uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(db->buffer, uplink_row.data);
+		int16_t rssi = octet_int16_read(db->buffer, uplink_row.rssi);
+		int8_t snr = octet_int8_read(db->buffer, uplink_row.snr);
+		uint8_t sf = octet_uint8_read(db->buffer, uplink_row.sf);
+		uint8_t tx_power = octet_uint8_read(db->buffer, uplink_row.tx_power);
+		time_t received_at = (time_t)octet_uint64_read(db->buffer, uplink_row.received_at);
 		body_write(response, id, sizeof(*id));
 		body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 		body_write(response, &kind, sizeof(kind));
@@ -342,11 +335,10 @@ uint16_t uplink_select_by_device(const char *db, device_t *device, uplink_query_
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
-uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink_signal_query_t *query, response_t *response,
+uint16_t uplink_signal_select_by_device(octet_t *db, device_t *device, uplink_signal_query_t *query, response_t *response,
 																				uint16_t *signals_len) {
 	uint16_t status;
 
@@ -357,14 +349,8 @@ uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(uplink_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for uplink because %s\n", uplink_row.size, errno_str());
 		return 500;
 	}
 
@@ -383,14 +369,14 @@ uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, row, uplink_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->buffer, uplink_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		int16_t rssi = octet_int16_read(row, uplink_row.rssi);
-		int8_t snr = octet_int8_read(row, uplink_row.snr);
-		uint8_t sf = octet_uint8_read(row, uplink_row.sf);
-		time_t received_at = (time_t)octet_uint64_read(row, uplink_row.received_at);
+		int16_t rssi = octet_int16_read(db->buffer, uplink_row.rssi);
+		int8_t snr = octet_int8_read(db->buffer, uplink_row.snr);
+		uint8_t sf = octet_uint8_read(db->buffer, uplink_row.sf);
+		time_t received_at = (time_t)octet_uint64_read(db->buffer, uplink_row.received_at);
 		if (received_at > query->from && received_at < query->to) {
 			body_write(response, (uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
 			body_write(response, &snr, sizeof(snr));
@@ -403,7 +389,6 @@ uint16_t uplink_signal_select_by_device(const char *db, device_t *device, uplink
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -627,7 +612,7 @@ int uplink_validate(uplink_t *uplink) {
 	return 0;
 }
 
-uint16_t uplink_insert(const char *db, uplink_t *uplink) {
+uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*uplink->id); index++) {
@@ -641,14 +626,8 @@ uint16_t uplink_insert(const char *db, uplink_t *uplink) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(uplink_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for uplink because %s\n", uplink_row.size, errno_str());
 		return 500;
 	}
 
@@ -661,24 +640,24 @@ uint16_t uplink_insert(const char *db, uplink_t *uplink) {
 	debug("insert uplink for device %02x%02x received at %lu\n", (*uplink->device_id)[0], (*uplink->device_id)[1],
 				uplink->received_at);
 
-	octet_blob_write(row, uplink_row.id, (uint8_t *)uplink->id, sizeof(*uplink->id));
-	octet_uint16_write(row, uplink_row.frame, uplink->frame);
-	octet_uint8_write(row, uplink_row.kind, uplink->kind);
-	octet_uint8_write(row, uplink_row.data_len, uplink->data_len);
-	octet_blob_write(row, uplink_row.data, uplink->data, uplink->data_len);
-	octet_uint16_write(row, uplink_row.airtime, uplink->airtime);
-	octet_uint32_write(row, uplink_row.frequency, uplink->frequency);
-	octet_uint32_write(row, uplink_row.bandwidth, uplink->bandwidth);
-	octet_int16_write(row, uplink_row.rssi, uplink->rssi);
-	octet_int8_write(row, uplink_row.snr, uplink->snr);
-	octet_uint8_write(row, uplink_row.sf, uplink->sf);
-	octet_uint8_write(row, uplink_row.cr, uplink->cr);
-	octet_uint8_write(row, uplink_row.tx_power, uplink->tx_power);
-	octet_uint8_write(row, uplink_row.preamble_len, uplink->preamble_len);
-	octet_uint64_write(row, uplink_row.received_at, (uint64_t)uplink->received_at);
+	octet_blob_write(db->buffer, uplink_row.id, (uint8_t *)uplink->id, sizeof(*uplink->id));
+	octet_uint16_write(db->buffer, uplink_row.frame, uplink->frame);
+	octet_uint8_write(db->buffer, uplink_row.kind, uplink->kind);
+	octet_uint8_write(db->buffer, uplink_row.data_len, uplink->data_len);
+	octet_blob_write(db->buffer, uplink_row.data, uplink->data, uplink->data_len);
+	octet_uint16_write(db->buffer, uplink_row.airtime, uplink->airtime);
+	octet_uint32_write(db->buffer, uplink_row.frequency, uplink->frequency);
+	octet_uint32_write(db->buffer, uplink_row.bandwidth, uplink->bandwidth);
+	octet_int16_write(db->buffer, uplink_row.rssi, uplink->rssi);
+	octet_int8_write(db->buffer, uplink_row.snr, uplink->snr);
+	octet_uint8_write(db->buffer, uplink_row.sf, uplink->sf);
+	octet_uint8_write(db->buffer, uplink_row.cr, uplink->cr);
+	octet_uint8_write(db->buffer, uplink_row.tx_power, uplink->tx_power);
+	octet_uint8_write(db->buffer, uplink_row.preamble_len, uplink->preamble_len);
+	octet_uint64_write(db->buffer, uplink_row.received_at, (uint64_t)uplink->received_at);
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, row, uplink_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->buffer, uplink_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
@@ -687,7 +666,6 @@ uint16_t uplink_insert(const char *db, uplink_t *uplink) {
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -772,7 +750,7 @@ void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response
 	response->status = 200;
 }
 
-void uplink_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void uplink_find_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -842,7 +820,7 @@ void uplink_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, reques
 	response->status = 200;
 }
 
-void uplink_signal_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void uplink_signal_find_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -1017,7 +995,7 @@ void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *reques
 	response->status = 200;
 }
 
-void uplink_create(const char *db, sqlite3 *database, request_t *request, response_t *response) {
+void uplink_create(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;

@@ -8,6 +8,7 @@
 #include "lib/error.h"
 #include "lib/format.h"
 #include "lib/logger.h"
+#include "lib/octet.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
 #include <errno.h>
@@ -87,6 +88,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
+		uint8_t buffer[2048];
+		octet_t db = {.directory = database_directory, .buffer = buffer, .buffer_len = sizeof(buffer)};
+
 		sqlite3 *database;
 		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
 			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
@@ -98,7 +102,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x20 && seed("data", database) != 0) {
+		if (cmds & 0x20 && seed(&db, database) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}

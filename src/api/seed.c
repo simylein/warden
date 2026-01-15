@@ -1,4 +1,5 @@
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "buffer.h"
 #include "config.h"
 #include "device.h"
@@ -90,10 +91,22 @@ int seed_zone(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_device(sqlite3 *database, const char *table) {
+int seed_device(octet_t *db, const char *table) {
 	device_ids_len = (uint8_t)(8 + rand() % 16);
 	device_ids = malloc(device_ids_len * sizeof(*device_ids));
 	if (device_ids == NULL) {
+		return -1;
+	}
+
+	char *zone_names[] = {"indoor", "outdoor"};
+	uint8_t zone_colors[][12] = {
+			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
+			{0x02, 0x84, 0xc7, 0x38, 0xbd, 0xf8, 0xf0, 0xf9, 0xff, 0x08, 0x2f, 0x49},
+	};
+
+	zone_ids_len = sizeof(zone_names) / sizeof(*zone_names);
+	zone_ids = malloc(zone_ids_len * sizeof(*zone_ids));
+	if (zone_ids == NULL) {
 		return -1;
 	}
 
@@ -105,10 +118,17 @@ int seed_device(sqlite3 *database, const char *table) {
 		}
 
 		uint8_t (*zone_id)[16];
+		char *zone_name;
+		uint8_t (*zone_color)[12];
 		if (rand() % 5 == 0) {
 			zone_id = NULL;
+			zone_name = NULL;
+			zone_color = NULL;
 		} else {
-			zone_id = &zone_ids[rand() % 2];
+			uint8_t ind = (uint8_t)(rand() % zone_ids_len);
+			zone_id = &zone_ids[ind];
+			zone_name = zone_names[ind];
+			zone_color = &zone_colors[ind];
 		}
 
 		char firmware[16];
@@ -130,6 +150,9 @@ int seed_device(sqlite3 *database, const char *table) {
 				.name = name,
 				.name_len = name_len,
 				.zone_id = zone_id,
+				.zone_name = zone_name,
+				.zone_name_len = zone_name == NULL ? 0 : (uint8_t)strlen(zone_name),
+				.zone_color = zone_color,
 				.firmware = firmware_len == 0 ? NULL : firmware,
 				.firmware_len = firmware_len,
 				.hardware = hardware_len == 0 ? NULL : hardware,
@@ -137,7 +160,7 @@ int seed_device(sqlite3 *database, const char *table) {
 				.created_at = (time_t[]){time(NULL)},
 		};
 
-		if (device_insert(database, &device) != 0) {
+		if (device_insert(db, &device) != 0) {
 			return -1;
 		}
 	}
@@ -166,7 +189,7 @@ int seed_user_device(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_uplink(const char *db, const char *table) {
+int seed_uplink(octet_t *db, const char *table) {
 	uplink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -346,7 +369,7 @@ int seed_downlink(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed_reading(const char *db, const char *table) {
+int seed_reading(octet_t *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -391,7 +414,7 @@ int seed_reading(const char *db, const char *table) {
 	return 0;
 }
 
-int seed_metric(const char *db, const char *table) {
+int seed_metric(octet_t *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -436,7 +459,7 @@ int seed_metric(const char *db, const char *table) {
 	return 0;
 }
 
-int seed_buffer(const char *db, const char *table) {
+int seed_buffer(octet_t *db, const char *table) {
 	uint32_t uplink_ind = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
@@ -552,7 +575,7 @@ int seed_radio(sqlite3 *database, const char *table) {
 	return 0;
 }
 
-int seed(const char *db, sqlite3 *database) {
+int seed(octet_t *db, sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
 	if (seed_user(database, user_table) == -1) {
@@ -561,7 +584,7 @@ int seed(const char *db, sqlite3 *database) {
 	if (seed_zone(database, zone_table) == -1) {
 		return -1;
 	}
-	if (seed_device(database, device_table) == -1) {
+	if (seed_device(db, device_table) == -1) {
 		return -1;
 	}
 	if (seed_user_device(database, user_device_table) == -1) {

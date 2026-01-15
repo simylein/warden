@@ -2,7 +2,6 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
-#include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "../lib/request.h"
@@ -106,7 +105,7 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_select_by_device(const char *db, device_t *device, metric_query_t *query, response_t *response,
+uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *query, response_t *response,
 																 uint16_t *metrics_len) {
 	uint16_t status;
 
@@ -117,14 +116,8 @@ uint16_t metric_select_by_device(const char *db, device_t *device, metric_query_
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/metric.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/metric.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(metric_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for metric because %s\n", metric_row.size, errno_str());
 		return 500;
 	}
 
@@ -143,13 +136,13 @@ uint16_t metric_select_by_device(const char *db, device_t *device, metric_query_
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, row, metric_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->buffer, metric_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint16_t photovoltaic = octet_uint16_read(row, metric_row.photovoltaic);
-		uint16_t battery = octet_uint16_read(row, metric_row.battery);
-		time_t captured_at = (time_t)octet_uint64_read(row, metric_row.captured_at);
+		uint16_t photovoltaic = octet_uint16_read(db->buffer, metric_row.photovoltaic);
+		uint16_t battery = octet_uint16_read(db->buffer, metric_row.battery);
+		time_t captured_at = (time_t)octet_uint64_read(db->buffer, metric_row.captured_at);
 		if (captured_at > query->from && captured_at < query->to) {
 			body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
 			body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
@@ -161,7 +154,6 @@ uint16_t metric_select_by_device(const char *db, device_t *device, metric_query_
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -233,7 +225,7 @@ cleanup:
 	return status;
 }
 
-uint16_t metric_insert(const char *db, metric_t *metric) {
+uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*metric->id); index++) {
@@ -247,14 +239,8 @@ uint16_t metric_insert(const char *db, metric_t *metric) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/metric.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/metric.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(metric_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for metric because %s\n", metric_row.size, errno_str());
 		return 500;
 	}
 
@@ -267,14 +253,14 @@ uint16_t metric_insert(const char *db, metric_t *metric) {
 	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
 				metric->captured_at);
 
-	octet_blob_write(row, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
-	octet_uint16_write(row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
-	octet_uint16_write(row, metric_row.battery, (uint16_t)(metric->battery * 1000));
-	octet_uint64_write(row, metric_row.captured_at, (uint64_t)metric->captured_at);
-	octet_blob_write(row, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
+	octet_blob_write(db->buffer, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
+	octet_uint16_write(db->buffer, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
+	octet_uint16_write(db->buffer, metric_row.battery, (uint16_t)(metric->battery * 1000));
+	octet_uint64_write(db->buffer, metric_row.captured_at, (uint64_t)metric->captured_at);
+	octet_blob_write(db->buffer, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, row, metric_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->buffer, metric_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
@@ -283,7 +269,6 @@ uint16_t metric_insert(const char *db, metric_t *metric) {
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -347,7 +332,7 @@ void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	response->status = 200;
 }
 
-void metric_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void metric_find_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
