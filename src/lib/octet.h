@@ -4,6 +4,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+typedef struct octet_t {
+	const char *directory;
+	uint8_t *buffer;
+	uint32_t buffer_len;
+} octet_t;
+
 typedef struct octet_stmt_t {
 	int fd;
 	struct stat stat;

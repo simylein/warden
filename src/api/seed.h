@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../lib/octet.h"
 #include <sqlite3.h>
 
-int seed(const char *db, sqlite3 *database);
+int seed(octet_t *db, sqlite3 *database);

@@ -2,7 +2,6 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
-#include "../lib/error.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "../lib/request.h"
@@ -106,7 +105,7 @@ cleanup:
 	return status;
 }
 
-uint16_t reading_select_by_device(const char *db, device_t *device, reading_query_t *query, response_t *response,
+uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t *query, response_t *response,
 																	uint16_t *readings_len) {
 	uint16_t status;
 
@@ -117,14 +116,8 @@ uint16_t reading_select_by_device(const char *db, device_t *device, reading_quer
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/reading.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(reading_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for reading because %s\n", reading_row.size, errno_str());
 		return 500;
 	}
 
@@ -143,13 +136,13 @@ uint16_t reading_select_by_device(const char *db, device_t *device, reading_quer
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, row, reading_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->buffer, reading_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		int16_t temperature = octet_int16_read(row, reading_row.temperature);
-		uint16_t humidity = octet_uint16_read(row, reading_row.humidity);
-		time_t captured_at = (time_t)octet_uint64_read(row, reading_row.captured_at);
+		int16_t temperature = octet_int16_read(db->buffer, reading_row.temperature);
+		uint16_t humidity = octet_uint16_read(db->buffer, reading_row.humidity);
+		time_t captured_at = (time_t)octet_uint64_read(db->buffer, reading_row.captured_at);
 		if (captured_at > query->from && captured_at < query->to) {
 			body_write(response, (uint16_t[]){hton16((uint16_t)temperature)}, sizeof(temperature));
 			body_write(response, (uint16_t[]){hton16(humidity)}, sizeof(humidity));
@@ -161,7 +154,6 @@ uint16_t reading_select_by_device(const char *db, device_t *device, reading_quer
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -233,7 +225,7 @@ cleanup:
 	return status;
 }
 
-uint16_t reading_insert(const char *db, reading_t *reading) {
+uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*reading->id); index++) {
@@ -247,14 +239,8 @@ uint16_t reading_insert(const char *db, reading_t *reading) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/reading.data", db, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
 		error("failed to sprintf uuid to file\n");
-		return 500;
-	}
-
-	uint8_t *row = malloc(reading_row.size);
-	if (row == NULL) {
-		error("failed to allocate %hhu bytes for reading because %s\n", reading_row.size, errno_str());
 		return 500;
 	}
 
@@ -267,14 +253,14 @@ uint16_t reading_insert(const char *db, reading_t *reading) {
 	debug("insert reading for device %02x%02x captured at %lu\n", (*reading->device_id)[0], (*reading->device_id)[1],
 				reading->captured_at);
 
-	octet_blob_write(row, reading_row.id, (uint8_t *)reading->id, sizeof(*reading->id));
-	octet_int16_write(row, reading_row.temperature, (int16_t)(reading->temperature * 100));
-	octet_uint16_write(row, reading_row.humidity, (uint16_t)(reading->humidity * 100));
-	octet_uint64_write(row, reading_row.captured_at, (uint64_t)reading->captured_at);
-	octet_blob_write(row, reading_row.uplink_id, (uint8_t *)reading->uplink_id, sizeof(*reading->uplink_id));
+	octet_blob_write(db->buffer, reading_row.id, (uint8_t *)reading->id, sizeof(*reading->id));
+	octet_int16_write(db->buffer, reading_row.temperature, (int16_t)(reading->temperature * 100));
+	octet_uint16_write(db->buffer, reading_row.humidity, (uint16_t)(reading->humidity * 100));
+	octet_uint64_write(db->buffer, reading_row.captured_at, (uint64_t)reading->captured_at);
+	octet_blob_write(db->buffer, reading_row.uplink_id, (uint8_t *)reading->uplink_id, sizeof(*reading->uplink_id));
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, row, reading_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->buffer, reading_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
@@ -283,7 +269,6 @@ uint16_t reading_insert(const char *db, reading_t *reading) {
 
 cleanup:
 	octet_close(&stmt, file);
-	free(row);
 	return status;
 }
 
@@ -347,7 +332,7 @@ void reading_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 	response->status = 200;
 }
 
-void reading_find_by_device(const char *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void reading_find_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
