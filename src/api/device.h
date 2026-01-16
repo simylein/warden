@@ -84,5 +84,5 @@ uint16_t device_update(sqlite3 *database, device_t *device);
 
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void device_find_by_user(sqlite3 *database, request_t *request, response_t *response);
+void device_find_by_user(octet_t *db, sqlite3 *database, request_t *request, response_t *response);
 void device_modify(sqlite3 *database, request_t *request, response_t *response);

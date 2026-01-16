@@ -28,7 +28,7 @@ uint32_t uplink_ids_len;
 uint8_t (*downlink_ids)[16];
 uint32_t downlink_ids_len;
 
-int seed_user(sqlite3 *database, const char *table) {
+int seed_user(octet_t *db, const char *table) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
 	char *passwords[] = {".go4Alice", ".go4Bob", ".go4Charlie", ".go4Dave"};
 
@@ -51,7 +51,7 @@ int seed_user(sqlite3 *database, const char *table) {
 				.signin_at = (time_t[]){time(NULL)},
 		};
 
-		if (user_insert(database, &user) != 0) {
+		if (user_insert(db, &user) != 0) {
 			return -1;
 		}
 	}
@@ -578,7 +578,7 @@ int seed_radio(sqlite3 *database, const char *table) {
 int seed(octet_t *db, sqlite3 *database) {
 	srand((unsigned int)time(NULL));
 
-	if (seed_user(database, user_table) == -1) {
+	if (seed_user(db, user_table) == -1) {
 		return -1;
 	}
 	if (seed_zone(database, zone_table) == -1) {

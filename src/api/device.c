@@ -938,7 +938,7 @@ void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *requ
 	response->status = 200;
 }
 
-void device_find_by_user(sqlite3 *database, request_t *request, response_t *response) {
+void device_find_by_user(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -966,7 +966,7 @@ void device_find_by_user(sqlite3 *database, request_t *request, response_t *resp
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_existing(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;

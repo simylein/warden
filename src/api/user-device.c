@@ -91,7 +91,7 @@ cleanup:
 	return status;
 }
 
-void user_device_create(sqlite3 *database, request_t *request, response_t *response) {
+void user_device_create(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -113,7 +113,7 @@ void user_device_create(sqlite3 *database, request_t *request, response_t *respo
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_existing(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -135,7 +135,7 @@ void user_device_create(sqlite3 *database, request_t *request, response_t *respo
 	response->status = 200;
 }
 
-void user_device_remove(sqlite3 *database, request_t *request, response_t *response) {
+void user_device_remove(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -157,7 +157,7 @@ void user_device_remove(sqlite3 *database, request_t *request, response_t *respo
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_existing(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
