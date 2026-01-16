@@ -312,7 +312,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				serve_user(database, request, response);
+				serve_user(db, request, response);
 			}
 		}
 	}
@@ -321,7 +321,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
-				serve_user_devices(database, request, response);
+				serve_user_devices(db, request, response);
 			}
 		}
 	}
@@ -540,7 +540,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				user_find(database, request, response);
+				user_find(db, request, response);
 			}
 		}
 	}
@@ -549,7 +549,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				user_find_one(database, request, response);
+				user_find_one(db, request, response);
 			}
 		}
 	}
@@ -567,7 +567,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
-				device_find_by_user(database, request, response);
+				device_find_by_user(db, database, request, response);
 			}
 		}
 	}
@@ -576,7 +576,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_create, response) == true) {
-				user_device_create(database, request, response);
+				user_device_create(db, database, request, response);
 			}
 		}
 	}
@@ -585,7 +585,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_delete, response) == true) {
-				user_device_remove(database, request, response);
+				user_device_remove(db, database, request, response);
 			}
 		}
 	}
@@ -593,16 +593,16 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			user_profile(database, &bwt, request, response);
+			user_profile(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
-		user_signin(database, request, response);
+		user_signin(db, request, response);
 	}
 
 	if (endpoint(request, "post", "/api/signup", &method_found, &pathname_found) == true) {
-		user_signup(database, request, response);
+		user_signup(db, request, response);
 	}
 
 respond:

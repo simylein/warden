@@ -6,6 +6,7 @@
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "assemble.h"
@@ -489,7 +490,7 @@ void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_
 	serve(&page_downlink, response);
 }
 
-void serve_user(sqlite3 *database, request_t *request, response_t *response) {
+void serve_user(octet_t *db, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
@@ -506,7 +507,7 @@ void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_existing(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -515,7 +516,7 @@ void serve_user(sqlite3 *database, request_t *request, response_t *response) {
 	serve(&page_user, response);
 }
 
-void serve_user_devices(sqlite3 *database, request_t *request, response_t *response) {
+void serve_user_devices(octet_t *db, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
@@ -532,7 +533,7 @@ void serve_user_devices(sqlite3 *database, request_t *request, response_t *respo
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_existing(database, &user);
+	uint16_t status = user_existing(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
