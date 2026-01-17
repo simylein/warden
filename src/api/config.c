@@ -7,10 +7,9 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "cache.h"
-#include "database.h"
 #include "device.h"
 #include "user-device.h"
-#include <sqlite3.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -34,115 +33,134 @@ const char *config_schema = "create table config ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
-uint16_t config_select_one_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response) {
+const config_row_t config_row = {
+		.id = 0,
+		.led_debug = 16,
+		.reading_enable = 17,
+		.metric_enable = 18,
+		.buffer_enable = 19,
+		.reading_interval = 20,
+		.metric_interval = 22,
+		.buffer_interval = 24,
+		.captured_at = 26,
+		.uplink_id = 34,
+		.size = 50,
+};
+
+uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"config.led_debug, config.reading_enable, config.metric_enable, config.buffer_enable, "
-										"config.reading_interval, config.metric_interval, config.buffer_interval, config.captured_at "
-										"from config "
-										"join user_device on user_device.device_id = config.device_id and user_device.user_id = ? "
-										"where config.device_id = ? "
-										"order by captured_at desc "
-										"limit 1";
-	debug("select config for device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/%.*s/config.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+	debug("select config for device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const bool led_debug = (bool)sqlite3_column_int(stmt, 0);
-		const bool reading_enable = (bool)sqlite3_column_int(stmt, 1);
-		const bool metric_enable = (bool)sqlite3_column_int(stmt, 2);
-		const bool buffer_enable = (bool)sqlite3_column_int(stmt, 3);
-		const uint16_t reading_interval = (uint16_t)sqlite3_column_int(stmt, 4);
-		const uint16_t metric_interval = (uint16_t)sqlite3_column_int(stmt, 5);
-		const uint16_t buffer_interval = (uint16_t)sqlite3_column_int(stmt, 6);
-		const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 7);
-		body_write(response, &led_debug, sizeof(led_debug));
-		body_write(response, &reading_enable, sizeof(reading_enable));
-		body_write(response, &metric_enable, sizeof(metric_enable));
-		body_write(response, &buffer_enable, sizeof(buffer_enable));
-		body_write(response, (uint16_t[]){hton16((uint16_t)reading_interval)}, sizeof(reading_interval));
-		body_write(response, (uint16_t[]){hton16((uint16_t)metric_interval)}, sizeof(metric_interval));
-		body_write(response, (uint16_t[]){hton16((uint16_t)buffer_interval)}, sizeof(buffer_interval));
-		body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-		status = 0;
-	} else if (result == SQLITE_DONE) {
+	off_t offset = stmt.stat.st_size - config_row.size;
+	if (offset < 0) {
 		debug("no config for device %02x%02x found\n", (*device->id)[0], (*device->id)[1]);
 		status = 204;
 		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
-
-uint16_t config_insert(sqlite3 *database, config_t *config) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql = "insert into config (id, led_debug, reading_enable, metric_enable, buffer_enable, "
-										"reading_interval, metric_interval, buffer_interval, captured_at, uplink_id, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("insert config for device %02x%02x captured at %lu\n", (*config->device_id)[0], (*config->device_id)[1],
-				config->captured_at);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	if (octet_row_read(&stmt, file, offset, db->buffer, config_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_int(stmt, 1, config->led_debug);
-	sqlite3_bind_int(stmt, 2, config->reading_enable);
-	sqlite3_bind_int(stmt, 3, config->metric_enable);
-	sqlite3_bind_int(stmt, 4, config->buffer_enable);
-	sqlite3_bind_int(stmt, 5, config->reading_interval);
-	sqlite3_bind_int(stmt, 6, config->metric_interval);
-	sqlite3_bind_int(stmt, 7, config->buffer_interval);
-	sqlite3_bind_int64(stmt, 8, config->captured_at);
-	sqlite3_bind_blob(stmt, 9, config->uplink_id, sizeof(*config->uplink_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 10, config->device_id, sizeof(*config->device_id), SQLITE_STATIC);
+	bool led_debug = octet_uint8_read(db->buffer, config_row.led_debug);
+	bool reading_enable = octet_uint8_read(db->buffer, config_row.reading_enable);
+	bool metric_enable = octet_uint8_read(db->buffer, config_row.metric_enable);
+	bool buffer_enable = octet_uint8_read(db->buffer, config_row.buffer_enable);
+	uint16_t reading_interval = octet_uint16_read(db->buffer, config_row.reading_interval);
+	uint16_t metric_interval = octet_uint16_read(db->buffer, config_row.metric_interval);
+	uint16_t buffer_interval = octet_uint16_read(db->buffer, config_row.buffer_interval);
+	time_t captured_at = (time_t)octet_uint64_read(db->buffer, config_row.captured_at);
+	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, config_row.uplink_id);
+	body_write(response, &led_debug, sizeof(led_debug));
+	body_write(response, &reading_enable, sizeof(reading_enable));
+	body_write(response, &metric_enable, sizeof(metric_enable));
+	body_write(response, &buffer_enable, sizeof(buffer_enable));
+	body_write(response, (uint16_t[]){hton16((uint16_t)reading_interval)}, sizeof(reading_interval));
+	body_write(response, (uint16_t[]){hton16((uint16_t)metric_interval)}, sizeof(metric_interval));
+	body_write(response, (uint16_t[]){hton16((uint16_t)buffer_interval)}, sizeof(buffer_interval));
+	body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+	body_write(response, uplink_id, sizeof(*uplink_id));
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*config->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*config->id));
-			status = 500;
-			goto cleanup;
-		}
-		memcpy(config->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("config is conflicting because %s\n", sqlite3_errmsg(database));
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
-	}
+	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-void config_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+uint16_t config_insert(octet_t *db, config_t *config) {
+	uint16_t status;
+
+	for (uint8_t index = 0; index < sizeof(*config->id); index++) {
+		(*config->id)[index] = (uint8_t)(rand() % 0xff);
+	}
+
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), config->device_id, sizeof(*config->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/config.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("insert config for device %02x%02x captured at %lu\n", (*config->device_id)[0], (*config->device_id)[1],
+				config->captured_at);
+
+	octet_blob_write(db->buffer, config_row.id, (uint8_t *)config->id, sizeof(*config->id));
+	octet_uint8_write(db->buffer, config_row.led_debug, config->led_debug);
+	octet_uint8_write(db->buffer, config_row.reading_enable, config->reading_enable);
+	octet_uint8_write(db->buffer, config_row.metric_enable, config->metric_enable);
+	octet_uint8_write(db->buffer, config_row.buffer_enable, config->buffer_enable);
+	octet_uint16_write(db->buffer, config_row.reading_interval, config->reading_interval);
+	octet_uint16_write(db->buffer, config_row.metric_interval, config->metric_interval);
+	octet_uint16_write(db->buffer, config_row.buffer_interval, config->buffer_interval);
+	octet_uint64_write(db->buffer, config_row.captured_at, (uint64_t)config->captured_at);
+	octet_blob_write(db->buffer, config_row.uplink_id, (uint8_t *)config->uplink_id, sizeof(*config->uplink_id));
+
+	off_t offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->buffer, config_row.size) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+void config_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -177,7 +195,7 @@ void config_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, reque
 		return;
 	}
 
-	status = config_select_one_by_device(database, bwt, &device, response);
+	status = config_select_one_by_device(db, &device, response);
 	if (status != 0) {
 		response->status = status;
 		return;
