@@ -437,7 +437,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/device/:id/downlinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			downlink_find_by_device(db, database, &bwt, request, response);
+			downlink_find_by_device(db, &bwt, request, response);
 		}
 	}
 
@@ -531,7 +531,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_downlink_create, response) == true) {
-				downlink_create(database, request, response);
+				downlink_create(db, request, response);
 			}
 		}
 	}
