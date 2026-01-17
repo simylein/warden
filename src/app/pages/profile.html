@@ -120,7 +120,7 @@
 			profile.username = binary.string();
 			profile.signupAt = binary.uint(64);
 			profile.signinAt = binary.uint(64);
-			profile.permissions = binary.hex(binary.uint(8));
+			profile.permissions = binary.hex(4);
 			return profile;
 		};
 		const loadProfile = fetching(

@@ -19,6 +19,8 @@ extern uint8_t zones_size;
 extern const char *bwt_key;
 extern uint32_t bwt_ttl;
 
+extern const char *database_directory;
+extern uint32_t database_buffer;
 extern const char *database_file;
 extern uint16_t database_timeout;
 

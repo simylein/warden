@@ -8,6 +8,7 @@
 #include "lib/error.h"
 #include "lib/format.h"
 #include "lib/logger.h"
+#include "lib/octet.h"
 #include "lib/thread.h"
 #include <arpa/inet.h>
 #include <errno.h>
@@ -19,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 bool stopping = false;
@@ -38,6 +40,8 @@ void stop(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+	srand((unsigned int)time(NULL));
+
 	signal(SIGINT, &stop);
 	signal(SIGTERM, &stop);
 
@@ -45,26 +49,28 @@ int main(int argc, char *argv[]) {
 
 	if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
 		info("available command line flags\n");
-		info("--name              -n   name of application              (%s)\n", name);
-		info("--address           -a   ip address to bind               (%s)\n", address);
-		info("--port              -p   port to listen on                (%hu)\n", port);
-		info("--backlog           -b   backlog allowed on socket        (%hhu)\n", backlog);
-		info("--queue-size        -qs  size of clients in queue         (%hhu)\n", queue_size);
-		info("--least-workers     -lw  least amount of worker threads   (%hhu)\n", least_workers);
-		info("--most-workers      -mw  most amount of worker threads    (%hhu)\n", most_workers);
-		info("--bwt-key           -bk  random bytes for bwt signing     (%s)\n", bwt_key);
-		info("--bwt-ttl           -bt  time to live for bwt expiry      (%u)\n", bwt_ttl);
-		info("--database-file     -df  path to sqlite database file     (%s)\n", database_file);
-		info("--database-timeout  -dt  milliseconds to wait for lock    (%hu)\n", database_timeout);
-		info("--receive-timeout   -rt  seconds to wait for receiving    (%hhu)\n", receive_timeout);
-		info("--send-timeout      -st  seconds to wait for sending      (%hhu)\n", send_timeout);
-		info("--receive-packets   -rp  most packets allowed to receive  (%hhu)\n", receive_packets);
-		info("--send-packets      -sp  most packets allowed to send     (%hhu)\n", send_packets);
-		info("--receive-buffer    -rb  most bytes in receive buffer     (%u)\n", receive_buffer);
-		info("--send-buffer       -sb  most bytes in send buffer        (%u)\n", send_buffer);
-		info("--log-level         -ll  logging verbosity to print       (%s)\n", human_log_level(log_level));
-		info("--log-requests      -lq  log incoming requests            (%s)\n", human_bool(log_requests));
-		info("--log-responses     -ls  log outgoing responses           (%s)\n", human_bool(log_responses));
+		info("--name                -n   name of application              (%s)\n", name);
+		info("--address             -a   ip address to bind               (%s)\n", address);
+		info("--port                -p   port to listen on                (%hu)\n", port);
+		info("--backlog             -b   backlog allowed on socket        (%hhu)\n", backlog);
+		info("--queue-size          -qs  size of clients in queue         (%hhu)\n", queue_size);
+		info("--least-workers       -lw  least amount of worker threads   (%hhu)\n", least_workers);
+		info("--most-workers        -mw  most amount of worker threads    (%hhu)\n", most_workers);
+		info("--bwt-key             -bk  random bytes for bwt signing     (%s)\n", bwt_key);
+		info("--bwt-ttl             -bt  time to live for bwt expiry      (%u)\n", bwt_ttl);
+		info("--database-directory  -dd  path to database directory       (%s)\n", database_directory);
+		info("--database-buffer     -db  most bytes in database buffer    (%u)\n", database_buffer);
+		info("--database-file       -df  path to sqlite database file     (%s)\n", database_file);
+		info("--database-timeout    -dt  milliseconds to wait for lock    (%hu)\n", database_timeout);
+		info("--receive-timeout     -rt  seconds to wait for receiving    (%hhu)\n", receive_timeout);
+		info("--send-timeout        -st  seconds to wait for sending      (%hhu)\n", send_timeout);
+		info("--receive-packets     -rp  most packets allowed to receive  (%hhu)\n", receive_packets);
+		info("--send-packets        -sp  most packets allowed to send     (%hhu)\n", send_packets);
+		info("--receive-buffer      -rb  most bytes in receive buffer     (%u)\n", receive_buffer);
+		info("--send-buffer         -sb  most bytes in send buffer        (%u)\n", send_buffer);
+		info("--log-level           -ll  logging verbosity to print       (%s)\n", human_log_level(log_level));
+		info("--log-requests        -lq  log incoming requests            (%s)\n", human_bool(log_requests));
+		info("--log-responses       -ls  log outgoing responses           (%s)\n", human_bool(log_responses));
 		exit(0);
 	}
 
@@ -82,6 +88,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
+		uint8_t buffer[2048];
+		octet_t db = {.directory = database_directory, .buffer = buffer, .buffer_len = sizeof(buffer)};
+
 		sqlite3 *database;
 		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
 			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
@@ -93,7 +102,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x20 && seed(database) != 0) {
+		if (cmds & 0x20 && seed(&db, database) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}

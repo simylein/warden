@@ -20,6 +20,8 @@ uint8_t zones_size = 16;
 const char *bwt_key = "w77a61r72d64e65n6e";
 uint32_t bwt_ttl = 2764800;
 
+const char *database_directory = "data";
+uint32_t database_buffer = 65536;
 const char *database_file = "warden.sqlite";
 uint16_t database_timeout = 500;
 
@@ -212,6 +214,12 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 		} else if (match_arg(flag, "--bwt-ttl", "-bt")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint32(value, "bwt ttl", 3600, 15768000, &bwt_ttl);
+		} else if (match_arg(flag, "--database-directory", "-dd")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_str(value, "database directory", 4, 64, &database_directory);
+		} else if (match_arg(flag, "--database-buffer", "-db")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint32(value, "database buffer", 16384, 1048576, &database_buffer);
 		} else if (match_arg(flag, "--database-file", "-df")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "database file", 4, 64, &database_file);

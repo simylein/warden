@@ -114,6 +114,14 @@
 								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
+						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+								<p class="m-0">Uplink id</p>
+							</td>
+							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+								<p class="font-mono m-0 w-80 h-4 background-neutral-200 dark:background-neutral-800"></p>
+							</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -308,6 +316,8 @@
 			loading(element.children[5].children[1].children[0], ['w-10', 'h-4'], [], '');
 			loading(element.children[6].children[1].children[0], ['w-10', 'h-4'], [], '');
 			loading(element.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(element.children[8].children[1].children[0]);
+			loading(element.children[8].children[1].children[0], ['w-80', 'h-4'], [], '');
 		};
 		const paintConfig = (element, data) => {
 			update.children[0].classList.remove('opacity-50', 'cursor-not-allowed');
@@ -369,6 +379,14 @@
 				paint(element.children[7].children[1].children[0], [], ['w-40', 'h-4'], 'null');
 				colorNull(element.children[7].children[1].children[0]);
 			}
+			if (data.uplink !== null) {
+				element.children[8].children[1].children[0].classList.add('cursor-pointer');
+				element.children[8].children[1].children[0].onclick = () => (window.location.href = `/uplink/${data.uplink.id}`);
+				paint(element.children[8].children[1].children[0], ['text-blue-600', 'dark:text-blue-400'], ['w-80', 'h-4'], data.uplink.id);
+			} else {
+				paint(element.children[8].children[1].children[0], [], ['w-80', 'h-4'], 'null');
+				colorNull(element.children[8].children[1].children[0]);
+			}
 		};
 		const errorConfig = (element) => {
 			update.children[0].classList.remove('cursor-pointer');
@@ -386,6 +404,8 @@
 			error(element.children[5].children[1].children[0], ['w-10', 'h-4'], [], '');
 			error(element.children[6].children[1].children[0], ['w-10', 'h-4'], [], '');
 			error(element.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(element.children[8].children[1].children[0]);
+			error(element.children[8].children[1].children[0], ['w-80', 'h-4'], [], '');
 		};
 		const parseConfig = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -399,6 +419,7 @@
 				metricInterval: null,
 				bufferInterval: null,
 				capturedAt: null,
+				uplink: null,
 			};
 			if (response.status !== 204) {
 				config.ledDebug = binary.bool();
@@ -409,6 +430,8 @@
 				config.metricInterval = binary.uint(16);
 				config.bufferInterval = binary.uint(16);
 				config.capturedAt = binary.uint(64);
+				config.uplink = {};
+				config.uplink.id = binary.uuid();
 			}
 			return config;
 		};

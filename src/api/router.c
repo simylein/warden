@@ -2,6 +2,7 @@
 #include "../app/serve.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
@@ -135,7 +136,7 @@ bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
 	return true;
 }
 
-void route(sqlite3 *database, request_t *request, response_t *response) {
+void route(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
@@ -168,63 +169,63 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device(database, &bwt, request, response);
+			serve_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_readings(database, &bwt, request, response);
+			serve_device_readings(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_metrics(database, &bwt, request, response);
+			serve_device_metrics(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_buffers(database, &bwt, request, response);
+			serve_device_buffers(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/config", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_config(database, &bwt, request, response);
+			serve_device_config(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/radio", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_radio(database, &bwt, request, response);
+			serve_device_radio(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_signals(database, &bwt, request, response);
+			serve_device_signals(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_uplinks(database, &bwt, request, response);
+			serve_device_uplinks(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/device/:id/downlinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_device_downlinks(database, &bwt, request, response);
+			serve_device_downlinks(db, &bwt, request, response);
 		}
 	}
 
@@ -311,7 +312,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				serve_user(database, request, response);
+				serve_user(db, request, response);
 			}
 		}
 	}
@@ -320,7 +321,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
-				serve_user_devices(database, request, response);
+				serve_user_devices(db, request, response);
 			}
 		}
 	}
@@ -343,7 +344,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/devices", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_find(database, &bwt, request, response);
+			device_find(db, &bwt, request, response);
 		}
 	}
 
@@ -371,7 +372,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/device/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			device_find_one(database, &bwt, request, response);
+			device_find_one(db, &bwt, request, response);
 		}
 	}
 
@@ -387,56 +388,56 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/device/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			reading_find_by_device(database, &bwt, request, response);
+			reading_find_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			metric_find_by_device(database, &bwt, request, response);
+			metric_find_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			buffer_find_by_device(database, &bwt, request, response);
+			buffer_find_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/config", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			config_find_one_by_device(database, &bwt, request, response);
+			config_find_one_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/radio", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			radio_find_one_by_device(database, &bwt, request, response);
+			radio_find_one_by_device(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_signal_find_by_device(database, &bwt, request, response);
+			uplink_signal_find_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_find_by_device(database, &bwt, request, response);
+			uplink_find_by_device(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/device/:id/downlinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			downlink_find_by_device(database, &bwt, request, response);
+			downlink_find_by_device(db, &bwt, request, response);
 		}
 	}
 
@@ -507,7 +508,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_uplink_create, response) == true) {
-				uplink_create(database, request, response);
+				uplink_create(db, database, request, response);
 			}
 		}
 	}
@@ -530,7 +531,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_downlink_create, response) == true) {
-				downlink_create(database, request, response);
+				downlink_create(db, request, response);
 			}
 		}
 	}
@@ -539,7 +540,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				user_find(database, request, response);
+				user_find(db, request, response);
 			}
 		}
 	}
@@ -548,7 +549,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_read, response) == true) {
-				user_find_one(database, request, response);
+				user_find_one(db, request, response);
 			}
 		}
 	}
@@ -566,7 +567,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
-				device_find_by_user(database, request, response);
+				device_find_by_user(db, database, request, response);
 			}
 		}
 	}
@@ -575,7 +576,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_create, response) == true) {
-				user_device_create(database, request, response);
+				user_device_create(db, request, response);
 			}
 		}
 	}
@@ -584,7 +585,7 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_delete, response) == true) {
-				user_device_remove(database, request, response);
+				user_device_remove(db, database, request, response);
 			}
 		}
 	}
@@ -592,16 +593,16 @@ void route(sqlite3 *database, request_t *request, response_t *response) {
 	if (endpoint(request, "get", "/api/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			user_profile(database, &bwt, request, response);
+			user_profile(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "post", "/api/signin", &method_found, &pathname_found) == true) {
-		user_signin(database, request, response);
+		user_signin(db, request, response);
 	}
 
 	if (endpoint(request, "post", "/api/signup", &method_found, &pathname_found) == true) {
-		user_signup(database, request, response);
+		user_signup(db, request, response);
 	}
 
 respond:

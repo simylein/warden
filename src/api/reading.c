@@ -3,13 +3,16 @@
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
 #include "cache.h"
 #include "database.h"
 #include "device.h"
+#include "user-device.h"
 #include "zone.h"
+#include <fcntl.h>
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -28,6 +31,15 @@ const char *reading_schema = "create table reading ("
 														 "foreign key (uplink_id) references uplink(id) on delete cascade, "
 														 "foreign key (device_id) references device(id) on delete cascade"
 														 ")";
+
+const reading_row_t reading_row = {
+		.id = 0,
+		.temperature = 16,
+		.humidity = 18,
+		.captured_at = 20,
+		.uplink_id = 28,
+		.size = 44,
+};
 
 uint16_t reading_select(sqlite3 *database, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len) {
 	uint16_t status;
@@ -94,56 +106,55 @@ cleanup:
 	return status;
 }
 
-uint16_t reading_select_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, reading_query_t *query, response_t *response,
+uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t *query, response_t *response,
 																	uint16_t *readings_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"avg(reading.temperature), avg(reading.humidity), "
-										"(reading.captured_at / ?) * ? as bucket_time "
-										"from reading "
-										"join user_device on user_device.device_id = reading.device_id and user_device.user_id = ? "
-										"where reading.device_id = ? and reading.captured_at >= ? and reading.captured_at <= ? "
-										"group by bucket_time "
-										"order by bucket_time desc";
-	debug("select readings for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
-				query->to, query->bucket);
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_int(stmt, 1, query->bucket);
-	sqlite3_bind_int(stmt, 2, query->bucket);
-	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 4, device->id, sizeof(*device->id), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 5, query->from);
-	sqlite3_bind_int64(stmt, 6, query->to);
+	debug("select readings for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
+				query->to, query->bucket);
 
+	off_t offset = stmt.stat.st_size - reading_row.size;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const double temperature = sqlite3_column_double(stmt, 0);
-			const double humidity = sqlite3_column_double(stmt, 1);
-			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
-			body_write(response, (uint16_t[]){hton16((uint16_t)(int16_t)(temperature * 100))}, sizeof(uint16_t));
-			body_write(response, (uint16_t[]){hton16((uint16_t)(humidity * 100))}, sizeof(uint16_t));
-			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			*readings_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset < 0) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, db->buffer, reading_row.size) == -1) {
+			status = 500;
 			goto cleanup;
 		}
+		int16_t temperature = octet_int16_read(db->buffer, reading_row.temperature);
+		uint16_t humidity = octet_uint16_read(db->buffer, reading_row.humidity);
+		time_t captured_at = (time_t)octet_uint64_read(db->buffer, reading_row.captured_at);
+		if (captured_at > query->from && captured_at < query->to) {
+			body_write(response, (uint16_t[]){hton16((uint16_t)temperature)}, sizeof(temperature));
+			body_write(response, (uint16_t[]){hton16(humidity)}, sizeof(humidity));
+			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+			*readings_len += 1;
+		}
+		offset -= reading_row.size;
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -215,49 +226,50 @@ cleanup:
 	return status;
 }
 
-uint16_t reading_insert(sqlite3 *database, reading_t *reading) {
+uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into reading (id, temperature, humidity, captured_at, uplink_id, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?) returning id";
-	debug("insert reading for device %02x%02x captured at %lu\n", (*reading->device_id)[0], (*reading->device_id)[1],
-				reading->captured_at);
+	for (uint8_t index = 0; index < sizeof(*reading->id); index++) {
+		(*reading->id)[index] = (uint8_t)(rand() % 0xff);
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), reading->device_id, sizeof(*reading->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_double(stmt, 1, reading->temperature);
-	sqlite3_bind_double(stmt, 2, reading->humidity);
-	sqlite3_bind_int64(stmt, 3, reading->captured_at);
-	sqlite3_bind_blob(stmt, 4, reading->uplink_id, sizeof(*reading->uplink_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 5, reading->device_id, sizeof(*reading->device_id), SQLITE_STATIC);
+	debug("insert reading for device %02x%02x captured at %lu\n", (*reading->device_id)[0], (*reading->device_id)[1],
+				reading->captured_at);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*reading->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*reading->id));
-			status = 500;
-			goto cleanup;
-		}
-		memcpy(reading->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("reading is conflicting because %s\n", sqlite3_errmsg(database));
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
+	octet_blob_write(db->buffer, reading_row.id, (uint8_t *)reading->id, sizeof(*reading->id));
+	octet_int16_write(db->buffer, reading_row.temperature, (int16_t)(reading->temperature * 100));
+	octet_uint16_write(db->buffer, reading_row.humidity, (uint16_t)(reading->humidity * 100));
+	octet_uint64_write(db->buffer, reading_row.captured_at, (uint64_t)reading->captured_at);
+	octet_blob_write(db->buffer, reading_row.uplink_id, (uint8_t *)reading->uplink_id, sizeof(*reading->uplink_id));
+
+	off_t offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->buffer, reading_row.size) == -1) {
+		status = 500;
 		goto cleanup;
 	}
 
+	status = 0;
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -321,7 +333,7 @@ void reading_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 	response->status = 200;
 }
 
-void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void reading_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -384,14 +396,21 @@ void reading_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, r
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
 	}
 
 	uint16_t readings_len = 0;
-	status = reading_select_by_device(database, bwt, &device, &query, response, &readings_len);
+	status = reading_select_by_device(db, &device, &query, response, &readings_len);
 	if (status != 0) {
 		response->status = status;
 		return;

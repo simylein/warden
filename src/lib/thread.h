@@ -1,5 +1,6 @@
 #pragma once
 
+#include "octet.h"
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <sqlite3.h>
@@ -25,6 +26,7 @@ extern struct queue_t queue;
 typedef struct arg_t {
 	uint8_t id;
 	int state;
+	octet_t db;
 	sqlite3 *database;
 	char *request_buffer;
 	char *response_buffer;

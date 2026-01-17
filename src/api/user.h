@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../lib/bwt.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include <sqlite3.h>
@@ -27,20 +28,33 @@ typedef struct user_query_t {
 	uint32_t offset;
 } user_query_t;
 
+typedef struct user_row_t {
+	uint8_t id;
+	uint8_t username_len;
+	uint8_t username;
+	uint8_t password;
+	uint8_t signup_at;
+	uint8_t signin_at;
+	uint8_t permissions;
+	uint8_t size;
+} user_row_t;
+
+extern const user_row_t user_row;
+
 extern const char *user_table;
 extern const char *user_schema;
 
-uint16_t user_existing(sqlite3 *database, user_t *user);
+uint16_t user_existing(octet_t *db, user_t *user);
 
-uint16_t user_select(sqlite3 *database, user_query_t *query, response_t *response, uint8_t *users_len);
-uint16_t user_select_one(sqlite3 *database, user_t *user, response_t *response);
-uint16_t user_insert(sqlite3 *database, user_t *user);
-uint16_t user_update(sqlite3 *database, user_t *user);
+uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uint8_t *users_len);
+uint16_t user_select_one(octet_t *db, user_t *user, response_t *response);
+uint16_t user_insert(octet_t *db, user_t *user);
+uint16_t user_update(octet_t *db, user_t *user);
 uint16_t user_delete(sqlite3 *database, user_t *user);
 
-void user_find(sqlite3 *database, request_t *request, response_t *response);
-void user_find_one(sqlite3 *database, request_t *request, response_t *response);
-void user_profile(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void user_signup(sqlite3 *database, request_t *request, response_t *response);
-void user_signin(sqlite3 *database, request_t *request, response_t *response);
+void user_find(octet_t *db, request_t *request, response_t *response);
+void user_find_one(octet_t *db, request_t *request, response_t *response);
+void user_profile(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void user_signup(octet_t *db, request_t *request, response_t *response);
+void user_signin(octet_t *db, request_t *request, response_t *response);
 void user_remove(sqlite3 *database, request_t *request, response_t *response);
