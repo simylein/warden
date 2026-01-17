@@ -356,12 +356,6 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 		goto cleanup;
 	}
 
-	if (stmt.stat.st_size > db->buffer_len) {
-		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->buffer_len);
-		status = 500;
-		goto cleanup;
-	}
-
 	debug("insert user %.*s signup at %lu\n", user->username_len, user->username, *user->signup_at);
 
 	off_t offset = 0;
