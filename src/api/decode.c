@@ -447,7 +447,7 @@ uint16_t decode(octet_t *db, sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = radio_insert(database, &radio)) != 0) {
+		if ((status = radio_insert(db, &radio)) != 0) {
 			return status;
 		}
 		return 0;
@@ -573,7 +573,7 @@ uint16_t decode(octet_t *db, sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = radio_insert(database, &radio)) != 0) {
+		if ((status = radio_insert(db, &radio)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(db, &buffer)) != 0) {
