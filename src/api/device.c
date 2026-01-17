@@ -9,6 +9,7 @@
 #include "cache.h"
 #include "database.h"
 #include "uplink.h"
+#include "user-device.h"
 #include "user.h"
 #include "zone.h"
 #include <fcntl.h>
@@ -163,54 +164,44 @@ int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
 	return 0;
 }
 
-uint16_t device_existing(sqlite3 *database, bwt_t *bwt, device_t *device) {
+uint16_t device_existing(octet_t *db, device_t *device) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"device.id, "
-										"user_device.device_id "
-										"from device "
-										"left join user_device on user_device.device_id = device.id and user_device.user_id = ? "
-										"where device.id = ?";
-	debug("select existing device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
+	char file[128];
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+	debug("select existing device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*device->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*device->id));
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->buffer, device_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		const int user_device_device_id_type = sqlite3_column_type(stmt, 1);
-		if (user_device_device_id_type == SQLITE_NULL) {
-			status = 403;
-			goto cleanup;
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, device_row.id);
+		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
+			status = 0;
+			break;
 		}
-		memcpy(device->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_DONE) {
-		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
-		status = 404;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
+		offset += device_row.size;
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -891,7 +882,7 @@ void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 	response->status = 200;
 }
 
-void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -913,7 +904,14 @@ void device_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *requ
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;

@@ -22,6 +22,7 @@ extern const user_device_row_t user_device_row;
 extern const char *user_device_table;
 extern const char *user_device_schema;
 
+uint16_t user_device_existing(octet_t *db, user_device_t *user_device);
 uint16_t user_device_insert(octet_t *db, user_device_t *user_device);
 uint16_t user_device_delete(sqlite3 *database, user_device_t *user_device);
 

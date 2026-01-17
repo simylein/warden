@@ -3,11 +3,13 @@
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "cache.h"
 #include "database.h"
 #include "device.h"
+#include "user-device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -140,7 +142,7 @@ cleanup:
 	return status;
 }
 
-void config_find_one_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void config_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -162,7 +164,14 @@ void config_find_one_by_device(sqlite3 *database, bwt_t *bwt, request_t *request
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
