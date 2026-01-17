@@ -3,13 +3,13 @@
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "cache.h"
-#include "database.h"
 #include "device.h"
 #include "user-device.h"
-#include <sqlite3.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -34,118 +34,138 @@ const char *radio_schema = "create table radio ("
 													 "foreign key (device_id) references device(id) on delete cascade"
 													 ")";
 
-uint16_t radio_select_one_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response) {
+const radio_row_t radio_row = {
+		.id = 0,
+		.frequency = 16,
+		.bandwidth = 20,
+		.coding_rate = 24,
+		.spreading_factor = 25,
+		.preamble_length = 26,
+		.tx_power = 27,
+		.sync_word = 28,
+		.checksum = 29,
+		.captured_at = 30,
+		.uplink_id = 38,
+		.size = 54,
+};
+
+uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"radio.frequency, radio.bandwidth, radio.coding_rate, radio.spreading_factor, "
-										"radio.preamble_length, radio.tx_power, radio.sync_word, radio.checksum, radio.captured_at "
-										"from radio "
-										"join user_device on user_device.device_id = radio.device_id and user_device.user_id = ? "
-										"where radio.device_id = ? "
-										"order by captured_at desc "
-										"limit 1";
-	debug("select radio for device %02x%02x for user %02x%02x\n", (*device->id)[0], (*device->id)[1], bwt->id[0], bwt->id[1]);
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/%.*s/radio.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, device->id, sizeof(*device->id), SQLITE_STATIC);
+	debug("select radio for device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint32_t frequency = (uint32_t)sqlite3_column_int(stmt, 0);
-		const uint32_t bandwidth = (uint32_t)sqlite3_column_int(stmt, 1);
-		const uint8_t coding_rate = (uint8_t)sqlite3_column_int(stmt, 2);
-		const uint8_t spreading_factor = (uint8_t)sqlite3_column_int(stmt, 3);
-		const uint8_t preamble_length = (uint8_t)sqlite3_column_int(stmt, 4);
-		const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 5);
-		const uint8_t sync_word = (uint8_t)sqlite3_column_int(stmt, 6);
-		const bool checksum = (bool)sqlite3_column_int(stmt, 7);
-		const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 8);
-		body_write(response, (uint32_t[]){hton32((uint32_t)frequency)}, sizeof(frequency));
-		body_write(response, (uint32_t[]){hton32((uint32_t)bandwidth)}, sizeof(bandwidth));
-		body_write(response, &coding_rate, sizeof(coding_rate));
-		body_write(response, &spreading_factor, sizeof(spreading_factor));
-		body_write(response, &preamble_length, sizeof(preamble_length));
-		body_write(response, &tx_power, sizeof(tx_power));
-		body_write(response, &sync_word, sizeof(sync_word));
-		body_write(response, &checksum, sizeof(checksum));
-		body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-		status = 0;
-	} else if (result == SQLITE_DONE) {
+	off_t offset = stmt.stat.st_size - radio_row.size;
+	if (offset < 0) {
 		debug("no radio for device %02x%02x found\n", (*device->id)[0], (*device->id)[1]);
 		status = 204;
 		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
-
-uint16_t radio_insert(sqlite3 *database, radio_t *radio) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql = "insert into radio (id, frequency, bandwidth, coding_rate, spreading_factor, "
-										"preamble_length, tx_power, sync_word, checksum, captured_at, uplink_id, device_id) "
-										"values (randomblob(16), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning id";
-	debug("insert radio for device %02x%02x captured at %lu\n", (*radio->device_id)[0], (*radio->device_id)[1],
-				radio->captured_at);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	if (octet_row_read(&stmt, file, offset, db->buffer, radio_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_int(stmt, 1, (int)radio->frequency);
-	sqlite3_bind_int(stmt, 2, (int)radio->bandwidth);
-	sqlite3_bind_int(stmt, 3, radio->coding_rate);
-	sqlite3_bind_int(stmt, 4, radio->spreading_factor);
-	sqlite3_bind_int(stmt, 5, radio->preamble_length);
-	sqlite3_bind_int(stmt, 6, radio->tx_power);
-	sqlite3_bind_int(stmt, 7, radio->sync_word);
-	sqlite3_bind_int(stmt, 8, radio->checksum);
-	sqlite3_bind_int64(stmt, 9, radio->captured_at);
-	sqlite3_bind_blob(stmt, 10, radio->uplink_id, sizeof(*radio->uplink_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 11, radio->device_id, sizeof(*radio->device_id), SQLITE_STATIC);
+	uint32_t frequency = octet_uint32_read(db->buffer, radio_row.frequency);
+	uint32_t bandwidth = octet_uint32_read(db->buffer, radio_row.bandwidth);
+	uint8_t coding_rate = octet_uint8_read(db->buffer, radio_row.coding_rate);
+	uint8_t spreading_factor = octet_uint8_read(db->buffer, radio_row.spreading_factor);
+	uint8_t preamble_length = octet_uint8_read(db->buffer, radio_row.preamble_length);
+	uint8_t tx_power = octet_uint8_read(db->buffer, radio_row.tx_power);
+	uint8_t sync_word = octet_uint8_read(db->buffer, radio_row.sync_word);
+	bool checksum = octet_uint8_read(db->buffer, radio_row.checksum);
+	time_t captured_at = (time_t)octet_uint64_read(db->buffer, radio_row.captured_at);
+	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, radio_row.uplink_id);
+	body_write(response, (uint32_t[]){hton32((uint32_t)frequency)}, sizeof(frequency));
+	body_write(response, (uint32_t[]){hton32((uint32_t)bandwidth)}, sizeof(bandwidth));
+	body_write(response, &coding_rate, sizeof(coding_rate));
+	body_write(response, &spreading_factor, sizeof(spreading_factor));
+	body_write(response, &preamble_length, sizeof(preamble_length));
+	body_write(response, &tx_power, sizeof(tx_power));
+	body_write(response, &sync_word, sizeof(sync_word));
+	body_write(response, &checksum, sizeof(checksum));
+	body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+	body_write(response, uplink_id, sizeof(*uplink_id));
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*radio->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*radio->id));
-			status = 500;
-			goto cleanup;
-		}
-		memcpy(radio->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("radio is conflicting because %s\n", sqlite3_errmsg(database));
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
-	}
+	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-void radio_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+uint16_t radio_insert(octet_t *db, radio_t *radio) {
+	uint16_t status;
+
+	for (uint8_t index = 0; index < sizeof(*radio->id); index++) {
+		(*radio->id)[index] = (uint8_t)(rand() % 0xff);
+	}
+
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), radio->device_id, sizeof(*radio->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/radio.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("insert radio for device %02x%02x captured at %lu\n", (*radio->device_id)[0], (*radio->device_id)[1],
+				radio->captured_at);
+
+	octet_blob_write(db->buffer, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
+	octet_uint32_write(db->buffer, radio_row.frequency, radio->frequency);
+	octet_uint32_write(db->buffer, radio_row.bandwidth, radio->bandwidth);
+	octet_uint8_write(db->buffer, radio_row.coding_rate, radio->coding_rate);
+	octet_uint8_write(db->buffer, radio_row.spreading_factor, radio->spreading_factor);
+	octet_uint8_write(db->buffer, radio_row.preamble_length, radio->preamble_length);
+	octet_uint8_write(db->buffer, radio_row.tx_power, radio->tx_power);
+	octet_uint8_write(db->buffer, radio_row.sync_word, radio->sync_word);
+	octet_uint8_write(db->buffer, radio_row.checksum, radio->checksum);
+	octet_uint64_write(db->buffer, radio_row.captured_at, (uint64_t)radio->captured_at);
+	octet_blob_write(db->buffer, radio_row.uplink_id, (uint8_t *)radio->uplink_id, sizeof(*radio->uplink_id));
+
+	off_t offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->buffer, radio_row.size) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+void radio_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -180,7 +200,7 @@ void radio_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, reques
 		return;
 	}
 
-	status = radio_select_one_by_device(database, bwt, &device, response);
+	status = radio_select_one_by_device(db, &device, response);
 	if (status != 0) {
 		response->status = status;
 		return;

@@ -542,7 +542,7 @@ int seed_config(octet_t *db, const char *table) {
 	return 0;
 }
 
-int seed_radio(sqlite3 *database, const char *table) {
+int seed_radio(octet_t *db, const char *table) {
 	uint8_t uplink_ind = 0;
 
 	time_t captured_at = time(NULL);
@@ -563,7 +563,7 @@ int seed_radio(sqlite3 *database, const char *table) {
 				.uplink_id = &uplink_ids[uplink_ind],
 		};
 
-		if (radio_insert(database, &radio) != 0) {
+		if (radio_insert(db, &radio) != 0) {
 			return -1;
 		}
 
@@ -608,7 +608,7 @@ int seed(octet_t *db, sqlite3 *database) {
 	if (seed_config(db, config_table) == -1) {
 		return -1;
 	}
-	if (seed_radio(database, radio_table) == -1) {
+	if (seed_radio(db, radio_table) == -1) {
 		return -1;
 	}
 
