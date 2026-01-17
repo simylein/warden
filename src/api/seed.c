@@ -169,7 +169,7 @@ int seed_device(octet_t *db, const char *table) {
 	return 0;
 }
 
-int seed_user_device(sqlite3 *database, const char *table) {
+int seed_user_device(octet_t *db, const char *table) {
 	for (uint8_t index = 0; index < user_ids_len; index++) {
 		for (uint8_t ind = 0; ind < device_ids_len; ind++) {
 			if (rand() % 2 == 0) {
@@ -178,7 +178,7 @@ int seed_user_device(sqlite3 *database, const char *table) {
 						.device_id = &device_ids[ind],
 				};
 
-				if (user_device_insert(database, &user_device) != 0) {
+				if (user_device_insert(db, &user_device) != 0) {
 					return -1;
 				}
 			}
@@ -587,7 +587,7 @@ int seed(octet_t *db, sqlite3 *database) {
 	if (seed_device(db, device_table) == -1) {
 		return -1;
 	}
-	if (seed_user_device(database, user_device_table) == -1) {
+	if (seed_user_device(db, user_device_table) == -1) {
 		return -1;
 	}
 	if (seed_uplink(db, uplink_table) == -1) {

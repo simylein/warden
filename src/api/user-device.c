@@ -1,13 +1,17 @@
 #include "user-device.h"
 #include "../lib/base16.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "database.h"
 #include "device.h"
+#include <fcntl.h>
 #include <sqlite3.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 const char *user_device_table = "user_device";
 const char *user_device_schema = "create table user_device ("
@@ -18,39 +22,64 @@ const char *user_device_schema = "create table user_device ("
 																 "foreign key (device_id) references device(id) on delete cascade"
 																 ")";
 
-uint16_t user_device_insert(sqlite3 *database, user_device_t *user_device) {
+const user_device_row_t user_device_row = {
+		.user_id = 0,
+		.device_id = 16,
+		.size = 32,
+};
+
+uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "insert into user_device (user_id, device_id) "
-										"values (?, ?)";
-	debug("insert user %02x%02x device %02x%02x\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
-				(*user_device->device_id)[0], (*user_device->device_id)[1]);
+	char file[128];
+	if (sprintf(file, "%s/user-device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, user_device->user_id, sizeof(*user_device->user_id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, user_device->device_id, sizeof(*user_device->device_id), SQLITE_STATIC);
+	debug("insert user %02x%02x device %02x%02x\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
+				(*user_device->device_id)[0], (*user_device->device_id)[1]);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_DONE) {
-		status = 0;
-	} else if (result == SQLITE_CONSTRAINT) {
-		warn("user %02x%02x device %02x%02x are conflicting\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
-				 (*user_device->device_id)[0], (*user_device->device_id)[1]);
-		status = 409;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->buffer, user_device_row.size) == -1) {
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.user_id);
+		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.device_id);
+		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
+				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
+			status = 409;
+			warn("user %02x%02x device %02x%02x already exists\n", (*user_device->user_id)[0], (*user_device->user_id)[1],
+					 (*user_device->device_id)[0], (*user_device->device_id)[1]);
+			goto cleanup;
+		}
+		offset += user_device_row.size;
+	}
+
+	octet_blob_write(db->buffer, user_device_row.user_id, (uint8_t *)user_device->user_id, sizeof(*user_device->user_id));
+	octet_blob_write(db->buffer, user_device_row.device_id, (uint8_t *)user_device->device_id, sizeof(*user_device->device_id));
+
+	offset = stmt.stat.st_size;
+	if (octet_row_write(&stmt, file, offset, db->buffer, user_device_row.size) == -1) {
+		status = 500;
 		goto cleanup;
 	}
 
+	status = 0;
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -91,7 +120,7 @@ cleanup:
 	return status;
 }
 
-void user_device_create(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
+void user_device_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -125,7 +154,7 @@ void user_device_create(octet_t *db, sqlite3 *database, request_t *request, resp
 	}
 
 	user_device_t user_device = {.user_id = user.id, .device_id = (uint8_t (*)[16])request->body.ptr};
-	status = user_device_insert(database, &user_device);
+	status = user_device_insert(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
