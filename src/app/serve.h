@@ -9,15 +9,15 @@
 
 void serve(file_t *asset, response_t *response);
 
-void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_radio(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_readings(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_metrics(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_buffers(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_config(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_radio(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_signals(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_uplinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_downlinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 
 void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

@@ -29,4 +29,4 @@ extern const char *config_schema;
 uint16_t config_select_one_by_device(sqlite3 *database, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t config_insert(sqlite3 *database, config_t *config);
 
-void config_find_one_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void config_find_one_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

@@ -3,11 +3,13 @@
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
 #include "cache.h"
 #include "database.h"
+#include "user-device.h"
 #include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -578,7 +580,7 @@ void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, respon
 	response->status = 200;
 }
 
-void downlink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void downlink_find_by_device(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -622,7 +624,14 @@ void downlink_find_by_device(sqlite3 *database, bwt_t *bwt, request_t *request, 
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;

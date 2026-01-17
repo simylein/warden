@@ -1,6 +1,7 @@
 #include "../api/device.h"
 #include "../api/downlink.h"
 #include "../api/uplink.h"
+#include "../api/user-device.h"
 #include "../api/user.h"
 #include "../api/zone.h"
 #include "../lib/base16.h"
@@ -74,7 +75,7 @@ cleanup:
 	pthread_rwlock_unlock(&asset->lock);
 }
 
-void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -91,7 +92,14 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -100,7 +108,7 @@ void serve_device(sqlite3 *database, bwt_t *bwt, request_t *request, response_t 
 	serve(&page_device, response);
 }
 
-void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_readings(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -117,7 +125,14 @@ void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -126,7 +141,7 @@ void serve_device_readings(sqlite3 *database, bwt_t *bwt, request_t *request, re
 	serve(&page_device_readings, response);
 }
 
-void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_metrics(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -143,7 +158,14 @@ void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -152,7 +174,7 @@ void serve_device_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	serve(&page_device_metrics, response);
 }
 
-void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_buffers(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -169,7 +191,14 @@ void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -178,7 +207,7 @@ void serve_device_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	serve(&page_device_buffers, response);
 }
 
-void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_config(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -195,7 +224,14 @@ void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -204,7 +240,7 @@ void serve_device_config(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 	serve(&page_device_config, response);
 }
 
-void serve_device_radio(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_radio(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -221,7 +257,14 @@ void serve_device_radio(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -230,7 +273,7 @@ void serve_device_radio(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	serve(&page_device_radio, response);
 }
 
-void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_signals(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -247,7 +290,14 @@ void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -256,7 +306,7 @@ void serve_device_signals(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	serve(&page_device_signals, response);
 }
 
-void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_uplinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -273,7 +323,14 @@ void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -282,7 +339,7 @@ void serve_device_uplinks(sqlite3 *database, bwt_t *bwt, request_t *request, res
 	serve(&page_device_uplinks, response);
 }
 
-void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_device_downlinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 8, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -299,7 +356,14 @@ void serve_device_downlinks(sqlite3 *database, bwt_t *bwt, request_t *request, r
 	}
 
 	device_t device = {.id = &id};
-	uint16_t status = device_existing(database, bwt, &device);
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
 	if (status != 0) {
 		response->status = status;
 		return;
