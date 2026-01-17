@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -136,14 +136,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-led-debug'), false); updateForm.setValue('ledDebug', false); updateForm.setTouched('ledDebug', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-led-debug'), false);
+											updateForm.setValue('ledDebug', false);
+											updateForm.setTouched('ledDebug', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-led-debug'), true); updateForm.setValue('ledDebug', true); updateForm.setTouched('ledDebug', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-led-debug'), true);
+											updateForm.setValue('ledDebug', true);
+											updateForm.setTouched('ledDebug', true);
+										"
 									>
 										true
 									</button>
@@ -156,14 +164,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-reading-enable'), false); updateForm.setValue('readingEnable', false); updateForm.setTouched('readingEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-reading-enable'), false);
+											updateForm.setValue('readingEnable', false);
+											updateForm.setTouched('readingEnable', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-reading-enable'), true); updateForm.setValue('readingEnable', true); updateForm.setTouched('readingEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-reading-enable'), true);
+											updateForm.setValue('readingEnable', true);
+											updateForm.setTouched('readingEnable', true);
+										"
 									>
 										true
 									</button>
@@ -176,14 +192,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-metric-enable'), false); updateForm.setValue('metricEnable', false); updateForm.setTouched('metricEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-metric-enable'), false);
+											updateForm.setValue('metricEnable', false);
+											updateForm.setTouched('metricEnable', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-metric-enable'), true); updateForm.setValue('metricEnable', true); updateForm.setTouched('metricEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-metric-enable'), true);
+											updateForm.setValue('metricEnable', true);
+											updateForm.setTouched('metricEnable', true);
+										"
 									>
 										true
 									</button>
@@ -196,14 +220,22 @@
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-buffer-enable'), false); updateForm.setValue('bufferEnable', false); updateForm.setTouched('bufferEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-buffer-enable'), false);
+											updateForm.setValue('bufferEnable', false);
+											updateForm.setTouched('bufferEnable', true);
+										"
 									>
 										false
 									</button>
 									<button
 										type="button"
 										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-										onclick="highlightBoolean(document.getElementById('update-buffer-enable'), true); updateForm.setValue('bufferEnable', true); updateForm.setTouched('bufferEnable', true)"
+										onclick="
+											highlightBoolean(document.getElementById('update-buffer-enable'), true);
+											updateForm.setValue('bufferEnable', true);
+											updateForm.setTouched('bufferEnable', true);
+										"
 									>
 										true
 									</button>
@@ -453,7 +485,7 @@
 			(context) => {
 				errorDeviceTitle(title);
 				window.requestAnimationFrame(() => errorConfig(context.element));
-			}
+			},
 		);
 		const highlightBoolean = (element, value) => {
 			array(element.children.length).forEach((ind) => {
@@ -576,7 +608,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 	</script>
 </html>

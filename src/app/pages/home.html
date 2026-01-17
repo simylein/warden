@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -9,7 +9,11 @@
 	</head>
 	<body
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
-		onload="loadReadings(); loadMetrics(); loadBuffers()"
+		onload="
+			loadReadings();
+			loadMetrics();
+			loadBuffers();
+		"
 	>
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
 			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
@@ -1279,7 +1283,7 @@
 			(context) => {
 				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
 				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
-			}
+			},
 		);
 		const loadMetrics = fetching(
 			metrics,
@@ -1311,7 +1315,7 @@
 			(context) => {
 				window.requestAnimationFrame(() => errorPhotovoltaic(photovoltaic, context.width));
 				window.requestAnimationFrame(() => errorBattery(battery, context.width));
-			}
+			},
 		);
 		const loadBuffers = fetching(
 			buffers,
@@ -1343,7 +1347,7 @@
 			(context) => {
 				window.requestAnimationFrame(() => errorDelay(delay, context.width));
 				window.requestAnimationFrame(() => errorLevel(level, context.width));
-			}
+			},
 		);
 	</script>
 </html>

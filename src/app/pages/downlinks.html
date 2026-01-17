@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -172,7 +172,7 @@
 			(context) => fetcher('get', `/api/downlinks?limit=${getLimit()}&offset=${getOffset()}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseDownlinks(response)),
 			(context) => window.requestAnimationFrame(() => paintDownlinks(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDownlinks(context.element))
+			(context) => window.requestAnimationFrame(() => errorDownlinks(context.element)),
 		);
 		const onPaginate = () => loadDownlinks();
 	</script>

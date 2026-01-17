@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -129,7 +129,7 @@
 			(context) => fetcher('get', '/api/profile', null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseProfile(response)),
 			(context) => window.requestAnimationFrame(() => paintProfile(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorProfile(context.element))
+			(context) => window.requestAnimationFrame(() => errorProfile(context.element)),
 		);
 	</script>
 </html>

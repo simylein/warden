@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -175,42 +175,66 @@
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), 'ea580cfb923cfff7ed431407'); updateForm.setValue('color', 'ea580cfb923cfff7ed431407'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), 'ea580cfb923cfff7ed431407');
+									updateForm.setValue('color', 'ea580cfb923cfff7ed431407');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Orange
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), 'ca8a04facc15fefce8422006'); updateForm.setValue('color', 'ca8a04facc15fefce8422006'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), 'ca8a04facc15fefce8422006');
+									updateForm.setValue('color', 'ca8a04facc15fefce8422006');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Yellow
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), '16a34a4ade80f0fdf4052e16'); updateForm.setValue('color', '16a34a4ade80f0fdf4052e16'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), '16a34a4ade80f0fdf4052e16');
+									updateForm.setValue('color', '16a34a4ade80f0fdf4052e16');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Green
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), '0d94882dd4bff0fdfa042f2e'); updateForm.setValue('color', '0d94882dd4bff0fdfa042f2e'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), '0d94882dd4bff0fdfa042f2e');
+									updateForm.setValue('color', '0d94882dd4bff0fdfa042f2e');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Teal
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), '0284c738bdf8f0f9ff082f49'); updateForm.setValue('color', '0284c738bdf8f0f9ff082f49'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), '0284c738bdf8f0f9ff082f49');
+									updateForm.setValue('color', '0284c738bdf8f0f9ff082f49');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Sky
 							</button>
 							<button
 								type="button"
 								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
-								onclick="highlightColor(document.getElementById('update-colors'), '4f46e5818cf8eef2ff1e1b4b'); updateForm.setValue('color', '4f46e5818cf8eef2ff1e1b4b'); updateForm.setTouched('color', true)"
+								onclick="
+									highlightColor(document.getElementById('update-colors'), '4f46e5818cf8eef2ff1e1b4b');
+									updateForm.setValue('color', '4f46e5818cf8eef2ff1e1b4b');
+									updateForm.setTouched('color', true);
+								"
 							>
 								Indigo
 							</button>
@@ -455,7 +479,7 @@
 			(context) => {
 				errorZoneTitle(title);
 				window.requestAnimationFrame(() => errorZone(context.element));
-			}
+			},
 		);
 		const highlightColor = (element, color) => {
 			array(element.children.length).forEach((ind) => {
@@ -541,7 +565,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 	</script>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -138,7 +138,7 @@
 			(context) => fetcher('get', `/api/user/${window.location.pathname.substring(6)}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseUser(response)),
 			(context) => window.requestAnimationFrame(() => paintUser(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorUser(context.element))
+			(context) => window.requestAnimationFrame(() => errorUser(context.element)),
 		);
 	</script>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -37,7 +37,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadDevices()"
+								onclick="
+									paintSorting('id');
+									loadDevices();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -46,7 +49,10 @@
 							<th
 								id="name"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('name'); loadDevices()"
+								onclick="
+									paintSorting('name');
+									loadDevices();
+								"
 							>
 								Name
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -55,7 +61,10 @@
 							<th
 								id="zone"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('zone'); loadDevices()"
+								onclick="
+									paintSorting('zone');
+									loadDevices();
+								"
 							>
 								Zone
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -64,7 +73,10 @@
 							<th
 								id="temperature"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('temperature'); loadDevices()"
+								onclick="
+									paintSorting('temperature');
+									loadDevices();
+								"
 							>
 								Temperature
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -73,7 +85,10 @@
 							<th
 								id="humidity"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('humidity'); loadDevices()"
+								onclick="
+									paintSorting('humidity');
+									loadDevices();
+								"
 							>
 								Humidity
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -82,7 +97,10 @@
 							<th
 								id="photovoltaic"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('photovoltaic'); loadDevices()"
+								onclick="
+									paintSorting('photovoltaic');
+									loadDevices();
+								"
 							>
 								Photovoltaic
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -91,7 +109,10 @@
 							<th
 								id="battery"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('battery'); loadDevices()"
+								onclick="
+									paintSorting('battery');
+									loadDevices();
+								"
 							>
 								Battery
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -100,7 +121,10 @@
 							<th
 								id="delay"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('delay'); loadDevices()"
+								onclick="
+									paintSorting('delay');
+									loadDevices();
+								"
 							>
 								Delay
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -109,7 +133,10 @@
 							<th
 								id="level"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('level'); loadDevices()"
+								onclick="
+									paintSorting('level');
+									loadDevices();
+								"
 							>
 								Level
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -354,7 +381,7 @@
 			},
 			async (context, response) => (context.data = await parseDevices(response)),
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
+			(context) => window.requestAnimationFrame(() => errorDevices(context.element)),
 		);
 	</script>
 </html>
