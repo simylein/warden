@@ -409,7 +409,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/device/:id/config", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			config_find_one_by_device(db, database, &bwt, request, response);
+			config_find_one_by_device(db, &bwt, request, response);
 		}
 	}
 

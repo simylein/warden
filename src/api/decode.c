@@ -434,7 +434,7 @@ uint16_t decode(octet_t *db, sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = config_insert(database, &config)) != 0) {
+		if ((status = config_insert(db, &config)) != 0) {
 			return status;
 		}
 		return 0;
@@ -556,7 +556,7 @@ uint16_t decode(octet_t *db, sqlite3 *database, uplink_t *uplink) {
 			return 400;
 		}
 		uint16_t status;
-		if ((status = config_insert(database, &config)) != 0) {
+		if ((status = config_insert(db, &config)) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(db, &buffer)) != 0) {
