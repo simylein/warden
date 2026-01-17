@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -37,7 +37,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadZones()"
+								onclick="
+									paintSorting('id');
+									loadZones();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -46,7 +49,10 @@
 							<th
 								id="name"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('name'); loadZones()"
+								onclick="
+									paintSorting('name');
+									loadZones();
+								"
 							>
 								Name
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -55,7 +61,10 @@
 							<th
 								id="temperature"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('temperature'); loadZones()"
+								onclick="
+									paintSorting('temperature');
+									loadZones();
+								"
 							>
 								Temperature
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -64,7 +73,10 @@
 							<th
 								id="humidity"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('humidity'); loadZones()"
+								onclick="
+									paintSorting('humidity');
+									loadZones();
+								"
 							>
 								Humidity
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -73,7 +85,10 @@
 							<th
 								id="photovoltaic"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('photovoltaic'); loadZones()"
+								onclick="
+									paintSorting('photovoltaic');
+									loadZones();
+								"
 							>
 								Photovoltaic
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -82,7 +97,10 @@
 							<th
 								id="battery"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('battery'); loadZones()"
+								onclick="
+									paintSorting('battery');
+									loadZones();
+								"
 							>
 								Battery
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -91,7 +109,10 @@
 							<th
 								id="delay"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('delay'); loadZones()"
+								onclick="
+									paintSorting('delay');
+									loadZones();
+								"
 							>
 								Delay
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -100,7 +121,10 @@
 							<th
 								id="level"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('level'); loadZones()"
+								onclick="
+									paintSorting('level');
+									loadZones();
+								"
 							>
 								Level
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -335,7 +359,7 @@
 			},
 			async (context, response) => (context.data = await parseZones(response)),
 			(context) => window.requestAnimationFrame(() => paintZones(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorZones(context.element))
+			(context) => window.requestAnimationFrame(() => errorZones(context.element)),
 		);
 	</script>
 </html>

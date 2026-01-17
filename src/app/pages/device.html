@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -603,7 +603,7 @@
 			(context) => {
 				errorDeviceTitle(title);
 				window.requestAnimationFrame(() => errorDevice(context.element));
-			}
+			},
 		);
 		const updateDialog = document.getElementById('update-dialog');
 		const openUpdateDialog = (device) => {
@@ -659,7 +659,7 @@
 					report(err);
 				}
 				closeUpdateDialog();
-			}
+			},
 		);
 	</script>
 </html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -305,7 +305,7 @@
 			(context) => fetcher('get', `/api/uplink/${window.location.pathname.substring(8)}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseUplink(response)),
 			(context) => window.requestAnimationFrame(() => paintUplink(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorUplink(context.element))
+			(context) => window.requestAnimationFrame(() => errorUplink(context.element)),
 		);
 	</script>
 </html>

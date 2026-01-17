@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -38,7 +38,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadUsers()"
+								onclick="
+									paintSorting('id');
+									loadUsers();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -47,7 +50,10 @@
 							<th
 								id="username"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('username'); loadUsers()"
+								onclick="
+									paintSorting('username');
+									loadUsers();
+								"
 							>
 								Username
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -56,7 +62,10 @@
 							<th
 								id="signup-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('signupAt'); loadUsers()"
+								onclick="
+									paintSorting('signupAt');
+									loadUsers();
+								"
 							>
 								Signup at
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -65,7 +74,10 @@
 							<th
 								id="signin-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('signinAt'); loadUsers()"
+								onclick="
+									paintSorting('signinAt');
+									loadUsers();
+								"
 							>
 								Signin at
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -249,7 +261,7 @@
 			},
 			async (context, response) => (context.data = await parseUsers(response)),
 			(context) => window.requestAnimationFrame(() => paintUsers(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorUsers(context.element))
+			(context) => window.requestAnimationFrame(() => errorUsers(context.element)),
 		);
 		const deleteDialog = document.getElementById('delete-dialog');
 		const openDeleteDialog = (user) => {
@@ -281,7 +293,7 @@
 					report(err);
 				}
 				closeDeleteDialog();
-			}
+			},
 		);
 	</script>
 </html>

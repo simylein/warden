@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -270,7 +270,7 @@
 			(context) => fetcher('get', `/api/downlink/${window.location.pathname.substring(10)}`, null, { controller: context.controller }),
 			async (context, response) => (context.data = await parseDownlink(response)),
 			(context) => window.requestAnimationFrame(() => paintDownlink(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDownlink(context.element))
+			(context) => window.requestAnimationFrame(() => errorDownlink(context.element)),
 		);
 	</script>
 </html>

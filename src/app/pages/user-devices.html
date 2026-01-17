@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -57,7 +57,10 @@
 								id="id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('id'); loadDevices()"
+								onclick="
+									paintSorting('id');
+									loadDevices();
+								"
 							>
 								Id
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
@@ -66,7 +69,10 @@
 							<th
 								id="name"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('name'); loadDevices()"
+								onclick="
+									paintSorting('name');
+									loadDevices();
+								"
 							>
 								Name
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -75,7 +81,10 @@
 							<th
 								id="zone"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('zone'); loadDevices()"
+								onclick="
+									paintSorting('zone');
+									loadDevices();
+								"
 							>
 								Zone
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -84,7 +93,10 @@
 							<th
 								id="created-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('createdAt'); loadDevices()"
+								onclick="
+									paintSorting('createdAt');
+									loadDevices();
+								"
 							>
 								Created at
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -93,7 +105,10 @@
 							<th
 								id="updated-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('updatedAt'); loadDevices()"
+								onclick="
+									paintSorting('updatedAt');
+									loadDevices();
+								"
 							>
 								Updated at
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -102,7 +117,10 @@
 							<th
 								id="received-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="paintSorting('receivedAt'); loadDevices()"
+								onclick="
+									paintSorting('receivedAt');
+									loadDevices();
+								"
 							>
 								Received at
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
@@ -361,7 +379,7 @@
 			},
 			async (context, response) => (context.data = await parseDevices(response)),
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDevices(context.element))
+			(context) => window.requestAnimationFrame(() => errorDevices(context.element)),
 		);
 		const createDialog = document.getElementById('create-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
@@ -410,7 +428,7 @@
 					report(err);
 				}
 				closeCreateDialog();
-			}
+			},
 		);
 		const deleteForm = formik(
 			{
@@ -438,7 +456,7 @@
 					report(err);
 				}
 				closeDeleteDialog();
-			}
+			},
 		);
 	</script>
 </html>
