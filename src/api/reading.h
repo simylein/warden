@@ -48,4 +48,4 @@ uint16_t reading_insert(octet_t *db, reading_t *reading);
 
 void reading_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void reading_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
-void reading_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void reading_find_by_zone(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

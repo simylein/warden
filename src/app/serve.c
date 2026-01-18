@@ -2,6 +2,7 @@
 #include "../api/downlink.h"
 #include "../api/uplink.h"
 #include "../api/user-device.h"
+#include "../api/user-zone.h"
 #include "../api/user.h"
 #include "../api/zone.h"
 #include "../lib/base16.h"
@@ -372,7 +373,7 @@ void serve_device_downlinks(octet_t *db, bwt_t *bwt, request_t *request, respons
 	serve(&page_device_downlinks, response);
 }
 
-void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_zone(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -389,7 +390,14 @@ void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = &bwt->id, .zone_id = zone.id};
+	status = user_zone_existing(db, &user_zone);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -398,7 +406,7 @@ void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *r
 	serve(&page_zone, response);
 }
 
-void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_zone_readings(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -415,7 +423,14 @@ void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = &bwt->id, .zone_id = zone.id};
+	status = user_zone_existing(db, &user_zone);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -424,7 +439,7 @@ void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 	serve(&page_zone_readings, response);
 }
 
-void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_zone_metrics(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -441,7 +456,14 @@ void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = &bwt->id, .zone_id = zone.id};
+	status = user_zone_existing(db, &user_zone);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -450,7 +472,7 @@ void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	serve(&page_zone_metrics, response);
 }
 
-void serve_zone_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_zone_buffers(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -467,7 +489,14 @@ void serve_zone_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = &bwt->id, .zone_id = zone.id};
+	status = user_zone_existing(db, &user_zone);
 	if (status != 0) {
 		response->status = status;
 		return;
@@ -476,7 +505,7 @@ void serve_zone_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	serve(&page_zone_buffers, response);
 }
 
-void serve_zone_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void serve_zone_signals(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 6, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -493,7 +522,14 @@ void serve_zone_signals(sqlite3 *database, bwt_t *bwt, request_t *request, respo
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = &bwt->id, .zone_id = zone.id};
+	status = user_zone_existing(db, &user_zone);
 	if (status != 0) {
 		response->status = status;
 		return;

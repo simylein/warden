@@ -80,5 +80,5 @@ void uplink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 void uplink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_signal_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
-void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void uplink_signal_find_by_zone(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void uplink_create(octet_t *db, request_t *request, response_t *response);
