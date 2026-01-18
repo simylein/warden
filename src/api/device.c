@@ -208,6 +208,13 @@ cleanup:
 uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
 
+	uint8_t user_devices_len = 0;
+	user_t user = {.id = &bwt->id};
+	status = user_device_select_by_user(db, &user, &user_devices_len);
+	if (status != 0) {
+		return status;
+	}
+
 	char file[128];
 	if (sprintf(file, "%s/device.data", db->directory) == -1) {
 		error("failed to sprintf to file\n");
@@ -240,12 +247,20 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 			status = 500;
 			goto cleanup;
 		}
-		table_len += device_row.size;
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
+		for (uint8_t index = 0; index < user_devices_len; index++) {
+			uint8_t (*device_id)[16] =
+					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			if (memcmp(id, device_id, sizeof(*device_id)) == 0) {
+				table_len += device_row.size;
+				break;
+			}
+		}
 		offset += device_row.size;
 	}
 
-	for (uint8_t index = 0; index < stmt.stat.st_size / device_row.size - 1; index++) {
-		for (uint8_t ind = index + 1; ind < stmt.stat.st_size / device_row.size; ind++) {
+	for (uint8_t index = 0; index < table_len / device_row.size - 1; index++) {
+		for (uint8_t ind = index + 1; ind < table_len / device_row.size; ind++) {
 			if (device_rowcmp(&db->table[index * device_row.size], &db->table[ind * device_row.size], query) > 0) {
 				memcpy(db->row, &db->table[index * device_row.size], device_row.size);
 				memcpy(&db->table[index * device_row.size], &db->table[ind * device_row.size], device_row.size);
