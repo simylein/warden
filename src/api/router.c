@@ -239,35 +239,35 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/zone/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_zone(database, &bwt, request, response);
+			serve_zone(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/zone/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_zone_readings(database, &bwt, request, response);
+			serve_zone_readings(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/zone/:id/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_zone_metrics(database, &bwt, request, response);
+			serve_zone_metrics(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/zone/:id/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_zone_buffers(database, &bwt, request, response);
+			serve_zone_buffers(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/zone/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
-			serve_zone_signals(database, &bwt, request, response);
+			serve_zone_signals(db, &bwt, request, response);
 		}
 	}
 
@@ -444,14 +444,14 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/zones", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			zone_find(database, &bwt, request, response);
+			zone_find(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/zone/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			zone_find_one(database, &bwt, request, response);
+			zone_find_one(db, database, &bwt, request, response);
 		}
 	}
 
@@ -465,28 +465,28 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/zone/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			reading_find_by_zone(database, &bwt, request, response);
+			reading_find_by_zone(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/zone/:id/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			metric_find_by_zone(database, &bwt, request, response);
+			metric_find_by_zone(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/zone/:id/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			buffer_find_by_zone(database, &bwt, request, response);
+			buffer_find_by_zone(db, database, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/zone/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_signal_find_by_zone(database, &bwt, request, response);
+			uplink_signal_find_by_zone(db, database, &bwt, request, response);
 		}
 	}
 

@@ -48,4 +48,4 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer);
 
 void buffer_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void buffer_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
-void buffer_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void buffer_find_by_zone(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);

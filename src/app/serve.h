@@ -19,11 +19,11 @@ void serve_device_signals(octet_t *db, bwt_t *bwt, request_t *request, response_
 void serve_device_uplinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_downlinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 
-void serve_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_zone_readings(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_zone_metrics(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_zone_buffers(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void serve_zone_signals(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone_readings(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone_metrics(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone_buffers(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_zone_signals(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 
 void serve_uplink(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 

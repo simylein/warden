@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../lib/bwt.h"
+#include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include <sqlite3.h>
@@ -25,16 +26,41 @@ typedef struct zone_query_t {
 	uint32_t offset;
 } zone_query_t;
 
+typedef struct zone_row_t {
+	uint8_t id;
+	uint8_t name_len;
+	uint8_t name;
+	uint8_t color;
+	uint8_t created_at;
+	uint8_t updated_at_null;
+	uint8_t updated_at;
+	uint8_t reading_null;
+	uint8_t reading_temperature;
+	uint8_t reading_humidity;
+	uint8_t reading_captured_at;
+	uint8_t metric_null;
+	uint8_t metric_photovoltaic;
+	uint8_t metric_battery;
+	uint8_t metric_captured_at;
+	uint8_t buffer_null;
+	uint8_t buffer_delay;
+	uint8_t buffer_level;
+	uint8_t buffer_captured_at;
+	uint8_t size;
+} zone_row_t;
+
+extern const zone_row_t zone_row;
+
 extern const char *zone_table;
 extern const char *zone_schema;
 
-uint16_t zone_existing(sqlite3 *database, bwt_t *bwt, zone_t *zone);
+uint16_t zone_existing(octet_t *db, zone_t *zone);
 
-uint16_t zone_select(sqlite3 *database, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
+uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
 uint16_t zone_select_one(sqlite3 *database, bwt_t *bwt, zone_t *zone, response_t *response);
 uint16_t zone_insert(sqlite3 *database, zone_t *zone);
 uint16_t zone_update(sqlite3 *database, zone_t *zone);
 
-void zone_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void zone_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void zone_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void zone_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void zone_modify(sqlite3 *database, request_t *request, response_t *response);

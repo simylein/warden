@@ -429,7 +429,7 @@ void buffer_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 	response->status = 200;
 }
 
-void buffer_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void buffer_find_by_zone(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
@@ -492,7 +492,7 @@ void buffer_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *request, resp
 	}
 
 	zone_t zone = {.id = &id};
-	uint16_t status = zone_existing(database, bwt, &zone);
+	uint16_t status = zone_existing(db, &zone);
 	if (status != 0) {
 		response->status = status;
 		return;
