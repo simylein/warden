@@ -380,7 +380,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_device_update, response) == true) {
-				device_modify(database, request, response);
+				device_modify(db, request, response);
 			}
 		}
 	}
@@ -508,7 +508,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_uplink_create, response) == true) {
-				uplink_create(db, database, request, response);
+				uplink_create(db, request, response);
 			}
 		}
 	}
