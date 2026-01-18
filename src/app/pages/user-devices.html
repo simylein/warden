@@ -352,18 +352,12 @@
 				if (binary.byte() !== 0) {
 					device.zone = {};
 					device.zone.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
 					device.zone.name = binary.string();
-				}
-				if (binary.byte() !== 0) {
 					device.zone.color = binary.hex(12);
 				}
 				if (binary.byte() !== 0) {
 					device.uplink = {};
 					device.uplink.id = binary.uuid();
-				}
-				if (binary.byte() !== 0) {
 					device.uplink.receivedAt = binary.uint(64);
 				}
 				devices.push(device);

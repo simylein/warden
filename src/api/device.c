@@ -7,13 +7,9 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "cache.h"
-#include "database.h"
-#include "uplink.h"
 #include "user-device.h"
 #include "user.h"
-#include "zone.h"
 #include <fcntl.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -83,6 +79,26 @@ int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
 		uint8_t name_len_bravo = octet_uint8_read(bravo, device_row.name_len);
 		char *name_bravo = octet_text_read(bravo, device_row.name);
 		int result = memcmp(name_alpha, name_bravo, name_len_alpha < name_len_bravo ? name_len_alpha : name_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "createdAt", query->order_len) == 0) {
+		time_t created_at_alpha = (time_t)octet_uint64_read(alpha, device_row.created_at);
+		time_t created_at_bravo = (time_t)octet_uint64_read(bravo, device_row.created_at);
+		int result = (created_at_alpha > created_at_bravo) - (created_at_alpha < created_at_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "updatedAt", query->order_len) == 0) {
+		time_t updated_at_alpha = (time_t)octet_uint64_read(alpha, device_row.updated_at);
+		time_t updated_at_bravo = (time_t)octet_uint64_read(bravo, device_row.updated_at);
+		int result = (updated_at_alpha > updated_at_bravo) - (updated_at_alpha < updated_at_bravo);
 		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
 			result = -result;
 		}
@@ -493,134 +509,111 @@ cleanup:
 	return status;
 }
 
-uint16_t device_select_by_user(sqlite3 *database, user_t *user, device_query_t *query, response_t *response,
-															 uint8_t *devices_len) {
+uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query, response_t *response, uint8_t *devices_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"device.id, device.name, device.created_at, device.updated_at, "
-										"zone.id, zone.name, zone.color, "
-										"uplink.id, uplink.received_at "
-										"from device "
-										"join user_device on user_device.device_id = device.id and user_device.user_id = ?1 "
-										"left join zone on zone.id = device.zone_id "
-										"left join uplink on uplink.id = "
-										"(select id from uplink where device_id = device.id order by uplink.received_at desc limit 1) "
-										"order by "
-										"case when ?2 = 'id' and ?3 = 'asc' then device.id end asc, "
-										"case when ?2 = 'id' and ?3 = 'desc' then device.id end desc, "
-										"case when ?2 = 'name' and ?3 = 'asc' then device.name end asc, "
-										"case when ?2 = 'name' and ?3 = 'desc' then device.name end desc, "
-										"case when ?2 = 'zone' and ?3 = 'asc' then zone.name end asc, "
-										"case when ?2 = 'zone' and ?3 = 'desc' then zone.name end desc, "
-										"case when ?2 = 'createdAt' and ?3 = 'asc' then device.created_at end asc, "
-										"case when ?2 = 'createdAt' and ?3 = 'desc' then device.created_at end desc, "
-										"case when ?2 = 'updatedAt' and ?3 = 'asc' then device.updated_at end asc, "
-										"case when ?2 = 'updatedAt' and ?3 = 'desc' then device.updated_at end desc, "
-										"case when ?2 = 'receivedAt' and ?3 = 'asc' then uplink.received_at end asc, "
-										"case when ?2 = 'receivedAt' and ?3 = 'desc' then uplink.received_at end desc "
-										"limit ?4 offset ?5";
-	debug("select devices for user %02x%02x order by %.*s:%.*s\n", (*user->id)[0], (*user->id)[1], (int)query->order_len,
-				query->order, (int)query->sort_len, query->sort);
+	uint8_t user_devices_len = 0;
+	status = user_device_select_by_user(db, user, &user_devices_len);
+	if (status != 0) {
+		return status;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	char file[128];
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, query->order, (uint8_t)query->order_len, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 3, query->sort, (uint8_t)query->sort_len, SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 4, query->limit);
-	sqlite3_bind_int64(stmt, 5, query->offset);
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = 500;
+		goto cleanup;
+	}
 
+	debug("select devices for user %02x%02x order by %.*s:%.*s\n", (*user->id)[0], (*user->id)[1], (int)query->order_len,
+				query->order, (int)query->sort_len, query->sort);
+
+	off_t offset = 0;
+	uint32_t table_len = 0;
 	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((device_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((device_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *name = sqlite3_column_text(stmt, 1);
-			const size_t name_len = (size_t)sqlite3_column_bytes(stmt, 1);
-			const time_t created_at = (time_t)sqlite3_column_int64(stmt, 2);
-			const time_t updated_at = (time_t)sqlite3_column_int64(stmt, 3);
-			const int updated_at_type = sqlite3_column_type(stmt, 3);
-			const uint8_t *zone_id = sqlite3_column_blob(stmt, 4);
-			const size_t zone_id_len = (size_t)sqlite3_column_bytes(stmt, 4);
-			const int zone_id_type = sqlite3_column_type(stmt, 4);
-			if (zone_id_type != SQLITE_NULL && zone_id_len != sizeof(*((zone_t *)0)->id)) {
-				error("zone id length %zu does not match buffer length %zu\n", zone_id_len, sizeof(*((zone_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *zone_name = sqlite3_column_text(stmt, 5);
-			const size_t zone_name_len = (size_t)sqlite3_column_bytes(stmt, 5);
-			const int zone_name_type = sqlite3_column_type(stmt, 5);
-			const uint8_t *zone_color = sqlite3_column_blob(stmt, 6);
-			const size_t zone_color_len = (size_t)sqlite3_column_bytes(stmt, 6);
-			const int zone_color_type = sqlite3_column_type(stmt, 6);
-			if (zone_color_type != SQLITE_NULL && zone_color_len != sizeof(*((zone_t *)0)->color)) {
-				error("zone color length %zu does not match buffer length %zu\n", zone_color_len, sizeof(*((zone_t *)0)->color));
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t *uplink_id = sqlite3_column_blob(stmt, 7);
-			const size_t uplink_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
-			const int uplink_id_type = sqlite3_column_type(stmt, 7);
-			if (uplink_id_type != SQLITE_NULL && uplink_id_len != sizeof(*((uplink_t *)0)->id)) {
-				error("uplink id length %zu does not match buffer length %zu\n", uplink_id_len, sizeof(*((uplink_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const time_t uplink_received_at = (time_t)sqlite3_column_int64(stmt, 8);
-			const int uplink_received_at_type = sqlite3_column_type(stmt, 8);
-			body_write(response, id, id_len);
-			body_write(response, name, name_len);
-			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
-			body_write(response, (char[]){updated_at_type != SQLITE_NULL}, sizeof(char));
-			if (updated_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
-			}
-			body_write(response, (char[]){zone_id_type != SQLITE_NULL}, sizeof(char));
-			if (zone_id_type != SQLITE_NULL) {
-				body_write(response, zone_id, zone_id_len);
-			}
-			body_write(response, (char[]){zone_name_type != SQLITE_NULL}, sizeof(char));
-			if (zone_name_type != SQLITE_NULL) {
-				body_write(response, zone_name, zone_name_len);
-				body_write(response, (char[]){0x00}, sizeof(char));
-			}
-			body_write(response, (char[]){zone_color_type != SQLITE_NULL}, sizeof(char));
-			if (zone_color_type != SQLITE_NULL) {
-				body_write(response, zone_color, zone_color_len);
-			}
-			body_write(response, (char[]){uplink_id_type != SQLITE_NULL}, sizeof(char));
-			if (uplink_id_type != SQLITE_NULL) {
-				body_write(response, uplink_id, uplink_id_len);
-			}
-			body_write(response, (char[]){uplink_received_at_type != SQLITE_NULL}, sizeof(char));
-			if (uplink_received_at_type != SQLITE_NULL) {
-				body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
-			}
-			*devices_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
-		} else {
-			status = database_error(database, result);
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], device_row.size) == -1) {
+			status = 500;
 			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
+		for (uint8_t index = 0; index < user_devices_len; index++) {
+			uint8_t (*device_id)[16] =
+					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			if (memcmp(id, device_id, sizeof(*device_id)) == 0) {
+				table_len += device_row.size;
+				break;
+			}
+		}
+		offset += device_row.size;
+	}
+
+	if (table_len >= device_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / device_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / device_row.size; ind++) {
+				if (device_rowcmp(&db->table[index * device_row.size], &db->table[ind * device_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * device_row.size], device_row.size);
+					memcpy(&db->table[index * device_row.size], &db->table[ind * device_row.size], device_row.size);
+					memcpy(&db->table[ind * device_row.size], db->row, device_row.size);
+				}
+			}
 		}
 	}
 
+	uint32_t index = device_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *devices_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.id);
+		uint8_t name_len = octet_uint8_read(&db->table[index], device_row.name_len);
+		char *name = octet_text_read(&db->table[index], device_row.name);
+		time_t created_at = (time_t)octet_uint64_read(&db->table[index], device_row.created_at);
+		uint8_t updated_at_null = octet_uint8_read(&db->table[index], device_row.updated_at_null);
+		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], device_row.updated_at);
+		uint8_t zone_null = octet_uint8_read(&db->table[index], device_row.zone_null);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.zone_id);
+		uint8_t zone_name_len = octet_uint8_read(&db->table[index], device_row.zone_name_len);
+		char *zone_name = octet_text_read(&db->table[index], device_row.zone_name);
+		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], device_row.zone_color);
+		uint8_t uplink_null = 0x00;
+		body_write(response, id, sizeof(*id));
+		body_write(response, name, name_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+		if (updated_at_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+		}
+		body_write(response, (uint8_t[]){zone_null != 0x00}, sizeof(zone_null));
+		if (zone_null != 0x00) {
+			body_write(response, zone_id, sizeof(*zone_id));
+			body_write(response, zone_name, zone_name_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, zone_color, sizeof(*zone_color));
+		}
+		body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+		*devices_len += 1;
+		index += device_row.size;
+	}
+
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -959,7 +952,7 @@ void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *re
 	response->status = 200;
 }
 
-void device_find_by_user(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
+void device_find_by_user(octet_t *db, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 10, &uuid_len);
 	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
@@ -994,7 +987,7 @@ void device_find_by_user(octet_t *db, sqlite3 *database, request_t *request, res
 	}
 
 	uint8_t devices_len = 0;
-	status = device_select_by_user(database, &user, &query, response, &devices_len);
+	status = device_select_by_user(db, &user, &query, response, &devices_len);
 	if (status != 0) {
 		response->status = status;
 		return;
