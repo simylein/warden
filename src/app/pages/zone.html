@@ -432,31 +432,19 @@
 			if (binary.byte() !== 0) {
 				zone.reading = {};
 				zone.reading.temperature = binary.int(16) / 100;
-			}
-			if (binary.byte() !== 0) {
 				zone.reading.humidity = binary.uint(16) / 100;
-			}
-			if (binary.byte() !== 0) {
 				zone.reading.capturedAt = binary.uint(64);
 			}
 			if (binary.byte() !== 0) {
 				zone.metric = {};
 				zone.metric.photovoltaic = binary.uint(16) / 1000;
-			}
-			if (binary.byte() !== 0) {
 				zone.metric.battery = binary.uint(16) / 1000;
-			}
-			if (binary.byte() !== 0) {
 				zone.metric.capturedAt = binary.uint(64);
 			}
 			if (binary.byte() !== 0) {
 				zone.buffer = {};
 				zone.buffer.delay = binary.uint(32);
-			}
-			if (binary.byte() !== 0) {
 				zone.buffer.level = binary.uint(16);
-			}
-			if (binary.byte() !== 0) {
 				zone.buffer.capturedAt = binary.uint(64);
 			}
 			return zone;

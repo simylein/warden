@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x20 && seed(&db, database) != 0) {
+		if (cmds & 0x20 && seed(&db) != 0) {
 			fatal("failed to seed database\n");
 			exit(1);
 		}

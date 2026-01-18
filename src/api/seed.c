@@ -11,7 +11,6 @@
 #include "user-device.h"
 #include "user.h"
 #include "zone.h"
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +59,7 @@ int seed_user(octet_t *db, const char *table) {
 	return 0;
 }
 
-int seed_zone(sqlite3 *database, const char *table) {
+int seed_zone(octet_t *db, const char *table) {
 	char *names[] = {"indoor", "outdoor"};
 	uint8_t colors[][12] = {
 			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
@@ -82,7 +81,7 @@ int seed_zone(sqlite3 *database, const char *table) {
 				.created_at = (time_t[]){time(NULL)},
 		};
 
-		if (zone_insert(database, &zone) != 0) {
+		if (zone_insert(db, &zone) != 0) {
 			return -1;
 		}
 	}
@@ -575,13 +574,13 @@ int seed_radio(octet_t *db, const char *table) {
 	return 0;
 }
 
-int seed(octet_t *db, sqlite3 *database) {
+int seed(octet_t *db) {
 	srand((unsigned int)time(NULL));
 
 	if (seed_user(db, user_table) == -1) {
 		return -1;
 	}
-	if (seed_zone(database, zone_table) == -1) {
+	if (seed_zone(db, zone_table) == -1) {
 		return -1;
 	}
 	if (seed_device(db, device_table) == -1) {
