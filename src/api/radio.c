@@ -79,21 +79,21 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 		goto cleanup;
 	}
 
-	if (octet_row_read(&stmt, file, offset, db->buffer, radio_row.size) == -1) {
+	if (octet_row_read(&stmt, file, offset, db->row, radio_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	uint32_t frequency = octet_uint32_read(db->buffer, radio_row.frequency);
-	uint32_t bandwidth = octet_uint32_read(db->buffer, radio_row.bandwidth);
-	uint8_t coding_rate = octet_uint8_read(db->buffer, radio_row.coding_rate);
-	uint8_t spreading_factor = octet_uint8_read(db->buffer, radio_row.spreading_factor);
-	uint8_t preamble_length = octet_uint8_read(db->buffer, radio_row.preamble_length);
-	uint8_t tx_power = octet_uint8_read(db->buffer, radio_row.tx_power);
-	uint8_t sync_word = octet_uint8_read(db->buffer, radio_row.sync_word);
-	bool checksum = octet_uint8_read(db->buffer, radio_row.checksum);
-	time_t captured_at = (time_t)octet_uint64_read(db->buffer, radio_row.captured_at);
-	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, radio_row.uplink_id);
+	uint32_t frequency = octet_uint32_read(db->row, radio_row.frequency);
+	uint32_t bandwidth = octet_uint32_read(db->row, radio_row.bandwidth);
+	uint8_t coding_rate = octet_uint8_read(db->row, radio_row.coding_rate);
+	uint8_t spreading_factor = octet_uint8_read(db->row, radio_row.spreading_factor);
+	uint8_t preamble_length = octet_uint8_read(db->row, radio_row.preamble_length);
+	uint8_t tx_power = octet_uint8_read(db->row, radio_row.tx_power);
+	uint8_t sync_word = octet_uint8_read(db->row, radio_row.sync_word);
+	bool checksum = octet_uint8_read(db->row, radio_row.checksum);
+	time_t captured_at = (time_t)octet_uint64_read(db->row, radio_row.captured_at);
+	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.uplink_id);
 	body_write(response, (uint32_t[]){hton32((uint32_t)frequency)}, sizeof(frequency));
 	body_write(response, (uint32_t[]){hton32((uint32_t)bandwidth)}, sizeof(bandwidth));
 	body_write(response, &coding_rate, sizeof(coding_rate));
@@ -140,20 +140,20 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	debug("insert radio for device %02x%02x captured at %lu\n", (*radio->device_id)[0], (*radio->device_id)[1],
 				radio->captured_at);
 
-	octet_blob_write(db->buffer, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
-	octet_uint32_write(db->buffer, radio_row.frequency, radio->frequency);
-	octet_uint32_write(db->buffer, radio_row.bandwidth, radio->bandwidth);
-	octet_uint8_write(db->buffer, radio_row.coding_rate, radio->coding_rate);
-	octet_uint8_write(db->buffer, radio_row.spreading_factor, radio->spreading_factor);
-	octet_uint8_write(db->buffer, radio_row.preamble_length, radio->preamble_length);
-	octet_uint8_write(db->buffer, radio_row.tx_power, radio->tx_power);
-	octet_uint8_write(db->buffer, radio_row.sync_word, radio->sync_word);
-	octet_uint8_write(db->buffer, radio_row.checksum, radio->checksum);
-	octet_uint64_write(db->buffer, radio_row.captured_at, (uint64_t)radio->captured_at);
-	octet_blob_write(db->buffer, radio_row.uplink_id, (uint8_t *)radio->uplink_id, sizeof(*radio->uplink_id));
+	octet_blob_write(db->row, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
+	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
+	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
+	octet_uint8_write(db->row, radio_row.coding_rate, radio->coding_rate);
+	octet_uint8_write(db->row, radio_row.spreading_factor, radio->spreading_factor);
+	octet_uint8_write(db->row, radio_row.preamble_length, radio->preamble_length);
+	octet_uint8_write(db->row, radio_row.tx_power, radio->tx_power);
+	octet_uint8_write(db->row, radio_row.sync_word, radio->sync_word);
+	octet_uint8_write(db->row, radio_row.checksum, radio->checksum);
+	octet_uint64_write(db->row, radio_row.captured_at, (uint64_t)radio->captured_at);
+	octet_blob_write(db->row, radio_row.uplink_id, (uint8_t *)radio->uplink_id, sizeof(*radio->uplink_id));
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, radio_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}

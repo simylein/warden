@@ -77,20 +77,20 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 		goto cleanup;
 	}
 
-	if (octet_row_read(&stmt, file, offset, db->buffer, config_row.size) == -1) {
+	if (octet_row_read(&stmt, file, offset, db->row, config_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	bool led_debug = octet_uint8_read(db->buffer, config_row.led_debug);
-	bool reading_enable = octet_uint8_read(db->buffer, config_row.reading_enable);
-	bool metric_enable = octet_uint8_read(db->buffer, config_row.metric_enable);
-	bool buffer_enable = octet_uint8_read(db->buffer, config_row.buffer_enable);
-	uint16_t reading_interval = octet_uint16_read(db->buffer, config_row.reading_interval);
-	uint16_t metric_interval = octet_uint16_read(db->buffer, config_row.metric_interval);
-	uint16_t buffer_interval = octet_uint16_read(db->buffer, config_row.buffer_interval);
-	time_t captured_at = (time_t)octet_uint64_read(db->buffer, config_row.captured_at);
-	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, config_row.uplink_id);
+	bool led_debug = octet_uint8_read(db->row, config_row.led_debug);
+	bool reading_enable = octet_uint8_read(db->row, config_row.reading_enable);
+	bool metric_enable = octet_uint8_read(db->row, config_row.metric_enable);
+	bool buffer_enable = octet_uint8_read(db->row, config_row.buffer_enable);
+	uint16_t reading_interval = octet_uint16_read(db->row, config_row.reading_interval);
+	uint16_t metric_interval = octet_uint16_read(db->row, config_row.metric_interval);
+	uint16_t buffer_interval = octet_uint16_read(db->row, config_row.buffer_interval);
+	time_t captured_at = (time_t)octet_uint64_read(db->row, config_row.captured_at);
+	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, config_row.uplink_id);
 	body_write(response, &led_debug, sizeof(led_debug));
 	body_write(response, &reading_enable, sizeof(reading_enable));
 	body_write(response, &metric_enable, sizeof(metric_enable));
@@ -136,19 +136,19 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	debug("insert config for device %02x%02x captured at %lu\n", (*config->device_id)[0], (*config->device_id)[1],
 				config->captured_at);
 
-	octet_blob_write(db->buffer, config_row.id, (uint8_t *)config->id, sizeof(*config->id));
-	octet_uint8_write(db->buffer, config_row.led_debug, config->led_debug);
-	octet_uint8_write(db->buffer, config_row.reading_enable, config->reading_enable);
-	octet_uint8_write(db->buffer, config_row.metric_enable, config->metric_enable);
-	octet_uint8_write(db->buffer, config_row.buffer_enable, config->buffer_enable);
-	octet_uint16_write(db->buffer, config_row.reading_interval, config->reading_interval);
-	octet_uint16_write(db->buffer, config_row.metric_interval, config->metric_interval);
-	octet_uint16_write(db->buffer, config_row.buffer_interval, config->buffer_interval);
-	octet_uint64_write(db->buffer, config_row.captured_at, (uint64_t)config->captured_at);
-	octet_blob_write(db->buffer, config_row.uplink_id, (uint8_t *)config->uplink_id, sizeof(*config->uplink_id));
+	octet_blob_write(db->row, config_row.id, (uint8_t *)config->id, sizeof(*config->id));
+	octet_uint8_write(db->row, config_row.led_debug, config->led_debug);
+	octet_uint8_write(db->row, config_row.reading_enable, config->reading_enable);
+	octet_uint8_write(db->row, config_row.metric_enable, config->metric_enable);
+	octet_uint8_write(db->row, config_row.buffer_enable, config->buffer_enable);
+	octet_uint16_write(db->row, config_row.reading_interval, config->reading_interval);
+	octet_uint16_write(db->row, config_row.metric_interval, config->metric_interval);
+	octet_uint16_write(db->row, config_row.buffer_interval, config->buffer_interval);
+	octet_uint64_write(db->row, config_row.captured_at, (uint64_t)config->captured_at);
+	octet_blob_write(db->row, config_row.uplink_id, (uint8_t *)config->uplink_id, sizeof(*config->uplink_id));
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, config_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, config_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}

@@ -294,18 +294,18 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, downlink_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, downlink_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, downlink_row.id);
-		uint16_t frame = octet_uint16_read(db->buffer, downlink_row.frame);
-		uint8_t kind = octet_uint8_read(db->buffer, downlink_row.kind);
-		uint8_t data_len = octet_uint8_read(db->buffer, downlink_row.data_len);
-		uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(db->buffer, downlink_row.data);
-		uint8_t sf = octet_uint8_read(db->buffer, downlink_row.sf);
-		uint8_t tx_power = octet_uint8_read(db->buffer, downlink_row.tx_power);
-		time_t sent_at = (time_t)octet_uint64_read(db->buffer, downlink_row.sent_at);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, downlink_row.id);
+		uint16_t frame = octet_uint16_read(db->row, downlink_row.frame);
+		uint8_t kind = octet_uint8_read(db->row, downlink_row.kind);
+		uint8_t data_len = octet_uint8_read(db->row, downlink_row.data_len);
+		uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(db->row, downlink_row.data);
+		uint8_t sf = octet_uint8_read(db->row, downlink_row.sf);
+		uint8_t tx_power = octet_uint8_read(db->row, downlink_row.tx_power);
+		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
 		body_write(response, id, sizeof(*id));
 		body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 		body_write(response, &kind, sizeof(kind));
@@ -484,22 +484,22 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	debug("insert downlink for device %02x%02x sent at %lu\n", (*downlink->device_id)[0], (*downlink->device_id)[1],
 				downlink->sent_at);
 
-	octet_blob_write(db->buffer, downlink_row.id, (uint8_t *)downlink->id, sizeof(*downlink->id));
-	octet_uint16_write(db->buffer, downlink_row.frame, downlink->frame);
-	octet_uint8_write(db->buffer, downlink_row.kind, downlink->kind);
-	octet_uint8_write(db->buffer, downlink_row.data_len, downlink->data_len);
-	octet_blob_write(db->buffer, downlink_row.data, downlink->data, downlink->data_len);
-	octet_uint16_write(db->buffer, downlink_row.airtime, downlink->airtime);
-	octet_uint32_write(db->buffer, downlink_row.frequency, downlink->frequency);
-	octet_uint32_write(db->buffer, downlink_row.bandwidth, downlink->bandwidth);
-	octet_uint8_write(db->buffer, downlink_row.sf, downlink->sf);
-	octet_uint8_write(db->buffer, downlink_row.cr, downlink->cr);
-	octet_uint8_write(db->buffer, downlink_row.tx_power, downlink->tx_power);
-	octet_uint8_write(db->buffer, downlink_row.preamble_len, downlink->preamble_len);
-	octet_uint64_write(db->buffer, downlink_row.sent_at, (uint64_t)downlink->sent_at);
+	octet_blob_write(db->row, downlink_row.id, (uint8_t *)downlink->id, sizeof(*downlink->id));
+	octet_uint16_write(db->row, downlink_row.frame, downlink->frame);
+	octet_uint8_write(db->row, downlink_row.kind, downlink->kind);
+	octet_uint8_write(db->row, downlink_row.data_len, downlink->data_len);
+	octet_blob_write(db->row, downlink_row.data, downlink->data, downlink->data_len);
+	octet_uint16_write(db->row, downlink_row.airtime, downlink->airtime);
+	octet_uint32_write(db->row, downlink_row.frequency, downlink->frequency);
+	octet_uint32_write(db->row, downlink_row.bandwidth, downlink->bandwidth);
+	octet_uint8_write(db->row, downlink_row.sf, downlink->sf);
+	octet_uint8_write(db->row, downlink_row.cr, downlink->cr);
+	octet_uint8_write(db->row, downlink_row.tx_power, downlink->tx_power);
+	octet_uint8_write(db->row, downlink_row.preamble_len, downlink->preamble_len);
+	octet_uint64_write(db->row, downlink_row.sent_at, (uint64_t)downlink->sent_at);
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, downlink_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, downlink_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}

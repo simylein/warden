@@ -29,16 +29,31 @@ void cancel(void *lock) { pthread_mutex_unlock((pthread_mutex_t *)lock); }
 
 int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 					void (*logger)(const char *message, ...) __attribute__((format(printf, 1, 2)))) {
-	worker->arg.id = id;
 	trace("spawning worker thread %hhu\n", id);
 
+	worker->arg.id = id;
 	worker->arg.db.directory = database_directory;
-	worker->arg.db.buffer = malloc(database_buffer * sizeof(char));
-	if (worker->arg.db.buffer == NULL) {
+
+	worker->arg.db.row = malloc(UINT8_MAX * sizeof(char));
+	if (worker->arg.db.row == NULL) {
+		logger("failed to allocate %u bytes because %s\n", UINT8_MAX, errno_str());
+		return -1;
+	}
+	worker->arg.db.row_len = UINT8_MAX * sizeof(char);
+
+	worker->arg.db.chunk = malloc((database_buffer / 16) * sizeof(char));
+	if (worker->arg.db.row == NULL) {
+		logger("failed to allocate %u bytes because %s\n", (database_buffer / 16), errno_str());
+		return -1;
+	}
+	worker->arg.db.chunk_len = (uint16_t)(database_buffer / 16) * sizeof(char);
+
+	worker->arg.db.table = malloc(database_buffer * sizeof(char));
+	if (worker->arg.db.table == NULL) {
 		logger("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
 		return -1;
 	}
-	worker->arg.db.buffer_len = database_buffer * sizeof(char);
+	worker->arg.db.table_len = database_buffer * sizeof(char);
 
 	int db_error = sqlite3_open_v2(database_file, &worker->arg.database, SQLITE_OPEN_READWRITE, NULL);
 	if (db_error != SQLITE_OK) {
@@ -86,7 +101,9 @@ int join(worker_t *worker, uint8_t id) {
 		return -1;
 	}
 
-	free(worker->arg.db.buffer);
+	free(worker->arg.db.row);
+	free(worker->arg.db.chunk);
+	free(worker->arg.db.table);
 	free(worker->arg.request_buffer);
 	free(worker->arg.response_buffer);
 
