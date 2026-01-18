@@ -54,6 +54,7 @@ extern const char *zone_table;
 extern const char *zone_schema;
 
 uint16_t zone_existing(octet_t *db, zone_t *zone);
+uint16_t zone_lookup(octet_t *db, zone_t *zone);
 
 uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
 uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *response);
