@@ -857,6 +857,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 				octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
 				octet_text_write(db->row, device_row.hardware, device->hardware, device->hardware_len);
 			}
+			octet_uint8_write(db->row, device_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, device_row.updated_at, (uint64_t)*device->updated_at);
 			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 				status = 500;
