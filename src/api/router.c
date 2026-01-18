@@ -567,7 +567,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_read, response) == true) {
-				device_find_by_user(db, database, request, response);
+				device_find_by_user(db, request, response);
 			}
 		}
 	}
