@@ -815,62 +815,68 @@ cleanup:
 	return status;
 }
 
-uint16_t device_update(sqlite3 *database, device_t *device) {
+uint16_t device_update(octet_t *db, device_t *device) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "update device "
-										"set name = coalesce(?, name), zone_id = coalesce(?, zone_id), "
-										"firmware = coalesce(?, firmware), hardware = coalesce(?, hardware), "
-										"updated_at = ? "
-										"where id = ?";
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = 500;
 		goto cleanup;
 	}
 
-	if (device->name != NULL) {
-		sqlite3_bind_text(stmt, 1, device->name, device->name_len, SQLITE_STATIC);
-	} else {
-		sqlite3_bind_null(stmt, 1);
-	}
-	if (device->zone_id != NULL) {
-		sqlite3_bind_blob(stmt, 2, device->zone_id, sizeof(*device->zone_id), SQLITE_STATIC);
-	} else {
-		sqlite3_bind_null(stmt, 2);
-	}
-	if (device->firmware != NULL) {
-		sqlite3_bind_text(stmt, 3, device->firmware, device->firmware_len, SQLITE_STATIC);
-	} else {
-		sqlite3_bind_null(stmt, 3);
-	}
-	if (device->hardware != NULL) {
-		sqlite3_bind_text(stmt, 4, device->hardware, device->hardware_len, SQLITE_STATIC);
-	} else {
-		sqlite3_bind_null(stmt, 4);
-	}
-	sqlite3_bind_int64(stmt, 5, *device->updated_at);
-	sqlite3_bind_blob(stmt, 6, *device->id, sizeof(*device->id), SQLITE_STATIC);
+	debug("update device %02x%02x updated at %lu\n", (*device->id)[0], (*device->id)[1], *device->updated_at);
 
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
+			if (device->name != NULL) {
+				octet_uint8_write(db->row, device_row.name_len, device->name_len);
+				octet_text_write(db->row, device_row.name, (char *)device->name, device->name_len);
+			}
+			if (device->zone_id != NULL) {
+				octet_uint8_write(db->row, device_row.zone_null, 0x01);
+				octet_blob_write(db->row, device_row.zone_id, (uint8_t *)device->zone_id, sizeof(*device->zone_id));
+				octet_uint8_write(db->row, device_row.zone_name_len, device->zone_name_len);
+				octet_text_write(db->row, device_row.zone_name, (char *)device->zone_name, device->zone_name_len);
+				octet_blob_write(db->row, device_row.zone_color, (uint8_t *)device->zone_color, sizeof(*device->zone_color));
+			}
+			if (device->firmware != NULL) {
+				octet_uint8_write(db->row, device_row.firmware_len, device->firmware_len);
+				octet_text_write(db->row, device_row.firmware, device->firmware, device->firmware_len);
+			}
+			if (device->hardware != NULL) {
+				octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
+				octet_text_write(db->row, device_row.hardware, device->hardware, device->hardware_len);
+			}
+			octet_uint64_write(db->row, device_row.updated_at, (uint64_t)*device->updated_at);
+			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+				status = 500;
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset += device_row.size;
 	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
-		status = 404;
-		goto cleanup;
-	}
-
-	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -1000,7 +1006,7 @@ void device_find_by_user(octet_t *db, sqlite3 *database, request_t *request, res
 	response->status = 200;
 }
 
-void device_modify(sqlite3 *database, request_t *request, response_t *response) {
+void device_modify(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -1028,7 +1034,7 @@ void device_modify(sqlite3 *database, request_t *request, response_t *response) 
 		return;
 	}
 
-	uint16_t status = device_update(database, &device);
+	uint16_t status = device_update(db, &device);
 	if (status != 0) {
 		response->status = status;
 		return;

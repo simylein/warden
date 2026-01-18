@@ -1010,7 +1010,7 @@ void uplink_signal_find_by_zone(sqlite3 *database, bwt_t *bwt, request_t *reques
 	response->status = 200;
 }
 
-void uplink_create(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
+void uplink_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -1029,7 +1029,7 @@ void uplink_create(octet_t *db, sqlite3 *database, request_t *request, response_
 		return;
 	}
 
-	if ((status = decode(db, database, &uplink)) != 0) {
+	if ((status = decode(db, &uplink)) != 0) {
 		response->status = status;
 		return;
 	}
