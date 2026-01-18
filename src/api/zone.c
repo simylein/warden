@@ -521,6 +521,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 			octet_uint8_write(db->row, zone_row.name_len, zone->name_len);
 			octet_text_write(db->row, zone_row.name, (char *)zone->name, zone->name_len);
 			octet_blob_write(db->row, zone_row.color, (uint8_t *)zone->color, sizeof(*zone->color));
+			octet_uint8_write(db->row, zone_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, zone_row.updated_at, (uint64_t)*zone->updated_at);
 			if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
 				status = 500;
