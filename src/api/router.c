@@ -451,14 +451,14 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/zone/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			zone_find_one(db, database, &bwt, request, response);
+			zone_find_one(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "patch", "/api/zone/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			zone_modify(database, request, response);
+			zone_modify(db, request, response);
 		}
 	}
 

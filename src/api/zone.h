@@ -4,7 +4,6 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -57,10 +56,10 @@ extern const char *zone_schema;
 uint16_t zone_existing(octet_t *db, zone_t *zone);
 
 uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
-uint16_t zone_select_one(sqlite3 *database, bwt_t *bwt, zone_t *zone, response_t *response);
-uint16_t zone_insert(sqlite3 *database, zone_t *zone);
-uint16_t zone_update(sqlite3 *database, zone_t *zone);
+uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *response);
+uint16_t zone_insert(octet_t *db, zone_t *zone);
+uint16_t zone_update(octet_t *db, zone_t *zone);
 
 void zone_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
-void zone_find_one(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void zone_modify(sqlite3 *database, request_t *request, response_t *response);
+void zone_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void zone_modify(octet_t *db, request_t *request, response_t *response);
