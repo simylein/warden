@@ -259,12 +259,14 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 		offset += device_row.size;
 	}
 
-	for (uint8_t index = 0; index < table_len / device_row.size - 1; index++) {
-		for (uint8_t ind = index + 1; ind < table_len / device_row.size; ind++) {
-			if (device_rowcmp(&db->table[index * device_row.size], &db->table[ind * device_row.size], query) > 0) {
-				memcpy(db->row, &db->table[index * device_row.size], device_row.size);
-				memcpy(&db->table[index * device_row.size], &db->table[ind * device_row.size], device_row.size);
-				memcpy(&db->table[ind * device_row.size], db->row, device_row.size);
+	if (table_len >= device_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / device_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / device_row.size; ind++) {
+				if (device_rowcmp(&db->table[index * device_row.size], &db->table[ind * device_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * device_row.size], device_row.size);
+					memcpy(&db->table[index * device_row.size], &db->table[ind * device_row.size], device_row.size);
+					memcpy(&db->table[ind * device_row.size], db->row, device_row.size);
+				}
 			}
 		}
 	}
