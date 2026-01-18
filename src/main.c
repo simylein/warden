@@ -88,8 +88,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
-		uint8_t buffer[2048];
-		octet_t db = {.directory = database_directory, .buffer = buffer, .buffer_len = sizeof(buffer)};
+		uint8_t row[255];
+		uint8_t chunk[2048];
+		uint8_t table[16384];
+		octet_t db = {
+				.directory = database_directory,
+				.row = row,
+				.row_len = sizeof(row),
+				.chunk = chunk,
+				.chunk_len = sizeof(chunk),
+				.table = table,
+				.table_len = sizeof(table),
+		};
 
 		sqlite3 *database;
 		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {

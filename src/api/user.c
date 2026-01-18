@@ -109,11 +109,11 @@ uint16_t user_existing(octet_t *db, user_t *user) {
 			status = 404;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_row.id);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
 		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
 			status = 0;
 			break;
@@ -128,8 +128,6 @@ cleanup:
 
 uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uint8_t *users_len) {
 	uint16_t status;
-	uint8_t *row = db->buffer;
-	uint8_t *table = &db->buffer[user_row.size];
 
 	char file[128];
 	if (sprintf(file, "%s/user.data", db->directory) == -1) {
@@ -143,8 +141,8 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 		goto cleanup;
 	}
 
-	if (stmt.stat.st_size > db->buffer_len - user_row.size) {
-		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->buffer_len - user_row.size);
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
 		status = 500;
 		goto cleanup;
 	}
@@ -152,40 +150,42 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 	debug("select users order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len, query->sort);
 
 	off_t offset = 0;
+	uint32_t table_len = 0;
 	while (true) {
 		if (offset >= stmt.stat.st_size) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, &table[offset], user_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], user_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
+		table_len += user_row.size;
 		offset += user_row.size;
 	}
 
 	for (uint8_t index = 0; index < stmt.stat.st_size / user_row.size - 1; index++) {
 		for (uint8_t ind = index + 1; ind < stmt.stat.st_size / user_row.size; ind++) {
-			if (user_rowcmp(&table[index * user_row.size], &table[ind * user_row.size], query) > 0) {
-				memcpy(row, &table[index * user_row.size], user_row.size);
-				memcpy(&table[index * user_row.size], &table[ind * user_row.size], user_row.size);
-				memcpy(&table[ind * user_row.size], row, user_row.size);
+			if (user_rowcmp(&db->table[index * user_row.size], &db->table[ind * user_row.size], query) > 0) {
+				memcpy(db->row, &db->table[index * user_row.size], user_row.size);
+				memcpy(&db->table[index * user_row.size], &db->table[ind * user_row.size], user_row.size);
+				memcpy(&db->table[ind * user_row.size], db->row, user_row.size);
 			}
 		}
 	}
 
-	offset = user_row.size * query->offset;
+	uint32_t index = user_row.size * query->offset;
 	while (true) {
-		if (offset >= stmt.stat.st_size || *users_len >= query->limit) {
+		if (index >= table_len || *users_len >= query->limit) {
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&table[offset], user_row.id);
-		uint8_t username_len = octet_uint8_read(&table[offset], user_row.username_len);
-		char *username = octet_text_read(&table[offset], user_row.username);
-		time_t signup_at = (time_t)octet_uint64_read(&table[offset], user_row.signup_at);
-		time_t signin_at = (time_t)octet_uint64_read(&table[offset], user_row.signin_at);
-		uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(&table[offset], user_row.permissions);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], user_row.id);
+		uint8_t username_len = octet_uint8_read(&db->table[index], user_row.username_len);
+		char *username = octet_text_read(&db->table[index], user_row.username);
+		time_t signup_at = (time_t)octet_uint64_read(&db->table[index], user_row.signup_at);
+		time_t signin_at = (time_t)octet_uint64_read(&db->table[index], user_row.signin_at);
+		uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(&db->table[index], user_row.permissions);
 		body_write(response, id, sizeof(*id));
 		body_write(response, username, username_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
@@ -193,7 +193,7 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 		body_write(response, (uint64_t[]){hton64((uint64_t)signin_at)}, sizeof(signin_at));
 		body_write(response, permissions, sizeof(*permissions));
 		*users_len += 1;
-		offset += user_row.size;
+		index += user_row.size;
 	}
 
 cleanup:
@@ -224,17 +224,17 @@ uint16_t user_select_one(octet_t *db, user_t *user, response_t *response) {
 			status = 404;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_row.id);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
 		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
-			uint8_t username_len = octet_uint8_read(db->buffer, user_row.username_len);
-			char *username = octet_text_read(db->buffer, user_row.username);
-			time_t signup_at = (time_t)octet_uint64_read(db->buffer, user_row.signup_at);
-			time_t signin_at = (time_t)octet_uint64_read(db->buffer, user_row.signin_at);
-			uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(db->buffer, user_row.permissions);
+			uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
+			char *username = octet_text_read(db->row, user_row.username);
+			time_t signup_at = (time_t)octet_uint64_read(db->row, user_row.signup_at);
+			time_t signin_at = (time_t)octet_uint64_read(db->row, user_row.signin_at);
+			uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(db->row, user_row.permissions);
 			body_write(response, id, sizeof(*id));
 			body_write(response, username, username_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
@@ -363,12 +363,12 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 		if (offset >= stmt.stat.st_size) {
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t username_len = octet_uint8_read(db->buffer, user_row.username_len);
-		char *username = octet_text_read(db->buffer, user_row.username);
+		uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
+		char *username = octet_text_read(db->row, user_row.username);
 		if (username_len == user->username_len && memcmp(username, user->username, user->username_len) == 0) {
 			status = 409;
 			warn("username %.*s already taken\n", user->username_len, user->username);
@@ -381,16 +381,16 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 	sha256(user->password, user->password_len, &hash);
 	memset(user->permissions, 0x00, sizeof(*user->permissions));
 
-	octet_blob_write(db->buffer, user_row.id, (uint8_t *)user->id, sizeof(*user->id));
-	octet_uint8_write(db->buffer, user_row.username_len, user->username_len);
-	octet_text_write(db->buffer, user_row.username, user->username, user->username_len);
-	octet_blob_write(db->buffer, user_row.password, hash, sizeof(hash));
-	octet_uint64_write(db->buffer, user_row.signup_at, (uint64_t)*user->signup_at);
-	octet_uint64_write(db->buffer, user_row.signin_at, (uint64_t)*user->signin_at);
-	octet_blob_write(db->buffer, user_row.permissions, (uint8_t *)user->permissions, sizeof(*user->permissions));
+	octet_blob_write(db->row, user_row.id, (uint8_t *)user->id, sizeof(*user->id));
+	octet_uint8_write(db->row, user_row.username_len, user->username_len);
+	octet_text_write(db->row, user_row.username, user->username, user->username_len);
+	octet_blob_write(db->row, user_row.password, hash, sizeof(hash));
+	octet_uint64_write(db->row, user_row.signup_at, (uint64_t)*user->signup_at);
+	octet_uint64_write(db->row, user_row.signin_at, (uint64_t)*user->signin_at);
+	octet_blob_write(db->row, user_row.permissions, (uint8_t *)user->permissions, sizeof(*user->permissions));
 
 	offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, user_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
@@ -429,19 +429,19 @@ uint16_t user_update(octet_t *db, user_t *user) {
 			status = 401;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_row.id);
-		uint8_t username_len = octet_uint8_read(db->buffer, user_row.username_len);
-		char *username = octet_text_read(db->buffer, user_row.username);
-		uint8_t (*password)[32] = (uint8_t (*)[32])octet_blob_read(db->buffer, user_row.password);
-		uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(db->buffer, user_row.permissions);
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
+		char *username = octet_text_read(db->row, user_row.username);
+		uint8_t (*password)[32] = (uint8_t (*)[32])octet_blob_read(db->row, user_row.password);
+		uint8_t (*permissions)[4] = (uint8_t (*)[4])octet_blob_read(db->row, user_row.permissions);
 		if (username_len == user->username_len && memcmp(username, user->username, user->username_len) == 0 &&
 				memcmp(password, hash, sizeof(hash)) == 0) {
-			octet_uint64_write(db->buffer, user_row.signin_at, (uint64_t)*user->signin_at);
-			if (octet_row_write(&stmt, file, offset, db->buffer, user_row.size) == -1) {
+			octet_uint64_write(db->row, user_row.signin_at, (uint64_t)*user->signin_at);
+			if (octet_row_write(&stmt, file, offset, db->row, user_row.size) == -1) {
 				status = 500;
 				goto cleanup;
 			}

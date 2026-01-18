@@ -54,12 +54,12 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 			status = 403;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_device_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_device_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.device_id);
+		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
+		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.device_id);
 		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			status = 0;
@@ -96,12 +96,12 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 		if (offset >= stmt.stat.st_size) {
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, user_device_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, user_device_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->buffer, user_device_row.device_id);
+		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
+		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.device_id);
 		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			status = 409;
@@ -112,11 +112,11 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 		offset += user_device_row.size;
 	}
 
-	octet_blob_write(db->buffer, user_device_row.user_id, (uint8_t *)user_device->user_id, sizeof(*user_device->user_id));
-	octet_blob_write(db->buffer, user_device_row.device_id, (uint8_t *)user_device->device_id, sizeof(*user_device->device_id));
+	octet_blob_write(db->row, user_device_row.user_id, (uint8_t *)user_device->user_id, sizeof(*user_device->user_id));
+	octet_blob_write(db->row, user_device_row.device_id, (uint8_t *)user_device->device_id, sizeof(*user_device->device_id));
 
 	offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, user_device_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, user_device_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}

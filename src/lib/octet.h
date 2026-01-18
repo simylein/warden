@@ -6,8 +6,12 @@
 
 typedef struct octet_t {
 	const char *directory;
-	uint8_t *buffer;
-	uint32_t buffer_len;
+	uint8_t *row;
+	uint8_t row_len;
+	uint8_t *chunk;
+	uint16_t chunk_len;
+	uint8_t *table;
+	uint32_t table_len;
 } octet_t;
 
 typedef struct octet_stmt_t {

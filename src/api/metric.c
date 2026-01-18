@@ -137,13 +137,13 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->buffer, metric_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
 			status = 500;
 			goto cleanup;
 		}
-		uint16_t photovoltaic = octet_uint16_read(db->buffer, metric_row.photovoltaic);
-		uint16_t battery = octet_uint16_read(db->buffer, metric_row.battery);
-		time_t captured_at = (time_t)octet_uint64_read(db->buffer, metric_row.captured_at);
+		uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
+		uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
+		time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
 		if (captured_at > query->from && captured_at < query->to) {
 			body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
 			body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
@@ -254,14 +254,14 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
 				metric->captured_at);
 
-	octet_blob_write(db->buffer, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
-	octet_uint16_write(db->buffer, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
-	octet_uint16_write(db->buffer, metric_row.battery, (uint16_t)(metric->battery * 1000));
-	octet_uint64_write(db->buffer, metric_row.captured_at, (uint64_t)metric->captured_at);
-	octet_blob_write(db->buffer, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
+	octet_blob_write(db->row, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
+	octet_uint16_write(db->row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
+	octet_uint16_write(db->row, metric_row.battery, (uint16_t)(metric->battery * 1000));
+	octet_uint64_write(db->row, metric_row.captured_at, (uint64_t)metric->captured_at);
+	octet_blob_write(db->row, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
 
 	off_t offset = stmt.stat.st_size;
-	if (octet_row_write(&stmt, file, offset, db->buffer, metric_row.size) == -1) {
+	if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
 		status = 500;
 		goto cleanup;
 	}
