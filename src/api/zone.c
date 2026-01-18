@@ -174,6 +174,53 @@ cleanup:
 	return status;
 }
 
+uint16_t zone_lookup(octet_t *db, zone_t *zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select existing zone %02x%02x\n", (*zone->id)[0], (*zone->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("zone %02x%02x not found\n", (*zone->id)[0], (*zone->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
+		if (memcmp(id, zone->id, sizeof(*zone->id)) == 0) {
+			uint8_t name_len = octet_uint8_read(db->row, zone_row.name_len);
+			char *name = octet_text_read(db->row, zone_row.name);
+			uint8_t (*color)[12] = (uint8_t (*)[12])octet_blob_read(db->row, zone_row.color);
+			zone->name_len = name_len;
+			memcpy(zone->name, name, name_len);
+			memcpy(zone->color, color, sizeof(*color));
+			status = 0;
+			break;
+		}
+		offset += zone_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len) {
 	uint16_t status;
 

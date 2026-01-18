@@ -9,6 +9,7 @@
 #include "cache.h"
 #include "user-device.h"
 #include "user.h"
+#include "zone.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -810,6 +811,20 @@ cleanup:
 
 uint16_t device_update(octet_t *db, device_t *device) {
 	uint16_t status;
+
+	if (device->zone_id != NULL) {
+		char name[12];
+		uint8_t color[12];
+		zone_t zone = {.id = device->zone_id, .name = (char *)&name, .color = &color};
+		status = zone_lookup(db, &zone);
+		if (status != 0) {
+			goto cleanup;
+		}
+		device->zone_id = zone.id;
+		device->zone_name_len = zone.name_len;
+		device->zone_name = zone.name;
+		device->zone_color = zone.color;
+	}
 
 	char file[128];
 	if (sprintf(file, "%s/device.data", db->directory) == -1) {
