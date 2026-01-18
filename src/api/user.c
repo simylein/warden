@@ -164,8 +164,8 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 		offset += user_row.size;
 	}
 
-	for (uint8_t index = 0; index < stmt.stat.st_size / user_row.size - 1; index++) {
-		for (uint8_t ind = index + 1; ind < stmt.stat.st_size / user_row.size; ind++) {
+	for (uint8_t index = 0; index < table_len / user_row.size - 1; index++) {
+		for (uint8_t ind = index + 1; ind < table_len / user_row.size; ind++) {
 			if (user_rowcmp(&db->table[index * user_row.size], &db->table[ind * user_row.size], query) > 0) {
 				memcpy(db->row, &db->table[index * user_row.size], user_row.size);
 				memcpy(&db->table[index * user_row.size], &db->table[ind * user_row.size], user_row.size);

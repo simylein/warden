@@ -6,6 +6,7 @@
 #include "../lib/response.h"
 #include "database.h"
 #include "device.h"
+#include "user.h"
 #include <fcntl.h>
 #include <sqlite3.h>
 #include <stdbool.h>
@@ -64,6 +65,47 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			status = 0;
 			break;
+		}
+		offset += user_device_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_devices_len) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/user-device.data", db->directory) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select user devices for user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
+
+	off_t offset = 0;
+	uint16_t chunk_len = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, &db->chunk[chunk_len], user_device_row.size) == -1) {
+			status = 500;
+			goto cleanup;
+		}
+		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], user_device_row.user_id);
+		if (memcmp(user_id, user->id, sizeof(*user->id)) == 0) {
+			*user_devices_len += 1;
+			chunk_len += user_device_row.size;
 		}
 		offset += user_device_row.size;
 	}
