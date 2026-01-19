@@ -42,7 +42,7 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	worker->arg.db.row_len = UINT8_MAX * sizeof(char);
 
 	worker->arg.db.chunk = malloc((database_buffer / 16) * sizeof(char));
-	if (worker->arg.db.row == NULL) {
+	if (worker->arg.db.chunk == NULL) {
 		logger("failed to allocate %u bytes because %s\n", (database_buffer / 16), errno_str());
 		return -1;
 	}
