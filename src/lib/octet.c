@@ -49,6 +49,17 @@ int octet_open(octet_stmt_t *stmt, const char *file, int open_flags, short lock_
 	return 0;
 }
 
+int octet_trunc(octet_stmt_t *stmt, const char *file, off_t offset) {
+	trace("truncating file %s\n", file);
+
+	if (ftruncate(stmt->fd, offset) == -1) {
+		error("failed to truncate %s because %s\n", file, errno_str());
+		return -1;
+	}
+
+	return 0;
+}
+
 void octet_close(octet_stmt_t *stmt, const char *file) {
 	trace("closing file %s\n", file);
 
