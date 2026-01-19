@@ -107,8 +107,8 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x10 && init(database) != 0) {
-			fatal("failed to initialise database\n");
+		if (cmds & 0x10 && init(&db) != 0) {
+			fatal("failed to init database\n");
 			exit(1);
 		}
 

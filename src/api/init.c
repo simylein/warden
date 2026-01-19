@@ -1,76 +1,142 @@
 #include "../lib/logger.h"
-#include "buffer.h"
-#include "config.h"
+#include "../lib/octet.h"
 #include "device.h"
-#include "downlink.h"
-#include "metric.h"
-#include "radio.h"
-#include "reading.h"
-#include "uplink.h"
 #include "user-device.h"
+#include "user-zone.h"
 #include "user.h"
 #include "zone.h"
-#include <sqlite3.h>
-#include <stdlib.h>
+#include <fcntl.h>
+#include <stdio.h>
 
-int init_table(sqlite3 *database, const char *table, const char *schema) {
+int init_user(octet_t *db) {
 	int status;
-	sqlite3_stmt *stmt;
 
-	debug("%s\n", schema);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, schema, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_CREAT | O_EXCL, F_RDLCK) == -1) {
 		status = -1;
 		goto cleanup;
 	}
 
-	if (sqlite3_step(stmt) != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
-		goto cleanup;
-	}
-
-	info("created table %s\n", table);
+	info("created file %s\n", user_file);
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-int init(sqlite3 *database) {
-	if (init_table(database, user_table, user_schema) == -1) {
+int init_device(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_CREAT | O_EXCL, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("created file %s\n", device_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int init_user_device(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_CREAT | O_EXCL, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("created file %s\n", user_device_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int init_zone(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_CREAT | O_EXCL, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("created file %s\n", zone_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int init_user_zone(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_CREAT | O_EXCL, F_RDLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("created file %s\n", user_zone_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int init(octet_t *db) {
+	if (init_user(db) == -1) {
 		return -1;
 	}
-	if (init_table(database, user_device_table, user_device_schema) == -1) {
+	if (init_device(db) == -1) {
 		return -1;
 	}
-	if (init_table(database, device_table, device_schema) == -1) {
+	if (init_user_device(db) == -1) {
 		return -1;
 	}
-	if (init_table(database, zone_table, zone_schema) == -1) {
+	if (init_zone(db) == -1) {
 		return -1;
 	}
-	if (init_table(database, uplink_table, uplink_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, downlink_table, downlink_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, reading_table, reading_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, metric_table, metric_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, buffer_table, buffer_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, config_table, config_schema) == -1) {
-		return -1;
-	}
-	if (init_table(database, radio_table, radio_schema) == -1) {
+	if (init_user_zone(db) == -1) {
 		return -1;
 	}
 
