@@ -330,6 +330,15 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		}
 	}
 
+	if (endpoint(request, "get", "/user/:id/zones", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_zone_read, response) == true) {
+				serve_user_zones(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/profile", &method_found, &pathname_found)) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {

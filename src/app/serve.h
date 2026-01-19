@@ -31,3 +31,4 @@ void serve_downlink(sqlite3 *database, bwt_t *bwt, request_t *request, response_
 
 void serve_user(octet_t *db, request_t *request, response_t *response);
 void serve_user_devices(octet_t *db, request_t *request, response_t *response);
+void serve_user_zones(octet_t *db, request_t *request, response_t *response);
