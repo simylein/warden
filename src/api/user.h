@@ -4,7 +4,6 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -52,11 +51,11 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 uint16_t user_select_one(octet_t *db, user_t *user, response_t *response);
 uint16_t user_insert(octet_t *db, user_t *user);
 uint16_t user_update(octet_t *db, user_t *user);
-uint16_t user_delete(sqlite3 *database, user_t *user);
+uint16_t user_delete(octet_t *db, user_t *user);
 
 void user_find(octet_t *db, request_t *request, response_t *response);
 void user_find_one(octet_t *db, request_t *request, response_t *response);
 void user_profile(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void user_signup(octet_t *db, request_t *request, response_t *response);
 void user_signin(octet_t *db, request_t *request, response_t *response);
-void user_remove(sqlite3 *database, request_t *request, response_t *response);
+void user_remove(octet_t *db, request_t *request, response_t *response);
