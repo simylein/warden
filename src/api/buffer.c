@@ -126,7 +126,7 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -140,7 +140,7 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, buffer_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint32_t delay = octet_uint32_read(db->row, buffer_row.delay);
@@ -249,7 +249,7 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -264,7 +264,7 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, buffer_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 

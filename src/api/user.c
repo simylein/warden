@@ -98,7 +98,7 @@ uint16_t user_existing(octet_t *db, user_t *user) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -112,7 +112,7 @@ uint16_t user_existing(octet_t *db, user_t *user) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
@@ -139,7 +139,7 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -159,7 +159,7 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->table[table_len], user_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		table_len += user_row.size;
@@ -216,7 +216,7 @@ uint16_t user_select_one(octet_t *db, user_t *user, response_t *response) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -229,7 +229,7 @@ uint16_t user_select_one(octet_t *db, user_t *user, response_t *response) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
@@ -356,7 +356,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -368,7 +368,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
@@ -395,7 +395,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 
 	offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, user_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -417,7 +417,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -434,7 +434,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
@@ -446,7 +446,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 				memcmp(password, hash, sizeof(hash)) == 0) {
 			octet_uint64_write(db->row, user_row.signin_at, (uint64_t)*user->signin_at);
 			if (octet_row_write(&stmt, file, offset, db->row, user_row.size) == -1) {
-				status = 500;
+				status = octet_error();
 				goto cleanup;
 			}
 			memcpy(user->id, id, sizeof(*id));

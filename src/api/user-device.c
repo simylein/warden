@@ -42,7 +42,7 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -58,7 +58,7 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
@@ -87,7 +87,7 @@ uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_dev
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -101,7 +101,7 @@ uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_dev
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->chunk[chunk_len], user_device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], user_device_row.user_id);
@@ -128,7 +128,7 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -141,7 +141,7 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
@@ -161,7 +161,7 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 
 	offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, user_device_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 

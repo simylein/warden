@@ -194,7 +194,7 @@ uint16_t device_existing(octet_t *db, device_t *device) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -208,7 +208,7 @@ uint16_t device_existing(octet_t *db, device_t *device) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
@@ -242,7 +242,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -263,7 +263,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->table[table_len], device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
@@ -391,7 +391,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -404,7 +404,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
@@ -529,7 +529,7 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -550,7 +550,7 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->table[table_len], device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
@@ -762,7 +762,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -800,7 +800,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -836,7 +836,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -850,7 +850,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
@@ -877,7 +877,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 			octet_uint8_write(db->row, device_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, device_row.updated_at, (uint64_t)*device->updated_at);
 			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
-				status = 500;
+				status = octet_error();
 				goto cleanup;
 			}
 			status = 0;
