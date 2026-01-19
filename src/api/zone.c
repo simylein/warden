@@ -8,6 +8,7 @@
 #include "../lib/response.h"
 #include "cache.h"
 #include "user-zone.h"
+#include "user.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -66,6 +67,26 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 		uint8_t name_len_bravo = octet_uint8_read(bravo, zone_row.name_len);
 		char *name_bravo = octet_text_read(bravo, zone_row.name);
 		int result = memcmp(name_alpha, name_bravo, name_len_alpha < name_len_bravo ? name_len_alpha : name_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "createdAt", query->order_len) == 0) {
+		time_t created_at_alpha = (time_t)octet_uint64_read(alpha, zone_row.created_at);
+		time_t created_at_bravo = (time_t)octet_uint64_read(bravo, zone_row.created_at);
+		int result = (created_at_alpha > created_at_bravo) - (created_at_alpha < created_at_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 9 && memcmp(query->order, "updatedAt", query->order_len) == 0) {
+		time_t updated_at_alpha = (time_t)octet_uint64_read(alpha, zone_row.updated_at);
+		time_t updated_at_bravo = (time_t)octet_uint64_read(bravo, zone_row.updated_at);
+		int result = (updated_at_alpha > updated_at_bravo) - (updated_at_alpha < updated_at_bravo);
 		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
 			result = -result;
 		}
@@ -440,6 +461,103 @@ cleanup:
 	return status;
 }
 
+uint16_t zone_select_by_user(octet_t *db, user_t *user, zone_query_t *query, response_t *response, uint8_t *zones_len) {
+	uint16_t status;
+
+	uint8_t user_zones_len = 0;
+	status = user_zone_select_by_user(db, user, &user_zones_len);
+	if (status != 0) {
+		return status;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select zones for user %02x%02x order by %.*s:%.*s\n", (*user->id)[0], (*user->id)[1], (int)query->order_len,
+				query->order, (int)query->sort_len, query->sort);
+
+	off_t offset = 0;
+	uint32_t table_len = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], zone_row.id);
+		for (uint8_t index = 0; index < user_zones_len; index++) {
+			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_zone_row.size], user_zone_row.zone_id);
+			if (memcmp(id, zone_id, sizeof(*zone_id)) == 0) {
+				table_len += zone_row.size;
+				break;
+			}
+		}
+		offset += zone_row.size;
+	}
+
+	if (table_len >= zone_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / zone_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / zone_row.size; ind++) {
+				if (zone_rowcmp(&db->table[index * zone_row.size], &db->table[ind * zone_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * zone_row.size], zone_row.size);
+					memcpy(&db->table[index * zone_row.size], &db->table[ind * zone_row.size], zone_row.size);
+					memcpy(&db->table[ind * zone_row.size], db->row, zone_row.size);
+				}
+			}
+		}
+	}
+
+	uint32_t index = zone_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *zones_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], zone_row.id);
+		uint8_t name_len = octet_uint8_read(&db->table[index], zone_row.name_len);
+		char *name = octet_text_read(&db->table[index], zone_row.name);
+		uint8_t (*color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], zone_row.color);
+		time_t created_at = (time_t)octet_uint64_read(&db->table[index], zone_row.created_at);
+		uint8_t updated_at_null = octet_uint8_read(&db->table[index], zone_row.updated_at_null);
+		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], zone_row.updated_at);
+		uint8_t uplink_null = 0x00;
+		body_write(response, id, sizeof(*id));
+		body_write(response, name, name_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, color, sizeof(*color));
+		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+		if (updated_at_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+		}
+		body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+		*zones_len += 1;
+		index += zone_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 int zone_parse(zone_t *zone, request_t *request) {
 	request->body.pos = 0;
 
@@ -653,6 +771,53 @@ void zone_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *resp
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
+	response->status = 200;
+}
+
+void zone_find_by_user(octet_t *db, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	zone_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(db, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint8_t zones_len = 0;
+	status = zone_select_by_user(db, &user, &query, response, &zones_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hhu zones\n", zones_len);
 	response->status = 200;
 }
 

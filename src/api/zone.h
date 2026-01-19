@@ -4,6 +4,7 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "user.h"
 #include <stdint.h>
 #include <time.h>
 
@@ -60,9 +61,11 @@ uint16_t zone_lookup(octet_t *db, zone_t *zone);
 
 uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *response, uint8_t *zones_len);
 uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *response);
+uint16_t zone_select_by_user(octet_t *db, user_t *user, zone_query_t *query, response_t *response, uint8_t *zones_len);
 uint16_t zone_insert(octet_t *db, zone_t *zone);
 uint16_t zone_update(octet_t *db, zone_t *zone);
 
 void zone_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void zone_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void zone_find_by_user(octet_t *db, request_t *request, response_t *response);
 void zone_modify(octet_t *db, request_t *request, response_t *response);
