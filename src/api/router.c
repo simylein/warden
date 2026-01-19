@@ -603,6 +603,15 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		}
 	}
 
+	if (endpoint(request, "get", "/api/user/:id/zones", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_user_zone_read, response) == true) {
+				zone_find_by_user(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
