@@ -32,6 +32,8 @@ const char *metric_schema = "create table metric ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
+const char *metric_file = "metric";
+
 const metric_row_t metric_row = {
 		.id = 0,
 		.photovoltaic = 16,
@@ -117,7 +119,7 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/metric.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, metric_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -240,7 +242,7 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/metric.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, metric_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

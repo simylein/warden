@@ -32,6 +32,8 @@ const char *buffer_schema = "create table buffer ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
+const char *buffer_file = "buffer";
+
 const buffer_row_t buffer_row = {
 		.id = 0,
 		.delay = 16,
@@ -117,7 +119,7 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/buffer.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, buffer_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -240,7 +242,7 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/buffer.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, buffer_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

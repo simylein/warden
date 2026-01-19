@@ -32,6 +32,8 @@ const char *reading_schema = "create table reading ("
 														 "foreign key (device_id) references device(id) on delete cascade"
 														 ")";
 
+const char *reading_file = "reading";
+
 const reading_row_t reading_row = {
 		.id = 0,
 		.temperature = 16,
@@ -117,7 +119,7 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, reading_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -240,7 +242,7 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/reading.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, reading_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

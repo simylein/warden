@@ -29,6 +29,8 @@ const char *device_schema = "create table device ("
 														"foreign key (zone_id) references zone(id) on delete set null"
 														")";
 
+const char *device_file = "device";
+
 const device_row_t device_row = {
 		.id = 0,
 		.name_len = 16,
@@ -185,7 +187,7 @@ uint16_t device_existing(octet_t *db, device_t *device) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -233,7 +235,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -382,7 +384,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -520,7 +522,7 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -753,7 +755,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -827,7 +829,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}

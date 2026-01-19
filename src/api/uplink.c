@@ -39,6 +39,8 @@ const char *uplink_schema = "create table uplink ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
+const char *uplink_file = "uplink";
+
 const uplink_row_t uplink_row = {
 		.id = 0,
 		.frame = 16,
@@ -286,7 +288,7 @@ uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, uplink_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -350,7 +352,7 @@ uint16_t uplink_signal_select_by_device(octet_t *db, device_t *device, uplink_si
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, uplink_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -627,7 +629,7 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/uplink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, uplink_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

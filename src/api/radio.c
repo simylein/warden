@@ -34,6 +34,8 @@ const char *radio_schema = "create table radio ("
 													 "foreign key (device_id) references device(id) on delete cascade"
 													 ")";
 
+const char *radio_file = "radio";
+
 const radio_row_t radio_row = {
 		.id = 0,
 		.frequency = 16,
@@ -59,7 +61,7 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/radio.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, radio_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -126,7 +128,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/radio.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, radio_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

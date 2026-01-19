@@ -59,6 +59,8 @@ typedef struct uplink_row_t {
 	uint8_t size;
 } uplink_row_t;
 
+extern const char *uplink_file;
+
 extern const uplink_row_t uplink_row;
 
 extern const char *uplink_table;

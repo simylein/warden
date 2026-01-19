@@ -18,6 +18,8 @@ typedef struct user_device_row_t {
 	uint8_t size;
 } user_device_row_t;
 
+extern const char *user_device_file;
+
 extern const user_device_row_t user_device_row;
 
 extern const char *user_device_table;

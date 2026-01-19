@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
+const char *user_zone_file = "user-zone";
+
 const user_zone_row_t user_zone_row = {
 		.user_id = 0,
 		.zone_id = 16,
@@ -17,7 +19,7 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user-zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -45,9 +47,9 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {
 		}
 
 		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
 		if (memcmp(user_id, user_zone->user_id, sizeof(*user_zone->user_id)) == 0 &&
-				memcmp(device_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
+				memcmp(zone_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
 			status = 0;
 			break;
 		}
@@ -64,7 +66,7 @@ uint16_t user_zone_select_by_user(octet_t *db, user_t *user, uint8_t *user_zones
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user-zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}

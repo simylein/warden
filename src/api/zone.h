@@ -48,6 +48,8 @@ typedef struct zone_row_t {
 	uint8_t size;
 } zone_row_t;
 
+extern const char *zone_file;
+
 extern const zone_row_t zone_row;
 
 extern const char *zone_table;

@@ -27,6 +27,8 @@ const char *user_schema = "create table user ("
 													"permissions blob not null"
 													")";
 
+const char *user_file = "user";
+
 const user_row_t user_row = {
 		.id = 0,
 		.username_len = 16,
@@ -89,7 +91,7 @@ uint16_t user_existing(octet_t *db, user_t *user) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -130,7 +132,7 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -207,7 +209,7 @@ uint16_t user_select_one(octet_t *db, user_t *user, response_t *response) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -347,7 +349,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/user.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -408,7 +410,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}

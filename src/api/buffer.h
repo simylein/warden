@@ -34,6 +34,8 @@ typedef struct buffer_row_t {
 	uint8_t size;
 } buffer_row_t;
 
+extern const char *buffer_file;
+
 extern const buffer_row_t buffer_row;
 
 extern const char *buffer_table;

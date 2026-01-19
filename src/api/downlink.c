@@ -36,6 +36,8 @@ const char *downlink_schema = "create table downlink ("
 															"foreign key (device_id) references device(id) on delete cascade"
 															")";
 
+const char *downlink_file = "downlink";
+
 const downlink_row_t downlink_row = {
 		.id = 0,
 		.frame = 16,
@@ -274,7 +276,7 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/downlink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, downlink_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -470,7 +472,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/downlink.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, downlink_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

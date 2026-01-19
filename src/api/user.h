@@ -39,6 +39,8 @@ typedef struct user_row_t {
 	uint8_t size;
 } user_row_t;
 
+extern const char *user_file;
+
 extern const user_row_t user_row;
 
 extern const char *user_table;

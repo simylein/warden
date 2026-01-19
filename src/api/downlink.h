@@ -48,6 +48,8 @@ typedef struct downlink_row_t {
 	uint8_t size;
 } downlink_row_t;
 
+extern const char *downlink_file;
+
 extern const downlink_row_t downlink_row;
 
 extern const char *downlink_table;
