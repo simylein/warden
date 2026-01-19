@@ -21,38 +21,42 @@
 #include <stdint.h>
 #include <string.h>
 
-const uint32_t permission_user_read = 0x10000000;
-const uint32_t permission_user_create = 0x20000000;
-const uint32_t permission_user_update = 0x40000000;
-const uint32_t permission_user_delete = 0x80000000;
-const uint32_t permission_user_device_read = 0x01000000;
-const uint32_t permission_user_device_create = 0x02000000;
-const uint32_t permission_user_device_update = 0x04000000;
-const uint32_t permission_user_device_delete = 0x08000000;
-const uint32_t permission_device_read = 0x00100000;
-const uint32_t permission_device_create = 0x00200000;
-const uint32_t permission_device_update = 0x00400000;
-const uint32_t permission_device_delete = 0x00800000;
-const uint32_t permission_zone_read = 0x00010000;
-const uint32_t permission_zone_create = 0x00020000;
-const uint32_t permission_zone_update = 0x00040000;
-const uint32_t permission_zone_delete = 0x00080000;
-const uint32_t permission_config_read = 0x00001000;
-const uint32_t permission_config_create = 0x00002000;
-const uint32_t permission_config_update = 0x00004000;
-const uint32_t permission_config_delete = 0x00008000;
-const uint32_t permission_radio_read = 0x00000100;
-const uint32_t permission_radio_create = 0x00000200;
-const uint32_t permission_radio_update = 0x00000400;
-const uint32_t permission_radio_delete = 0x00000800;
-const uint32_t permission_uplink_read = 0x00000010;
-const uint32_t permission_uplink_create = 0x00000020;
-const uint32_t permission_uplink_update = 0x00000040;
-const uint32_t permission_uplink_delete = 0x00000080;
-const uint32_t permission_downlink_read = 0x00000001;
-const uint32_t permission_downlink_create = 0x00000002;
-const uint32_t permission_downlink_update = 0x00000004;
-const uint32_t permission_downlink_delete = 0x00000008;
+const uint64_t permission_user_read = 1lu << 60lu;
+const uint64_t permission_user_create = 1lu << 61lu;
+const uint64_t permission_user_update = 1lu << 62lu;
+const uint64_t permission_user_delete = 1lu << 63lu;
+const uint64_t permission_user_device_read = 1lu << 56lu;
+const uint64_t permission_user_device_create = 1lu << 57lu;
+const uint64_t permission_user_device_update = 1lu << 58lu;
+const uint64_t permission_user_device_delete = 1lu << 59lu;
+const uint64_t permission_user_zone_read = 1lu << 52lu;
+const uint64_t permission_user_zone_create = 1lu << 53lu;
+const uint64_t permission_user_zone_update = 1lu << 54lu;
+const uint64_t permission_user_zone_delete = 1lu << 55lu;
+const uint64_t permission_device_read = 1lu << 48lu;
+const uint64_t permission_device_create = 1lu << 49lu;
+const uint64_t permission_device_update = 1lu << 50lu;
+const uint64_t permission_device_delete = 1lu << 51lu;
+const uint64_t permission_zone_read = 1lu << 44lu;
+const uint64_t permission_zone_create = 1lu << 45lu;
+const uint64_t permission_zone_update = 1lu << 46lu;
+const uint64_t permission_zone_delete = 1lu << 47lu;
+const uint64_t permission_config_read = 1lu << 40lu;
+const uint64_t permission_config_create = 1lu << 41lu;
+const uint64_t permission_config_update = 1lu << 42lu;
+const uint64_t permission_config_delete = 1lu << 43lu;
+const uint64_t permission_radio_read = 1lu << 36lu;
+const uint64_t permission_radio_create = 1lu << 37lu;
+const uint64_t permission_radio_update = 1lu << 38lu;
+const uint64_t permission_radio_delete = 1lu << 39lu;
+const uint64_t permission_uplink_read = 1lu << 4lu;
+const uint64_t permission_uplink_create = 1lu << 5lu;
+const uint64_t permission_uplink_update = 1lu << 6lu;
+const uint64_t permission_uplink_delete = 1lu << 7lu;
+const uint64_t permission_downlink_read = 1lu << 0lu;
+const uint64_t permission_downlink_create = 1lu << 1lu;
+const uint64_t permission_downlink_update = 1lu << 2lu;
+const uint64_t permission_downlink_delete = 1lu << 3lu;
 
 bool pathcmp(const char *pattern, uint8_t pattern_len, const char *pathname, uint8_t pathname_len) {
 	uint8_t pattern_ind = 0;
@@ -123,10 +127,10 @@ bool authenticate(bool redirect, bwt_t *bwt, request_t *request, response_t *res
 	return true;
 }
 
-bool authorize(bwt_t *bwt, uint32_t permission, response_t *response) {
-	uint32_t permissions;
+bool authorize(bwt_t *bwt, uint64_t permission, response_t *response) {
+	uint64_t permissions;
 	memcpy(&permissions, bwt->data, sizeof(bwt->data));
-	permissions = ntoh32(permissions);
+	permissions = ntoh64(permissions);
 
 	if ((permissions & permission) != permission) {
 		response->status = 403;

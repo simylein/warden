@@ -67,7 +67,7 @@
 								<p class="m-0">Permissions</p>
 							</td>
 							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"></p>
+								<p class="font-mono m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
 					</tbody>
@@ -96,21 +96,21 @@
 			loading(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
 			loading(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
 			loading(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
-			loading(element.children[4].children[1].children[0], ['w-20', 'h-4'], [], '');
+			loading(element.children[4].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const paintProfile = (element, data) => {
 			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4'], data.id);
 			paint(element.children[1].children[1].children[0], [], ['w-32', 'h-4'], data.username);
 			paint(element.children[2].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.signupAt));
 			paint(element.children[3].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.signinAt));
-			paint(element.children[4].children[1].children[0], [], ['w-20', 'h-4'], data.permissions);
+			paint(element.children[4].children[1].children[0], [], ['w-40', 'h-4'], data.permissions);
 		};
 		const errorProfile = (element) => {
 			error(element.children[0].children[1].children[0], ['w-80', 'h-4'], [], '');
 			error(element.children[1].children[1].children[0], ['w-32', 'h-4'], [], '');
 			error(element.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
 			error(element.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
-			error(element.children[4].children[1].children[0], ['w-20', 'h-4'], [], '');
+			error(element.children[4].children[1].children[0], ['w-40', 'h-4'], [], '');
 		};
 		const parseProfile = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -120,7 +120,7 @@
 			profile.username = binary.string();
 			profile.signupAt = binary.uint(64);
 			profile.signinAt = binary.uint(64);
-			profile.permissions = binary.hex(4);
+			profile.permissions = binary.hex(8);
 			return profile;
 		};
 		const loadProfile = fetching(
