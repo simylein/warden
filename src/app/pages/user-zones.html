@@ -3,13 +3,13 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="description" content="View and manage user devices" />
-		<title>Warden user devices</title>
+		<meta name="description" content="View and manage user zones" />
+		<title>Warden user zones</title>
 		<style></style>
 	</head>
 	<body
 		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black scheme-light-dark"
-		onload="loadDevices()"
+		onload="loadZones()"
 	>
 		<notifications ref="./src/app/components/notifications.html" />
 		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
@@ -33,8 +33,8 @@
 			>
 				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal">
 					<a class="no-underline text-black dark:text-white">Details</a>
-					<a class="no-underline text-blue-600 dark:text-blue-400">Devices</a>
-					<a class="no-underline text-black dark:text-white">Zones</a>
+					<a class="no-underline text-black dark:text-white">Devices</a>
+					<a class="no-underline text-blue-600 dark:text-blue-400">Zones</a>
 				</div>
 				<svg
 					id="create"
@@ -60,7 +60,7 @@
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
 									paintSorting('id');
-									loadDevices();
+									loadZones();
 								"
 							>
 								Id
@@ -72,22 +72,10 @@
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
 									paintSorting('name');
-									loadDevices();
+									loadZones();
 								"
 							>
 								Name
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
-								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
-							</th>
-							<th
-								id="zone"
-								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="
-									paintSorting('zone');
-									loadDevices();
-								"
-							>
-								Zone
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
@@ -96,7 +84,7 @@
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
 									paintSorting('createdAt');
-									loadDevices();
+									loadZones();
 								"
 							>
 								Created at
@@ -108,7 +96,7 @@
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
 									paintSorting('updatedAt');
-									loadDevices();
+									loadZones();
 								"
 							>
 								Updated at
@@ -130,41 +118,41 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
-					<tbody id="devices">
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
-						<user-device-row ref="./src/app/components/user-device-row.html" />
+					<tbody id="zones">
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
+						<user-zone-row ref="./src/app/components/user-zone-row.html" />
 					</tbody>
 				</table>
 			</div>
 			<dialog id="create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-2" onsubmit="createForm.handleSubmit(event)">
-					<h1 class="m-0 text-xl font-medium">Create user device?</h1>
+					<h1 class="m-0 text-xl font-medium">Create user zone?</h1>
 					<div class="w-full flex flex-col items-start pb-4">
-						<label for="device-id" class="mb-2 text-base font-normal">Device id</label>
+						<label for="zone-id" class="mb-2 text-base font-normal">Zone id</label>
 						<input
-							id="device-id"
+							id="zone-id"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
-							placeholder="device id"
+							placeholder="zone id"
 							autofocus
-							onchange="createForm.setValue('deviceId', event.target.value)"
-							onblur="createForm.setTouched('deviceId', true)"
+							onchange="createForm.setValue('zoneId', event.target.value)"
+							onblur="createForm.setTouched('zoneId', true)"
 						/>
-						<p id="device-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						<p id="zone-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
@@ -186,8 +174,8 @@
 			</dialog>
 			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
-					<h1 class="m-0 text-xl font-medium">Delete user device?</h1>
-					<p class="m-0 text-base font-normal">Deleting this user device will remove access to said device to the affected user.</p>
+					<h1 class="m-0 text-xl font-medium">Delete user zone?</h1>
+					<p class="m-0 text-base font-normal">Deleting this user zone will remove access to said zone to the affected user.</p>
 					<div class="flex flex-row-reverse justify-start gap-2">
 						<button
 							id="delete-button"
@@ -233,12 +221,11 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const create = document.getElementById('create');
-		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
+		const zones = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('zones') };
 		userTabs();
 		const columns = {
 			id: document.getElementById('id'),
 			name: document.getElementById('name'),
-			zone: document.getElementById('zone'),
 			createdAt: document.getElementById('created-at'),
 			updatedAt: document.getElementById('updated-at'),
 			receivedAt: document.getElementById('received-at'),
@@ -263,26 +250,25 @@
 			setParam('order', column);
 			setParam('sort', sort);
 		};
-		const loadingDevices = (element) => {
+		const loadingZones = (element) => {
 			create.classList.remove('cursor-pointer');
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				loading(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
-				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
-				fade(element.children[ind].children[2].children[0]);
-				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				loading(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
 				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].onclick = null;
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
 			});
 		};
-		const paintDevices = (element, data) => {
+		const paintZones = (element, data) => {
 			create.classList.remove('opacity-50', 'cursor-not-allowed');
 			create.classList.add('cursor-pointer');
 			create.onclick = () => openCreateDialog();
@@ -290,107 +276,95 @@
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
 					paint(element.children[ind].children[0].children[0], [], ['w-10', 'h-4'], data[ind].id.substring(0, 4));
-					paint(element.children[ind].children[1].children[0], [], ['w-32', 'h-4'], data[ind].name);
-					fade(element.children[ind].children[2].children[0]);
-					if (data[ind].zone !== null) {
-						paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], data[ind].zone.name);
-						colorZone(element.children[ind].children[2].children[0], data[ind].zone.color);
-					} else {
-						paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], 'null');
-						colorNull(element.children[ind].children[2].children[0]);
-					}
-					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
-					fade(element.children[ind].children[4].children[0]);
+					fade(element.children[ind].children[1].children[0]);
+					paint(element.children[ind].children[1].children[0], [], ['w-24', 'h-4'], data[ind].name);
+					colorZone(element.children[ind].children[1].children[0], data[ind].color);
+					paint(element.children[ind].children[2].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
+					fade(element.children[ind].children[3].children[0]);
 					if (data[ind].updatedAt !== null) {
-						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
+						paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
+					} else {
+						paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], 'null');
+						colorNull(element.children[ind].children[3].children[0]);
+					}
+					fade(element.children[ind].children[4].children[0]);
+					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
+						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
 					} else {
 						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], 'null');
 						colorNull(element.children[ind].children[4].children[0]);
 					}
-					fade(element.children[ind].children[5].children[0]);
-					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
-					} else {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], 'null');
-						colorNull(element.children[ind].children[5].children[0]);
-					}
-					element.children[ind].children[6].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[6].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[6].children[0].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[5].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[5].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[5].children[0].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
-		const errorDevices = (element) => {
+		const errorZones = (element) => {
 			create.classList.remove('cursor-pointer');
 			create.classList.add('opacity-50', 'cursor-not-allowed');
 			create.onclick = null;
 			array(element.children.length).forEach((ind) => {
 				error(element.children[ind].children[0].children[0], ['w-10', 'h-4'], [], '');
-				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
-				fade(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
 				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
 				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].onclick = null;
+				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].onclick = null;
 			});
 		};
-		const parseDevices = async (response) => {
+		const parseZones = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
-			const devices = [];
+			const zones = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, createdAt: null, updatedAt: null, zone: null, uplink: null };
-				device.id = binary.uuid();
-				device.name = binary.string();
-				device.createdAt = binary.uint(64);
+				const zone = { id: null, name: null, color: null, createdAt: null, updatedAt: null, uplink: null };
+				zone.id = binary.uuid();
+				zone.name = binary.string();
+				zone.color = binary.hex(12);
+				zone.createdAt = binary.uint(64);
 				if (binary.byte() !== 0) {
-					device.updatedAt = binary.uint(64);
-				}
-				if (binary.byte() !== 0) {
-					device.zone = {};
-					device.zone.id = binary.uuid();
-					device.zone.name = binary.string();
-					device.zone.color = binary.hex(12);
+					zone.updatedAt = binary.uint(64);
 				}
 				if (binary.byte() !== 0) {
 					device.uplink = {};
 					device.uplink.id = binary.uuid();
 					device.uplink.receivedAt = binary.uint(64);
 				}
-				devices.push(device);
+				zones.push(zone);
 			}
-			return devices;
+			return zones;
 		};
-		const loadDevices = fetching(
-			devices,
-			(context) => window.requestAnimationFrame(() => loadingDevices(context.element)),
+		const loadZones = fetching(
+			zones,
+			(context) => window.requestAnimationFrame(() => loadingZones(context.element)),
 			(context) => {
 				const endpoint = `/api/user/${window.location.pathname.substring(6)}?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
-			async (context, response) => (context.data = await parseDevices(response)),
-			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
-			(context) => window.requestAnimationFrame(() => errorDevices(context.element)),
+			async (context, response) => (context.data = await parseZones(response)),
+			(context) => window.requestAnimationFrame(() => paintZones(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorZones(context.element)),
 		);
 		const createDialog = document.getElementById('create-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
-		let userDevice = null;
+		let userZone = null;
 		const openCreateDialog = () => {
-			document.getElementById('device-id').value = '';
+			document.getElementById('zone-id').value = '';
 			createDialog.showModal();
 		};
 		const closeCreateDialog = () => {
 			createForm.reset();
 			createDialog.close();
 		};
-		const openDeleteDialog = (device) => {
-			deleteForm.setValue('deviceId', device.id);
-			deleteForm.setTouched('deviceId', true);
+		const openDeleteDialog = (zone) => {
+			deleteForm.setValue('zoneId', zone.id);
+			deleteForm.setTouched('zoneId', true);
 			deleteDialog.showModal();
 		};
 		const closeDeleteDialog = () => {
@@ -400,26 +374,26 @@
 		const createForm = formik(
 			{
 				button: document.getElementById('create-button'),
-				deviceId: document.getElementById('device-id-validation'),
+				zoneId: document.getElementById('zone-id-validation'),
 			},
 			{
-				deviceId: (value) => {
-					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
-					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				zoneId: (value) => {
+					if (!value) return 'zone id is required';
+					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(values.deviceId.length / 2);
+				const bytes = new Uint8Array(values.zoneId.length / 2);
 				for (let ind = 0; ind < bytes.length; ind++) {
-					bytes[ind] = parseInt(values.deviceId.substring(ind * 2, ind * 2 + 2), 16);
+					bytes[ind] = parseInt(values.zoneId.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/device`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/zone`;
 					await fetcher('post', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
-					notification('success', 'Successfully created user device');
-					loadDevices(true);
+					notification('success', 'Successfully created user zone');
+					loadZones(true);
 				} catch (err) {
 					report(err);
 				}
@@ -431,23 +405,23 @@
 				button: document.getElementById('delete-button'),
 			},
 			{
-				deviceId: (value) => {
-					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
-					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
+				zoneId: (value) => {
+					if (!value) return 'zone id is required';
+					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(values.deviceId.length / 2);
+				const bytes = new Uint8Array(values.zoneId.length / 2);
 				for (let ind = 0; ind < bytes.length; ind++) {
-					bytes[ind] = parseInt(values.deviceId.substring(ind * 2, ind * 2 + 2), 16);
+					bytes[ind] = parseInt(values.zoneId.substring(ind * 2, ind * 2 + 2), 16);
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/device`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/zone`;
 					await fetcher('delete', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
-					notification('success', 'Successfully deleted user device');
-					loadDevices(true);
+					notification('success', 'Successfully deleted user zone');
+					loadZones(true);
 				} catch (err) {
 					report(err);
 				}
