@@ -162,6 +162,70 @@ cleanup:
 	return status;
 }
 
+uint16_t user_zone_delete(octet_t *db, user_zone_t *user_zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete user %02x%02x zone %02x%02x\n", (*user_zone->user_id)[0], (*user_zone->user_id)[1], (*user_zone->zone_id)[0],
+				(*user_zone->zone_id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("user %02x%02x zone %02x%02x not found\n", (*user_zone->user_id)[0], (*user_zone->user_id)[1],
+					 (*user_zone->zone_id)[0], (*user_zone->zone_id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.user_id);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
+		if (memcmp(user_id, user_zone->user_id, sizeof(*user_zone->user_id)) == 0 &&
+				memcmp(zone_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
+			break;
+		}
+		offset += user_zone_row.size;
+	}
+
+	off_t index = offset + user_zone_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - user_zone_row.size, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += user_zone_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_zone_row.size)) {
+		status = 500;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
@@ -210,5 +274,50 @@ void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 	}
 
 	info("created user zone %02x%02x\n", (*user_zone.zone_id)[0], (*user_zone.zone_id)[1]);
+	response->status = 200;
+}
+
+void user_zone_remove(octet_t *db, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((zone_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((zone_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id};
+	uint16_t status = user_existing(db, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	if (request->body.len != sizeof(*((zone_t *)0)->id)) {
+		response->status = 400;
+		return;
+	}
+
+	user_zone_t user_zone = {.user_id = user.id, .zone_id = (uint8_t (*)[16])request->body.ptr};
+	status = user_zone_delete(db, &user_zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("deleted user %02x%02x zone %02x%02x\n", (*user_zone.user_id)[0], (*user_zone.user_id)[1], (*user_zone.zone_id)[0],
+			 (*user_zone.zone_id)[1]);
 	response->status = 200;
 }
