@@ -3,6 +3,7 @@ const userTabs = () => {
 	const routes = [
 		{ endpoint: '', search: {} },
 		{ endpoint: '/devices', search: {} },
+		{ endpoint: '/zones', search: {} },
 	];
 	const pathname = window.location.pathname.substring(0, 38);
 	routes.forEach((route, index) => {
