@@ -599,7 +599,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			if (authorize(&bwt, permission_user_device_delete, response) == true) {
-				user_device_remove(db, database, request, response);
+				user_device_remove(db, request, response);
 			}
 		}
 	}
