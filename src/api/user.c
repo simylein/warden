@@ -9,9 +9,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/sha256.h"
-#include "database.h"
 #include <fcntl.h>
-#include <sqlite3.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -462,38 +460,63 @@ cleanup:
 	return status;
 }
 
-uint16_t user_delete(sqlite3 *database, user_t *user) {
+uint16_t user_delete(octet_t *db, user_t *user) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "delete from user "
-										"where id = ?";
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
 	debug("delete user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
+			break;
+		}
+		offset += user_row.size;
+	}
+
+	off_t index = offset + user_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, user_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - user_row.size, db->row, user_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += user_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_row.size)) {
 		status = 500;
-		goto cleanup;
-	}
-
-	sqlite3_bind_blob(stmt, 1, user->id, sizeof(*user->id), SQLITE_STATIC);
-
-	int result = sqlite3_step(stmt);
-	if (result != SQLITE_DONE) {
-		status = database_error(database, result);
-		goto cleanup;
-	}
-
-	if (sqlite3_changes(database) == 0) {
-		warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
-		status = 404;
 		goto cleanup;
 	}
 
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -653,7 +676,7 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 	response->status = 201;
 }
 
-void user_remove(sqlite3 *database, request_t *request, response_t *response) {
+void user_remove(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
 		return;
@@ -675,7 +698,7 @@ void user_remove(sqlite3 *database, request_t *request, response_t *response) {
 	}
 
 	user_t user = {.id = &id};
-	uint16_t status = user_delete(database, &user);
+	uint16_t status = user_delete(db, &user);
 	if (status != 0) {
 		response->status = status;
 		return;
