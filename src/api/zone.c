@@ -24,6 +24,8 @@ const char *zone_schema = "create table zone ("
 													"updated_at timestamp"
 													")";
 
+const char *zone_file = "zone";
+
 const zone_row_t zone_row = {
 		.id = 0,
 		.name_len = 16,
@@ -137,7 +139,7 @@ uint16_t zone_existing(octet_t *db, zone_t *zone) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -178,7 +180,7 @@ uint16_t zone_lookup(octet_t *db, zone_t *zone) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -232,7 +234,7 @@ uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *r
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -350,7 +352,7 @@ uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *resp
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -499,7 +501,7 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -539,7 +541,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/zone.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}

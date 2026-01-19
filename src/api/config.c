@@ -33,6 +33,8 @@ const char *config_schema = "create table config ("
 														"foreign key (device_id) references device(id) on delete cascade"
 														")";
 
+const char *config_file = "config";
+
 const config_row_t config_row = {
 		.id = 0,
 		.led_debug = 16,
@@ -57,7 +59,7 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/config.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, config_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}
@@ -122,7 +124,7 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	}
 
 	char file[128];
-	if (sprintf(file, "%s/%.*s/config.data", db->directory, (int)sizeof(uuid), uuid) == -1) {
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, config_file) == -1) {
 		error("failed to sprintf uuid to file\n");
 		return 500;
 	}

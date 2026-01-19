@@ -34,6 +34,8 @@ typedef struct metric_row_t {
 	uint8_t size;
 } metric_row_t;
 
+extern const char *metric_file;
+
 extern const metric_row_t metric_row;
 
 extern const char *metric_table;

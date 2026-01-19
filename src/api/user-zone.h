@@ -15,6 +15,8 @@ typedef struct user_zone_row_t {
 	uint8_t size;
 } user_zone_row_t;
 
+extern const char *user_zone_file;
+
 extern const user_zone_row_t user_zone_row;
 
 uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone);

@@ -34,6 +34,8 @@ typedef struct reading_row_t {
 	uint8_t size;
 } reading_row_t;
 
+extern const char *reading_file;
+
 extern const reading_row_t reading_row;
 
 extern const char *reading_table;

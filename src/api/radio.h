@@ -39,6 +39,8 @@ typedef struct radio_row_t {
 	uint8_t size;
 } radio_row_t;
 
+extern const char *radio_file;
+
 extern const radio_row_t radio_row;
 
 extern const char *radio_table;

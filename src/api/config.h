@@ -36,6 +36,8 @@ typedef struct config_row_t {
 	uint8_t size;
 } config_row_t;
 
+extern const char *config_file;
+
 extern const config_row_t config_row;
 
 extern const char *config_table;

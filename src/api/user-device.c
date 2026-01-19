@@ -23,6 +23,8 @@ const char *user_device_schema = "create table user_device ("
 																 "foreign key (device_id) references device(id) on delete cascade"
 																 ")";
 
+const char *user_device_file = "user-device";
+
 const user_device_row_t user_device_row = {
 		.user_id = 0,
 		.device_id = 16,
@@ -33,7 +35,7 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user-device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -78,7 +80,7 @@ uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_dev
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user-device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
@@ -119,7 +121,7 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 	uint16_t status;
 
 	char file[128];
-	if (sprintf(file, "%s/user-device.data", db->directory) == -1) {
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
 		error("failed to sprintf to file\n");
 		return 500;
 	}
