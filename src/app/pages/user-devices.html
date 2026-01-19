@@ -299,12 +299,14 @@
 						colorNull(element.children[ind].children[2].children[0]);
 					}
 					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
+					fade(element.children[ind].children[4].children[0]);
 					if (data[ind].updatedAt !== null) {
 						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
 					} else {
 						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], 'null');
 						colorNull(element.children[ind].children[4].children[0]);
 					}
+					fade(element.children[ind].children[5].children[0]);
 					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
 						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
 					} else {
