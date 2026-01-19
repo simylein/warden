@@ -126,7 +126,7 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -140,7 +140,7 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, reading_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		int16_t temperature = octet_int16_read(db->row, reading_row.temperature);
@@ -249,7 +249,7 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -264,7 +264,7 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 

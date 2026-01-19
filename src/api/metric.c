@@ -126,7 +126,7 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -140,7 +140,7 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
@@ -249,7 +249,7 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -264,7 +264,7 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 

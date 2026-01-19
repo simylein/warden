@@ -26,7 +26,7 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -42,7 +42,7 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, user_zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 
@@ -73,7 +73,7 @@ uint16_t user_zone_select_by_user(octet_t *db, user_t *user, uint8_t *user_zones
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -87,7 +87,7 @@ uint16_t user_zone_select_by_user(octet_t *db, user_t *user, uint8_t *user_zones
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->chunk[chunk_len], user_zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], user_zone_row.user_id);

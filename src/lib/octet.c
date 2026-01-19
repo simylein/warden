@@ -1,10 +1,30 @@
 #include "octet.h"
 #include "error.h"
 #include "logger.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+
+uint16_t octet_error(void) {
+	switch (errno) {
+	case EINTR:
+		return 503;
+	case ENFILE:
+		return 503;
+	case EMFILE:
+		return 503;
+	case ENOSPC:
+		return 507;
+	case EROFS:
+		return 423;
+	case EDQUOT:
+		return 507;
+	default:
+		return 500;
+	}
+}
 
 int octet_open(octet_stmt_t *stmt, const char *file, int open_flags, short lock_type) {
 	trace("opening file %s\n", file);

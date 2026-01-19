@@ -68,7 +68,7 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -82,7 +82,7 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 	}
 
 	if (octet_row_read(&stmt, file, offset, db->row, radio_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -135,7 +135,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -156,7 +156,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 

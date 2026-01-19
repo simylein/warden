@@ -19,6 +19,8 @@ typedef struct octet_stmt_t {
 	struct stat stat;
 } octet_stmt_t;
 
+uint16_t octet_error(void);
+
 int octet_open(octet_stmt_t *stmt, const char *file, int open_flags, short lock_type);
 void octet_close(octet_stmt_t *stmt, const char *file);
 

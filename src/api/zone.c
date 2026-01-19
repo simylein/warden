@@ -146,7 +146,7 @@ uint16_t zone_existing(octet_t *db, zone_t *zone) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -160,7 +160,7 @@ uint16_t zone_existing(octet_t *db, zone_t *zone) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
@@ -187,7 +187,7 @@ uint16_t zone_lookup(octet_t *db, zone_t *zone) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -201,7 +201,7 @@ uint16_t zone_lookup(octet_t *db, zone_t *zone) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
@@ -241,7 +241,7 @@ uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *r
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -262,7 +262,7 @@ uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *r
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, &db->table[table_len], zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], zone_row.id);
@@ -359,7 +359,7 @@ uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *resp
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -372,7 +372,7 @@ uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *resp
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
@@ -508,7 +508,7 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -526,7 +526,7 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 
 	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -548,7 +548,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = 500;
+		status = octet_error();
 		goto cleanup;
 	}
 
@@ -562,7 +562,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 			break;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
-			status = 500;
+			status = octet_error();
 			goto cleanup;
 		}
 		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
@@ -573,7 +573,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 			octet_uint8_write(db->row, zone_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, zone_row.updated_at, (uint64_t)*zone->updated_at);
 			if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
-				status = 500;
+				status = octet_error();
 				goto cleanup;
 			}
 			status = 0;
