@@ -38,7 +38,7 @@ int seed_user(octet_t *db, const char *table) {
 	}
 
 	for (uint8_t index = 0; index < user_ids_len; index++) {
-		uint8_t permissions[4];
+		uint8_t permissions[8];
 		user_t user = {
 				.id = &user_ids[index],
 				.username = usernames[index],
