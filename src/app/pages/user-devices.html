@@ -217,6 +217,7 @@
 	</body>
 	<script>
 		import './src/app/scripts/array.js';
+		import './src/app/scripts/user-tabs.js';
 		import './src/app/scripts/resize.js';
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/state.js';
@@ -230,11 +231,9 @@
 		import './src/app/scripts/formik.js';
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
-		const tabs = document.getElementById('tabs');
-		tabs.children[0].href = `${window.location.pathname.substring(0, 38)}`;
-		tabs.children[1].href = `${window.location.pathname.substring(0, 38)}/devices`;
 		const create = document.getElementById('create');
 		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
+		userTabs();
 		const columns = {
 			id: document.getElementById('id'),
 			name: document.getElementById('name'),
