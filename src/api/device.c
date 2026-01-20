@@ -768,6 +768,24 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 
 	debug("insert device name %*.s created at %lu\n", device->name_len, device->name, *device->created_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - device_row.size, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint64_t id = octet_uint64_read(db->row, device_row.id);
+		uint64_t device_id = octet_uint64_read((uint8_t *)device->id, 0);
+		if (id <= device_id) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= device_row.size;
+	}
+
 	octet_blob_write(db->row, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
 	octet_uint8_write(db->row, device_row.name_len, device->name_len);
 	octet_text_write(db->row, device_row.name, (char *)device->name, device->name_len);
@@ -798,7 +816,6 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	octet_uint8_write(db->row, device_row.metric_null, 0x00);
 	octet_uint8_write(db->row, device_row.buffer_null, 0x00);
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

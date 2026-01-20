@@ -643,6 +643,23 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	debug("insert uplink for device %02x%02x received at %lu\n", (*uplink->device_id)[0], (*uplink->device_id)[1],
 				uplink->received_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - uplink_row.size, db->row, uplink_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
+		if (received_at <= uplink->received_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, uplink_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= uplink_row.size;
+	}
+
 	octet_blob_write(db->row, uplink_row.id, (uint8_t *)uplink->id, sizeof(*uplink->id));
 	octet_uint16_write(db->row, uplink_row.frame, uplink->frame);
 	octet_uint8_write(db->row, uplink_row.kind, uplink->kind);
@@ -659,7 +676,6 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	octet_uint8_write(db->row, uplink_row.preamble_len, uplink->preamble_len);
 	octet_uint64_write(db->row, uplink_row.received_at, (uint64_t)uplink->received_at);
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, uplink_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

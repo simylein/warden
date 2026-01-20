@@ -486,6 +486,23 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	debug("insert downlink for device %02x%02x sent at %lu\n", (*downlink->device_id)[0], (*downlink->device_id)[1],
 				downlink->sent_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - downlink_row.size, db->row, downlink_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
+		if (sent_at <= downlink->sent_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, downlink_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= downlink_row.size;
+	}
+
 	octet_blob_write(db->row, downlink_row.id, (uint8_t *)downlink->id, sizeof(*downlink->id));
 	octet_uint16_write(db->row, downlink_row.frame, downlink->frame);
 	octet_uint8_write(db->row, downlink_row.kind, downlink->kind);
@@ -500,7 +517,6 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	octet_uint8_write(db->row, downlink_row.preamble_len, downlink->preamble_len);
 	octet_uint64_write(db->row, downlink_row.sent_at, (uint64_t)downlink->sent_at);
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, downlink_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;
