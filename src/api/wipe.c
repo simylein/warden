@@ -1,78 +1,166 @@
 #include "../lib/logger.h"
-#include "buffer.h"
-#include "config.h"
 #include "device.h"
-#include "downlink.h"
-#include "metric.h"
-#include "radio.h"
-#include "reading.h"
-#include "uplink.h"
 #include "user-device.h"
+#include "user-zone.h"
 #include "user.h"
 #include "zone.h"
-#include <sqlite3.h>
+#include <fcntl.h>
 #include <stdio.h>
 
-int wipe_table(sqlite3 *database, const char *table) {
+int wipe_user(octet_t *db) {
 	int status;
-	sqlite3_stmt *stmt;
 
-	char sql[64];
-	sprintf(sql, "delete from %s", table);
-	debug("%s\n", sql);
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = -1;
 		goto cleanup;
 	}
 
-	if (sqlite3_step(stmt) != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
+	if (octet_trunc(&stmt, file, 0) == -1) {
 		status = -1;
 		goto cleanup;
 	}
 
-	info("wiped table %s\n", table);
+	info("wiped file %s\n", user_file);
 	status = 0;
 
 cleanup:
-	sqlite3_finalize(stmt);
+	octet_close(&stmt, file);
 	return status;
 }
 
-int wipe(sqlite3 *database) {
-	if (wipe_table(database, user_table) == -1) {
+int wipe_device(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", device_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe_user_device(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", user_device_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe_zone(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", zone_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe_user_zone(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", user_zone_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int wipe(octet_t *db) {
+	if (wipe_user(db) == -1) {
 		return -1;
 	}
-	if (wipe_table(database, user_device_table) == -1) {
+	if (wipe_device(db) == -1) {
 		return -1;
 	}
-	if (wipe_table(database, device_table) == -1) {
+	if (wipe_user_device(db) == -1) {
 		return -1;
 	}
-	if (wipe_table(database, zone_table) == -1) {
+	if (wipe_zone(db) == -1) {
 		return -1;
 	}
-	if (wipe_table(database, uplink_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, downlink_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, reading_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, metric_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, buffer_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, config_table) == -1) {
-		return -1;
-	}
-	if (wipe_table(database, radio_table) == -1) {
+	if (wipe_user_zone(db) == -1) {
 		return -1;
 	}
 
