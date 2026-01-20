@@ -146,7 +146,11 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 		uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
 		uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
 		time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
-		if (captured_at > query->from && captured_at < query->to) {
+		if (captured_at < query->from) {
+			status = 0;
+			break;
+		}
+		if (captured_at >= query->from && captured_at <= query->to) {
 			body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
 			body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
 			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
