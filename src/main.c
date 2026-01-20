@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x40 && wipe(database) != 0) {
+		if (cmds & 0x40 && wipe(&db) != 0) {
 			fatal("failed to wipe database\n");
 			exit(1);
 		}
