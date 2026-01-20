@@ -118,7 +118,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*radio->id); index++) {
-		(*radio->id)[index] = (uint8_t)(rand() % 0xff);
+		(*radio->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];

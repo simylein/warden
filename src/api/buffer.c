@@ -232,7 +232,7 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*buffer->id); index++) {
-		(*buffer->id)[index] = (uint8_t)(rand() % 0xff);
+		(*buffer->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];

@@ -462,7 +462,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*downlink->id); index++) {
-		(*downlink->id)[index] = (uint8_t)(rand() % 0xff);
+		(*downlink->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];
