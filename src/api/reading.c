@@ -256,13 +256,29 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	debug("insert reading for device %02x%02x captured at %lu\n", (*reading->device_id)[0], (*reading->device_id)[1],
 				reading->captured_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - reading_row.size, db->row, reading_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
+		if (captured_at <= reading->captured_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= reading_row.size;
+	}
+
 	octet_blob_write(db->row, reading_row.id, (uint8_t *)reading->id, sizeof(*reading->id));
 	octet_int16_write(db->row, reading_row.temperature, (int16_t)(reading->temperature * 100));
 	octet_uint16_write(db->row, reading_row.humidity, (uint16_t)(reading->humidity * 100));
 	octet_uint64_write(db->row, reading_row.captured_at, (uint64_t)reading->captured_at);
 	octet_blob_write(db->row, reading_row.uplink_id, (uint8_t *)reading->uplink_id, sizeof(*reading->uplink_id));
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

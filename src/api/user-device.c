@@ -154,10 +154,27 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 		offset += user_device_row.size;
 	}
 
+	offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - user_device_row.size, db->row, user_device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint64_t user_id = octet_uint64_read(db->row, user_device_row.user_id);
+		uint64_t user_device_user_id = octet_uint64_read((uint8_t *)user_device->user_id, 0);
+		if (user_id <= user_device_user_id) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, user_device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= user_device_row.size;
+	}
+
 	octet_blob_write(db->row, user_device_row.user_id, (uint8_t *)user_device->user_id, sizeof(*user_device->user_id));
 	octet_blob_write(db->row, user_device_row.device_id, (uint8_t *)user_device->device_id, sizeof(*user_device->device_id));
 
-	offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, user_device_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

@@ -146,10 +146,27 @@ uint16_t user_zone_insert(octet_t *db, user_zone_t *user_zone) {
 		offset += user_zone_row.size;
 	}
 
+	offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - user_zone_row.size, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint64_t user_id = octet_uint64_read(db->row, user_zone_row.user_id);
+		uint64_t user_zone_user_id = octet_uint64_read((uint8_t *)user_zone->user_id, 0);
+		if (user_id <= user_zone_user_id) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= user_zone_row.size;
+	}
+
 	octet_blob_write(db->row, user_zone_row.user_id, (uint8_t *)user_zone->user_id, sizeof(*user_zone->user_id));
 	octet_blob_write(db->row, user_zone_row.zone_id, (uint8_t *)user_zone->zone_id, sizeof(*user_zone->zone_id));
 
-	offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, user_zone_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

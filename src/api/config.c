@@ -138,6 +138,23 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	debug("insert config for device %02x%02x captured at %lu\n", (*config->device_id)[0], (*config->device_id)[1],
 				config->captured_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - config_row.size, db->row, config_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t captured_at = (time_t)octet_uint64_read(db->row, config_row.captured_at);
+		if (captured_at <= config->captured_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, config_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= config_row.size;
+	}
+
 	octet_blob_write(db->row, config_row.id, (uint8_t *)config->id, sizeof(*config->id));
 	octet_uint8_write(db->row, config_row.led_debug, config->led_debug);
 	octet_uint8_write(db->row, config_row.reading_enable, config->reading_enable);
@@ -149,7 +166,6 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	octet_uint64_write(db->row, config_row.captured_at, (uint64_t)config->captured_at);
 	octet_blob_write(db->row, config_row.uplink_id, (uint8_t *)config->uplink_id, sizeof(*config->uplink_id));
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, config_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

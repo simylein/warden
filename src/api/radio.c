@@ -142,6 +142,23 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	debug("insert radio for device %02x%02x captured at %lu\n", (*radio->device_id)[0], (*radio->device_id)[1],
 				radio->captured_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - radio_row.size, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t captured_at = (time_t)octet_uint64_read(db->row, radio_row.captured_at);
+		if (captured_at <= radio->captured_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= radio_row.size;
+	}
+
 	octet_blob_write(db->row, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
 	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
@@ -154,7 +171,6 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_uint64_write(db->row, radio_row.captured_at, (uint64_t)radio->captured_at);
 	octet_blob_write(db->row, radio_row.uplink_id, (uint8_t *)radio->uplink_id, sizeof(*radio->uplink_id));
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

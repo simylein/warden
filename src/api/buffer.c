@@ -256,13 +256,29 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	debug("insert buffer for device %02x%02x captured at %lu\n", (*buffer->device_id)[0], (*buffer->device_id)[1],
 				buffer->captured_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - buffer_row.size, db->row, buffer_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t captured_at = (time_t)octet_uint64_read(db->row, buffer_row.captured_at);
+		if (captured_at <= buffer->captured_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, buffer_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= buffer_row.size;
+	}
+
 	octet_blob_write(db->row, buffer_row.id, (uint8_t *)buffer->id, sizeof(*buffer->id));
 	octet_uint32_write(db->row, buffer_row.delay, buffer->delay);
 	octet_uint16_write(db->row, buffer_row.level, buffer->level);
 	octet_uint64_write(db->row, buffer_row.captured_at, (uint64_t)buffer->captured_at);
 	octet_blob_write(db->row, buffer_row.uplink_id, (uint8_t *)buffer->uplink_id, sizeof(*buffer->uplink_id));
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, buffer_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

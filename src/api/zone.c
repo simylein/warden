@@ -632,6 +632,24 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 
 	debug("insert zone name %.*s created at %lu\n", zone->name_len, zone->name, *zone->created_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - zone_row.size, db->row, zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint64_t id = octet_uint64_read(db->row, zone_row.id);
+		uint64_t zone_id = octet_uint64_read((uint8_t *)zone->id, 0);
+		if (id <= zone_id) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= zone_row.size;
+	}
+
 	octet_blob_write(db->row, zone_row.id, (uint8_t *)zone->id, sizeof(*zone->id));
 	octet_uint8_write(db->row, zone_row.name_len, zone->name_len);
 	octet_text_write(db->row, zone_row.name, (char *)zone->name, zone->name_len);
@@ -642,7 +660,6 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 	octet_uint8_write(db->row, zone_row.metric_null, 0x00);
 	octet_uint8_write(db->row, zone_row.buffer_null, 0x00);
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;

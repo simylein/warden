@@ -256,13 +256,29 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	debug("insert metric for device %02x%02x captured at %lu\n", (*metric->device_id)[0], (*metric->device_id)[1],
 				metric->captured_at);
 
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - metric_row.size, db->row, metric_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+		if (captured_at <= metric->captured_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= metric_row.size;
+	}
+
 	octet_blob_write(db->row, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
 	octet_uint16_write(db->row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
 	octet_uint16_write(db->row, metric_row.battery, (uint16_t)(metric->battery * 1000));
 	octet_uint64_write(db->row, metric_row.captured_at, (uint64_t)metric->captured_at);
 	octet_blob_write(db->row, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
 
-	off_t offset = stmt.stat.st_size;
 	if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;
