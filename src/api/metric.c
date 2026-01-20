@@ -288,6 +288,45 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 		goto cleanup;
 	}
 
+	octet_close(&stmt, file);
+
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("device %02x%02x not found\n", (*metric->device_id)[0], (*metric->device_id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		if (memcmp(id, metric->device_id, sizeof(*metric->device_id)) == 0) {
+			octet_uint8_write(db->row, device_row.metric_null, 0x01);
+			octet_blob_write(db->row, device_row.metric_id, (uint8_t *)metric->id, sizeof(*metric->id));
+			octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
+			octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(metric->battery * 1000));
+			octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)metric->captured_at);
+			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			break;
+		}
+		offset += device_row.size;
+	}
+
 	status = 0;
 
 cleanup:
