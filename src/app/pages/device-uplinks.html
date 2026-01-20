@@ -79,6 +79,7 @@
 				</table>
 			</div>
 			<pagination ref="./src/app/components/pagination.html" class="pt-2 sm:pt-3 lg:pt-4" />
+			<uplink-dialog ref="./src/app/components/uplink-dialog.html" id="uplink-dialog" />
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -100,12 +101,15 @@
 		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-signal.js';
 		import './src/app/scripts/color-sf.js';
+		import './src/app/scripts/color-cr.js';
 		import './src/app/scripts/color-tx-power.js';
+		import './src/app/scripts/color-preamble-len.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
 		import './src/app/scripts/fetching.js';
 		import './src/app/scripts/paginate.js';
 		const title = document.getElementById('title');
+		const uplink = document.getElementById('uplink');
 		const uplinks = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('uplinks') };
 		deviceTabs();
 		const loadingUplinks = (element) => {
@@ -133,7 +137,7 @@
 			array(element.children.length).forEach((ind) => {
 				if (data[ind]) {
 					element.children[ind].classList.add('cursor-pointer');
-					element.children[ind].onclick = () => (window.location.href = `/uplink/${data[ind].id}`);
+					element.children[ind].onclick = () => openUplinkDialog(uplink, data[ind]);
 					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].receivedAt));
 					paint(element.children[ind].children[1].children[0], [], ['w-12', 'h-4'], data[ind].frame);
 					paint(element.children[ind].children[2].children[0], [], ['w-5', 'h-4'], data[ind].kind.toString(16).padStart(2, '0'));
@@ -185,16 +189,38 @@
 			const binary = new Binary(buffer);
 			const uplinks = [];
 			while (binary.offset < buffer.byteLength) {
-				const uplink = { id: null, frame: null, kind: null, data: null, rssi: null, snr: null, sf: null, txPower: null, receivedAt: null, deviceId: null };
+				const uplink = {
+					id: null,
+					frame: null,
+					kind: null,
+					data: null,
+					airtime: null,
+					frequency: null,
+					bandwidth: null,
+					rssi: null,
+					snr: null,
+					sf: null,
+					cr: null,
+					txPower: null,
+					preambleLen: null,
+					receivedAt: null,
+					deviceId: null,
+				};
 				uplink.id = binary.uuid();
 				uplink.frame = binary.uint(16);
 				uplink.kind = binary.byte();
 				uplink.data = binary.hex(binary.uint(8));
+				uplink.airtime = binary.uint(16) / (16 * 1000);
+				uplink.frequency = binary.uint(32);
+				uplink.bandwidth = binary.uint(32);
 				uplink.rssi = binary.int(16);
 				uplink.snr = binary.int(8) / 4;
 				uplink.sf = binary.uint(8);
+				uplink.cr = binary.uint(8);
 				uplink.txPower = binary.uint(8);
+				uplink.preambleLen = binary.uint(8);
 				uplink.receivedAt = binary.uint(64);
+				uplink.deviceId = window.location.pathname.substring(8, 40);
 				uplinks.push(uplink);
 			}
 			return uplinks;
@@ -223,5 +249,47 @@
 			},
 		);
 		const onPaginate = () => loadUplinks();
+		const uplinkDialog = document.getElementById('uplink-dialog');
+		const openUplinkDialog = (element, data) => {
+			paint(element.children[0].children[1].children[0], [], ['w-80', 'h-4'], data.id);
+			paint(element.children[1].children[1].children[0], [], ['w-12', 'h-4'], data.frame);
+			paint(element.children[2].children[1].children[0], [], ['w-5', 'h-4'], data.kind.toString(16).padStart(2, '0'));
+			if (data.data.length !== 0) {
+				paint(element.children[3].children[1].children[0], [], ['w-56', 'h-4'], data.data);
+				fade(element.children[3].children[1].children[0]);
+			} else {
+				paint(element.children[3].children[1].children[0], [], ['w-56', 'h-4'], 'null');
+				colorNull(element.children[3].children[1].children[0]);
+			}
+			paint(element.children[4].children[1].children[0], [], ['w-11', 'h-4'], data.airtime.toFixed(3));
+			paint(element.children[5].children[1].children[0], [], ['w-24', 'h-4'], data.frequency);
+			paint(element.children[6].children[1].children[0], [], ['w-15', 'h-4'], data.bandwidth);
+			paint(element.children[7].children[1].children[0], [], ['w-9', 'h-4'], data.rssi);
+			fade(element.children[7].children[1].children[0]);
+			colorRssi(element.children[7].children[1].children[0], data.rssi, data.sf);
+			paint(element.children[8].children[1].children[0], [], ['w-12', 'h-4'], data.snr);
+			fade(element.children[8].children[1].children[0]);
+			colorSnr(element.children[8].children[1].children[0], data.snr, data.sf);
+			paint(element.children[9].children[1].children[0], [], ['w-4', 'h-4'], data.sf);
+			fade(element.children[9].children[1].children[0]);
+			colorSf(element.children[9].children[1].children[0], data.sf);
+			paint(element.children[10].children[1].children[0], [], ['w-3', 'h-4'], data.cr);
+			fade(element.children[10].children[1].children[0]);
+			colorCr(element.children[10].children[1].children[0], data.cr);
+			paint(element.children[11].children[1].children[0], [], ['w-4', 'h-4'], data.txPower);
+			fade(element.children[11].children[1].children[0]);
+			colorTxPower(element.children[11].children[1].children[0], data.txPower);
+			paint(element.children[12].children[1].children[0], [], ['w-4', 'h-4'], data.preambleLen);
+			fade(element.children[12].children[1].children[0]);
+			colorPreambleLen(element.children[12].children[1].children[0], data.preambleLen);
+			paint(element.children[13].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.receivedAt));
+			element.children[14].children[1].children[0].classList.add('cursor-pointer');
+			element.children[14].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
+			paint(element.children[14].children[1].children[0], [], ['w-80', 'h-4'], data.deviceId);
+			uplinkDialog.showModal();
+		};
+		const closeUplinkDialog = () => {
+			uplinkDialog.close();
+		};
 	</script>
 </html>
