@@ -146,7 +146,11 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 		int16_t temperature = octet_int16_read(db->row, reading_row.temperature);
 		uint16_t humidity = octet_uint16_read(db->row, reading_row.humidity);
 		time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
-		if (captured_at > query->from && captured_at < query->to) {
+		if (captured_at < query->from) {
+			status = 0;
+			break;
+		}
+		if (captured_at >= query->from && captured_at <= query->to) {
 			body_write(response, (uint16_t[]){hton16((uint16_t)temperature)}, sizeof(temperature));
 			body_write(response, (uint16_t[]){hton16(humidity)}, sizeof(humidity));
 			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));

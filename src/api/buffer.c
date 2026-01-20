@@ -146,7 +146,11 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 		uint32_t delay = octet_uint32_read(db->row, buffer_row.delay);
 		uint16_t level = octet_uint16_read(db->row, buffer_row.level);
 		time_t captured_at = (time_t)octet_uint64_read(db->row, buffer_row.captured_at);
-		if (captured_at > query->from && captured_at < query->to) {
+		if (captured_at < query->from) {
+			status = 0;
+			break;
+		}
+		if (captured_at >= query->from && captured_at <= query->to) {
 			body_write(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
 			body_write(response, (uint16_t[]){hton16(level)}, sizeof(level));
 			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
