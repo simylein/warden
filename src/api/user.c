@@ -343,7 +343,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*user->id); index++) {
-		(*user->id)[index] = (uint8_t)(rand() % 0xff);
+		(*user->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char file[128];

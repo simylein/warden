@@ -232,7 +232,7 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*metric->id); index++) {
-		(*metric->id)[index] = (uint8_t)(rand() % 0xff);
+		(*metric->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];

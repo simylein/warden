@@ -114,7 +114,7 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*config->id); index++) {
-		(*config->id)[index] = (uint8_t)(rand() % 0xff);
+		(*config->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];

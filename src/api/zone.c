@@ -615,7 +615,7 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*zone->id); index++) {
-		(*zone->id)[index] = (uint8_t)(rand() % 0xff);
+		(*zone->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char file[128];

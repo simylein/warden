@@ -751,7 +751,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*device->id); index++) {
-		(*device->id)[index] = (uint8_t)(rand() % 0xff);
+		(*device->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char file[128];

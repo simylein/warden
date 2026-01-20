@@ -619,7 +619,7 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*uplink->id); index++) {
-		(*uplink->id)[index] = (uint8_t)(rand() % 0xff);
+		(*uplink->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];

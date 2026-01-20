@@ -232,7 +232,7 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	uint16_t status;
 
 	for (uint8_t index = 0; index < sizeof(*reading->id); index++) {
-		(*reading->id)[index] = (uint8_t)(rand() % 0xff);
+		(*reading->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
 	char uuid[32];
