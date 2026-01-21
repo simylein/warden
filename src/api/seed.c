@@ -220,9 +220,9 @@ int seed_uplink(octet_t *db) {
 		uint8_t cr = (uint8_t)(rand() % 4 + 5);
 		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
-		time_t startup_at = time(NULL) - 24 * 60 * 60;
-		time_t received_at = time(NULL);
-		while (received_at > startup_at) {
+		time_t now = time(NULL);
+		time_t received_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (received_at < now) {
 			if (uplink_ids_len % 4096 == 0) {
 				uplink_ids = realloc(uplink_ids, (uplink_ids_len + 4096) * sizeof(*uplink_ids));
 				if (uplink_ids == NULL) {
@@ -299,7 +299,7 @@ int seed_uplink(octet_t *db) {
 			if (preamble_len > 21) {
 				preamble_len -= 1;
 			}
-			received_at -= 280 + rand() % 40;
+			received_at += 56 + rand() % 8;
 			uplink_ids_len += 1;
 		}
 	}
@@ -317,9 +317,9 @@ int seed_downlink(octet_t *db) {
 		uint8_t cr = (uint8_t)(rand() % 4 + 5);
 		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
-		time_t startup_at = time(NULL) - 24 * 60 * 60;
-		time_t sent_at = time(NULL);
-		while (sent_at > startup_at) {
+		time_t now = time(NULL);
+		time_t sent_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (sent_at < now) {
 			if (downlink_ids_len % 4096 == 0) {
 				downlink_ids = realloc(downlink_ids, (downlink_ids_len + 4096) * sizeof(*downlink_ids));
 				if (downlink_ids == NULL) {
@@ -380,7 +380,7 @@ int seed_downlink(octet_t *db) {
 			if (preamble_len > 21) {
 				preamble_len -= 1;
 			}
-			sent_at -= 280 + rand() % 40;
+			sent_at += 56 + rand() % 8;
 			downlink_ids_len += 1;
 		}
 	}
@@ -395,9 +395,9 @@ int seed_reading(octet_t *db) {
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		float temperature = (float)(rand() % 6000) / 100 - 20;
 		float humidity = (float)(rand() % 10000) / 100;
-		time_t startup_at = time(NULL) - 24 * 60 * 60;
-		time_t captured_at = time(NULL);
-		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+		time_t now = time(NULL);
+		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (captured_at < now && uplink_ind < uplink_ids_len) {
 			uint8_t id[16];
 			reading_t reading = {
 					.id = &id,
@@ -425,7 +425,7 @@ int seed_reading(octet_t *db) {
 			if (humidity > 100) {
 				humidity -= 1;
 			}
-			captured_at -= 280 + rand() % 40;
+			captured_at += 56 + rand() % 8;
 			uplink_ind += 1;
 		}
 	}
@@ -440,9 +440,9 @@ int seed_metric(octet_t *db) {
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		float photovoltaic = (float)(rand() % 5000) / 1000;
 		float battery = (float)(rand() % 1000) / 1000 + 3.2f;
-		time_t startup_at = time(NULL) - 24 * 60 * 60;
-		time_t captured_at = time(NULL);
-		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+		time_t now = time(NULL);
+		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (captured_at < now && uplink_ind < uplink_ids_len) {
 			uint8_t id[16];
 			metric_t metric = {
 					.id = &id,
@@ -470,7 +470,7 @@ int seed_metric(octet_t *db) {
 			if (battery > 4.2) {
 				battery -= 0.1f;
 			}
-			captured_at -= 280 + rand() % 40;
+			captured_at += 56 + rand() % 8;
 			uplink_ind += 1;
 		}
 	}
@@ -485,9 +485,9 @@ int seed_buffer(octet_t *db) {
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint32_t delay = 0;
 		uint16_t level = 0;
-		time_t startup_at = time(NULL) - 24 * 60 * 60;
-		time_t captured_at = time(NULL);
-		while (captured_at > startup_at && uplink_ind < uplink_ids_len) {
+		time_t now = time(NULL);
+		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (captured_at < now && uplink_ind < uplink_ids_len) {
 			uint8_t id[16];
 			buffer_t buffer = {
 					.id = &id,
@@ -521,7 +521,7 @@ int seed_buffer(octet_t *db) {
 				delay += (uint32_t)(rand() % 120);
 				level += (uint16_t)(rand() % 2);
 			}
-			captured_at -= 280 + rand() % 40;
+			captured_at += 56 + rand() % 8;
 			uplink_ind += 1;
 		}
 	}
