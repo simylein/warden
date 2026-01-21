@@ -4,7 +4,6 @@
 #include "error.h"
 #include "logger.h"
 #include <errno.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -55,14 +54,6 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	}
 	worker->arg.db.table_len = database_buffer * sizeof(char);
 
-	int db_error = sqlite3_open_v2(database_file, &worker->arg.database, SQLITE_OPEN_READWRITE, NULL);
-	if (db_error != SQLITE_OK) {
-		logger("failed to open %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
-		return -1;
-	}
-
-	sqlite3_busy_timeout(worker->arg.database, database_timeout);
-
 	worker->arg.request_buffer = malloc(receive_buffer * sizeof(char));
 	if (worker->arg.request_buffer == NULL) {
 		logger("failed to allocate %u bytes because %s\n", receive_buffer, errno_str());
@@ -93,11 +84,6 @@ int join(worker_t *worker, uint8_t id) {
 
 	if (pthread_join(worker->thread, NULL) == -1) {
 		error("failed to join worker thread %hhu because %s\n", id, errno_str());
-		return -1;
-	}
-
-	if (sqlite3_close_v2(worker->arg.database) != SQLITE_OK) {
-		error("failed to close %s because %s\n", database_file, sqlite3_errmsg(worker->arg.database));
 		return -1;
 	}
 
