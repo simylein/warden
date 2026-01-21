@@ -6,7 +6,14 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "buffer.h"
 #include "cache.h"
+#include "config.h"
+#include "downlink.h"
+#include "metric.h"
+#include "radio.h"
+#include "reading.h"
+#include "uplink.h"
 #include "user-device.h"
 #include "user.h"
 #include "zone.h"
@@ -760,6 +767,18 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 		return 500;
 	}
 
+	char uuid[32];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char directory[128];
+	if (sprintf(directory, "%s/%.*s", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to directory\n");
+		return 500;
+	}
+
 	octet_stmt_t stmt;
 	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
 		status = octet_error();
@@ -819,6 +838,25 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 		status = octet_error();
 		goto cleanup;
+	}
+
+	if (octet_mkdir(directory) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	const char *files[] = {uplink_file, downlink_file, reading_file, metric_file, buffer_file, config_file, radio_file};
+	for (uint8_t index = 0; index < sizeof(files) / sizeof(files[0]); index++) {
+		if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, files[index]) == -1) {
+			error("failed to sprintf uuid to file\n");
+			status = 500;
+			goto cleanup;
+		}
+
+		if (octet_creat(file) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
 	}
 
 	status = 0;
