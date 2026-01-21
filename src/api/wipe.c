@@ -192,14 +192,19 @@ int wipe(octet_t *db) {
 					return -1;
 				}
 
-				octet_stmt_t stmt;
-				if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+				if (octet_unlink(file) == -1) {
 					return -1;
 				}
+			}
 
-				if (octet_trunc(&stmt, file, 0) == -1) {
-					return -1;
-				}
+			char directory[512];
+			if (sprintf(directory, "%s/%s", db->directory, dir->d_name) == -1) {
+				error("failed to sprintf to file\n");
+				return -1;
+			}
+
+			if (octet_rmdir(directory) == -1) {
+				return -1;
 			}
 		}
 	}
