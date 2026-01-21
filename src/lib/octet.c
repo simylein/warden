@@ -26,6 +26,30 @@ uint16_t octet_error(void) {
 	}
 }
 
+int octet_mkdir(const char *directory) {
+	if (mkdir(directory, S_IRUSR | S_IWUSR | S_IXUSR) == -1) {
+		error("failed to create directory %s because %s\n", directory, errno_str());
+		return -1;
+	}
+
+	return 0;
+}
+
+int octet_creat(const char *file) {
+	int fd = open(file, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+	if (fd == -1) {
+		error("failed to create file %s because %s\n", file, errno_str());
+		return -1;
+	}
+
+	if (close(fd) == -1) {
+		error("failed to close file %s because %s\n", file, errno_str());
+		return -1;
+	}
+
+	return 0;
+}
+
 int octet_open(octet_stmt_t *stmt, const char *file, int open_flags, short lock_type) {
 	trace("opening file %s\n", file);
 
