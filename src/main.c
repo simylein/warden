@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -101,12 +100,6 @@ int main(int argc, char *argv[]) {
 				.table_len = sizeof(table),
 		};
 
-		sqlite3 *database;
-		if (sqlite3_open_v2(database_file, &database, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, NULL) != SQLITE_OK) {
-			fatal("failed to open %s because %s\n", database_file, sqlite3_errmsg(database));
-			exit(1);
-		}
-
 		if (cmds & 0x10 && init(&db) != 0) {
 			fatal("failed to init database\n");
 			exit(1);
@@ -122,13 +115,8 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		if (cmds & 0x80 && drop(database) != 0) {
+		if (cmds & 0x80 && drop(&db) != 0) {
 			fatal("failed to drop database\n");
-			exit(1);
-		}
-
-		if (sqlite3_close_v2(database) != SQLITE_OK) {
-			fatal("failed to close %s because %s\n", database_file, sqlite3_errmsg(database));
 			exit(1);
 		}
 

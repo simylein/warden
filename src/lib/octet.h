@@ -22,7 +22,9 @@ typedef struct octet_stmt_t {
 uint16_t octet_error(void);
 
 int octet_mkdir(const char *directory);
+int octet_rmdir(const char *directory);
 int octet_creat(const char *file);
+int octet_unlink(const char *file);
 
 int octet_open(octet_stmt_t *stmt, const char *file, int open_flags, short lock_type);
 int octet_trunc(octet_stmt_t *stmt, const char *file, off_t offset);

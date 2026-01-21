@@ -1,10 +1,10 @@
 #include "../lib/logger.h"
+#include "../lib/octet.h"
 #include "device.h"
 #include "user-device.h"
 #include "user-zone.h"
 #include "user.h"
 #include "zone.h"
-#include <fcntl.h>
 #include <stdio.h>
 
 int init_user(octet_t *db) {
