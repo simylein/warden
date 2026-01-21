@@ -596,8 +596,6 @@ int seed_radio(octet_t *db) {
 }
 
 int seed(octet_t *db) {
-	srand((unsigned int)time(NULL));
-
 	if (seed_user(db) == -1) {
 		return -1;
 	}
