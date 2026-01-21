@@ -35,6 +35,15 @@ int octet_mkdir(const char *directory) {
 	return 0;
 }
 
+int octet_rmdir(const char *directory) {
+	if (rmdir(directory) == -1) {
+		error("failed to remove directory %s because %s\n", directory, errno_str());
+		return -1;
+	}
+
+	return 0;
+}
+
 int octet_creat(const char *file) {
 	int fd = open(file, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
 	if (fd == -1) {
@@ -44,6 +53,15 @@ int octet_creat(const char *file) {
 
 	if (close(fd) == -1) {
 		error("failed to close file %s because %s\n", file, errno_str());
+		return -1;
+	}
+
+	return 0;
+}
+
+int octet_unlink(const char *file) {
+	if (unlink(file) == -1) {
+		error("failed to unlink file %s because %s\n", file, errno_str());
 		return -1;
 	}
 

@@ -1,80 +1,109 @@
 #include "../lib/logger.h"
-#include "buffer.h"
-#include "config.h"
+#include "../lib/octet.h"
 #include "device.h"
-#include "downlink.h"
-#include "metric.h"
-#include "radio.h"
-#include "reading.h"
-#include "uplink.h"
 #include "user-device.h"
+#include "user-zone.h"
 #include "user.h"
 #include "zone.h"
-#include <sqlite3.h>
 #include <stdio.h>
 
-int drop_table(sqlite3 *database, const char *table) {
-	int status;
-	sqlite3_stmt *stmt;
-
-	char sql[64];
-	sprintf(sql, "drop table %s", table);
-	debug("%s\n", sql);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
-		goto cleanup;
+int drop_user(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
 	}
 
-	if (sqlite3_step(stmt) != SQLITE_DONE) {
-		error("failed to execute statement because %s\n", sqlite3_errmsg(database));
-		status = -1;
-		goto cleanup;
+	if (octet_unlink(file) == -1) {
+		return -1;
 	}
 
-	info("dropped table %s\n", table);
-	status = 0;
-
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
+	info("unlinked file %s\n", user_file);
+	return 0;
 }
 
-int drop(sqlite3 *database) {
-	if (drop_table(database, user_table) == -1) {
+int drop_device(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, user_device_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
-	if (drop_table(database, device_table) == -1) {
+
+	info("unlinked file %s\n", device_file);
+	return 0;
+}
+
+int drop_user_device(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_device_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, zone_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
-	if (drop_table(database, uplink_table) == -1) {
+
+	info("unlinked file %s\n", user_device_file);
+	return 0;
+}
+
+int drop_zone(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, downlink_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
-	if (drop_table(database, reading_table) == -1) {
+
+	info("unlinked file %s\n", zone_file);
+	return 0;
+}
+
+int drop_user_zone(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
+		error("failed to sprintf to file\n");
 		return -1;
 	}
-	if (drop_table(database, metric_table) == -1) {
+
+	if (octet_unlink(file) == -1) {
 		return -1;
 	}
-	if (drop_table(database, buffer_table) == -1) {
+
+	info("unlinked file %s\n", user_zone_file);
+	return 0;
+}
+
+int drop(octet_t *db) {
+	if (drop_user(db) == -1) {
 		return -1;
 	}
-	if (drop_table(database, config_table) == -1) {
+	if (drop_device(db) == -1) {
 		return -1;
 	}
-	if (drop_table(database, radio_table) == -1) {
+	if (drop_user_device(db) == -1) {
 		return -1;
 	}
+	if (drop_zone(db) == -1) {
+		return -1;
+	}
+	if (drop_user_zone(db) == -1) {
+		return -1;
+	}
+
+	if (octet_rmdir(db->directory) == -1) {
+		return -1;
+	}
+
+	info("removed directory %s\n", db->directory);
 
 	return 0;
 }
