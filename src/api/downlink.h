@@ -58,12 +58,10 @@ extern const char *downlink_schema;
 uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink);
 
 uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len);
-uint16_t downlink_select_one(sqlite3 *database, bwt_t *bwt, downlink_t *downlink, response_t *response);
 uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query_t *query, response_t *response,
 																	 uint8_t *downlinks_len);
 uint16_t downlink_insert(octet_t *db, downlink_t *downlink);
 
 void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
-void downlink_find_one(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
 void downlink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void downlink_create(octet_t *db, request_t *request, response_t *response);
