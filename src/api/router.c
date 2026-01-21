@@ -283,24 +283,10 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 		}
 	}
 
-	if (endpoint(request, "get", "/uplink/:id", &method_found, &pathname_found) == true) {
-		bwt_t bwt;
-		if (authenticate(true, &bwt, request, response) == true) {
-			serve_uplink(database, &bwt, request, response);
-		}
-	}
-
 	if (endpoint(request, "get", "/downlinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			serve(&page_downlinks, response);
-		}
-	}
-
-	if (endpoint(request, "get", "/downlink/:id", &method_found, &pathname_found) == true) {
-		bwt_t bwt;
-		if (authenticate(true, &bwt, request, response) == true) {
-			serve_downlink(database, &bwt, request, response);
 		}
 	}
 

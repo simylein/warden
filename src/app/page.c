@@ -26,9 +26,7 @@ file_t page_zone_metrics = {.path = "./src/app/pages/zone-metrics.html", .lock =
 file_t page_zone_buffers = {.path = "./src/app/pages/zone-buffers.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_zone_signals = {.path = "./src/app/pages/zone-signals.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_uplinks = {.path = "./src/app/pages/uplinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_uplink = {.path = "./src/app/pages/uplink.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_downlinks = {.path = "./src/app/pages/downlinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
-file_t page_downlink = {.path = "./src/app/pages/downlink.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_users = {.path = "./src/app/pages/users.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_user = {.path = "./src/app/pages/user.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_user_devices = {.path = "./src/app/pages/user-devices.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -70,9 +68,7 @@ file_t *pages[] = {
 		&page_zone_buffers,
 		&page_zone_signals,
 		&page_uplinks,
-		&page_uplink,
 		&page_downlinks,
-		&page_downlink,
 		&page_users,
 		&page_user,
 		&page_user_devices,
