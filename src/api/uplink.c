@@ -71,11 +71,11 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 
 	debug("select uplinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
-	char (*uuids)[32] = (char (*)[32])(db->table + devices_len * uplink_row.size);
-	char (*files)[128] = (char (*)[128])(uuids + devices_len * sizeof(*uuids));
-	off_t *offsets = (off_t *)(files + devices_len * sizeof(*files));
-	time_t *received_ats = (time_t *)(offsets + devices_len * sizeof(*offsets));
-	octet_stmt_t *stmts = (octet_stmt_t *)(received_ats + devices_len * sizeof(*received_ats));
+	char (*uuids)[32] = (char (*)[32])((char *)db->table + devices_len * uplink_row.size);
+	char (*files)[128] = (char (*)[128])((char *)uuids + devices_len * sizeof(*uuids));
+	off_t *offsets = (off_t *)((char *)files + devices_len * sizeof(*files));
+	time_t *received_ats = (time_t *)((char *)offsets + devices_len * sizeof(*offsets));
+	octet_stmt_t *stmts = (octet_stmt_t *)((char *)received_ats + devices_len * sizeof(*received_ats));
 	uint8_t stmts_len = 0;
 	for (uint8_t index = 0; index < devices_len; index++) {
 		uint8_t (*device_id)[16] =
