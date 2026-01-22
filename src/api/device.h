@@ -5,6 +5,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "user.h"
+#include "zone.h"
 #include <stdint.h>
 #include <time.h>
 
@@ -79,6 +80,7 @@ uint16_t device_existing(octet_t *db, device_t *device);
 uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len);
 uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query, response_t *response, uint8_t *devices_len);
+uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len);
 uint16_t device_insert(octet_t *db, device_t *device);
 uint16_t device_update(octet_t *db, device_t *device);
 

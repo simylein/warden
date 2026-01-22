@@ -479,13 +479,17 @@
 			const binary = new Binary(buffer);
 			const buffers = [];
 			while (binary.offset < buffer.byteLength) {
-				const buffer = { delay: null, level: null, capturedAt: null, device: null };
-				buffer.delay = binary.uint(32);
-				buffer.level = binary.uint(16);
-				buffer.capturedAt = binary.uint(64);
-				buffer.device = {};
-				buffer.device.id = binary.uuid();
-				buffers.push(buffer);
+				const deviceId = binary.uuid();
+				const length = binary.uint(16);
+				for (let ind = 0; ind < length; ind++) {
+					const buffer = { delay: null, level: null, capturedAt: null, device: null };
+					buffer.delay = binary.uint(32);
+					buffer.level = binary.uint(16);
+					buffer.capturedAt = binary.uint(64);
+					buffer.device = {};
+					buffer.device.id = deviceId;
+					buffers.push(buffer);
+				}
 			}
 			return buffers;
 		};

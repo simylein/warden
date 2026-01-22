@@ -627,6 +627,48 @@ cleanup:
 	return status;
 }
 
+uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("select devices for zone %02x%02x\n", (*zone->id)[0], (*zone->id)[1]);
+
+	off_t offset = 0;
+	uint16_t chunk_len = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, &db->chunk[chunk_len], device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t zone_null = octet_uint8_read(&db->chunk[chunk_len], device_row.zone_null);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], device_row.zone_id);
+		if (zone_null != 0x00 && memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
+			*devices_len += 1;
+			chunk_len += device_row.size;
+		}
+		offset += device_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 int device_parse(device_t *device, request_t *request) {
 	request->body.pos = 0;
 
