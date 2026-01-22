@@ -482,13 +482,17 @@
 			const binary = new Binary(buffer);
 			const readings = [];
 			while (binary.offset < buffer.byteLength) {
-				const reading = { temperature: null, humidity: null, capturedAt: null, device: null };
-				reading.temperature = binary.int(16) / 100;
-				reading.humidity = binary.uint(16) / 100;
-				reading.capturedAt = binary.uint(64);
-				reading.device = {};
-				reading.device.id = binary.uuid();
-				readings.push(reading);
+				const deviceId = binary.uuid();
+				const length = binary.uint(16);
+				for (let ind = 0; ind < length; ind++) {
+					const reading = { temperature: null, humidity: null, capturedAt: null, device: null };
+					reading.temperature = binary.int(16) / 100;
+					reading.humidity = binary.uint(16) / 100;
+					reading.capturedAt = binary.uint(64);
+					reading.device = {};
+					reading.device.id = deviceId;
+					readings.push(reading);
+				}
 			}
 			return readings;
 		};

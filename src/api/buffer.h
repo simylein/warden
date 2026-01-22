@@ -6,7 +6,6 @@
 #include "../lib/response.h"
 #include "device.h"
 #include "zone.h"
-#include <sqlite3.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -44,10 +43,9 @@ extern const char *buffer_schema;
 uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_t *response, uint16_t *buffers_len);
 uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *query, response_t *response,
 																 uint16_t *buffers_len);
-uint16_t buffer_select_by_zone(sqlite3 *database, bwt_t *bwt, zone_t *zone, buffer_query_t *query, response_t *response,
-															 uint16_t *buffers_len);
+uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query, response_t *response, uint16_t *buffers_len);
 uint16_t buffer_insert(octet_t *db, buffer_t *buffer);
 
 void buffer_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void buffer_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
-void buffer_find_by_zone(octet_t *db, sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response);
+void buffer_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

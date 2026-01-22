@@ -489,14 +489,18 @@
 			const binary = new Binary(buffer);
 			const signals = [];
 			while (binary.offset < buffer.byteLength) {
-				const signal = { rssi: null, snr: null, sf: null, receivedAt: null, device: null };
-				signal.rssi = binary.int(16);
-				signal.snr = binary.int(8) / 4;
-				signal.sf = binary.uint(8);
-				signal.receivedAt = binary.uint(64);
-				signal.device = {};
-				signal.device.id = binary.uuid();
-				signals.push(signal);
+				const deviceId = binary.uuid();
+				const length = binary.uint(16);
+				for (let ind = 0; ind < length; ind++) {
+					const signal = { rssi: null, snr: null, sf: null, receivedAt: null, device: null };
+					signal.rssi = binary.int(16);
+					signal.snr = binary.int(8) / 4;
+					signal.sf = binary.uint(8);
+					signal.receivedAt = binary.uint(64);
+					signal.device = {};
+					signal.device.id = deviceId;
+					signals.push(signal);
+				}
 			}
 			return signals;
 		};
