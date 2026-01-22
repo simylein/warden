@@ -351,21 +351,21 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			reading_find(database, &bwt, request, response);
+			reading_find(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/metrics", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			metric_find(database, &bwt, request, response);
+			metric_find(db, &bwt, request, response);
 		}
 	}
 
 	if (endpoint(request, "get", "/api/buffers", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			buffer_find(database, &bwt, request, response);
+			buffer_find(db, &bwt, request, response);
 		}
 	}
 
