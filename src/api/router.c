@@ -493,7 +493,7 @@ void route(octet_t *db, sqlite3 *database, request_t *request, response_t *respo
 	if (endpoint(request, "get", "/api/uplinks", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			uplink_find(database, &bwt, request, response);
+			uplink_find(db, &bwt, request, response);
 		}
 	}
 
