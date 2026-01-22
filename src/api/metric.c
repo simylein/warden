@@ -43,68 +43,91 @@ const metric_row_t metric_row = {
 		.size = 44,
 };
 
-uint16_t metric_select(sqlite3 *database, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
+uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"avg(metric.photovoltaic), avg(metric.battery), "
-										"(metric.captured_at / ?) * ? as bucket_time, "
-										"user_device.device_id "
-										"from metric "
-										"join user_device on user_device.device_id = metric.device_id and user_device.user_id = ? "
-										"where metric.captured_at >= ? and metric.captured_at <= ? "
-										"group by bucket_time, user_device.device_id "
-										"order by bucket_time desc";
+	uint8_t user_devices_len = 0;
+	user_t user = {.id = &bwt->id};
+	status = user_device_select_by_user(db, &user, &user_devices_len);
+	if (status != 0) {
+		return status;
+	}
+
 	debug("select metrics for user %02x%02x from %lu to %lu bucket %hu\n", bwt->id[0], bwt->id[1], query->from, query->to,
 				query->bucket);
 
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
-	}
+	char uuid[32];
+	char file[128];
+	octet_stmt_t stmt;
+	for (uint8_t index = 0; index < user_devices_len; index++) {
+		uint8_t (*device_id)[16] =
+				(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 
-	sqlite3_bind_int(stmt, 1, query->bucket);
-	sqlite3_bind_int(stmt, 2, query->bucket);
-	sqlite3_bind_blob(stmt, 3, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_int64(stmt, 4, query->from);
-	sqlite3_bind_int64(stmt, 5, query->to);
+		if (base16_encode(uuid, sizeof(uuid), device_id, sizeof(*device_id)) == -1) {
+			error("failed to encode uuid to base 16\n");
+			return 500;
+		}
 
-	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const double photovoltaic = sqlite3_column_double(stmt, 0);
-			const double battery = sqlite3_column_double(stmt, 1);
-			const time_t captured_at = (time_t)sqlite3_column_int64(stmt, 2);
-			const uint8_t *device_id = sqlite3_column_blob(stmt, 3);
-			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 3);
-			if (device_id_len != sizeof(*((device_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((device_t *)0)->id));
-				status = 500;
+		if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, metric_file) == -1) {
+			error("failed to sprintf uuid to file\n");
+			return 500;
+		}
+
+		uint16_t metrics = 0;
+		if (response->body.len + sizeof(*device_id) + sizeof(metrics) > response->body.cap) {
+			error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
+			return 500;
+		}
+
+		body_write(response, device_id, sizeof(*device_id));
+		uint32_t metrics_ind = response->body.len;
+		response->body.len += sizeof(metrics);
+
+		if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+
+		off_t offset = stmt.stat.st_size - metric_row.size;
+		while (true) {
+			if (offset < 0) {
+				status = 0;
+				break;
+			}
+			if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
+				status = octet_error();
 				goto cleanup;
 			}
-			if (response->body.len + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(captured_at) + device_id_len > response->body.cap) {
+			uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
+			uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
+			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+			if (captured_at < query->from) {
+				status = 0;
+				break;
+			}
+			if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
-			body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic * 1000))}, sizeof(uint16_t));
-			body_write(response, (uint16_t[]){hton16((uint16_t)(battery * 1000))}, sizeof(uint16_t));
-			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			body_write(response, device_id, device_id_len);
-			*metrics_len += 1;
-		} else if (result == SQLITE_DONE) {
-			status = 0;
+			if (captured_at >= query->from && captured_at <= query->to) {
+				body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
+				body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
+				body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
+				metrics += 1;
+				*metrics_len += 1;
+			}
+			offset -= metric_row.size;
+		}
+
+	cleanup:
+		memcpy(response->body.ptr + metrics_ind, (uint16_t[]){hton16(metrics)}, sizeof(metrics));
+		octet_close(&stmt, file);
+		if (status != 0) {
 			break;
-		} else {
-			status = database_error(database, result);
-			goto cleanup;
 		}
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
 	return status;
 }
 
@@ -334,7 +357,7 @@ cleanup:
 	return status;
 }
 
-void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void metric_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *from;
 	size_t from_len;
 	if (strnfind(request->search.ptr, request->search.len, "from=", "&", &from, &from_len, 32) == -1) {
@@ -382,7 +405,7 @@ void metric_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *
 	}
 
 	uint16_t metrics_len = 0;
-	uint16_t status = metric_select(database, bwt, &query, response, &metrics_len);
+	uint16_t status = metric_select(db, bwt, &query, response, &metrics_len);
 	if (status != 0) {
 		response->status = status;
 		return;
