@@ -501,25 +501,27 @@ int seed_buffer(octet_t *db) {
 			if (buffer_insert(db, &buffer) != 0) {
 				return -1;
 			}
-			bool increase = rand() % 4 == 0;
-			bool decrease = rand() % 64 == 0;
+			bool increase = rand() % 128 == 0;
+			bool decrease = rand() % 8 != 0;
+			if (increase) {
+				uint16_t value = (uint16_t)(rand() % 3600);
+				delay += (uint32_t)value;
+				level += (uint16_t)value / 60;
+			}
 			if (decrease) {
-				uint32_t delay_sub = (uint32_t)(rand() % 3600);
+				uint16_t value = (uint16_t)(rand() % 120);
+				uint32_t delay_sub = (uint32_t)value + 1;
 				if (delay_sub < delay) {
 					delay -= delay_sub;
 				} else {
 					delay = 0;
 				}
-				uint16_t level_sub = (uint16_t)(rand() % 60);
+				uint16_t level_sub = (uint16_t)value / 60 + 1;
 				if (level_sub < level) {
-					level -= level;
+					level -= level_sub;
 				} else {
 					level = 0;
 				}
-			}
-			if (increase) {
-				delay += (uint32_t)(rand() % 120);
-				level += (uint16_t)(rand() % 2);
 			}
 			captured_at += 56 + rand() % 8;
 			uplink_ind += 1;
