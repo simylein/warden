@@ -509,6 +509,11 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 }
 
 int uplink_validate(uplink_t *uplink) {
+	if (uplink->data_len > 32) {
+		debug("invalid data len %hhu on uplink\n", uplink->data_len);
+		return -1;
+	}
+
 	if (uplink->airtime < 128) {
 		debug("invalid airtime %hu on uplink\n", uplink->airtime);
 		return -1;
