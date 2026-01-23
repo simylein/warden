@@ -213,7 +213,7 @@ int seed_uplink(octet_t *db) {
 	uplink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint16_t frame = (uint16_t)(384 + rand() % 128);
+		uint16_t frame = 0;
 		int16_t rssi = (int16_t)(rand() % 128 - 157);
 		int8_t snr = (int8_t)(rand() % 144 - 96);
 		uint8_t sf = (uint8_t)(rand() % 7 + 6);
@@ -256,7 +256,7 @@ int seed_uplink(octet_t *db) {
 			if (uplink_insert(db, &uplink) != 0) {
 				return -1;
 			}
-			frame -= 1;
+			frame += 1;
 			rssi += (int16_t)(rand() % 5 - 2);
 			if (rssi < -157) {
 				rssi += 10;
@@ -312,7 +312,7 @@ int seed_downlink(octet_t *db) {
 	downlink_ids_len = 0;
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint16_t frame = (uint16_t)(384 + rand() % 128);
+		uint16_t frame = 0;
 		uint8_t sf = (uint8_t)(rand() % 7 + 6);
 		uint8_t cr = (uint8_t)(rand() % 4 + 5);
 		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
@@ -351,7 +351,7 @@ int seed_downlink(octet_t *db) {
 			if (downlink_insert(db, &downlink) != 0) {
 				return -1;
 			}
-			frame -= 1;
+			frame += 1;
 			sf += (uint8_t)(rand() % 3 - 1);
 			if (sf < 6) {
 				sf += 1;
