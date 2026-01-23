@@ -17,7 +17,6 @@
 #include "user-zone.h"
 #include "user.h"
 #include "zone.h"
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -141,7 +140,7 @@ bool authorize(bwt_t *bwt, uint64_t permission, response_t *response) {
 	return true;
 }
 
-void route(octet_t *db, sqlite3 *database, request_t *request, response_t *response) {
+void route(octet_t *db, request_t *request, response_t *response) {
 	bool method_found = false;
 	bool pathname_found = false;
 
