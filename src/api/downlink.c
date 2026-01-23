@@ -340,6 +340,11 @@ int downlink_parse(downlink_t *downlink, request_t *request) {
 }
 
 int downlink_validate(downlink_t *downlink) {
+	if (downlink->data_len > 32) {
+		debug("invalid data len %hhu on downlink\n", downlink->data_len);
+		return -1;
+	}
+
 	if (downlink->airtime < 128) {
 		debug("invalid airtime %hu on downlink\n", downlink->airtime);
 		return -1;
