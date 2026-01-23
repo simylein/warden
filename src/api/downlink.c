@@ -8,11 +8,9 @@
 #include "../lib/response.h"
 #include "../lib/strn.h"
 #include "cache.h"
-#include "database.h"
 #include "device.h"
 #include "user-device.h"
 #include <fcntl.h>
-#include <sqlite3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -55,128 +53,125 @@ const downlink_row_t downlink_row = {
 		.size = 74,
 };
 
-uint16_t downlink_existing(sqlite3 *database, bwt_t *bwt, downlink_t *downlink) {
+uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len) {
 	uint16_t status;
-	sqlite3_stmt *stmt;
 
-	const char *sql = "select "
-										"downlink.id, "
-										"user_device.device_id "
-										"from downlink "
-										"left join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
-										"where downlink.id = ?";
-	debug("select existing downlink %02x%02x for user %02x%02x\n", (*downlink->id)[0], (*downlink->id)[1], bwt->id[0],
-				bwt->id[1]);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
+	uint8_t devices_len;
+	user_t user = {.id = &bwt->id};
+	status = user_device_select_by_user(db, &user, &devices_len);
+	if (status != 0) {
+		return status;
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_blob(stmt, 2, downlink->id, sizeof(*downlink->id), SQLITE_STATIC);
+	debug("select downlinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
-	int result = sqlite3_step(stmt);
-	if (result == SQLITE_ROW) {
-		const uint8_t *id = sqlite3_column_blob(stmt, 0);
-		const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-		if (id_len != sizeof(*downlink->id)) {
-			error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*downlink->id));
+	char (*uuids)[32] = (char (*)[32])db->alpha;
+	char (*files)[128] = (char (*)[128])db->bravo;
+	off_t *offsets = (off_t *)db->charlie;
+	time_t *sent_ats = (time_t *)db->delta;
+	octet_stmt_t *stmts = (octet_stmt_t *)db->echo;
+	uint8_t stmts_len = 0;
+
+	for (uint8_t index = 0; index < devices_len; index++) {
+		uint8_t (*device_id)[16] =
+				(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+
+		if (base16_encode(uuids[index], sizeof(uuids[index]), device_id, sizeof(*device_id)) == -1) {
+			error("failed to encode uuid to base 16\n");
 			status = 500;
 			goto cleanup;
 		}
-		const int user_device_device_id_type = sqlite3_column_type(stmt, 1);
-		if (user_device_device_id_type == SQLITE_NULL) {
-			status = 403;
+
+		if (sprintf(files[index], "%s/%.*s/%s.data", db->directory, (int)sizeof(uuids[index]), uuids[index], downlink_file) == -1) {
+			error("failed to sprintf uuid to file\n");
+			status = 500;
 			goto cleanup;
 		}
-		memcpy(downlink->id, id, id_len);
-		status = 0;
-	} else if (result == SQLITE_DONE) {
-		warn("downlink %02x%02x not found\n", (*downlink->id)[0], (*downlink->id)[1]);
-		status = 404;
-		goto cleanup;
-	} else {
-		status = database_error(database, result);
-		goto cleanup;
+
+		if (octet_open(&stmts[index], files[index], O_RDONLY, F_RDLCK) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+
+		offsets[index] = stmts[index].stat.st_size - downlink_row.size;
+		stmts_len += 1;
 	}
 
-cleanup:
-	sqlite3_finalize(stmt);
-	return status;
-}
-
-uint16_t downlink_select(sqlite3 *database, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len) {
-	uint16_t status;
-	sqlite3_stmt *stmt;
-
-	const char *sql = "select id, frame, kind, data, sf, tx_power, sent_at, downlink.device_id from downlink "
-										"join user_device on user_device.device_id = downlink.device_id and user_device.user_id = ? "
-										"order by sent_at desc "
-										"limit ? offset ?";
-	debug("select downlinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
-
-	if (sqlite3_prepare_v2(database, sql, -1, &stmt, NULL) != SQLITE_OK) {
-		error("failed to prepare statement because %s\n", sqlite3_errmsg(database));
-		status = 500;
-		goto cleanup;
+	for (uint8_t index = 0; index < stmts_len; index++) {
+		if (offsets[index] < 0) {
+			continue;
+		}
+		if (octet_row_read(&stmts[index], files[index], offsets[index], &db->table[index * downlink_row.size], downlink_row.size) ==
+				-1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		sent_ats[index] = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
 	}
 
-	sqlite3_bind_blob(stmt, 1, bwt->id, sizeof(bwt->id), SQLITE_STATIC);
-	sqlite3_bind_int(stmt, 2, query->limit);
-	sqlite3_bind_int(stmt, 3, (int)query->offset);
+	while (*downlinks_len < query->limit) {
+		int8_t index = -1;
+		time_t last_sent_at = 0;
+		for (int8_t ind = 0; ind < stmts_len; ind++) {
+			if (offsets[ind] >= 0 && sent_ats[ind] > last_sent_at) {
+				index = ind;
+				last_sent_at = sent_ats[ind];
+			}
+		}
 
-	while (true) {
-		int result = sqlite3_step(stmt);
-		if (result == SQLITE_ROW) {
-			const uint8_t *id = sqlite3_column_blob(stmt, 0);
-			const size_t id_len = (size_t)sqlite3_column_bytes(stmt, 0);
-			if (id_len != sizeof(*((downlink_t *)0)->id)) {
-				error("id length %zu does not match buffer length %zu\n", id_len, sizeof(*((downlink_t *)0)->id));
-				status = 500;
-				goto cleanup;
-			}
-			const uint16_t frame = (uint16_t)sqlite3_column_int(stmt, 1);
-			const uint8_t kind = (uint8_t)sqlite3_column_int(stmt, 2);
-			const uint8_t *data = sqlite3_column_blob(stmt, 3);
-			const size_t data_len = (size_t)sqlite3_column_bytes(stmt, 3);
-			if (data_len > UINT8_MAX) {
-				error("data length %zu exceeds buffer length %hhu\n", data_len, UINT8_MAX);
-				status = 500;
-				goto cleanup;
-			}
-			const uint8_t sf = (uint8_t)sqlite3_column_int(stmt, 4);
-			const uint8_t tx_power = (uint8_t)sqlite3_column_int(stmt, 5);
-			const time_t sent_at = (time_t)sqlite3_column_int64(stmt, 6);
-			const uint8_t *device_id = sqlite3_column_blob(stmt, 7);
-			const size_t device_id_len = (size_t)sqlite3_column_bytes(stmt, 7);
-			if (device_id_len != sizeof(*((downlink_t *)0)->device_id)) {
-				error("device id length %zu does not match buffer length %zu\n", device_id_len, sizeof(*((downlink_t *)0)->device_id));
-				status = 500;
-				goto cleanup;
-			}
-			body_write(response, id, id_len);
-			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
-			body_write(response, &kind, sizeof(kind));
-			body_write(response, &data_len, sizeof(uint8_t));
-			body_write(response, data, data_len);
-			body_write(response, &sf, sizeof(sf));
-			body_write(response, &tx_power, sizeof(tx_power));
-			body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
-			body_write(response, device_id, device_id_len);
-			*downlinks_len += 1;
-		} else if (result == SQLITE_DONE) {
+		if (index == -1) {
 			status = 0;
 			break;
+		}
+
+		if (query->offset == 0) {
+			uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index * downlink_row.size], downlink_row.id);
+			uint16_t frame = octet_uint16_read(&db->table[index * downlink_row.size], downlink_row.frame);
+			uint8_t kind = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.kind);
+			uint8_t data_len = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.data_len);
+			uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(&db->table[index * downlink_row.size], downlink_row.data);
+			uint16_t airtime = octet_uint16_read(&db->table[index * downlink_row.size], downlink_row.airtime);
+			uint32_t frequency = octet_uint32_read(&db->table[index * downlink_row.size], downlink_row.frequency);
+			uint32_t bandwidth = octet_uint32_read(&db->table[index * downlink_row.size], downlink_row.bandwidth);
+			uint8_t sf = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.sf);
+			uint8_t cr = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.cr);
+			uint8_t tx_power = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.tx_power);
+			uint8_t preamble_len = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.preamble_len);
+			time_t sent_at = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
+			uint8_t (*device_id)[16] =
+					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			body_write(response, id, sizeof(*id));
+			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
+			body_write(response, &kind, sizeof(kind));
+			body_write(response, &data_len, sizeof(data_len));
+			body_write(response, data, data_len);
+			body_write(response, (uint16_t[]){hton16(airtime)}, sizeof(airtime));
+			body_write(response, (uint32_t[]){hton32(frequency)}, sizeof(frequency));
+			body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
+			body_write(response, &sf, sizeof(sf));
+			body_write(response, &cr, sizeof(cr));
+			body_write(response, &tx_power, sizeof(tx_power));
+			body_write(response, &preamble_len, sizeof(preamble_len));
+			body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
+			body_write(response, device_id, sizeof(*device_id));
+			*downlinks_len += 1;
 		} else {
-			status = database_error(database, result);
+			query->offset -= 1;
+		}
+		offsets[index] -= downlink_row.size;
+
+		if (octet_row_read(&stmts[index], files[index], offsets[index], &db->table[index * downlink_row.size], downlink_row.size) ==
+				-1) {
+			status = octet_error();
 			goto cleanup;
 		}
+		sent_ats[index] = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
 	}
 
 cleanup:
-	sqlite3_finalize(stmt);
+	for (uint8_t index = 0; index < stmts_len; index++) {
+		octet_close(&stmts[index], files[index]);
+	}
 	return status;
 }
 
@@ -454,7 +449,7 @@ cleanup:
 	return status;
 }
 
-void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t *response) {
+void downlink_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *limit;
 	size_t limit_len;
 	if (strnfind(request->search.ptr, request->search.len, "limit=", "&", &limit, &limit_len, 4) == -1) {
@@ -483,7 +478,7 @@ void downlink_find(sqlite3 *database, bwt_t *bwt, request_t *request, response_t
 	}
 
 	uint8_t downlinks_len = 0;
-	uint16_t status = downlink_select(database, bwt, &query, response, &downlinks_len);
+	uint16_t status = downlink_select(db, bwt, &query, response, &downlinks_len);
 	if (status != 0) {
 		response->status = status;
 		return;
