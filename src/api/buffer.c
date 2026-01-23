@@ -87,6 +87,11 @@ uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_
 			goto cleanup;
 		}
 
+		uint32_t delay_max = 0;
+		uint16_t level_max = 0;
+		time_t bucket_start = 0;
+		time_t bucket_end = 0;
+		uint8_t bucket_len = 0;
 		off_t offset = stmt.stat.st_size - buffer_row.size;
 		while (true) {
 			if (offset < 0) {
@@ -100,21 +105,44 @@ uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_
 			uint32_t delay = octet_uint32_read(db->row, buffer_row.delay);
 			uint16_t level = octet_uint16_read(db->row, buffer_row.level);
 			time_t captured_at = (time_t)octet_uint64_read(db->row, buffer_row.captured_at);
-			if (captured_at < query->from) {
-				status = 0;
-				break;
-			}
 			if (response->body.len + sizeof(delay) + sizeof(level) + sizeof(captured_at) > response->body.cap) {
 				error("buffers amount %hu exceeds buffer length %u\n", *buffers_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
+			if (captured_at < query->from) {
+				if (bucket_len != 0) {
+					body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+					body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					buffers += 1;
+					*buffers_len += 1;
+				}
+				status = 0;
+				break;
+			}
 			if (captured_at >= query->from && captured_at <= query->to) {
-				body_write(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
-				body_write(response, (uint16_t[]){hton16(level)}, sizeof(level));
-				body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-				buffers += 1;
-				*buffers_len += 1;
+				if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+					if (bucket_len != 0) {
+						body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+						body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+						body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+						buffers += 1;
+						*buffers_len += 1;
+					}
+					delay_max = 0;
+					level_max = 0;
+					bucket_len = 0;
+					bucket_start = captured_at;
+				}
+				if (delay > delay_max) {
+					delay_max = delay;
+				}
+				if (level > level_max) {
+					level_max = level;
+				}
+				bucket_len += 1;
+				bucket_end = captured_at;
 			}
 			offset -= buffer_row.size;
 		}
@@ -155,6 +183,11 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 	debug("select buffers for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
 				query->to, query->bucket);
 
+	uint32_t delay_max = 0;
+	uint16_t level_max = 0;
+	time_t bucket_start = 0;
+	time_t bucket_end = 0;
+	uint8_t bucket_len = 0;
 	off_t offset = stmt.stat.st_size - buffer_row.size;
 	while (true) {
 		if (offset < 0) {
@@ -168,15 +201,42 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 		uint32_t delay = octet_uint32_read(db->row, buffer_row.delay);
 		uint16_t level = octet_uint16_read(db->row, buffer_row.level);
 		time_t captured_at = (time_t)octet_uint64_read(db->row, buffer_row.captured_at);
+		if (response->body.len + sizeof(delay) + sizeof(level) + sizeof(captured_at) > response->body.cap) {
+			error("buffers amount %hu exceeds buffer length %u\n", *buffers_len, response->body.cap);
+			status = 500;
+			goto cleanup;
+		}
 		if (captured_at < query->from) {
+			if (bucket_len != 0) {
+				body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+				body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+				body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+				*buffers_len += 1;
+			}
 			status = 0;
 			break;
 		}
 		if (captured_at >= query->from && captured_at <= query->to) {
-			body_write(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
-			body_write(response, (uint16_t[]){hton16(level)}, sizeof(level));
-			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			*buffers_len += 1;
+			if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+				if (bucket_len != 0) {
+					body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+					body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					*buffers_len += 1;
+				}
+				delay_max = 0;
+				level_max = 0;
+				bucket_len = 0;
+				bucket_start = captured_at;
+			}
+			if (delay > delay_max) {
+				delay_max = delay;
+			}
+			if (level > level_max) {
+				level_max = level;
+			}
+			bucket_len += 1;
+			bucket_end = captured_at;
 		}
 		offset -= buffer_row.size;
 	}
@@ -229,6 +289,11 @@ uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query,
 			goto cleanup;
 		}
 
+		uint32_t delay_max = 0;
+		uint16_t level_max = 0;
+		time_t bucket_start = 0;
+		time_t bucket_end = 0;
+		uint8_t bucket_len = 0;
 		off_t offset = stmt.stat.st_size - buffer_row.size;
 		while (true) {
 			if (offset < 0) {
@@ -242,21 +307,44 @@ uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query,
 			uint32_t delay = octet_uint32_read(db->row, buffer_row.delay);
 			uint16_t level = octet_uint16_read(db->row, buffer_row.level);
 			time_t captured_at = (time_t)octet_uint64_read(db->row, buffer_row.captured_at);
-			if (captured_at < query->from) {
-				status = 0;
-				break;
-			}
 			if (response->body.len + sizeof(delay) + sizeof(level) + sizeof(captured_at) > response->body.cap) {
 				error("buffers amount %hu exceeds buffer length %u\n", *buffers_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
+			if (captured_at < query->from) {
+				if (bucket_len != 0) {
+					body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+					body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					buffers += 1;
+					*buffers_len += 1;
+				}
+				status = 0;
+				break;
+			}
 			if (captured_at >= query->from && captured_at <= query->to) {
-				body_write(response, (uint32_t[]){hton32(delay)}, sizeof(delay));
-				body_write(response, (uint16_t[]){hton16(level)}, sizeof(level));
-				body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-				buffers += 1;
-				*buffers_len += 1;
+				if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+					if (bucket_len != 0) {
+						body_write(response, (uint32_t[]){hton32(delay_max)}, sizeof(delay));
+						body_write(response, (uint16_t[]){hton16(level_max)}, sizeof(level));
+						body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+						buffers += 1;
+						*buffers_len += 1;
+					}
+					delay_max = 0;
+					level_max = 0;
+					bucket_len = 0;
+					bucket_start = captured_at;
+				}
+				if (delay > delay_max) {
+					delay_max = delay;
+				}
+				if (level > level_max) {
+					level_max = level;
+				}
+				bucket_len += 1;
+				bucket_end = captured_at;
 			}
 			offset -= buffer_row.size;
 		}

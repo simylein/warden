@@ -87,6 +87,11 @@ uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_
 			goto cleanup;
 		}
 
+		uint32_t photovoltaic_avg = 0;
+		uint32_t battery_avg = 0;
+		time_t bucket_start = 0;
+		time_t bucket_end = 0;
+		uint8_t bucket_len = 0;
 		off_t offset = stmt.stat.st_size - metric_row.size;
 		while (true) {
 			if (offset < 0) {
@@ -100,21 +105,40 @@ uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_
 			uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
 			uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
 			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
-			if (captured_at < query->from) {
-				status = 0;
-				break;
-			}
 			if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
+			if (captured_at < query->from) {
+				if (bucket_len != 0) {
+					body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+					body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					metrics += 1;
+					*metrics_len += 1;
+				}
+				status = 0;
+				break;
+			}
 			if (captured_at >= query->from && captured_at <= query->to) {
-				body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
-				body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
-				body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-				metrics += 1;
-				*metrics_len += 1;
+				if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+					if (bucket_len != 0) {
+						body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+						body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+						body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+						metrics += 1;
+						*metrics_len += 1;
+					}
+					photovoltaic_avg = 0;
+					battery_avg = 0;
+					bucket_len = 0;
+					bucket_start = captured_at;
+				}
+				photovoltaic_avg += photovoltaic;
+				battery_avg += battery;
+				bucket_len += 1;
+				bucket_end = captured_at;
 			}
 			offset -= metric_row.size;
 		}
@@ -155,6 +179,11 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 	debug("select metrics for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
 				query->to, query->bucket);
 
+	uint32_t photovoltaic_avg = 0;
+	uint32_t battery_avg = 0;
+	time_t bucket_start = 0;
+	time_t bucket_end = 0;
+	uint8_t bucket_len = 0;
 	off_t offset = stmt.stat.st_size - metric_row.size;
 	while (true) {
 		if (offset < 0) {
@@ -168,15 +197,38 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 		uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
 		uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
 		time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+		if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
+			error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
+			status = 500;
+			goto cleanup;
+		}
 		if (captured_at < query->from) {
+			if (bucket_len != 0) {
+				body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+				body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+				body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+				*metrics_len += 1;
+			}
 			status = 0;
 			break;
 		}
 		if (captured_at >= query->from && captured_at <= query->to) {
-			body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
-			body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
-			body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-			*metrics_len += 1;
+			if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+				if (bucket_len != 0) {
+					body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+					body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					*metrics_len += 1;
+				}
+				photovoltaic_avg = 0;
+				battery_avg = 0;
+				bucket_len = 0;
+				bucket_start = captured_at;
+			}
+			photovoltaic_avg += photovoltaic;
+			battery_avg += battery;
+			bucket_len += 1;
+			bucket_end = captured_at;
 		}
 		offset -= metric_row.size;
 	}
@@ -229,6 +281,11 @@ uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query,
 			goto cleanup;
 		}
 
+		uint32_t photovoltaic_avg = 0;
+		uint32_t battery_avg = 0;
+		time_t bucket_start = 0;
+		time_t bucket_end = 0;
+		uint8_t bucket_len = 0;
 		off_t offset = stmt.stat.st_size - metric_row.size;
 		while (true) {
 			if (offset < 0) {
@@ -242,21 +299,40 @@ uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query,
 			uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
 			uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
 			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
-			if (captured_at < query->from) {
-				status = 0;
-				break;
-			}
 			if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
+			if (captured_at < query->from) {
+				if (bucket_len != 0) {
+					body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+					body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+					metrics += 1;
+					*metrics_len += 1;
+				}
+				status = 0;
+				break;
+			}
 			if (captured_at >= query->from && captured_at <= query->to) {
-				body_write(response, (uint16_t[]){hton16(photovoltaic)}, sizeof(photovoltaic));
-				body_write(response, (uint16_t[]){hton16(battery)}, sizeof(battery));
-				body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-				metrics += 1;
-				*metrics_len += 1;
+				if (bucket_start == 0 || captured_at + query->bucket <= bucket_start) {
+					if (bucket_len != 0) {
+						body_write(response, (uint16_t[]){hton16((uint16_t)(photovoltaic_avg / bucket_len))}, sizeof(photovoltaic));
+						body_write(response, (uint16_t[]){hton16((uint16_t)(battery_avg / bucket_len))}, sizeof(battery));
+						body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(captured_at));
+						metrics += 1;
+						*metrics_len += 1;
+					}
+					photovoltaic_avg = 0;
+					battery_avg = 0;
+					bucket_len = 0;
+					bucket_start = captured_at;
+				}
+				photovoltaic_avg += photovoltaic;
+				battery_avg += battery;
+				bucket_len += 1;
+				bucket_end = captured_at;
 			}
 			offset -= metric_row.size;
 		}

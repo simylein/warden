@@ -283,6 +283,12 @@ uint16_t uplink_signal_select_by_device(octet_t *db, device_t *device, uplink_si
 	debug("select signals for device %02x%02x from %lu to %lu bucket %hu\n", (*device->id)[0], (*device->id)[1], query->from,
 				query->to, query->bucket);
 
+	int32_t rssi_avg = 0;
+	int16_t snr_avg = 0;
+	uint16_t sf_avg = 0;
+	time_t bucket_start = 0;
+	time_t bucket_end = 0;
+	uint8_t bucket_len = 0;
 	off_t offset = stmt.stat.st_size - uplink_row.size;
 	while (true) {
 		if (offset < 0) {
@@ -297,12 +303,42 @@ uint16_t uplink_signal_select_by_device(octet_t *db, device_t *device, uplink_si
 		int8_t snr = octet_int8_read(db->row, uplink_row.snr);
 		uint8_t sf = octet_uint8_read(db->row, uplink_row.sf);
 		time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
+		if (response->body.len + sizeof(rssi) + sizeof(snr) + sizeof(sf) + sizeof(received_at) > response->body.cap) {
+			error("signals amount %hu exceeds buffer length %u\n", *signals_len, response->body.cap);
+			status = 500;
+			goto cleanup;
+		}
+		if (received_at < query->from) {
+			if (bucket_len != 0) {
+				body_write(response, (uint16_t[]){hton16((uint16_t)(rssi_avg / bucket_len))}, sizeof(rssi));
+				body_write(response, (int8_t[]){(int8_t)(snr_avg / bucket_len)}, sizeof(snr));
+				body_write(response, (uint8_t[]){(uint8_t)(sf_avg / bucket_len)}, sizeof(sf));
+				body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(received_at));
+				*signals_len += 1;
+			}
+			status = 0;
+			break;
+		}
 		if (received_at > query->from && received_at < query->to) {
-			body_write(response, (uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-			body_write(response, &snr, sizeof(snr));
-			body_write(response, &sf, sizeof(sf));
-			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-			*signals_len += 1;
+			if (bucket_start == 0 || received_at + query->bucket <= bucket_start) {
+				if (bucket_len != 0) {
+					body_write(response, (uint16_t[]){hton16((uint16_t)(rssi_avg / bucket_len))}, sizeof(rssi));
+					body_write(response, (int8_t[]){(int8_t)(snr_avg / bucket_len)}, sizeof(snr));
+					body_write(response, (uint8_t[]){(uint8_t)(sf_avg / bucket_len)}, sizeof(sf));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(received_at));
+					*signals_len += 1;
+				}
+				rssi_avg = 0;
+				snr_avg = 0;
+				sf_avg = 0;
+				bucket_len = 0;
+				bucket_start = received_at;
+			}
+			rssi_avg += rssi;
+			snr_avg += snr;
+			sf_avg += sf;
+			bucket_len += 1;
+			bucket_end = received_at;
 		}
 		offset -= uplink_row.size;
 	}
@@ -356,6 +392,12 @@ uint16_t uplink_signal_select_by_zone(octet_t *db, zone_t *zone, uplink_signal_q
 			goto cleanup;
 		}
 
+		int32_t rssi_avg = 0;
+		int16_t snr_avg = 0;
+		uint16_t sf_avg = 0;
+		time_t bucket_start = 0;
+		time_t bucket_end = 0;
+		uint8_t bucket_len = 0;
 		off_t offset = stmt.stat.st_size - uplink_row.size;
 		while (true) {
 			if (offset < 0) {
@@ -370,22 +412,44 @@ uint16_t uplink_signal_select_by_zone(octet_t *db, zone_t *zone, uplink_signal_q
 			int8_t snr = octet_int8_read(db->row, uplink_row.snr);
 			uint8_t sf = octet_uint8_read(db->row, uplink_row.sf);
 			time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
-			if (received_at < query->from) {
-				status = 0;
-				break;
-			}
 			if (response->body.len + sizeof(rssi) + sizeof(snr) + sizeof(sf) + sizeof(received_at) > response->body.cap) {
 				error("signals amount %hu exceeds buffer length %u\n", *signals_len, response->body.cap);
 				status = 500;
 				goto cleanup;
 			}
+			if (received_at < query->from) {
+				if (bucket_len != 0) {
+					body_write(response, (uint16_t[]){hton16((uint16_t)(rssi_avg / bucket_len))}, sizeof(rssi));
+					body_write(response, (int8_t[]){(int8_t)(snr_avg / bucket_len)}, sizeof(snr));
+					body_write(response, (uint8_t[]){(uint8_t)(sf_avg / bucket_len)}, sizeof(sf));
+					body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(received_at));
+					signals += 1;
+					*signals_len += 1;
+				}
+				status = 0;
+				break;
+			}
 			if (received_at > query->from && received_at < query->to) {
-				body_write(response, (uint16_t[]){hton16((uint16_t)rssi)}, sizeof(rssi));
-				body_write(response, &snr, sizeof(snr));
-				body_write(response, &sf, sizeof(sf));
-				body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
-				signals += 1;
-				*signals_len += 1;
+				if (bucket_start == 0 || received_at + query->bucket <= bucket_start) {
+					if (bucket_len != 0) {
+						body_write(response, (uint16_t[]){hton16((uint16_t)(rssi_avg / bucket_len))}, sizeof(rssi));
+						body_write(response, (int8_t[]){(int8_t)(snr_avg / bucket_len)}, sizeof(snr));
+						body_write(response, (uint8_t[]){(uint8_t)(sf_avg / bucket_len)}, sizeof(sf));
+						body_write(response, (uint64_t[]){hton64((uint64_t)((bucket_start + bucket_end) / 2))}, sizeof(received_at));
+						signals += 1;
+						*signals_len += 1;
+					}
+					rssi_avg = 0;
+					snr_avg = 0;
+					sf_avg = 0;
+					bucket_len = 0;
+					bucket_start = received_at;
+				}
+				rssi_avg += rssi;
+				snr_avg += snr;
+				sf_avg += sf;
+				bucket_len += 1;
+				bucket_end = received_at;
 			}
 			offset -= uplink_row.size;
 		}
