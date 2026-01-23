@@ -59,8 +59,6 @@ int main(int argc, char *argv[]) {
 		info("--bwt-ttl             -bt  time to live for bwt expiry      (%u)\n", bwt_ttl);
 		info("--database-directory  -dd  path to database directory       (%s)\n", database_directory);
 		info("--database-buffer     -db  most bytes in database buffer    (%u)\n", database_buffer);
-		info("--database-file       -df  path to sqlite database file     (%s)\n", database_file);
-		info("--database-timeout    -dt  milliseconds to wait for lock    (%hu)\n", database_timeout);
 		info("--receive-timeout     -rt  seconds to wait for receiving    (%hhu)\n", receive_timeout);
 		info("--send-timeout        -st  seconds to wait for sending      (%hhu)\n", send_timeout);
 		info("--receive-packets     -rp  most packets allowed to receive  (%hhu)\n", receive_packets);

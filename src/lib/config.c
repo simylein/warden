@@ -22,8 +22,6 @@ uint32_t bwt_ttl = 2764800;
 
 const char *database_directory = "data";
 uint32_t database_buffer = 65536;
-const char *database_file = "warden.sqlite";
-uint16_t database_timeout = 500;
 
 uint8_t receive_timeout = 60;
 uint8_t send_timeout = 60;
@@ -220,12 +218,6 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 		} else if (match_arg(flag, "--database-buffer", "-db")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint32(value, "database buffer", 16384, 1048576, &database_buffer);
-		} else if (match_arg(flag, "--database-file", "-df")) {
-			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_str(value, "database file", 4, 64, &database_file);
-		} else if (match_arg(flag, "--database-timeout", "-dt")) {
-			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint16(value, "database timeout", 10, 10000, &database_timeout);
 		} else if (match_arg(flag, "--receive-timeout", "-rt")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_uint8(value, "receive timeout", 2, 240, &receive_timeout);
