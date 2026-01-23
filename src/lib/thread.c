@@ -5,6 +5,7 @@
 #include "logger.h"
 #include <errno.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 queue_t queue = {
@@ -33,26 +34,45 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	worker->arg.id = id;
 	worker->arg.db.directory = database_directory;
 
-	worker->arg.db.row = malloc(UINT8_MAX * sizeof(char));
-	if (worker->arg.db.row == NULL) {
-		logger("failed to allocate %u bytes because %s\n", UINT8_MAX, errno_str());
-		return -1;
-	}
-	worker->arg.db.row_len = UINT8_MAX * sizeof(char);
-
-	worker->arg.db.chunk = malloc((database_buffer / 16) * sizeof(char));
-	if (worker->arg.db.chunk == NULL) {
-		logger("failed to allocate %u bytes because %s\n", (database_buffer / 16), errno_str());
-		return -1;
-	}
-	worker->arg.db.chunk_len = (uint16_t)(database_buffer / 16) * sizeof(char);
-
-	worker->arg.db.table = malloc(database_buffer * sizeof(char));
-	if (worker->arg.db.table == NULL) {
+	worker->arg.database_buffer = malloc(database_buffer * sizeof(char));
+	if (worker->arg.database_buffer == NULL) {
 		logger("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
 		return -1;
 	}
-	worker->arg.db.table_len = database_buffer * sizeof(char);
+
+	uint32_t offset = 0;
+
+	worker->arg.db.row = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.row_len = UINT8_MAX;
+	offset += worker->arg.db.row_len;
+
+	worker->arg.db.alpha = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.alpha_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.alpha_len;
+
+	worker->arg.db.bravo = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.bravo_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.bravo_len;
+
+	worker->arg.db.charlie = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.charlie_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.charlie_len;
+
+	worker->arg.db.delta = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.delta_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.delta_len;
+
+	worker->arg.db.echo = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.echo_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.echo_len;
+
+	worker->arg.db.chunk = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.chunk_len = (uint16_t)(database_buffer / 16);
+	offset += worker->arg.db.chunk_len;
+
+	worker->arg.db.table = (uint8_t *)&worker->arg.database_buffer[offset];
+	worker->arg.db.table_len = database_buffer - offset;
+	offset += worker->arg.db.table_len;
 
 	worker->arg.request_buffer = malloc(receive_buffer * sizeof(char));
 	if (worker->arg.request_buffer == NULL) {
@@ -87,9 +107,7 @@ int join(worker_t *worker, uint8_t id) {
 		return -1;
 	}
 
-	free(worker->arg.db.row);
-	free(worker->arg.db.chunk);
-	free(worker->arg.db.table);
+	free(worker->arg.database_buffer);
 	free(worker->arg.request_buffer);
 	free(worker->arg.response_buffer);
 

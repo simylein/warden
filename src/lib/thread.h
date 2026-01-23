@@ -28,6 +28,7 @@ typedef struct arg_t {
 	int state;
 	octet_t db;
 	sqlite3 *database;
+	char *database_buffer;
 	char *request_buffer;
 	char *response_buffer;
 } arg_t;
