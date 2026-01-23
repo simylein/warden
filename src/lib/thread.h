@@ -3,7 +3,6 @@
 #include "octet.h"
 #include <arpa/inet.h>
 #include <pthread.h>
-#include <sqlite3.h>
 #include <stdint.h>
 
 typedef struct task_t {
@@ -27,7 +26,6 @@ typedef struct arg_t {
 	uint8_t id;
 	int state;
 	octet_t db;
-	sqlite3 *database;
 	char *database_buffer;
 	char *request_buffer;
 	char *response_buffer;
