@@ -140,7 +140,7 @@ void *thread(void *args) {
 		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, thread_pool.load);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		handle(arg->db, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
+		handle(&arg->db, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
 
 		pthread_mutex_lock(&thread_pool.lock);
 		thread_pool.load--;
