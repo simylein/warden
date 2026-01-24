@@ -416,43 +416,19 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 		goto cleanup;
 	}
 
-	octet_close(&stmt, file);
-
-	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
-		error("failed to sprintf to file\n");
-		return 500;
-	}
-
-	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = octet_error();
+	uint8_t zone_id[16];
+	device_t device = {.id = buffer->device_id, .zone_id = &zone_id};
+	status = device_update_latest(db, &device, NULL, NULL, buffer);
+	if (status != 0) {
 		goto cleanup;
 	}
 
-	offset = 0;
-	while (true) {
-		if (offset >= stmt.stat.st_size) {
-			warn("device %02x%02x not found\n", (*buffer->device_id)[0], (*buffer->device_id)[1]);
-			status = 404;
-			break;
-		}
-		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = octet_error();
+	if (device.zone_id != NULL) {
+		zone_t zone = {.id = device.zone_id};
+		status = zone_update_latest(db, &zone);
+		if (status != 0) {
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
-		if (memcmp(id, buffer->device_id, sizeof(*buffer->device_id)) == 0) {
-			octet_uint8_write(db->row, device_row.buffer_null, 0x01);
-			octet_blob_write(db->row, device_row.buffer_id, (uint8_t *)buffer->id, sizeof(*buffer->id));
-			octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
-			octet_uint16_write(db->row, device_row.buffer_level, buffer->level);
-			octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)buffer->captured_at);
-			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
-			}
-			break;
-		}
-		offset += device_row.size;
 	}
 
 	status = 0;

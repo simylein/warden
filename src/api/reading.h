@@ -4,10 +4,11 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
-#include "device.h"
 #include "zone.h"
 #include <stdint.h>
 #include <time.h>
+
+typedef struct device_t device_t;
 
 typedef struct reading_t {
 	uint8_t (*id)[16];

@@ -405,43 +405,19 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 		goto cleanup;
 	}
 
-	octet_close(&stmt, file);
-
-	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
-		error("failed to sprintf to file\n");
-		return 500;
-	}
-
-	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
-		status = octet_error();
+	uint8_t zone_id[16];
+	device_t device = {.id = reading->device_id, .zone_id = &zone_id};
+	status = device_update_latest(db, &device, reading, NULL, NULL);
+	if (status != 0) {
 		goto cleanup;
 	}
 
-	offset = 0;
-	while (true) {
-		if (offset >= stmt.stat.st_size) {
-			warn("device %02x%02x not found\n", (*reading->device_id)[0], (*reading->device_id)[1]);
-			status = 404;
-			break;
-		}
-		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = octet_error();
+	if (device.zone_id != NULL) {
+		zone_t zone = {.id = device.zone_id};
+		status = zone_update_latest(db, &zone);
+		if (status != 0) {
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
-		if (memcmp(id, reading->device_id, sizeof(*reading->device_id)) == 0) {
-			octet_uint8_write(db->row, device_row.reading_null, 0x01);
-			octet_blob_write(db->row, device_row.reading_id, (uint8_t *)reading->id, sizeof(*reading->id));
-			octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(reading->temperature * 100));
-			octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(reading->humidity * 100));
-			octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)reading->captured_at);
-			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
-			}
-			break;
-		}
-		offset += device_row.size;
 	}
 
 	status = 0;
