@@ -1023,21 +1023,24 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 			} else {
 				device->zone_id = NULL;
 			}
-			if (reading != NULL) {
+			time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
+			if (reading != NULL && reading->captured_at >= reading_captured_at) {
 				octet_uint8_write(db->row, device_row.reading_null, 0x01);
 				octet_blob_write(db->row, device_row.reading_id, (uint8_t *)reading->id, sizeof(*reading->id));
 				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(reading->temperature * 100));
 				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(reading->humidity * 100));
 				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)reading->captured_at);
 			}
-			if (metric != NULL) {
+			time_t metric_captured_at = (time_t)octet_uint64_read(db->row, device_row.metric_captured_at);
+			if (metric != NULL && metric->captured_at >= metric_captured_at) {
 				octet_uint8_write(db->row, device_row.metric_null, 0x01);
 				octet_blob_write(db->row, device_row.metric_id, (uint8_t *)metric->id, sizeof(*metric->id));
 				octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
 				octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(metric->battery * 1000));
 				octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)metric->captured_at);
 			}
-			if (buffer != NULL) {
+			time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
+			if (buffer != NULL && buffer->captured_at >= buffer_captured_at) {
 				octet_uint8_write(db->row, device_row.buffer_null, 0x01);
 				octet_blob_write(db->row, device_row.buffer_id, (uint8_t *)buffer->id, sizeof(*buffer->id));
 				octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
