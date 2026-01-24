@@ -48,7 +48,7 @@ const zone_row_t zone_row = {
 		.buffer_delay = 85,
 		.buffer_level = 89,
 		.buffer_captured_at = 91,
-		.size = 93,
+		.size = 99,
 };
 
 int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
