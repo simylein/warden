@@ -988,6 +988,78 @@ cleanup:
 	return status;
 }
 
+uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
+			uint8_t zone_null = octet_uint8_read(db->row, device_row.zone_null);
+			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+			if (zone_null != 0x00) {
+				memcpy(device->zone_id, zone_id, sizeof(*zone_id));
+			} else {
+				device->zone_id = NULL;
+			}
+			if (reading != NULL) {
+				octet_uint8_write(db->row, device_row.reading_null, 0x01);
+				octet_blob_write(db->row, device_row.reading_id, (uint8_t *)reading->id, sizeof(*reading->id));
+				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(reading->temperature * 100));
+				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(reading->humidity * 100));
+				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)reading->captured_at);
+			}
+			if (metric != NULL) {
+				octet_uint8_write(db->row, device_row.metric_null, 0x01);
+				octet_blob_write(db->row, device_row.metric_id, (uint8_t *)metric->id, sizeof(*metric->id));
+				octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
+				octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(metric->battery * 1000));
+				octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)metric->captured_at);
+			}
+			if (buffer != NULL) {
+				octet_uint8_write(db->row, device_row.buffer_null, 0x01);
+				octet_blob_write(db->row, device_row.buffer_id, (uint8_t *)buffer->id, sizeof(*buffer->id));
+				octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
+				octet_uint16_write(db->row, device_row.buffer_level, buffer->level);
+				octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)buffer->captured_at);
+			}
+			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			break;
+		}
+		offset += device_row.size;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {

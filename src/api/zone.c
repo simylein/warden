@@ -7,6 +7,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "cache.h"
+#include "device.h"
 #include "user-zone.h"
 #include "user.h"
 #include <fcntl.h>
@@ -716,6 +717,149 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 		}
 		offset += zone_row.size;
 	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t zone_update_latest(octet_t *db, zone_t *zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	int32_t reading_temperature_avg = 0;
+	uint32_t reading_humidity_avg = 0;
+	time_t reading_captured_at_max = 0;
+	uint8_t reading_bucket_len = 0;
+	uint32_t metric_photovoltaic_avg = 0;
+	uint32_t metric_battery_avg = 0;
+	time_t metric_captured_at_max = 0;
+	uint8_t metric_bucket_len = 0;
+	uint64_t buffer_delay_avg = 0;
+	uint32_t buffer_level_avg = 0;
+	time_t buffer_captured_at_max = 0;
+	uint8_t buffer_bucket_len = 0;
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t zone_null = octet_uint8_read(db->row, device_row.zone_null);
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+		if (zone_null != 0x00 && memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
+			uint8_t reading_null = octet_uint8_read(db->row, device_row.reading_null);
+			if (reading_null != 0x00) {
+				int16_t reading_temperature = octet_int16_read(db->row, device_row.reading_temperature);
+				uint16_t reading_humidity = octet_uint16_read(db->row, device_row.reading_humidity);
+				time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
+				reading_temperature_avg += reading_temperature;
+				reading_humidity_avg += reading_humidity;
+				if (reading_captured_at_max < reading_captured_at) {
+					reading_captured_at_max = reading_captured_at;
+				}
+				reading_bucket_len += 1;
+			}
+			uint8_t metric_null = octet_uint8_read(db->row, device_row.metric_null);
+			if (metric_null != 0x00) {
+				uint16_t metric_photovoltaic = octet_uint16_read(db->row, device_row.metric_photovoltaic);
+				uint16_t metric_battery = octet_uint16_read(db->row, device_row.metric_battery);
+				time_t metric_captured_at = (time_t)octet_uint64_read(db->row, device_row.metric_captured_at);
+				metric_photovoltaic_avg += metric_photovoltaic;
+				metric_battery_avg += metric_battery;
+				if (metric_captured_at_max < metric_captured_at) {
+					metric_captured_at_max = metric_captured_at;
+				}
+				metric_bucket_len += 1;
+			}
+			uint8_t buffer_null = octet_uint8_read(db->row, device_row.buffer_null);
+			if (buffer_null != 0x00) {
+				uint32_t buffer_delay = octet_uint32_read(db->row, device_row.buffer_delay);
+				uint16_t buffer_level = octet_uint16_read(db->row, device_row.buffer_level);
+				time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
+				buffer_delay_avg += buffer_delay;
+				buffer_level_avg += buffer_level;
+				if (buffer_captured_at_max < buffer_captured_at) {
+					buffer_captured_at_max = buffer_captured_at;
+				}
+				buffer_bucket_len += 1;
+			}
+		}
+		offset += device_row.size;
+	}
+
+	if (reading_bucket_len == 0 && metric_bucket_len == 0 && buffer_bucket_len == 0) {
+		status = 0;
+		goto cleanup;
+	}
+
+	octet_close(&stmt, file);
+
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("zone %02x%02x not found\n", (*zone->id)[0], (*zone->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, zone_row.id);
+		if (memcmp(id, zone->id, sizeof(*zone->id)) == 0) {
+			if (reading_bucket_len != 0) {
+				octet_uint8_write(db->row, zone_row.reading_null, 0x01);
+				octet_int16_write(db->row, zone_row.reading_temperature, (int16_t)(reading_temperature_avg / reading_bucket_len));
+				octet_uint16_write(db->row, zone_row.reading_humidity, (uint16_t)(reading_humidity_avg / reading_bucket_len));
+				octet_uint64_write(db->row, zone_row.reading_captured_at, (uint64_t)reading_captured_at_max);
+			}
+			if (metric_bucket_len != 0) {
+				octet_uint8_write(db->row, zone_row.metric_null, 0x01);
+				octet_uint16_write(db->row, zone_row.metric_photovoltaic, (uint16_t)(metric_photovoltaic_avg / metric_bucket_len));
+				octet_uint16_write(db->row, zone_row.metric_battery, (uint16_t)(metric_battery_avg / metric_bucket_len));
+				octet_uint64_write(db->row, zone_row.metric_captured_at, (uint64_t)metric_captured_at_max);
+			}
+			if (buffer_bucket_len != 0) {
+				octet_uint8_write(db->row, zone_row.buffer_null, 0x01);
+				octet_uint32_write(db->row, zone_row.buffer_delay, (uint32_t)(buffer_delay_avg / buffer_bucket_len));
+				octet_uint16_write(db->row, zone_row.buffer_level, (uint16_t)(buffer_level_avg / buffer_bucket_len));
+				octet_uint64_write(db->row, zone_row.buffer_captured_at, (uint64_t)buffer_captured_at_max);
+			}
+			if (octet_row_write(&stmt, file, offset, db->row, zone_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			break;
+		}
+		offset += zone_row.size;
+	}
+
+	status = 0;
 
 cleanup:
 	octet_close(&stmt, file);

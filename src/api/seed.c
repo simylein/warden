@@ -60,6 +60,57 @@ int seed_user(octet_t *db) {
 	return 0;
 }
 
+int seed_zone(octet_t *db) {
+	char *names[] = {"indoor", "outdoor"};
+	uint8_t colors[][12] = {
+			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
+			{0x02, 0x84, 0xc7, 0x38, 0xbd, 0xf8, 0xf0, 0xf9, 0xff, 0x08, 0x2f, 0x49},
+	};
+
+	zone_ids_len = sizeof(names) / sizeof(*names);
+	zone_ids = malloc(zone_ids_len * sizeof(*zone_ids));
+	if (zone_ids == NULL) {
+		return -1;
+	}
+
+	for (uint8_t index = 0; index < zone_ids_len; index++) {
+		zone_t zone = {
+				.id = &zone_ids[index],
+				.name = names[index],
+				.name_len = (uint8_t)strlen(names[index]),
+				.color = &colors[index],
+				.created_at = (time_t[]){time(NULL)},
+		};
+
+		if (zone_insert(db, &zone) != 0) {
+			return -1;
+		}
+	}
+
+	info("seeded file %s\n", zone_file);
+	return 0;
+}
+
+int seed_user_zone(octet_t *db) {
+	for (uint8_t index = 0; index < user_ids_len; index++) {
+		for (uint8_t ind = 0; ind < zone_ids_len; ind++) {
+			if (rand() % 2 == 0) {
+				user_zone_t user_zone = {
+						.user_id = &user_ids[index],
+						.zone_id = &zone_ids[ind],
+				};
+
+				if (user_zone_insert(db, &user_zone) != 0) {
+					return -1;
+				}
+			}
+		}
+	}
+
+	info("seeded file %s\n", user_zone_file);
+	return 0;
+}
+
 int seed_device(octet_t *db) {
 	device_ids_len = (uint8_t)(8 + rand() % 16);
 	device_ids = malloc(device_ids_len * sizeof(*device_ids));
@@ -72,12 +123,6 @@ int seed_device(octet_t *db) {
 			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
 			{0x02, 0x84, 0xc7, 0x38, 0xbd, 0xf8, 0xf0, 0xf9, 0xff, 0x08, 0x2f, 0x49},
 	};
-
-	zone_ids_len = sizeof(zone_names) / sizeof(*zone_names);
-	zone_ids = malloc(zone_ids_len * sizeof(*zone_ids));
-	if (zone_ids == NULL) {
-		return -1;
-	}
 
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		char name[16];
@@ -155,57 +200,6 @@ int seed_user_device(octet_t *db) {
 	}
 
 	info("seeded file %s\n", user_device_file);
-	return 0;
-}
-
-int seed_zone(octet_t *db) {
-	char *names[] = {"indoor", "outdoor"};
-	uint8_t colors[][12] = {
-			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
-			{0x02, 0x84, 0xc7, 0x38, 0xbd, 0xf8, 0xf0, 0xf9, 0xff, 0x08, 0x2f, 0x49},
-	};
-
-	zone_ids_len = sizeof(names) / sizeof(*names);
-	zone_ids = malloc(zone_ids_len * sizeof(*zone_ids));
-	if (zone_ids == NULL) {
-		return -1;
-	}
-
-	for (uint8_t index = 0; index < zone_ids_len; index++) {
-		zone_t zone = {
-				.id = &zone_ids[index],
-				.name = names[index],
-				.name_len = (uint8_t)strlen(names[index]),
-				.color = &colors[index],
-				.created_at = (time_t[]){time(NULL)},
-		};
-
-		if (zone_insert(db, &zone) != 0) {
-			return -1;
-		}
-	}
-
-	info("seeded file %s\n", zone_file);
-	return 0;
-}
-
-int seed_user_zone(octet_t *db) {
-	for (uint8_t index = 0; index < user_ids_len; index++) {
-		for (uint8_t ind = 0; ind < zone_ids_len; ind++) {
-			if (rand() % 2 == 0) {
-				user_zone_t user_zone = {
-						.user_id = &user_ids[index],
-						.zone_id = &zone_ids[ind],
-				};
-
-				if (user_zone_insert(db, &user_zone) != 0) {
-					return -1;
-				}
-			}
-		}
-	}
-
-	info("seeded file %s\n", user_zone_file);
 	return 0;
 }
 
@@ -601,16 +595,16 @@ int seed(octet_t *db) {
 	if (seed_user(db) == -1) {
 		return -1;
 	}
-	if (seed_device(db) == -1) {
-		return -1;
-	}
-	if (seed_user_device(db) == -1) {
-		return -1;
-	}
 	if (seed_zone(db) == -1) {
 		return -1;
 	}
 	if (seed_user_zone(db) == -1) {
+		return -1;
+	}
+	if (seed_device(db) == -1) {
+		return -1;
+	}
+	if (seed_user_device(db) == -1) {
 		return -1;
 	}
 	if (seed_uplink(db) == -1) {
