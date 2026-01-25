@@ -42,9 +42,6 @@ extern const char *user_file;
 
 extern const user_row_t user_row;
 
-extern const char *user_table;
-extern const char *user_schema;
-
 uint16_t user_existing(octet_t *db, user_t *user);
 
 uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uint8_t *users_len);

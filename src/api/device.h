@@ -75,9 +75,6 @@ extern const char *device_file;
 
 extern const device_row_t device_row;
 
-extern const char *device_table;
-extern const char *device_schema;
-
 uint16_t device_existing(octet_t *db, device_t *device);
 
 uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_t *response, uint8_t *devices_len);

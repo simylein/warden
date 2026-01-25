@@ -18,26 +18,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *uplink_table = "uplink";
-const char *uplink_schema = "create table uplink ("
-														"id blob primary key, "
-														"frame integer not null, "
-														"kind integer not null, "
-														"data blob not null, "
-														"airtime real not null, "
-														"frequency integer not null, "
-														"bandwidth integer not null, "
-														"rssi integer not null, "
-														"snr real not null, "
-														"sf integer not null, "
-														"cr integer not null, "
-														"tx_power integer not null, "
-														"preamble_len integer not null, "
-														"received_at timestamp not null, "
-														"device_id blob not null, "
-														"foreign key (device_id) references device(id) on delete cascade"
-														")";
-
 const char *uplink_file = "uplink";
 
 const uplink_row_t uplink_row = {

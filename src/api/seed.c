@@ -298,7 +298,7 @@ int seed_uplink(octet_t *db) {
 		}
 	}
 
-	info("seeded file %s\n", uplink_table);
+	info("seeded file %s\n", uplink_file);
 	return 0;
 }
 
@@ -379,7 +379,7 @@ int seed_downlink(octet_t *db) {
 		}
 	}
 
-	info("seeded file %s\n", downlink_table);
+	info("seeded file %s\n", downlink_file);
 	return 0;
 }
 
@@ -424,7 +424,7 @@ int seed_reading(octet_t *db) {
 		}
 	}
 
-	info("seeded file %s\n", reading_table);
+	info("seeded file %s\n", reading_file);
 	return 0;
 }
 
@@ -469,7 +469,7 @@ int seed_metric(octet_t *db) {
 		}
 	}
 
-	info("seeded file %s\n", metric_table);
+	info("seeded file %s\n", metric_file);
 	return 0;
 }
 
@@ -522,7 +522,7 @@ int seed_buffer(octet_t *db) {
 		}
 	}
 
-	info("seeded file %s\n", buffer_table);
+	info("seeded file %s\n", buffer_file);
 	return 0;
 }
 
@@ -554,7 +554,7 @@ int seed_config(octet_t *db) {
 		uplink_ind += 1;
 	}
 
-	info("seeded file %s\n", config_table);
+	info("seeded file %s\n", config_file);
 	return 0;
 }
 
@@ -587,7 +587,7 @@ int seed_radio(octet_t *db) {
 		uplink_ind += 1;
 	}
 
-	info("seeded file %s\n", radio_table);
+	info("seeded file %s\n", radio_file);
 	return 0;
 }
 

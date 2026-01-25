@@ -19,18 +19,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *metric_table = "metric";
-const char *metric_schema = "create table metric ("
-														"id blob primary key, "
-														"photovoltaic real not null, "
-														"battery real not null, "
-														"captured_at timestamp not null, "
-														"uplink_id blob not null unique, "
-														"device_id blob not null, "
-														"foreign key (uplink_id) references uplink(id) on delete cascade, "
-														"foreign key (device_id) references device(id) on delete cascade"
-														")";
-
 const char *metric_file = "metric";
 
 const metric_row_t metric_row = {

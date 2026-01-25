@@ -38,9 +38,6 @@ extern const char *buffer_file;
 
 extern const buffer_row_t buffer_row;
 
-extern const char *buffer_table;
-extern const char *buffer_schema;
-
 uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_t *response, uint16_t *buffers_len);
 uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *query, response_t *response,
 																 uint16_t *buffers_len);

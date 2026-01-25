@@ -38,9 +38,6 @@ extern const char *reading_file;
 
 extern const reading_row_t reading_row;
 
-extern const char *reading_table;
-extern const char *reading_schema;
-
 uint16_t reading_select(octet_t *db, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len);
 uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t *query, response_t *response,
 																	uint16_t *readings_len);

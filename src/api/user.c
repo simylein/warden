@@ -15,16 +15,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *user_table = "user";
-const char *user_schema = "create table user ("
-													"id blob primary key, "
-													"username text not null unique, "
-													"password blob not null, "
-													"signup_at timestamp not null, "
-													"signin_at timestamp not null, "
-													"permissions blob not null"
-													")";
-
 const char *user_file = "user";
 
 const user_row_t user_row = {

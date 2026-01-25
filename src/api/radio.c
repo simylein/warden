@@ -16,24 +16,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *radio_table = "radio";
-const char *radio_schema = "create table radio ("
-													 "id blob primary key, "
-													 "frequency integer not null, "
-													 "bandwidth integer not null, "
-													 "coding_rate integer not null, "
-													 "spreading_factor integer not null, "
-													 "preamble_length integer not null, "
-													 "tx_power integer not null, "
-													 "sync_word integer not null, "
-													 "checksum boolean not null, "
-													 "captured_at timestamp not null, "
-													 "uplink_id blob not null unique, "
-													 "device_id blob not null, "
-													 "foreign key (uplink_id) references uplink(id) on delete cascade, "
-													 "foreign key (device_id) references device(id) on delete cascade"
-													 ")";
-
 const char *radio_file = "radio";
 
 const radio_row_t radio_row = {

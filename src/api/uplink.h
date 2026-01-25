@@ -62,9 +62,6 @@ extern const char *uplink_file;
 
 extern const uplink_row_t uplink_row;
 
-extern const char *uplink_table;
-extern const char *uplink_schema;
-
 uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len);
 uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *query, response_t *response,
 																 uint8_t *uplinks_len);

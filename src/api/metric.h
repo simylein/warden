@@ -38,9 +38,6 @@ extern const char *metric_file;
 
 extern const metric_row_t metric_row;
 
-extern const char *metric_table;
-extern const char *metric_schema;
-
 uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len);
 uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *query, response_t *response,
 																 uint16_t *metrics_len);

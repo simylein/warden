@@ -53,9 +53,6 @@ extern const char *zone_file;
 
 extern const zone_row_t zone_row;
 
-extern const char *zone_table;
-extern const char *zone_schema;
-
 uint16_t zone_existing(octet_t *db, zone_t *zone);
 uint16_t zone_lookup(octet_t *db, zone_t *zone);
 

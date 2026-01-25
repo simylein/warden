@@ -16,23 +16,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *config_table = "config";
-const char *config_schema = "create table config ("
-														"id blob primary key, "
-														"led_debug boolean not null, "
-														"reading_enable boolean not null, "
-														"metric_enable boolean not null, "
-														"buffer_enable boolean not null, "
-														"reading_interval integer not null, "
-														"metric_interval integer not null, "
-														"buffer_interval integer not null, "
-														"captured_at timestamp not null, "
-														"uplink_id blob not null unique, "
-														"device_id blob not null, "
-														"foreign key (uplink_id) references uplink(id) on delete cascade, "
-														"foreign key (device_id) references device(id) on delete cascade"
-														")";
-
 const char *config_file = "config";
 
 const config_row_t config_row = {

@@ -16,24 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *downlink_table = "downlink";
-const char *downlink_schema = "create table downlink ("
-															"id blob primary key, "
-															"frame integer not null, "
-															"kind integer not null, "
-															"data blob not null, "
-															"airtime real not null, "
-															"frequency integer not null, "
-															"bandwidth integer not null, "
-															"sf integer not null, "
-															"cr integer not null, "
-															"tx_power integer not null, "
-															"preamble_len integer not null, "
-															"sent_at timestamp not null, "
-															"device_id blob not null, "
-															"foreign key (device_id) references device(id) on delete cascade"
-															")";
-
 const char *downlink_file = "downlink";
 
 const downlink_row_t downlink_row = {

@@ -17,15 +17,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *zone_table = "zone";
-const char *zone_schema = "create table zone ("
-													"id blob primary key, "
-													"name text not null unique, "
-													"color blob not null, "
-													"created_at timestamp not null, "
-													"updated_at timestamp"
-													")";
-
 const char *zone_file = "zone";
 
 const zone_row_t zone_row = {

@@ -24,18 +24,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *device_table = "device";
-const char *device_schema = "create table device ("
-														"id blob primary key, "
-														"name text not null unique, "
-														"zone_id blob, "
-														"firmware text, "
-														"hardware text, "
-														"created_at timestamp not null, "
-														"updated_at timestamp, "
-														"foreign key (zone_id) references zone(id) on delete set null"
-														")";
-
 const char *device_file = "device";
 
 const device_row_t device_row = {

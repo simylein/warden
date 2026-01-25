@@ -43,9 +43,6 @@ extern const char *radio_file;
 
 extern const radio_row_t radio_row;
 
-extern const char *radio_table;
-extern const char *radio_schema;
-
 uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *response);
 uint16_t radio_insert(octet_t *db, radio_t *radio);
 

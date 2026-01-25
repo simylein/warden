@@ -51,9 +51,6 @@ extern const char *downlink_file;
 
 extern const downlink_row_t downlink_row;
 
-extern const char *downlink_table;
-extern const char *downlink_schema;
-
 uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len);
 uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query_t *query, response_t *response,
 																	 uint8_t *downlinks_len);

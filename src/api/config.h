@@ -40,9 +40,6 @@ extern const char *config_file;
 
 extern const config_row_t config_row;
 
-extern const char *config_table;
-extern const char *config_schema;
-
 uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *response);
 uint16_t config_insert(octet_t *db, config_t *config);
 
