@@ -414,7 +414,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], temperature.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -540,7 +540,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], humidity.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -666,7 +666,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], photovoltaic.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -792,7 +792,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], battery.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -918,7 +918,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], delay.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -1041,7 +1041,7 @@
 				array(element.guide.children.length).forEach((ind) => {
 					if (ind < devices.length) {
 						element.guide.children[ind].children[0].classList.remove('hidden');
-						paint(element.guide.children[ind].children[1], [], [], devices[ind].substring(0, 4));
+						paint(element.guide.children[ind].children[1], [], [], level.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
 					} else {
 						element.guide.children[ind].children[0].classList.add('hidden');
 						paint(element.guide.children[ind].children[1], [], [], '');
@@ -1108,6 +1108,7 @@
 				temperature: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(temperature.guide.children.length).map(() => []),
 					paths: array(temperature.graph.children.length).map(() => []),
@@ -1115,6 +1116,7 @@
 				humidity: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(humidity.guide.children.length).map(() => []),
 					paths: array(humidity.graph.children.length).map(() => []),
@@ -1131,6 +1133,9 @@
 					readings.capturedAt.start = Math.floor(Date.now() / 1000);
 					readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				const mapping = new Map(data.map((reading) => [reading.device.id, reading.device.name]));
+				readings.temperature.mapping = mapping;
+				readings.humidity.mapping = mapping;
 				envelope(readings, data, 'temperature');
 				envelope(readings, data, 'humidity');
 				coordinate(readings, data, 'temperature', 'capturedAt', width);
@@ -1143,15 +1148,21 @@
 			const binary = new Binary(buffer);
 			const readings = [];
 			while (binary.offset < buffer.byteLength) {
-				const deviceId = binary.uuid();
+				const device = { id: null, name: null, zone: null };
+				device.id = binary.uuid();
+				if (binary.byte() != 0) {
+					device.name = binary.string();
+					if (binary.byte() != 0) {
+						device.zone = binary.string();
+					}
+				}
 				const length = binary.uint(16);
 				for (let ind = 0; ind < length; ind++) {
 					const reading = { temperature: null, humidity: null, capturedAt: null, device: null };
 					reading.temperature = binary.int(16) / 100;
 					reading.humidity = binary.uint(16) / 100;
 					reading.capturedAt = binary.uint(64);
-					reading.device = {};
-					reading.device.id = deviceId;
+					reading.device = device;
 					readings.push(reading);
 				}
 			}
@@ -1162,6 +1173,7 @@
 				photovoltaic: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(photovoltaic.guide.children.length).map(() => []),
 					paths: array(photovoltaic.graph.children.length).map(() => []),
@@ -1169,6 +1181,7 @@
 				battery: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(battery.guide.children.length).map(() => []),
 					paths: array(battery.graph.children.length).map(() => []),
@@ -1185,6 +1198,9 @@
 					metrics.capturedAt.start = Math.floor(Date.now() / 1000);
 					metrics.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				const mapping = new Map(data.map((metric) => [metric.device.id, metric.device.name]));
+				metrics.photovoltaic.mapping = mapping;
+				metrics.battery.mapping = mapping;
 				envelope(metrics, data, 'photovoltaic');
 				envelope(metrics, data, 'battery');
 				coordinate(metrics, data, 'photovoltaic', 'capturedAt', width);
@@ -1197,15 +1213,21 @@
 			const binary = new Binary(buffer);
 			const metrics = [];
 			while (binary.offset < buffer.byteLength) {
-				const deviceId = binary.uuid();
+				const device = { id: null, name: null, zone: null };
+				device.id = binary.uuid();
+				if (binary.byte() != 0) {
+					device.name = binary.string();
+					if (binary.byte() != 0) {
+						device.zone = binary.string();
+					}
+				}
 				const length = binary.uint(16);
 				for (let ind = 0; ind < length; ind++) {
 					const metric = { photovoltaic: null, battery: null, capturedAt: null, device: null };
 					metric.photovoltaic = binary.uint(16) / 1000;
 					metric.battery = binary.uint(16) / 1000;
 					metric.capturedAt = binary.uint(64);
-					metric.device = {};
-					metric.device.id = deviceId;
+					metric.device = device;
 					metrics.push(metric);
 				}
 			}
@@ -1216,6 +1238,7 @@
 				delay: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(delay.guide.children.length).map(() => []),
 					paths: array(delay.graph.children.length).map(() => []),
@@ -1223,6 +1246,7 @@
 				level: {
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
+					mapping: null,
 					points: [],
 					devices: array(level.guide.children.length).map(() => []),
 					paths: array(level.graph.children.length).map(() => []),
@@ -1239,6 +1263,9 @@
 					buffers.capturedAt.start = Math.floor(Date.now() / 1000);
 					buffers.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				const mapping = new Map(data.map((buffer) => [buffer.device.id, buffer.device.name]));
+				buffers.delay.mapping = mapping;
+				buffers.level.mapping = mapping;
 				envelope(buffers, data, 'delay');
 				envelope(buffers, data, 'level');
 				coordinate(buffers, data, 'delay', 'capturedAt', width);
@@ -1251,15 +1278,21 @@
 			const binary = new Binary(buffer);
 			const buffers = [];
 			while (binary.offset < buffer.byteLength) {
-				const deviceId = binary.uuid();
+				const device = { id: null, name: null, zone: null };
+				device.id = binary.uuid();
+				if (binary.byte() != 0) {
+					device.name = binary.string();
+					if (binary.byte() != 0) {
+						device.zone = binary.string();
+					}
+				}
 				const length = binary.uint(16);
 				for (let ind = 0; ind < length; ind++) {
 					const buffer = { delay: null, level: null, capturedAt: null, device: null };
 					buffer.delay = binary.uint(32);
 					buffer.level = binary.uint(16);
 					buffer.capturedAt = binary.uint(64);
-					buffer.device = {};
-					buffer.device.id = deviceId;
+					buffer.device = device;
 					buffers.push(buffer);
 				}
 			}

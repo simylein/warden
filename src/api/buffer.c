@@ -67,6 +67,20 @@ uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_
 		}
 
 		body_write(response, device_id, sizeof(*device_id));
+		device_t device = {.id = device_id};
+		cache_device_t cache_device;
+		int cache_hit = cache_device_read(&cache_device, &device);
+		body_write(response, (uint8_t[]){cache_hit != -1}, sizeof(uint8_t));
+		if (cache_hit != -1) {
+			body_write(response, cache_device.name, cache_device.name_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, (uint8_t[]){cache_device.zone_name_len != 0}, sizeof(cache_device.zone_name_len));
+			if (cache_device.zone_name_len != 0) {
+				body_write(response, cache_device.zone_name, cache_device.zone_name_len);
+				body_write(response, (char[]){0x00}, sizeof(char));
+			}
+		}
+
 		uint32_t buffers_ind = response->body.len;
 		response->body.len += sizeof(buffers);
 
