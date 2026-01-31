@@ -96,6 +96,101 @@ cleanup:
 	return status;
 }
 
+int radio_parse(radio_t *radio, request_t *request) {
+	request->body.pos = 0;
+
+	if (request->body.len < request->body.pos + sizeof(radio->frequency)) {
+		debug("missing frequency on radio\n");
+		return -1;
+	}
+	memcpy(&radio->frequency, body_read(request, sizeof(radio->frequency)), sizeof(radio->frequency));
+	radio->frequency = ntoh32(radio->frequency);
+
+	if (request->body.len < request->body.pos + sizeof(radio->bandwidth)) {
+		debug("missing bandwidth on radio\n");
+		return -1;
+	}
+	memcpy(&radio->bandwidth, body_read(request, sizeof(radio->bandwidth)), sizeof(radio->bandwidth));
+	radio->bandwidth = ntoh32(radio->bandwidth);
+
+	if (request->body.len < request->body.pos + sizeof(radio->coding_rate)) {
+		debug("missing coding rate enable on radio\n");
+		return -1;
+	}
+	radio->coding_rate = (uint8_t)*body_read(request, sizeof(radio->coding_rate));
+
+	if (request->body.len < request->body.pos + sizeof(radio->spreading_factor)) {
+		debug("missing spreading factor enable on radio\n");
+		return -1;
+	}
+	radio->spreading_factor = (uint8_t)*body_read(request, sizeof(radio->spreading_factor));
+
+	if (request->body.len < request->body.pos + sizeof(radio->preamble_length)) {
+		debug("missing preamble length enable on radio\n");
+		return -1;
+	}
+	radio->preamble_length = (uint8_t)*body_read(request, sizeof(radio->preamble_length));
+
+	if (request->body.len < request->body.pos + sizeof(radio->tx_power)) {
+		debug("missing tx power enable on radio\n");
+		return -1;
+	}
+	radio->tx_power = (uint8_t)*body_read(request, sizeof(radio->tx_power));
+
+	if (request->body.len < request->body.pos + sizeof(radio->sync_word)) {
+		debug("missing sync word enable on radio\n");
+		return -1;
+	}
+	radio->sync_word = (uint8_t)*body_read(request, sizeof(radio->sync_word));
+
+	if (request->body.len < request->body.pos + sizeof(radio->checksum)) {
+		debug("missing checksum enable on radio\n");
+		return -1;
+	}
+	radio->checksum = *body_read(request, sizeof(radio->checksum));
+
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
+		return -1;
+	}
+
+	return 0;
+}
+
+int radio_validate(radio_t *radio) {
+	if (radio->frequency < 430000000 || radio->frequency > 440000000) {
+		debug("invalid frequency %u on radio\n", radio->frequency);
+		return -1;
+	}
+
+	if (radio->bandwidth < 7800 || radio->bandwidth > 500000) {
+		debug("invalid bandwidth %u on radio\n", radio->bandwidth);
+		return -1;
+	}
+
+	if (radio->coding_rate < 5 || radio->coding_rate > 8) {
+		debug("invalid coding rate %hhu on radio\n", radio->coding_rate);
+		return -1;
+	}
+
+	if (radio->spreading_factor < 6 || radio->spreading_factor > 12) {
+		debug("invalid spreading factor %hhu on radio\n", radio->spreading_factor);
+		return -1;
+	}
+
+	if (radio->preamble_length < 6 || radio->preamble_length > 21) {
+		debug("invalid preamble length %hhu on radio\n", radio->preamble_length);
+		return -1;
+	}
+
+	if (radio->tx_power < 2 || radio->tx_power > 17) {
+		debug("invalid tx power %hhu on radio\n", radio->tx_power);
+		return -1;
+	}
+
+	return 0;
+}
+
 uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	uint16_t status;
 
@@ -217,4 +312,49 @@ void radio_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, respo
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found radio for device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
+}
+
+void radio_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	radio_t radio;
+	if (request->body.len == 0 || radio_parse(&radio, request) == -1 || radio_validate(&radio) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	info("updated radio for device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 202;
 }

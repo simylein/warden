@@ -47,3 +47,4 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 uint16_t radio_insert(octet_t *db, radio_t *radio);
 
 void radio_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void radio_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

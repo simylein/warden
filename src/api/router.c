@@ -412,10 +412,28 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "patch", "/api/device/:id/config", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_config_update, response) == true) {
+				config_modify(db, &bwt, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/device/:id/radio", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			radio_find_one_by_device(db, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "patch", "/api/device/:id/radio", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_radio_update, response) == true) {
+				radio_modify(db, &bwt, request, response);
+			}
 		}
 	}
 

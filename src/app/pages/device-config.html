@@ -604,7 +604,7 @@
 				const data = new Blob([bytes]);
 				try {
 					await fetcher('patch', `/api/device/${window.location.pathname.substring(8)}`, data, { headers: { 'content-type': 'application/octet-stream' } });
-					notification('success', `Successfully updated device config ${values.deviceId.substring(0, 4)}`);
+					notification('success', 'Successfully updated device config');
 				} catch (err) {
 					report(err);
 				}

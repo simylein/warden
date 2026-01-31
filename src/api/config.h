@@ -44,3 +44,4 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 uint16_t config_insert(octet_t *db, config_t *config);
 
 void config_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void config_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

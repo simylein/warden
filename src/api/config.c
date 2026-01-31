@@ -93,6 +93,81 @@ cleanup:
 	return status;
 }
 
+int config_parse(config_t *config, request_t *request) {
+	request->body.pos = 0;
+
+	if (request->body.len < request->body.pos + sizeof(config->led_debug)) {
+		debug("missing led debug on config\n");
+		return -1;
+	}
+	config->led_debug = *body_read(request, sizeof(config->led_debug));
+
+	if (request->body.len < request->body.pos + sizeof(config->reading_enable)) {
+		debug("missing reading enable on config\n");
+		return -1;
+	}
+	config->reading_enable = *body_read(request, sizeof(config->reading_enable));
+
+	if (request->body.len < request->body.pos + sizeof(config->metric_enable)) {
+		debug("missing metric enable on config\n");
+		return -1;
+	}
+	config->metric_enable = *body_read(request, sizeof(config->metric_enable));
+
+	if (request->body.len < request->body.pos + sizeof(config->buffer_enable)) {
+		debug("missing buffer enable on config\n");
+		return -1;
+	}
+	config->buffer_enable = *body_read(request, sizeof(config->buffer_enable));
+
+	if (request->body.len < request->body.pos + sizeof(config->reading_interval)) {
+		debug("missing reading interval on config\n");
+		return -1;
+	}
+	memcpy(&config->reading_interval, body_read(request, sizeof(config->reading_interval)), sizeof(config->reading_interval));
+	config->reading_interval = ntoh16(config->reading_interval);
+
+	if (request->body.len < request->body.pos + sizeof(config->metric_interval)) {
+		debug("missing metric interval on config\n");
+		return -1;
+	}
+	memcpy(&config->metric_interval, body_read(request, sizeof(config->metric_interval)), sizeof(config->metric_interval));
+	config->metric_interval = ntoh16(config->metric_interval);
+
+	if (request->body.len < request->body.pos + sizeof(config->buffer_interval)) {
+		debug("missing buffer interval on config\n");
+		return -1;
+	}
+	memcpy(&config->buffer_interval, body_read(request, sizeof(config->buffer_interval)), sizeof(config->buffer_interval));
+	config->buffer_interval = ntoh16(config->buffer_interval);
+
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
+		return -1;
+	}
+
+	return 0;
+}
+
+int config_validate(config_t *config) {
+	if (config->reading_interval < 8 || config->reading_interval > 4096) {
+		debug("invalid reading interval %hu on config\n", config->reading_interval);
+		return -1;
+	}
+
+	if (config->metric_interval < 8 || config->metric_interval > 4096) {
+		debug("invalid metric interval %hu on config\n", config->metric_interval);
+		return -1;
+	}
+
+	if (config->buffer_interval < 8 || config->buffer_interval > 4096) {
+		debug("invalid buffer interval %hu on config\n", config->buffer_interval);
+		return -1;
+	}
+
+	return 0;
+}
+
 uint16_t config_insert(octet_t *db, config_t *config) {
 	uint16_t status;
 
@@ -213,4 +288,49 @@ void config_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, resp
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found config for device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
+}
+
+void config_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[16];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	config_t config;
+	if (request->body.len == 0 || config_parse(&config, request) == -1 || config_validate(&config) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	info("updated config for device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 202;
 }
