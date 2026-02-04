@@ -672,6 +672,13 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 		goto cleanup;
 	}
 
+	uint8_t zone_id[16];
+	device_t device = {.id = uplink->device_id, .zone_id = &zone_id};
+	status = device_update_latest(db, &device, NULL, NULL, NULL, uplink, NULL);
+	if (status != 0) {
+		goto cleanup;
+	}
+
 	status = 0;
 
 cleanup:

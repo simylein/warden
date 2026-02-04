@@ -429,6 +429,13 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 		goto cleanup;
 	}
 
+	uint8_t zone_id[16];
+	device_t device = {.id = downlink->device_id, .zone_id = &zone_id};
+	status = device_update_latest(db, &device, NULL, NULL, NULL, NULL, downlink);
+	if (status != 0) {
+		goto cleanup;
+	}
+
 	status = 0;
 
 cleanup:

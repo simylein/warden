@@ -1018,7 +1018,8 @@ cleanup:
 	return status;
 }
 
-uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer) {
+uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer,
+															uplink_t *uplink, downlink_t *downlink) {
 	uint16_t status;
 
 	char file[128];
@@ -1076,6 +1077,24 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 				octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
 				octet_uint16_write(db->row, device_row.buffer_level, buffer->level);
 				octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)buffer->captured_at);
+			}
+			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
+			if (uplink != NULL && uplink->received_at >= uplink_received_at) {
+				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
+				octet_uint8_write(db->row, device_row.uplink_kind, uplink->kind);
+				octet_int16_write(db->row, device_row.uplink_rssi, uplink->rssi);
+				octet_int8_write(db->row, device_row.uplink_snr, uplink->snr);
+				octet_uint8_write(db->row, device_row.uplink_sf, uplink->sf);
+				octet_uint64_write(db->row, device_row.uplink_received_at, (uint64_t)uplink->received_at);
+			}
+			time_t downlink_sent_at = (time_t)octet_uint64_read(db->row, device_row.downlink_sent_at);
+			if (downlink != NULL && downlink->sent_at >= downlink_sent_at) {
+				octet_uint8_write(db->row, device_row.downlink_null, 0x01);
+				octet_uint8_write(db->row, device_row.downlink_kind, downlink->kind);
+				octet_uint8_write(db->row, device_row.downlink_sf, downlink->sf);
+				octet_uint8_write(db->row, device_row.downlink_cr, downlink->cr);
+				octet_uint8_write(db->row, device_row.downlink_tx_power, downlink->tx_power);
+				octet_uint64_write(db->row, device_row.downlink_sent_at, (uint64_t)downlink->sent_at);
 			}
 			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 				status = octet_error();

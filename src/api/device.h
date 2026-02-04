@@ -5,12 +5,17 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "buffer.h"
+#include "downlink.h"
 #include "metric.h"
 #include "reading.h"
+#include "uplink.h"
 #include "user.h"
 #include "zone.h"
 #include <stdint.h>
 #include <time.h>
+
+typedef struct uplink_t uplink_t;
+typedef struct downlink_t downlink_t;
 
 typedef struct device_t {
 	uint8_t (*id)[16];
@@ -95,7 +100,8 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len);
 uint16_t device_insert(octet_t *db, device_t *device);
 uint16_t device_update(octet_t *db, device_t *device);
-uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer);
+uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer,
+															uplink_t *uplink, downlink_t *downlink);
 
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
