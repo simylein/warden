@@ -359,7 +359,6 @@
 				}
 				if (binary.byte() !== 0) {
 					device.uplink = {};
-					device.uplink.id = binary.uuid();
 					device.uplink.receivedAt = binary.uint(64);
 				}
 				devices.push(device);

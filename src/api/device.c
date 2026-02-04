@@ -57,7 +57,19 @@ const device_row_t device_row = {
 		.buffer_delay = 193,
 		.buffer_level = 197,
 		.buffer_captured_at = 199,
-		.size = 207,
+		.uplink_null = 207,
+		.uplink_kind = 208,
+		.uplink_rssi = 209,
+		.uplink_snr = 211,
+		.uplink_sf = 212,
+		.uplink_received_at = 213,
+		.downlink_null = 221,
+		.downlink_kind = 222,
+		.downlink_sf = 223,
+		.downlink_cr = 224,
+		.downlink_tx_power = 225,
+		.downlink_sent_at = 226,
+		.size = 234,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -433,8 +445,18 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			uint32_t buffer_delay = octet_uint32_read(db->row, device_row.buffer_delay);
 			uint16_t buffer_level = octet_uint16_read(db->row, device_row.buffer_level);
 			time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
-			uint8_t uplink_null = 0x00;
-			uint8_t downlink_null = 0x00;
+			uint8_t uplink_null = octet_uint8_read(db->row, device_row.uplink_null);
+			uint8_t uplink_kind = octet_uint8_read(db->row, device_row.uplink_kind);
+			int16_t uplink_rssi = octet_int16_read(db->row, device_row.uplink_rssi);
+			int8_t uplink_snr = octet_int8_read(db->row, device_row.uplink_snr);
+			uint8_t uplink_sf = octet_uint8_read(db->row, device_row.uplink_sf);
+			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
+			uint8_t downlink_null = octet_uint8_read(db->row, device_row.downlink_null);
+			uint8_t downlink_kind = octet_uint8_read(db->row, device_row.downlink_kind);
+			uint8_t downlink_sf = octet_uint8_read(db->row, device_row.downlink_sf);
+			uint8_t downlink_cr = octet_uint8_read(db->row, device_row.downlink_cr);
+			uint8_t downlink_tx_power = octet_uint8_read(db->row, device_row.downlink_tx_power);
+			time_t downlink_sent_at = (time_t)octet_uint64_read(db->row, device_row.downlink_sent_at);
 			body_write(response, id, sizeof(*id));
 			body_write(response, name, name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
@@ -482,7 +504,21 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 				body_write(response, (uint64_t[]){hton64((uint64_t)buffer_captured_at)}, sizeof(buffer_captured_at));
 			}
 			body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+			if (uplink_null != 0x00) {
+				body_write(response, &uplink_kind, sizeof(uplink_kind));
+				body_write(response, (uint16_t[]){hton16((uint16_t)uplink_rssi)}, sizeof(uplink_rssi));
+				body_write(response, &uplink_snr, sizeof(uplink_snr));
+				body_write(response, &uplink_sf, sizeof(uplink_sf));
+				body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
+			}
 			body_write(response, (uint8_t[]){downlink_null != 0x00}, sizeof(downlink_null));
+			if (downlink_null != 0x00) {
+				body_write(response, &downlink_kind, sizeof(downlink_kind));
+				body_write(response, &downlink_sf, sizeof(downlink_sf));
+				body_write(response, &downlink_cr, sizeof(downlink_cr));
+				body_write(response, &downlink_tx_power, sizeof(downlink_tx_power));
+				body_write(response, (uint64_t[]){hton64((uint64_t)downlink_sent_at)}, sizeof(downlink_sent_at));
+			}
 			cache_device_t cache_device;
 			memcpy(cache_device.id, id, sizeof(cache_device.id));
 			memcpy(cache_device.name, name, name_len);
@@ -589,7 +625,8 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 		uint8_t zone_name_len = octet_uint8_read(&db->table[index], device_row.zone_name_len);
 		char *zone_name = octet_text_read(&db->table[index], device_row.zone_name);
 		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], device_row.zone_color);
-		uint8_t uplink_null = 0x00;
+		uint8_t uplink_null = octet_uint8_read(&db->table[index], device_row.uplink_null);
+		time_t uplink_received_at = (time_t)octet_uint64_read(&db->table[index], device_row.uplink_received_at);
 		body_write(response, id, sizeof(*id));
 		body_write(response, name, name_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
@@ -606,6 +643,9 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 			body_write(response, zone_color, sizeof(*zone_color));
 		}
 		body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+		if (uplink_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
+		}
 		*devices_len += 1;
 		index += device_row.size;
 	}
@@ -864,6 +904,8 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	octet_uint8_write(db->row, device_row.reading_null, 0x00);
 	octet_uint8_write(db->row, device_row.metric_null, 0x00);
 	octet_uint8_write(db->row, device_row.buffer_null, 0x00);
+	octet_uint8_write(db->row, device_row.uplink_null, 0x00);
+	octet_uint8_write(db->row, device_row.downlink_null, 0x00);
 
 	if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 		status = octet_error();
