@@ -76,6 +76,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 9 && memcmp(query->order, "updatedAt", query->order_len) == 0) {
+		uint8_t updated_at_null_alpha = octet_uint8_read(alpha, zone_row.updated_at_null);
+		uint8_t updated_at_null_bravo = octet_uint8_read(bravo, zone_row.updated_at_null);
+		if (updated_at_null_alpha != updated_at_null_bravo) {
+			return updated_at_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (updated_at_null_alpha == 0x00) {
+			return 0;
+		}
 		time_t updated_at_alpha = (time_t)octet_uint64_read(alpha, zone_row.updated_at);
 		time_t updated_at_bravo = (time_t)octet_uint64_read(bravo, zone_row.updated_at);
 		int result = (updated_at_alpha > updated_at_bravo) - (updated_at_alpha < updated_at_bravo);
@@ -86,6 +94,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 11 && memcmp(query->order, "temperature", query->order_len) == 0) {
+		uint8_t reading_null_alpha = octet_uint8_read(alpha, zone_row.reading_null);
+		uint8_t reading_null_bravo = octet_uint8_read(bravo, zone_row.reading_null);
+		if (reading_null_alpha != reading_null_bravo) {
+			return reading_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (reading_null_alpha == 0x00) {
+			return 0;
+		}
 		int16_t temperature_alpha = octet_int16_read(alpha, zone_row.reading_temperature);
 		int16_t temperature_bravo = octet_int16_read(bravo, zone_row.reading_temperature);
 		int result = (temperature_alpha > temperature_bravo) - (temperature_alpha < temperature_bravo);
@@ -96,6 +112,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 8 && memcmp(query->order, "humidity", query->order_len) == 0) {
+		uint8_t reading_null_alpha = octet_uint8_read(alpha, zone_row.reading_null);
+		uint8_t reading_null_bravo = octet_uint8_read(bravo, zone_row.reading_null);
+		if (reading_null_alpha != reading_null_bravo) {
+			return reading_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (reading_null_alpha == 0x00) {
+			return 0;
+		}
 		uint16_t humidity_alpha = octet_uint16_read(alpha, zone_row.reading_humidity);
 		uint16_t humidity_bravo = octet_uint16_read(bravo, zone_row.reading_humidity);
 		int result = (humidity_alpha > humidity_bravo) - (humidity_alpha < humidity_bravo);
@@ -106,6 +130,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 12 && memcmp(query->order, "photovoltaic", query->order_len) == 0) {
+		uint8_t metric_null_alpha = octet_uint8_read(alpha, zone_row.metric_null);
+		uint8_t metric_null_bravo = octet_uint8_read(bravo, zone_row.metric_null);
+		if (metric_null_alpha != metric_null_bravo) {
+			return metric_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (metric_null_alpha == 0x00) {
+			return 0;
+		}
 		uint16_t photovoltaic_alpha = octet_uint16_read(alpha, zone_row.metric_photovoltaic);
 		uint16_t photovoltaic_bravo = octet_uint16_read(bravo, zone_row.metric_photovoltaic);
 		int result = (photovoltaic_alpha > photovoltaic_bravo) - (photovoltaic_alpha < photovoltaic_bravo);
@@ -116,6 +148,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 7 && memcmp(query->order, "battery", query->order_len) == 0) {
+		uint8_t metric_null_alpha = octet_uint8_read(alpha, zone_row.metric_null);
+		uint8_t metric_null_bravo = octet_uint8_read(bravo, zone_row.metric_null);
+		if (metric_null_alpha != metric_null_bravo) {
+			return metric_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (metric_null_alpha == 0x00) {
+			return 0;
+		}
 		uint16_t battery_alpha = octet_uint16_read(alpha, zone_row.metric_battery);
 		uint16_t battery_bravo = octet_uint16_read(bravo, zone_row.metric_battery);
 		int result = (battery_alpha > battery_bravo) - (battery_alpha < battery_bravo);
@@ -126,6 +166,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 5 && memcmp(query->order, "delay", query->order_len) == 0) {
+		uint8_t buffer_null_alpha = octet_uint8_read(alpha, zone_row.buffer_null);
+		uint8_t buffer_null_bravo = octet_uint8_read(bravo, zone_row.buffer_null);
+		if (buffer_null_alpha != buffer_null_bravo) {
+			return buffer_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (buffer_null_alpha == 0x00) {
+			return 0;
+		}
 		uint32_t delay_alpha = octet_uint32_read(alpha, zone_row.buffer_delay);
 		uint32_t delay_bravo = octet_uint32_read(bravo, zone_row.buffer_delay);
 		int result = (delay_alpha > delay_bravo) - (delay_alpha < delay_bravo);
@@ -136,6 +184,14 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 	}
 
 	if (query->order_len == 5 && memcmp(query->order, "level", query->order_len) == 0) {
+		uint8_t buffer_null_alpha = octet_uint8_read(alpha, zone_row.buffer_null);
+		uint8_t buffer_null_bravo = octet_uint8_read(bravo, zone_row.buffer_null);
+		if (buffer_null_alpha != buffer_null_bravo) {
+			return buffer_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (buffer_null_alpha == 0x00) {
+			return 0;
+		}
 		uint16_t level_alpha = octet_uint16_read(alpha, zone_row.buffer_level);
 		uint16_t level_bravo = octet_uint16_read(bravo, zone_row.buffer_level);
 		int result = (level_alpha > level_bravo) - (level_alpha < level_bravo);
