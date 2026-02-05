@@ -1,4 +1,6 @@
 #include "config.h"
+#include "../app/auth.h"
+#include "../app/http.h"
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
@@ -8,10 +10,12 @@
 #include "../lib/response.h"
 #include "cache.h"
 #include "device.h"
+#include "host.h"
 #include "user-device.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -236,6 +240,69 @@ cleanup:
 	return status;
 }
 
+uint16_t config_update(config_t *config, host_t *host, cookie_t *cookie) {
+	request_t request;
+	response_t response;
+
+	char method[] = "POST";
+	request.method.ptr = method;
+	request.method.len = sizeof(method) - 1;
+
+	char pathname[] = "/api/schedule";
+	request.pathname.ptr = pathname;
+	request.pathname.len = sizeof(pathname) - 1;
+
+	char protocol[] = "HTTP/1.1";
+	request.protocol.ptr = protocol;
+	request.protocol.len = sizeof(protocol) - 1;
+
+	char request_header[256];
+	request.header.ptr = request_header;
+	request.header.len = (uint16_t)sprintf(request.header.ptr, "cookie:auth=%.*s\r\n", cookie->len, cookie->ptr);
+	request.header.cap = sizeof(request_header);
+
+	char request_body[512];
+	request.body.ptr = request_body;
+	request.body.len = 0;
+	request.body.cap = sizeof(request_body);
+
+	char response_header[256];
+	response.header.ptr = response_header;
+	response.header.len = 0;
+	response.header.cap = sizeof(response_header);
+
+	char response_body[512];
+	response.body.ptr = response_body;
+	response.body.len = 0;
+	response.body.cap = sizeof(response_body);
+
+	request.body.ptr[request.body.len] = 0x05;
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] =
+			sizeof(uint8_t) + sizeof(config->reading_interval) + sizeof(config->metric_interval) + sizeof(config->buffer_interval);
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] =
+			(uint8_t)((config->led_debug & 0x01) << 7) | (uint8_t)((config->reading_enable & 0x01) << 6) |
+			(uint8_t)((config->metric_enable & 0x01) << 5) | (uint8_t)((config->buffer_enable & 0x01) << 4) | 0x00;
+	request.body.len += sizeof(uint8_t);
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(config->reading_interval)}, sizeof(config->reading_interval));
+	request.body.len += sizeof(config->reading_interval);
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(config->metric_interval)}, sizeof(config->metric_interval));
+	request.body.len += sizeof(config->metric_interval);
+	memcpy(&request.body.ptr[request.body.len], (uint16_t[]){hton16(config->buffer_interval)}, sizeof(config->buffer_interval));
+	request.body.len += sizeof(config->buffer_interval);
+	memcpy(&request.body.ptr[request.body.len], config->device_id, sizeof(*config->device_id));
+	request.body.len += sizeof(*config->device_id);
+
+	char buffer[33];
+	sprintf(buffer, "%.*s", host->address_len, host->address);
+	if (fetch(buffer, host->port, &request, &response) == -1) {
+		return 0;
+	}
+
+	return response.status;
+}
+
 void config_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
@@ -325,9 +392,33 @@ void config_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *resp
 		return;
 	}
 
-	config_t config;
+	config_t config = {.device_id = device.id};
 	if (request->body.len == 0 || config_parse(&config, request) == -1 || config_validate(&config) == -1) {
 		response->status = 400;
+		return;
+	}
+
+	char address[32];
+	char username[16];
+	char password[64];
+	host_t host = {.address = (char *)&address, .username = (char *)&username, .password = (char *)&password};
+	status = host_select_one(db, &host);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	char buffer[128];
+	cookie_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer), .age = 0};
+	if (auth(&host, &cookie) == -1) {
+		response->status = 503;
+		return;
+	}
+
+	status = config_update(&config, &host, &cookie);
+	if (status != 201) {
+		error("host rejected schedule with status %hu\n", status);
+		response->status = 503;
 		return;
 	}
 
