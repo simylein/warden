@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 const char *user_zone_file = "user-zone";

@@ -9,6 +9,7 @@
 #include "uplink.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <time.h>
 
 int decode_kind_00(uint8_t data_len, time_t received_at) {
