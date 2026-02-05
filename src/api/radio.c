@@ -1,4 +1,6 @@
 #include "radio.h"
+#include "../app/auth.h"
+#include "../app/http.h"
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
@@ -8,6 +10,7 @@
 #include "../lib/response.h"
 #include "cache.h"
 #include "device.h"
+#include "host.h"
 #include "user-device.h"
 #include <fcntl.h>
 #include <stdbool.h>
@@ -261,6 +264,81 @@ cleanup:
 	return status;
 }
 
+uint16_t radio_update(radio_t *radio, host_t *host, cookie_t *cookie) {
+	request_t request;
+	response_t response;
+
+	char method[] = "POST";
+	request.method.ptr = method;
+	request.method.len = sizeof(method) - 1;
+
+	char pathname[] = "/api/schedule";
+	request.pathname.ptr = pathname;
+	request.pathname.len = sizeof(pathname) - 1;
+
+	char protocol[] = "HTTP/1.1";
+	request.protocol.ptr = protocol;
+	request.protocol.len = sizeof(protocol) - 1;
+
+	char request_header[256];
+	request.header.ptr = request_header;
+	request.header.len = (uint16_t)sprintf(request.header.ptr, "cookie:auth=%.*s\r\n", cookie->len, cookie->ptr);
+	request.header.cap = sizeof(request_header);
+
+	char request_body[512];
+	request.body.ptr = request_body;
+	request.body.len = 0;
+	request.body.cap = sizeof(request_body);
+
+	char response_header[256];
+	response.header.ptr = response_header;
+	response.header.len = 0;
+	response.header.cap = sizeof(response_header);
+
+	char response_body[512];
+	response.body.ptr = response_body;
+	response.body.len = 0;
+	response.body.cap = sizeof(response_body);
+
+	request.body.ptr[request.body.len] = 0x06;
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] = sizeof(radio->frequency) + sizeof(uint16_t) + sizeof(uint8_t) +
+																			 sizeof(radio->coding_rate) + sizeof(radio->spreading_factor) +
+																			 sizeof(radio->preamble_length) + sizeof(radio->tx_power) + sizeof(radio->sync_word) +
+																			 sizeof(radio->checksum);
+	request.body.len += sizeof(uint8_t);
+	memcpy(&request.body.ptr[request.body.len], (uint32_t[]){hton32(radio->frequency)}, sizeof(radio->frequency));
+	request.body.len += sizeof(radio->frequency);
+	request.body.ptr[request.body.len] = (char)(radio->bandwidth >> 16 & 0xff);
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] = (char)(radio->bandwidth >> 8 & 0xff);
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] = (char)(radio->bandwidth & 0xff);
+	request.body.len += sizeof(uint8_t);
+	request.body.ptr[request.body.len] = (char)radio->coding_rate;
+	request.body.len += sizeof(radio->coding_rate);
+	request.body.ptr[request.body.len] = (char)radio->spreading_factor;
+	request.body.len += sizeof(radio->spreading_factor);
+	request.body.ptr[request.body.len] = (char)radio->preamble_length;
+	request.body.len += sizeof(radio->preamble_length);
+	request.body.ptr[request.body.len] = (char)radio->tx_power;
+	request.body.len += sizeof(radio->tx_power);
+	request.body.ptr[request.body.len] = (char)radio->sync_word;
+	request.body.len += sizeof(radio->sync_word);
+	request.body.ptr[request.body.len] = radio->checksum;
+	request.body.len += sizeof(radio->checksum);
+	memcpy(&request.body.ptr[request.body.len], radio->device_id, sizeof(*radio->device_id));
+	request.body.len += sizeof(*radio->device_id);
+
+	char buffer[33];
+	sprintf(buffer, "%.*s", host->address_len, host->address);
+	if (fetch(buffer, host->port, &request, &response) == -1) {
+		return 0;
+	}
+
+	return response.status;
+}
+
 void radio_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
@@ -350,9 +428,33 @@ void radio_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *respo
 		return;
 	}
 
-	radio_t radio;
+	radio_t radio = {.device_id = device.id};
 	if (request->body.len == 0 || radio_parse(&radio, request) == -1 || radio_validate(&radio) == -1) {
 		response->status = 400;
+		return;
+	}
+
+	char address[32];
+	char username[16];
+	char password[64];
+	host_t host = {.address = (char *)&address, .username = (char *)&username, .password = (char *)&password};
+	status = host_select_one(db, &host);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	char buffer[128];
+	cookie_t cookie = {.ptr = (char *)&buffer, .len = 0, .cap = sizeof(buffer), .age = 0};
+	if (auth(&host, &cookie) == -1) {
+		response->status = 503;
+		return;
+	}
+
+	status = radio_update(&radio, &host, &cookie);
+	if (status != 201) {
+		error("host rejected schedule with status %hu\n", status);
+		response->status = 503;
 		return;
 	}
 
