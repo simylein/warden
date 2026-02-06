@@ -1119,32 +1119,36 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 			} else {
 				device->zone_id = NULL;
 			}
+			uint8_t reading_null = octet_uint8_read(db->row, device_row.reading_null);
 			time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
-			if (reading != NULL && reading->captured_at >= reading_captured_at) {
+			if (reading != NULL && (reading_null == 0x00 || reading->captured_at >= reading_captured_at)) {
 				octet_uint8_write(db->row, device_row.reading_null, 0x01);
 				octet_blob_write(db->row, device_row.reading_id, (uint8_t *)reading->id, sizeof(*reading->id));
 				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(reading->temperature * 100));
 				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(reading->humidity * 100));
 				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)reading->captured_at);
 			}
+			uint8_t metric_null = octet_uint8_read(db->row, device_row.metric_null);
 			time_t metric_captured_at = (time_t)octet_uint64_read(db->row, device_row.metric_captured_at);
-			if (metric != NULL && metric->captured_at >= metric_captured_at) {
+			if (metric != NULL && (metric_null == 0x00 || metric->captured_at >= metric_captured_at)) {
 				octet_uint8_write(db->row, device_row.metric_null, 0x01);
 				octet_blob_write(db->row, device_row.metric_id, (uint8_t *)metric->id, sizeof(*metric->id));
 				octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
 				octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(metric->battery * 1000));
 				octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)metric->captured_at);
 			}
+			uint8_t buffer_null = octet_uint8_read(db->row, device_row.buffer_null);
 			time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
-			if (buffer != NULL && buffer->captured_at >= buffer_captured_at) {
+			if (buffer != NULL && (buffer_null == 0x00 || buffer->captured_at >= buffer_captured_at)) {
 				octet_uint8_write(db->row, device_row.buffer_null, 0x01);
 				octet_blob_write(db->row, device_row.buffer_id, (uint8_t *)buffer->id, sizeof(*buffer->id));
 				octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
 				octet_uint16_write(db->row, device_row.buffer_level, buffer->level);
 				octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)buffer->captured_at);
 			}
+			uint8_t uplink_null = octet_uint8_read(db->row, device_row.uplink_null);
 			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
-			if (uplink != NULL && uplink->received_at >= uplink_received_at) {
+			if (uplink != NULL && (uplink_null == 0x00 || uplink->received_at >= uplink_received_at)) {
 				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
 				octet_uint8_write(db->row, device_row.uplink_kind, uplink->kind);
 				octet_int16_write(db->row, device_row.uplink_rssi, uplink->rssi);
@@ -1152,8 +1156,9 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 				octet_uint8_write(db->row, device_row.uplink_sf, uplink->sf);
 				octet_uint64_write(db->row, device_row.uplink_received_at, (uint64_t)uplink->received_at);
 			}
+			uint8_t downlink_null = octet_uint8_read(db->row, device_row.downlink_null);
 			time_t downlink_sent_at = (time_t)octet_uint64_read(db->row, device_row.downlink_sent_at);
-			if (downlink != NULL && downlink->sent_at >= downlink_sent_at) {
+			if (downlink != NULL && (downlink_null == 0x00 || downlink->sent_at >= downlink_sent_at)) {
 				octet_uint8_write(db->row, device_row.downlink_null, 0x01);
 				octet_uint8_write(db->row, device_row.downlink_kind, downlink->kind);
 				octet_uint8_write(db->row, device_row.downlink_sf, downlink->sf);
