@@ -349,21 +349,18 @@
 				}
 				if (binary.byte() !== 0) {
 					device.reading = {};
-					device.reading.id = binary.uuid();
 					device.reading.temperature = binary.int(16) / 100;
 					device.reading.humidity = binary.uint(16) / 100;
 					device.reading.capturedAt = binary.uint(64);
 				}
 				if (binary.byte() !== 0) {
 					device.metric = {};
-					device.metric.id = binary.uuid();
 					device.metric.photovoltaic = binary.uint(16) / 1000;
 					device.metric.battery = binary.uint(16) / 1000;
 					device.metric.capturedAt = binary.uint(64);
 				}
 				if (binary.byte() !== 0) {
 					device.buffer = {};
-					device.buffer.id = binary.uuid();
 					device.buffer.delay = binary.uint(32);
 					device.buffer.level = binary.uint(16);
 					device.buffer.capturedAt = binary.uint(64);

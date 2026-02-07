@@ -59,17 +59,14 @@ typedef struct device_row_t {
 	uint8_t zone_name;
 	uint8_t zone_color;
 	uint8_t reading_null;
-	uint8_t reading_id;
 	uint8_t reading_temperature;
 	uint8_t reading_humidity;
 	uint8_t reading_captured_at;
 	uint8_t metric_null;
-	uint8_t metric_id;
 	uint8_t metric_photovoltaic;
 	uint8_t metric_battery;
 	uint8_t metric_captured_at;
 	uint8_t buffer_null;
-	uint8_t buffer_id;
 	uint8_t buffer_delay;
 	uint8_t buffer_level;
 	uint8_t buffer_captured_at;
