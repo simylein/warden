@@ -23,12 +23,11 @@
 const char *buffer_file = "buffer";
 
 const buffer_row_t buffer_row = {
-		.id = 0,
-		.delay = 16,
-		.level = 20,
-		.captured_at = 22,
-		.uplink_id = 30,
-		.size = 46,
+		.delay = 0,
+		.level = 4,
+		.captured_at = 6,
+		.uplink_id = 14,
+		.size = 30,
 };
 
 uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_t *response, uint16_t *buffers_len) {
@@ -366,10 +365,6 @@ uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query,
 uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*buffer->id); index++) {
-		(*buffer->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), buffer->device_id, sizeof(*buffer->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -408,7 +403,6 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 		offset -= buffer_row.size;
 	}
 
-	octet_blob_write(db->row, buffer_row.id, (uint8_t *)buffer->id, sizeof(*buffer->id));
 	octet_uint32_write(db->row, buffer_row.delay, buffer->delay);
 	octet_uint16_write(db->row, buffer_row.level, buffer->level);
 	octet_uint64_write(db->row, buffer_row.captured_at, (uint64_t)buffer->captured_at);

@@ -23,17 +23,16 @@
 const char *config_file = "config";
 
 const config_row_t config_row = {
-		.id = 0,
-		.led_debug = 16,
-		.reading_enable = 17,
-		.metric_enable = 18,
-		.buffer_enable = 19,
-		.reading_interval = 20,
-		.metric_interval = 22,
-		.buffer_interval = 24,
-		.captured_at = 26,
-		.uplink_id = 34,
-		.size = 50,
+		.led_debug = 0,
+		.reading_enable = 1,
+		.metric_enable = 2,
+		.buffer_enable = 3,
+		.reading_interval = 4,
+		.metric_interval = 6,
+		.buffer_interval = 8,
+		.captured_at = 10,
+		.uplink_id = 18,
+		.size = 34,
 };
 
 uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
@@ -175,10 +174,6 @@ int config_validate(config_t *config) {
 uint16_t config_insert(octet_t *db, config_t *config) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*config->id); index++) {
-		(*config->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), config->device_id, sizeof(*config->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -217,7 +212,6 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 		offset -= config_row.size;
 	}
 
-	octet_blob_write(db->row, config_row.id, (uint8_t *)config->id, sizeof(*config->id));
 	octet_uint8_write(db->row, config_row.led_debug, config->led_debug);
 	octet_uint8_write(db->row, config_row.reading_enable, config->reading_enable);
 	octet_uint8_write(db->row, config_row.metric_enable, config->metric_enable);

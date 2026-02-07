@@ -23,18 +23,17 @@
 const char *radio_file = "radio";
 
 const radio_row_t radio_row = {
-		.id = 0,
-		.frequency = 16,
-		.bandwidth = 20,
-		.coding_rate = 24,
-		.spreading_factor = 25,
-		.preamble_length = 26,
-		.tx_power = 27,
-		.sync_word = 28,
-		.checksum = 29,
-		.captured_at = 30,
-		.uplink_id = 38,
-		.size = 54,
+		.frequency = 0,
+		.bandwidth = 4,
+		.coding_rate = 8,
+		.spreading_factor = 9,
+		.preamble_length = 10,
+		.tx_power = 11,
+		.sync_word = 12,
+		.checksum = 13,
+		.captured_at = 14,
+		.uplink_id = 22,
+		.size = 38,
 };
 
 uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
@@ -198,10 +197,6 @@ int radio_validate(radio_t *radio) {
 uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*radio->id); index++) {
-		(*radio->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), radio->device_id, sizeof(*radio->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -240,7 +235,6 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 		offset -= radio_row.size;
 	}
 
-	octet_blob_write(db->row, radio_row.id, (uint8_t *)radio->id, sizeof(*radio->id));
 	octet_uint32_write(db->row, radio_row.frequency, radio->frequency);
 	octet_uint32_write(db->row, radio_row.bandwidth, radio->bandwidth);
 	octet_uint8_write(db->row, radio_row.coding_rate, radio->coding_rate);

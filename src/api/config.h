@@ -9,7 +9,6 @@
 #include <time.h>
 
 typedef struct config_t {
-	uint8_t (*id)[16];
 	bool led_debug;
 	bool reading_enable;
 	bool metric_enable;
@@ -23,7 +22,6 @@ typedef struct config_t {
 } config_t;
 
 typedef struct config_row_t {
-	uint8_t id;
 	uint8_t led_debug;
 	uint8_t reading_enable;
 	uint8_t metric_enable;

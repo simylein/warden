@@ -363,8 +363,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x01: {
-		uint8_t id[16];
-		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		reading_t reading = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_01(uplink->data, uplink->data_len, uplink->received_at, &reading) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -376,8 +375,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x02: {
-		uint8_t id[16];
-		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		metric_t metric = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_02(uplink->data, uplink->data_len, uplink->received_at, &metric) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -389,9 +387,8 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x03: {
-		uint8_t id[16];
-		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		reading_t reading = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		metric_t metric = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_03(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -428,8 +425,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x05: {
-		uint8_t id[16];
-		config_t config = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		config_t config = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_05(uplink->data, uplink->data_len, uplink->received_at, &config) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -441,8 +437,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x06: {
-		uint8_t id[16];
-		radio_t radio = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		radio_t radio = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_06(uplink->data, uplink->data_len, uplink->received_at, &radio) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -454,8 +449,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x80: {
-		uint8_t id[16];
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_80(uplink->data, uplink->data_len, uplink->received_at, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -467,9 +461,8 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x81: {
-		uint8_t id[16];
-		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		reading_t reading = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_81(uplink->data, uplink->data_len, uplink->received_at, &reading, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -484,9 +477,8 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x82: {
-		uint8_t id[16];
-		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		metric_t metric = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_82(uplink->data, uplink->data_len, uplink->received_at, &metric, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -501,10 +493,9 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x83: {
-		uint8_t id[16];
-		reading_t reading = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		metric_t metric = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		reading_t reading = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		metric_t metric = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_83(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -522,7 +513,6 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x84: {
-		uint8_t id[16];
 		char firmware[16];
 		char hardware[16];
 		time_t updated_at;
@@ -534,7 +524,7 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 				.hardware = (char *)&hardware,
 				.updated_at = &updated_at,
 		};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_84(uplink->data, uplink->data_len, uplink->received_at, &device, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -549,9 +539,8 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x85: {
-		uint8_t id[16];
-		config_t config = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		config_t config = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_85(uplink->data, uplink->data_len, uplink->received_at, &config, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;
@@ -566,9 +555,8 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		return 0;
 	}
 	case 0x86: {
-		uint8_t id[16];
-		radio_t radio = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
-		buffer_t buffer = {.id = &id, .uplink_id = uplink->id, .device_id = uplink->device_id};
+		radio_t radio = {.uplink_id = uplink->id, .device_id = uplink->device_id};
+		buffer_t buffer = {.uplink_id = uplink->id, .device_id = uplink->device_id};
 		if (decode_kind_86(uplink->data, uplink->data_len, uplink->received_at, &radio, &buffer) == -1) {
 			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 			return 400;

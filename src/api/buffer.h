@@ -11,7 +11,6 @@
 typedef struct device_t device_t;
 
 typedef struct buffer_t {
-	uint8_t (*id)[16];
 	uint32_t delay;
 	uint16_t level;
 	time_t captured_at;
@@ -26,7 +25,6 @@ typedef struct buffer_query_t {
 } buffer_query_t;
 
 typedef struct buffer_row_t {
-	uint8_t id;
 	uint8_t delay;
 	uint8_t level;
 	uint8_t captured_at;

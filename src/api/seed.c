@@ -393,9 +393,7 @@ int seed_reading(octet_t *db) {
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
 		while (captured_at < now && uplink_ind < uplink_ids_len) {
-			uint8_t id[16];
 			reading_t reading = {
-					.id = &id,
 					.temperature = temperature,
 					.humidity = humidity,
 					.captured_at = captured_at,
@@ -438,9 +436,7 @@ int seed_metric(octet_t *db) {
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
 		while (captured_at < now && uplink_ind < uplink_ids_len) {
-			uint8_t id[16];
 			metric_t metric = {
-					.id = &id,
 					.photovoltaic = photovoltaic,
 					.battery = battery,
 					.captured_at = captured_at,
@@ -483,9 +479,7 @@ int seed_buffer(octet_t *db) {
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
 		while (captured_at < now && uplink_ind < uplink_ids_len) {
-			uint8_t id[16];
 			buffer_t buffer = {
-					.id = &id,
 					.delay = delay,
 					.level = level,
 					.captured_at = captured_at,
@@ -532,9 +526,7 @@ int seed_config(octet_t *db) {
 
 	time_t captured_at = time(NULL);
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint8_t id[16];
 		config_t config = {
-				.id = &id,
 				.led_debug = uplink_ind % 4 == 0,
 				.reading_enable = uplink_ind % 8 != 0,
 				.metric_enable = uplink_ind % 4 == 0,
@@ -564,9 +556,7 @@ int seed_radio(octet_t *db) {
 
 	time_t captured_at = time(NULL);
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint8_t id[16];
 		radio_t radio = {
-				.id = &id,
 				.frequency = (uint32_t)(433225000 + (rand() % 7) * 200000),
 				.bandwidth = (uint32_t)(62500 + (rand() % 4) * 62500),
 				.coding_rate = (uint8_t)(5 + rand() % 4),

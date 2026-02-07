@@ -23,12 +23,11 @@
 const char *reading_file = "reading";
 
 const reading_row_t reading_row = {
-		.id = 0,
-		.temperature = 16,
-		.humidity = 18,
-		.captured_at = 20,
-		.uplink_id = 28,
-		.size = 44,
+		.temperature = 0,
+		.humidity = 2,
+		.captured_at = 4,
+		.uplink_id = 12,
+		.size = 28,
 };
 
 uint16_t reading_select(octet_t *db, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len) {
@@ -355,10 +354,6 @@ uint16_t reading_select_by_zone(octet_t *db, zone_t *zone, reading_query_t *quer
 uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*reading->id); index++) {
-		(*reading->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), reading->device_id, sizeof(*reading->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -397,7 +392,6 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 		offset -= reading_row.size;
 	}
 
-	octet_blob_write(db->row, reading_row.id, (uint8_t *)reading->id, sizeof(*reading->id));
 	octet_int16_write(db->row, reading_row.temperature, (int16_t)(reading->temperature * 100));
 	octet_uint16_write(db->row, reading_row.humidity, (uint16_t)(reading->humidity * 100));
 	octet_uint64_write(db->row, reading_row.captured_at, (uint64_t)reading->captured_at);

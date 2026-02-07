@@ -11,7 +11,6 @@
 typedef struct device_t device_t;
 
 typedef struct metric_t {
-	uint8_t (*id)[16];
 	float photovoltaic;
 	float battery;
 	time_t captured_at;
@@ -26,7 +25,6 @@ typedef struct metric_query_t {
 } metric_query_t;
 
 typedef struct metric_row_t {
-	uint8_t id;
 	uint8_t photovoltaic;
 	uint8_t battery;
 	uint8_t captured_at;

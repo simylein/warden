@@ -23,12 +23,11 @@
 const char *metric_file = "metric";
 
 const metric_row_t metric_row = {
-		.id = 0,
-		.photovoltaic = 16,
-		.battery = 18,
-		.captured_at = 20,
-		.uplink_id = 28,
-		.size = 44,
+		.photovoltaic = 0,
+		.battery = 2,
+		.captured_at = 4,
+		.uplink_id = 12,
+		.size = 28,
 };
 
 uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
@@ -354,10 +353,6 @@ uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query,
 uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*metric->id); index++) {
-		(*metric->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), metric->device_id, sizeof(*metric->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -396,7 +391,6 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 		offset -= metric_row.size;
 	}
 
-	octet_blob_write(db->row, metric_row.id, (uint8_t *)metric->id, sizeof(*metric->id));
 	octet_uint16_write(db->row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
 	octet_uint16_write(db->row, metric_row.battery, (uint16_t)(metric->battery * 1000));
 	octet_uint64_write(db->row, metric_row.captured_at, (uint64_t)metric->captured_at);

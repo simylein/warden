@@ -10,7 +10,6 @@
 #include <time.h>
 
 typedef struct radio_t {
-	uint8_t (*id)[16];
 	uint32_t frequency;
 	uint32_t bandwidth;
 	uint8_t coding_rate;
@@ -25,7 +24,6 @@ typedef struct radio_t {
 } radio_t;
 
 typedef struct radio_row_t {
-	uint8_t id;
 	uint8_t frequency;
 	uint8_t bandwidth;
 	uint8_t coding_rate;
