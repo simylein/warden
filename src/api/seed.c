@@ -24,10 +24,6 @@ uint8_t (*zone_ids)[16];
 uint8_t zone_ids_len;
 uint8_t (*device_ids)[16];
 uint8_t device_ids_len;
-uint8_t (*uplink_ids)[16];
-uint32_t uplink_ids_len;
-uint8_t (*downlink_ids)[16];
-uint32_t downlink_ids_len;
 
 int seed_user(octet_t *db) {
 	char *usernames[] = {"alice", "bob", "charlie", "dave"};
@@ -205,8 +201,6 @@ int seed_user_device(octet_t *db) {
 }
 
 int seed_uplink(octet_t *db) {
-	uplink_ids_len = 0;
-
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint16_t frame = 0;
 		int16_t rssi = (int16_t)(rand() % 128 - 157);
@@ -218,19 +212,12 @@ int seed_uplink(octet_t *db) {
 		time_t now = time(NULL);
 		time_t received_at = time(NULL) - 2 * 24 * 60 * 60;
 		while (received_at < now) {
-			if (uplink_ids_len % 4096 == 0) {
-				uplink_ids = realloc(uplink_ids, (uplink_ids_len + 4096) * sizeof(*uplink_ids));
-				if (uplink_ids == NULL) {
-					return -1;
-				}
-			}
 			uint8_t data[16];
 			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
 			for (uint8_t ind = 0; ind < data_len; ind++) {
 				data[ind] = (uint8_t)rand();
 			}
 			uplink_t uplink = {
-					.id = &uplink_ids[uplink_ids_len],
 					.frame = frame,
 					.kind = (uint8_t)rand(),
 					.data = data,
@@ -295,7 +282,6 @@ int seed_uplink(octet_t *db) {
 				preamble_len -= 1;
 			}
 			received_at += 56 + rand() % 8;
-			uplink_ids_len += 1;
 		}
 	}
 
@@ -304,8 +290,6 @@ int seed_uplink(octet_t *db) {
 }
 
 int seed_downlink(octet_t *db) {
-	downlink_ids_len = 0;
-
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint16_t frame = 0;
 		uint8_t sf = (uint8_t)(rand() % 7 + 6);
@@ -315,19 +299,12 @@ int seed_downlink(octet_t *db) {
 		time_t now = time(NULL);
 		time_t sent_at = time(NULL) - 2 * 24 * 60 * 60;
 		while (sent_at < now) {
-			if (downlink_ids_len % 4096 == 0) {
-				downlink_ids = realloc(downlink_ids, (downlink_ids_len + 4096) * sizeof(*downlink_ids));
-				if (downlink_ids == NULL) {
-					return -1;
-				}
-			}
 			uint8_t data[16];
 			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
 			for (uint8_t ind = 0; ind < data_len; ind++) {
 				data[ind] = (uint8_t)rand();
 			}
 			downlink_t downlink = {
-					.id = &downlink_ids[downlink_ids_len],
 					.frame = frame,
 					.kind = (uint8_t)rand(),
 					.data = data,
@@ -376,7 +353,6 @@ int seed_downlink(octet_t *db) {
 				preamble_len -= 1;
 			}
 			sent_at += 56 + rand() % 8;
-			downlink_ids_len += 1;
 		}
 	}
 
@@ -385,20 +361,17 @@ int seed_downlink(octet_t *db) {
 }
 
 int seed_reading(octet_t *db) {
-	uint32_t uplink_ind = 0;
-
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		float temperature = (float)(rand() % 6000) / 100 - 20;
 		float humidity = (float)(rand() % 10000) / 100;
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (captured_at < now && uplink_ind < uplink_ids_len) {
+		while (captured_at < now) {
 			reading_t reading = {
 					.temperature = temperature,
 					.humidity = humidity,
 					.captured_at = captured_at,
 					.device_id = &device_ids[index],
-					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
 			if (reading_insert(db, &reading) != 0) {
@@ -419,7 +392,6 @@ int seed_reading(octet_t *db) {
 				humidity -= 1;
 			}
 			captured_at += 56 + rand() % 8;
-			uplink_ind += 1;
 		}
 	}
 
@@ -428,20 +400,17 @@ int seed_reading(octet_t *db) {
 }
 
 int seed_metric(octet_t *db) {
-	uint32_t uplink_ind = 0;
-
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		float photovoltaic = (float)(rand() % 5000) / 1000;
 		float battery = (float)(rand() % 1000) / 1000 + 3.2f;
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (captured_at < now && uplink_ind < uplink_ids_len) {
+		while (captured_at < now) {
 			metric_t metric = {
 					.photovoltaic = photovoltaic,
 					.battery = battery,
 					.captured_at = captured_at,
 					.device_id = &device_ids[index],
-					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
 			if (metric_insert(db, &metric) != 0) {
@@ -462,7 +431,6 @@ int seed_metric(octet_t *db) {
 				battery -= 0.1f;
 			}
 			captured_at += 56 + rand() % 8;
-			uplink_ind += 1;
 		}
 	}
 
@@ -471,20 +439,17 @@ int seed_metric(octet_t *db) {
 }
 
 int seed_buffer(octet_t *db) {
-	uint32_t uplink_ind = 0;
-
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint32_t delay = 0;
 		uint16_t level = 0;
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (captured_at < now && uplink_ind < uplink_ids_len) {
+		while (captured_at < now) {
 			buffer_t buffer = {
 					.delay = delay,
 					.level = level,
 					.captured_at = captured_at,
 					.device_id = &device_ids[index],
-					.uplink_id = &uplink_ids[uplink_ind],
 			};
 
 			if (buffer_insert(db, &buffer) != 0) {
@@ -513,7 +478,6 @@ int seed_buffer(octet_t *db) {
 				}
 			}
 			captured_at += 56 + rand() % 8;
-			uplink_ind += 1;
 		}
 	}
 
@@ -536,7 +500,6 @@ int seed_config(octet_t *db) {
 				.buffer_interval = (uint16_t)(15 + rand() % 15),
 				.captured_at = captured_at,
 				.device_id = &device_ids[index],
-				.uplink_id = &uplink_ids[uplink_ind],
 		};
 
 		if (config_insert(db, &config) != 0) {
@@ -552,8 +515,6 @@ int seed_config(octet_t *db) {
 }
 
 int seed_radio(octet_t *db) {
-	uint8_t uplink_ind = 0;
-
 	time_t captured_at = time(NULL);
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		radio_t radio = {
@@ -567,7 +528,6 @@ int seed_radio(octet_t *db) {
 				.checksum = rand() % 2,
 				.captured_at = captured_at,
 				.device_id = &device_ids[index],
-				.uplink_id = &uplink_ids[uplink_ind],
 		};
 
 		if (radio_insert(db, &radio) != 0) {
@@ -575,7 +535,6 @@ int seed_radio(octet_t *db) {
 		}
 
 		captured_at -= 50 + rand() % 20;
-		uplink_ind += 1;
 	}
 
 	info("seeded file %s\n", radio_file);
@@ -623,8 +582,6 @@ int seed(octet_t *db) {
 	free(user_ids);
 	free(zone_ids);
 	free(device_ids);
-	free(uplink_ids);
-	free(downlink_ids);
 
 	return 0;
 }

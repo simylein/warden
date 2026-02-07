@@ -122,14 +122,6 @@
 								<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
 							</td>
 						</tr>
-						<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-								<p class="m-0">Uplink id</p>
-							</td>
-							<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-								<p class="font-mono m-0 w-80 h-4 background-neutral-200 dark:background-neutral-800"></p>
-							</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -434,7 +426,6 @@
 			fade(element.children[7].children[1].children[0]);
 			loading(element.children[7].children[1].children[0], ['w-8', 'h-4'], [], '');
 			loading(element.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
-			loading(element.children[9].children[1].children[0], ['w-80', 'h-4'], [], '');
 		};
 		const paintRadio = (element, data) => {
 			update.children[0].classList.remove('opacity-50', 'cursor-not-allowed');
@@ -508,13 +499,6 @@
 				paint(element.children[8].children[1].children[0], [], ['w-40', 'h-4'], 'null');
 				colorNull(element.children[8].children[1].children[0]);
 			}
-			fade(element.children[9].children[1].children[0]);
-			if (data.uplink !== null) {
-				paint(element.children[9].children[1].children[0], [], ['w-80', 'h-4'], data.uplink.id);
-			} else {
-				paint(element.children[9].children[1].children[0], [], ['w-80', 'h-4'], 'null');
-				colorNull(element.children[9].children[1].children[0]);
-			}
 		};
 		const errorRadio = (element) => {
 			update.children[0].classList.remove('cursor-pointer');
@@ -534,7 +518,6 @@
 			fade(element.children[7].children[1].children[0]);
 			error(element.children[7].children[1].children[0], ['w-8', 'h-4'], [], '');
 			error(element.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
-			error(element.children[9].children[1].children[0], ['w-80', 'h-4'], [], '');
 		};
 		const parseRadio = async (response) => {
 			const buffer = await response.arrayBuffer();
@@ -549,7 +532,6 @@
 				syncWord: null,
 				checksum: null,
 				capturedAt: null,
-				uplink: null,
 			};
 			if (response.status !== 204) {
 				radio.frequency = binary.uint(32);
@@ -561,8 +543,6 @@
 				radio.syncWord = binary.hex(1);
 				radio.checksum = binary.bool();
 				radio.capturedAt = binary.uint(64);
-				radio.uplink = {};
-				radio.uplink.id = binary.uuid();
 			}
 			return radio;
 		};

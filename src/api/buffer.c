@@ -26,8 +26,7 @@ const buffer_row_t buffer_row = {
 		.delay = 0,
 		.level = 4,
 		.captured_at = 6,
-		.uplink_id = 14,
-		.size = 30,
+		.size = 14,
 };
 
 uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_t *response, uint16_t *buffers_len) {
@@ -406,7 +405,6 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	octet_uint32_write(db->row, buffer_row.delay, buffer->delay);
 	octet_uint16_write(db->row, buffer_row.level, buffer->level);
 	octet_uint64_write(db->row, buffer_row.captured_at, (uint64_t)buffer->captured_at);
-	octet_blob_write(db->row, buffer_row.uplink_id, (uint8_t *)buffer->uplink_id, sizeof(*buffer->uplink_id));
 
 	if (octet_row_write(&stmt, file, offset, db->row, buffer_row.size) == -1) {
 		status = octet_error();

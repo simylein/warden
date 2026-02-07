@@ -9,7 +9,6 @@
 #include <time.h>
 
 typedef struct downlink_t {
-	uint8_t (*id)[16];
 	uint16_t frame;
 	uint8_t kind;
 	uint8_t *data;
@@ -31,7 +30,6 @@ typedef struct downlink_query_t {
 } downlink_query_t;
 
 typedef struct downlink_row_t {
-	uint8_t id;
 	uint8_t frame;
 	uint8_t kind;
 	uint8_t data_len;

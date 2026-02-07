@@ -26,8 +26,7 @@ const metric_row_t metric_row = {
 		.photovoltaic = 0,
 		.battery = 2,
 		.captured_at = 4,
-		.uplink_id = 12,
-		.size = 28,
+		.size = 12,
 };
 
 uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_t *response, uint16_t *metrics_len) {
@@ -394,7 +393,6 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	octet_uint16_write(db->row, metric_row.photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
 	octet_uint16_write(db->row, metric_row.battery, (uint16_t)(metric->battery * 1000));
 	octet_uint64_write(db->row, metric_row.captured_at, (uint64_t)metric->captured_at);
-	octet_blob_write(db->row, metric_row.uplink_id, (uint8_t *)metric->uplink_id, sizeof(*metric->uplink_id));
 
 	if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
 		status = octet_error();

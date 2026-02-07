@@ -31,8 +31,7 @@ const config_row_t config_row = {
 		.metric_interval = 6,
 		.buffer_interval = 8,
 		.captured_at = 10,
-		.uplink_id = 18,
-		.size = 34,
+		.size = 18,
 };
 
 uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
@@ -78,7 +77,6 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 	uint16_t metric_interval = octet_uint16_read(db->row, config_row.metric_interval);
 	uint16_t buffer_interval = octet_uint16_read(db->row, config_row.buffer_interval);
 	time_t captured_at = (time_t)octet_uint64_read(db->row, config_row.captured_at);
-	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, config_row.uplink_id);
 	body_write(response, &led_debug, sizeof(led_debug));
 	body_write(response, &reading_enable, sizeof(reading_enable));
 	body_write(response, &metric_enable, sizeof(metric_enable));
@@ -87,7 +85,6 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 	body_write(response, (uint16_t[]){hton16((uint16_t)metric_interval)}, sizeof(metric_interval));
 	body_write(response, (uint16_t[]){hton16((uint16_t)buffer_interval)}, sizeof(buffer_interval));
 	body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-	body_write(response, uplink_id, sizeof(*uplink_id));
 
 	status = 0;
 
@@ -220,7 +217,6 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 	octet_uint16_write(db->row, config_row.metric_interval, config->metric_interval);
 	octet_uint16_write(db->row, config_row.buffer_interval, config->buffer_interval);
 	octet_uint64_write(db->row, config_row.captured_at, (uint64_t)config->captured_at);
-	octet_blob_write(db->row, config_row.uplink_id, (uint8_t *)config->uplink_id, sizeof(*config->uplink_id));
 
 	if (octet_row_write(&stmt, file, offset, db->row, config_row.size) == -1) {
 		status = octet_error();

@@ -20,20 +20,19 @@
 const char *downlink_file = "downlink";
 
 const downlink_row_t downlink_row = {
-		.id = 0,
-		.frame = 16,
-		.kind = 18,
-		.data_len = 19,
-		.data = 20,
-		.airtime = 52,
-		.frequency = 54,
-		.bandwidth = 58,
-		.sf = 62,
-		.cr = 63,
-		.tx_power = 64,
-		.preamble_len = 65,
-		.sent_at = 66,
-		.size = 74,
+		.frame = 0,
+		.kind = 2,
+		.data_len = 3,
+		.data = 4,
+		.airtime = 36,
+		.frequency = 38,
+		.bandwidth = 42,
+		.sf = 46,
+		.cr = 47,
+		.tx_power = 48,
+		.preamble_len = 49,
+		.sent_at = 50,
+		.size = 58,
 };
 
 uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len) {
@@ -108,7 +107,6 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 		}
 
 		if (query->offset == 0) {
-			uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index * downlink_row.size], downlink_row.id);
 			uint16_t frame = octet_uint16_read(&db->table[index * downlink_row.size], downlink_row.frame);
 			uint8_t kind = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.kind);
 			uint8_t data_len = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.data_len);
@@ -123,7 +121,6 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 			time_t sent_at = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
 			uint8_t (*device_id)[16] =
 					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
-			body_write(response, id, sizeof(*id));
 			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(data_len));
@@ -193,7 +190,6 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, downlink_row.id);
 		uint16_t frame = octet_uint16_read(db->row, downlink_row.frame);
 		uint8_t kind = octet_uint8_read(db->row, downlink_row.kind);
 		uint8_t data_len = octet_uint8_read(db->row, downlink_row.data_len);
@@ -206,7 +202,6 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 		uint8_t tx_power = octet_uint8_read(db->row, downlink_row.tx_power);
 		uint8_t preamble_len = octet_uint8_read(db->row, downlink_row.preamble_len);
 		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
-		body_write(response, id, sizeof(*id));
 		body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 		body_write(response, &kind, sizeof(kind));
 		body_write(response, &data_len, sizeof(data_len));
@@ -369,10 +364,6 @@ int downlink_validate(downlink_t *downlink) {
 uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*downlink->id); index++) {
-		(*downlink->id)[index] = (uint8_t)(rand() & 0xff);
-	}
-
 	char uuid[32];
 	if (base16_encode(uuid, sizeof(uuid), downlink->device_id, sizeof(*downlink->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
@@ -411,7 +402,6 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 		offset -= downlink_row.size;
 	}
 
-	octet_blob_write(db->row, downlink_row.id, (uint8_t *)downlink->id, sizeof(*downlink->id));
 	octet_uint16_write(db->row, downlink_row.frame, downlink->frame);
 	octet_uint8_write(db->row, downlink_row.kind, downlink->kind);
 	octet_uint8_write(db->row, downlink_row.data_len, downlink->data_len);
@@ -568,8 +558,7 @@ void downlink_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
-	downlink_t downlink = {.id = &id};
+	downlink_t downlink;
 	if (request->body.len == 0 || downlink_parse(&downlink, request) == -1 || downlink_validate(&downlink) == -1) {
 		response->status = 400;
 		return;

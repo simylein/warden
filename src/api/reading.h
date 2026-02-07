@@ -14,7 +14,6 @@ typedef struct reading_t {
 	float temperature;
 	float humidity;
 	time_t captured_at;
-	uint8_t (*uplink_id)[16];
 	uint8_t (*device_id)[16];
 } reading_t;
 
@@ -28,7 +27,6 @@ typedef struct reading_row_t {
 	uint8_t temperature;
 	uint8_t humidity;
 	uint8_t captured_at;
-	uint8_t uplink_id;
 	uint8_t size;
 } reading_row_t;
 

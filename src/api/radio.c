@@ -32,8 +32,7 @@ const radio_row_t radio_row = {
 		.sync_word = 12,
 		.checksum = 13,
 		.captured_at = 14,
-		.uplink_id = 22,
-		.size = 38,
+		.size = 22,
 };
 
 uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
@@ -80,7 +79,6 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 	uint8_t sync_word = octet_uint8_read(db->row, radio_row.sync_word);
 	bool checksum = octet_uint8_read(db->row, radio_row.checksum);
 	time_t captured_at = (time_t)octet_uint64_read(db->row, radio_row.captured_at);
-	uint8_t (*uplink_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, radio_row.uplink_id);
 	body_write(response, (uint32_t[]){hton32((uint32_t)frequency)}, sizeof(frequency));
 	body_write(response, (uint32_t[]){hton32((uint32_t)bandwidth)}, sizeof(bandwidth));
 	body_write(response, &coding_rate, sizeof(coding_rate));
@@ -90,7 +88,6 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 	body_write(response, &sync_word, sizeof(sync_word));
 	body_write(response, &checksum, sizeof(checksum));
 	body_write(response, (uint64_t[]){hton64((uint64_t)captured_at)}, sizeof(captured_at));
-	body_write(response, uplink_id, sizeof(*uplink_id));
 
 	status = 0;
 
@@ -244,7 +241,6 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_uint8_write(db->row, radio_row.sync_word, radio->sync_word);
 	octet_uint8_write(db->row, radio_row.checksum, radio->checksum);
 	octet_uint64_write(db->row, radio_row.captured_at, (uint64_t)radio->captured_at);
-	octet_blob_write(db->row, radio_row.uplink_id, (uint8_t *)radio->uplink_id, sizeof(*radio->uplink_id));
 
 	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
 		status = octet_error();

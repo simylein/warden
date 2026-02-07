@@ -17,7 +17,6 @@ typedef struct config_t {
 	uint16_t metric_interval;
 	uint16_t buffer_interval;
 	time_t captured_at;
-	uint8_t (*uplink_id)[16];
 	uint8_t (*device_id)[16];
 } config_t;
 
@@ -30,7 +29,6 @@ typedef struct config_row_t {
 	uint8_t metric_interval;
 	uint8_t buffer_interval;
 	uint8_t captured_at;
-	uint8_t uplink_id;
 	uint8_t size;
 } config_row_t;
 

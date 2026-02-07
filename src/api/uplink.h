@@ -10,7 +10,6 @@
 #include <time.h>
 
 typedef struct uplink_t {
-	uint8_t (*id)[16];
 	uint16_t frame;
 	uint8_t kind;
 	uint8_t *data;
@@ -40,7 +39,6 @@ typedef struct uplink_signal_query_t {
 } uplink_signal_query_t;
 
 typedef struct uplink_row_t {
-	uint8_t id;
 	uint8_t frame;
 	uint8_t kind;
 	uint8_t data_len;

@@ -14,7 +14,6 @@ typedef struct buffer_t {
 	uint32_t delay;
 	uint16_t level;
 	time_t captured_at;
-	uint8_t (*uplink_id)[16];
 	uint8_t (*device_id)[16];
 } buffer_t;
 
@@ -28,7 +27,6 @@ typedef struct buffer_row_t {
 	uint8_t delay;
 	uint8_t level;
 	uint8_t captured_at;
-	uint8_t uplink_id;
 	uint8_t size;
 } buffer_row_t;
 

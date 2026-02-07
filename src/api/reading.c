@@ -26,8 +26,7 @@ const reading_row_t reading_row = {
 		.temperature = 0,
 		.humidity = 2,
 		.captured_at = 4,
-		.uplink_id = 12,
-		.size = 28,
+		.size = 12,
 };
 
 uint16_t reading_select(octet_t *db, bwt_t *bwt, reading_query_t *query, response_t *response, uint16_t *readings_len) {
@@ -395,7 +394,6 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	octet_int16_write(db->row, reading_row.temperature, (int16_t)(reading->temperature * 100));
 	octet_uint16_write(db->row, reading_row.humidity, (uint16_t)(reading->humidity * 100));
 	octet_uint64_write(db->row, reading_row.captured_at, (uint64_t)reading->captured_at);
-	octet_blob_write(db->row, reading_row.uplink_id, (uint8_t *)reading->uplink_id, sizeof(*reading->uplink_id));
 
 	if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
 		status = octet_error();
