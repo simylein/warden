@@ -1018,6 +1018,6 @@ void uplink_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	info("created uplink %02x%02x\n", (*uplink.id)[0], (*uplink.id)[1]);
+	info("created uplink for device %02x%02x\n", (*uplink.device_id)[0], (*uplink.device_id)[1]);
 	response->status = 201;
 }

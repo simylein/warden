@@ -290,7 +290,8 @@ void user_device_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	info("created user device %02x%02x\n", (*user_device.device_id)[0], (*user_device.device_id)[1]);
+	info("created user %02x%02x device %02x%02x\n", (*user_device.user_id)[0], (*user_device.user_id)[1],
+			 (*user_device.device_id)[0], (*user_device.device_id)[1]);
 	response->status = 200;
 }
 

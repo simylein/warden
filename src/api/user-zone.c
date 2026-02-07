@@ -291,7 +291,8 @@ void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	info("created user zone %02x%02x\n", (*user_zone.zone_id)[0], (*user_zone.zone_id)[1]);
+	info("created user %02x%02x zone %02x%02x\n", (*user_zone.user_id)[0], (*user_zone.user_id)[1], (*user_zone.zone_id)[0],
+			 (*user_zone.zone_id)[1]);
 	response->status = 200;
 }
 

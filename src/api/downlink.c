@@ -581,6 +581,6 @@ void downlink_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	info("created downlink %02x%02x\n", (*downlink.id)[0], (*downlink.id)[1]);
+	info("created downlink for device %02x%02x\n", (*downlink.device_id)[0], (*downlink.device_id)[1]);
 	response->status = 201;
 }
