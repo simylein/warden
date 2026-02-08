@@ -249,6 +249,24 @@ int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
 		return result;
 	}
 
+	if (query->order_len == 10 && memcmp(query->order, "receivedAt", query->order_len) == 0) {
+		uint8_t uplink_null_alpha = octet_uint8_read(alpha, device_row.uplink_null);
+		uint8_t uplink_null_bravo = octet_uint8_read(bravo, device_row.uplink_null);
+		if (uplink_null_alpha != uplink_null_bravo) {
+			return uplink_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (uplink_null_alpha == 0x00) {
+			return 0;
+		}
+		time_t uplink_received_at_alpha = (time_t)octet_uint64_read(alpha, device_row.uplink_received_at);
+		time_t uplink_received_at_bravo = (time_t)octet_uint64_read(bravo, device_row.uplink_received_at);
+		int result = (uplink_received_at_alpha > uplink_received_at_bravo) - (uplink_received_at_alpha < uplink_received_at_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
 	return 0;
 }
 
