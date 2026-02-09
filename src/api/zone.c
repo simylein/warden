@@ -760,11 +760,17 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 				status = octet_error();
 				goto cleanup;
 			}
-			status = 0;
 			break;
 		}
 		offset += zone_row.size;
 	}
+
+	status = device_update_zones(db, zone);
+	if (status != 0) {
+		goto cleanup;
+	}
+
+	status = 0;
 
 cleanup:
 	octet_close(&stmt, file);

@@ -97,6 +97,7 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len);
 uint16_t device_insert(octet_t *db, device_t *device);
 uint16_t device_update(octet_t *db, device_t *device);
+uint16_t device_update_zones(octet_t *db, zone_t *zone);
 uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer,
 															uplink_t *uplink, downlink_t *downlink);
 

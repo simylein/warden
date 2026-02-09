@@ -1086,6 +1086,51 @@ cleanup:
 	return status;
 }
 
+uint16_t device_update_zones(octet_t *db, zone_t *zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+		if (memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
+			octet_uint8_write(db->row, device_row.zone_null, 0x01);
+			octet_uint8_write(db->row, device_row.zone_name_len, zone->name_len);
+			octet_text_write(db->row, device_row.zone_name, zone->name, zone->name_len);
+			octet_blob_write(db->row, device_row.zone_color, (uint8_t *)zone->color, sizeof(*zone->color));
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset += device_row.size;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer,
 															uplink_t *uplink, downlink_t *downlink) {
 	uint16_t status;
