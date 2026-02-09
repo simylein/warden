@@ -151,7 +151,7 @@ void sha256(const void *data, const size_t data_len, uint8_t (*hash)[32]) {
 }
 
 void sha256_hmac(const uint8_t *key, const size_t key_len, const void *data, const size_t data_len, uint8_t (*hmac)[32]) {
-	uint8_t key_block[64] = {0};
+	uint8_t key_block[64] = {0x00};
 	uint8_t outer_padding[64];
 	uint8_t inner_padding[64];
 	uint8_t hash[32];
