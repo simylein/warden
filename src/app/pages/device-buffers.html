@@ -111,6 +111,7 @@
 		import './src/app/scripts/device-title.js';
 		import './src/app/scripts/datetime.js';
 		import './src/app/scripts/timespan.js';
+		import './src/app/scripts/granularity.js';
 		import './src/app/scripts/array.js';
 		import './src/app/scripts/state.js';
 		import './src/app/scripts/math.js';
@@ -154,6 +155,9 @@
 		};
 		const getTo = () => {
 			return getParam('to', null);
+		};
+		const getBucket = () => {
+			return getParam('bucket', null);
 		};
 		const getRange = () => {
 			const from = getFrom();
@@ -478,12 +482,16 @@
 			(context) => {
 				let from = getFrom();
 				let to = getTo();
+				let bucket = getBucket();
 				if (from === null || to === null) {
 					context.reload = getRange() / 360;
 					from = Math.floor(Date.now() / 1000) - getRange();
 					to = Math.floor(Date.now() / 1000);
 				}
-				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}`;
+				if (bucket === null) {
+					bucket = granularity(from, to);
+				}
+				const endpoint = `/api/device/${window.location.pathname.substring(8)}?from=${from}&to=${to}&bucket=${bucket}`;
 				return fetcher('get', endpoint, null, { controller: context.controller });
 			},
 			async (context, response) => {

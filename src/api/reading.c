@@ -432,41 +432,32 @@ void reading_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respo
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "&", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *bucket;
+	size_t bucket_len;
+	if (strnfind(request->search.ptr, request->search.len, "bucket=", "", &bucket, &bucket_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	reading_query_t query = {.from = 0, .to = 0, .bucket = 0};
-	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
-		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
+			strnto16(bucket, bucket_len, &query.bucket) == -1) {
+		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+				 bucket);
 		response->status = 400;
 		return;
 	}
 
-	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
-		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+	if (query.from > query.to || query.to - query.from < 1200 || query.to - query.from > 2764800 ||
+			(query.to - query.from) / query.bucket > 720) {
+		warn("failed to validate query from %lu to %lu bucket %hu\n", query.from, query.to, query.bucket);
 		response->status = 400;
 		return;
-	}
-
-	time_t range = query.to - query.from;
-	if (range <= 3600) {
-		query.bucket = 5;
-	} else if (range <= 10800) {
-		query.bucket = 15;
-	} else if (range <= 43200) {
-		query.bucket = 60;
-	} else if (range <= 86400) {
-		query.bucket = 120;
-	} else if (range <= 172800) {
-		query.bucket = 240;
-	} else if (range <= 345600) {
-		query.bucket = 480;
-	} else if (range <= 604800) {
-		query.bucket = 840;
-	} else if (range <= 1209600) {
-		query.bucket = 1680;
 	}
 
 	uint16_t readings_len = 0;
@@ -507,41 +498,32 @@ void reading_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, respons
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "&", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *bucket;
+	size_t bucket_len;
+	if (strnfind(request->search.ptr, request->search.len, "bucket=", "", &bucket, &bucket_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	reading_query_t query = {.from = 0, .to = 0, .bucket = 0};
-	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
-		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
+			strnto16(bucket, bucket_len, &query.bucket) == -1) {
+		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+				 bucket);
 		response->status = 400;
 		return;
 	}
 
-	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
-		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+	if (query.from > query.to || query.to - query.from < 1200 || query.to - query.from > 2764800 ||
+			(query.to - query.from) / query.bucket > 720) {
+		warn("failed to validate query from %lu to %lu bucket %hu\n", query.from, query.to, query.bucket);
 		response->status = 400;
 		return;
-	}
-
-	time_t range = query.to - query.from;
-	if (range <= 3600) {
-		query.bucket = 5;
-	} else if (range <= 10800) {
-		query.bucket = 15;
-	} else if (range <= 43200) {
-		query.bucket = 60;
-	} else if (range <= 86400) {
-		query.bucket = 120;
-	} else if (range <= 172800) {
-		query.bucket = 240;
-	} else if (range <= 345600) {
-		query.bucket = 480;
-	} else if (range <= 604800) {
-		query.bucket = 840;
-	} else if (range <= 1209600) {
-		query.bucket = 1680;
 	}
 
 	device_t device = {.id = &id};
@@ -603,41 +585,32 @@ void reading_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, response_
 
 	const char *to;
 	size_t to_len;
-	if (strnfind(request->search.ptr, request->search.len, "to=", "", &to, &to_len, 32) == -1) {
+	if (strnfind(request->search.ptr, request->search.len, "to=", "&", &to, &to_len, 32) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *bucket;
+	size_t bucket_len;
+	if (strnfind(request->search.ptr, request->search.len, "bucket=", "", &bucket, &bucket_len, 8) == -1) {
 		response->status = 400;
 		return;
 	}
 
 	reading_query_t query = {.from = 0, .to = 0, .bucket = 0};
-	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1) {
-		warn("failed to parse query from %*.s to %*.s\n", (int)from_len, from, (int)to_len, to);
+	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
+			strnto16(bucket, bucket_len, &query.bucket) == -1) {
+		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+				 bucket);
 		response->status = 400;
 		return;
 	}
 
-	if (query.from > query.to || query.to - query.from < 3600 || query.to - query.from > 1209600) {
-		warn("failed to validate query from %lu to %lu\n", query.from, query.to);
+	if (query.from > query.to || query.to - query.from < 1200 || query.to - query.from > 2764800 ||
+			(query.to - query.from) / query.bucket > 720) {
+		warn("failed to validate query from %lu to %lu bucket %hu\n", query.from, query.to, query.bucket);
 		response->status = 400;
 		return;
-	}
-
-	time_t range = query.to - query.from;
-	if (range <= 3600) {
-		query.bucket = 5;
-	} else if (range <= 10800) {
-		query.bucket = 15;
-	} else if (range <= 43200) {
-		query.bucket = 60;
-	} else if (range <= 86400) {
-		query.bucket = 120;
-	} else if (range <= 172800) {
-		query.bucket = 240;
-	} else if (range <= 345600) {
-		query.bucket = 480;
-	} else if (range <= 604800) {
-		query.bucket = 840;
-	} else if (range <= 1209600) {
-		query.bucket = 1680;
 	}
 
 	zone_t zone = {.id = &id};
