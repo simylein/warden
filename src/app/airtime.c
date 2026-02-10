@@ -22,9 +22,9 @@ void airtime_account(uint8_t *airtime_ind, uint16_t (*airtime)[8], uplink_t *upl
 
 uint16_t airtime_calculate(uint16_t (*airtime)[8]) {
 	uint32_t sum = 0;
-	uint16_t span = (uint16_t)(7 * 900 + time(NULL) % 900);
+	uint32_t span = (uint16_t)(7 * 900 + time(NULL) % 900) * 1000;
 	for (uint8_t index = 0; index < sizeof(*airtime) / sizeof((*airtime)[0]); index++) {
 		sum += ntoh16((*airtime)[index]);
 	}
-	return (uint16_t)(sum / (span / 100));
+	return (uint16_t)(((float)sum / (float)span) * 100.0f * 1000.0f);
 }
