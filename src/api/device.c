@@ -32,45 +32,45 @@ const device_row_t device_row = {
 		.id = 0,
 		.name_len = 16,
 		.name = 17,
-		.airtime_ind = 33,
-		.airtime = 34,
-		.firmware_len = 50,
-		.firmware = 51,
-		.hardware_len = 63,
-		.hardware = 64,
-		.created_at = 76,
-		.updated_at_null = 84,
-		.updated_at = 85,
-		.zone_null = 93,
-		.zone_id = 94,
-		.zone_name_len = 110,
-		.zone_name = 111,
-		.zone_color = 123,
-		.reading_null = 135,
-		.reading_temperature = 136,
-		.reading_humidity = 138,
-		.reading_captured_at = 140,
-		.metric_null = 148,
-		.metric_photovoltaic = 149,
-		.metric_battery = 151,
-		.metric_captured_at = 153,
-		.buffer_null = 161,
-		.buffer_delay = 162,
-		.buffer_level = 166,
-		.buffer_captured_at = 168,
-		.uplink_null = 176,
-		.uplink_kind = 177,
-		.uplink_rssi = 178,
-		.uplink_snr = 180,
-		.uplink_sf = 181,
-		.uplink_received_at = 182,
-		.downlink_null = 190,
-		.downlink_kind = 191,
-		.downlink_sf = 192,
-		.downlink_cr = 193,
-		.downlink_tx_power = 194,
-		.downlink_sent_at = 195,
-		.size = 203,
+		.airtime = 33,
+		.airtime_bucket = 49,
+		.firmware_len = 57,
+		.firmware = 58,
+		.hardware_len = 70,
+		.hardware = 71,
+		.created_at = 83,
+		.updated_at_null = 91,
+		.updated_at = 92,
+		.zone_null = 100,
+		.zone_id = 101,
+		.zone_name_len = 117,
+		.zone_name = 118,
+		.zone_color = 130,
+		.reading_null = 142,
+		.reading_temperature = 143,
+		.reading_humidity = 145,
+		.reading_captured_at = 147,
+		.metric_null = 155,
+		.metric_photovoltaic = 156,
+		.metric_battery = 158,
+		.metric_captured_at = 160,
+		.buffer_null = 168,
+		.buffer_delay = 169,
+		.buffer_level = 173,
+		.buffer_captured_at = 175,
+		.uplink_null = 183,
+		.uplink_kind = 184,
+		.uplink_rssi = 185,
+		.uplink_snr = 187,
+		.uplink_sf = 188,
+		.uplink_received_at = 189,
+		.downlink_null = 197,
+		.downlink_kind = 198,
+		.downlink_sf = 199,
+		.downlink_cr = 200,
+		.downlink_tx_power = 201,
+		.downlink_sent_at = 202,
+		.size = 210,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -496,6 +496,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			uint8_t name_len = octet_uint8_read(db->row, device_row.name_len);
 			char *name = octet_text_read(db->row, device_row.name);
 			uint16_t (*airtime)[8] = (uint16_t (*)[8])octet_blob_read(db->row, device_row.airtime);
+			time_t airtime_bucket = (time_t)octet_uint64_read(db->row, device_row.airtime_bucket);
 			uint8_t firmware_len = octet_uint8_read(db->row, device_row.firmware_len);
 			char *firmware = octet_text_read(db->row, device_row.firmware);
 			uint8_t hardware_len = octet_uint8_read(db->row, device_row.hardware_len);
@@ -535,7 +536,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			body_write(response, id, sizeof(*id));
 			body_write(response, name, name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint16_t[]){hton16(airtime_calculate(airtime))}, sizeof((*airtime)[0]));
+			body_write(response, (uint16_t[]){hton16(airtime_calculate(airtime, airtime_bucket))}, sizeof((*airtime)[0]));
 			body_write(response, (uint8_t[]){firmware_len != 0}, sizeof(firmware_len));
 			if (firmware_len != 0) {
 				body_write(response, firmware, firmware_len);
@@ -952,8 +953,8 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	octet_blob_write(db->row, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
 	octet_uint8_write(db->row, device_row.name_len, device->name_len);
 	octet_text_write(db->row, device_row.name, (char *)device->name, device->name_len);
-	octet_uint8_write(db->row, device_row.airtime_ind, 0x00);
 	octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(airtime));
+	octet_uint64_write(db->row, device_row.airtime_bucket, 0);
 	if (device->zone_id != NULL) {
 		octet_uint8_write(db->row, device_row.zone_null, 0x01);
 		octet_blob_write(db->row, device_row.zone_id, (uint8_t *)device->zone_id, sizeof(*device->zone_id));
@@ -1202,11 +1203,11 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 			uint8_t uplink_null = octet_uint8_read(db->row, device_row.uplink_null);
 			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
 			if (uplink != NULL && (uplink_null == 0x00 || uplink->received_at >= uplink_received_at)) {
-				uint8_t airtime_ind = octet_uint8_read(db->row, device_row.airtime_ind);
 				uint16_t (*airtime)[8] = (uint16_t (*)[8])octet_blob_read(db->row, device_row.airtime);
-				airtime_account(&airtime_ind, airtime, uplink);
-				octet_uint8_write(db->row, device_row.airtime_ind, airtime_ind);
+				time_t airtime_bucket = (time_t)octet_uint64_read(db->row, device_row.airtime_bucket);
+				airtime_account(airtime, &airtime_bucket, uplink);
 				octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(*airtime));
+				octet_uint64_write(db->row, device_row.airtime_bucket, (uint64_t)airtime_bucket);
 				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
 				octet_uint8_write(db->row, device_row.uplink_kind, uplink->kind);
 				octet_int16_write(db->row, device_row.uplink_rssi, uplink->rssi);
