@@ -51,8 +51,8 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {
 			goto cleanup;
 		}
 
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.user_id);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.user_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.zone_id);
 		if (memcmp(user_id, user_zone->user_id, sizeof(*user_zone->user_id)) == 0 &&
 				memcmp(zone_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
 			status = 0;
@@ -95,7 +95,7 @@ uint16_t user_zone_select_by_user(octet_t *db, user_t *user, uint8_t *user_zones
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], user_zone_row.user_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->chunk[chunk_len], user_zone_row.user_id);
 		if (memcmp(user_id, user->id, sizeof(*user->id)) == 0) {
 			*user_zones_len += 1;
 			chunk_len += user_zone_row.size;
@@ -135,8 +135,8 @@ uint16_t user_zone_insert(octet_t *db, user_zone_t *user_zone) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.user_id);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.user_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.zone_id);
 		if (memcmp(user_id, user_zone->user_id, sizeof(*user_zone->user_id)) == 0 &&
 				memcmp(zone_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
 			status = 409;
@@ -210,8 +210,8 @@ uint16_t user_zone_delete(octet_t *db, user_zone_t *user_zone) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.user_id);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_zone_row.zone_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.user_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.zone_id);
 		if (memcmp(user_id, user_zone->user_id, sizeof(*user_zone->user_id)) == 0 &&
 				memcmp(zone_id, user_zone->zone_id, sizeof(*user_zone->zone_id)) == 0) {
 			break;
@@ -258,7 +258,7 @@ void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -277,7 +277,7 @@ void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	zone_t zone = {.id = (uint8_t (*)[16])request->body.ptr};
+	zone_t zone = {.id = (uint8_t (*)[8])request->body.ptr};
 	status = zone_existing(db, &zone);
 	if (status != 0) {
 		response->status = status;
@@ -310,7 +310,7 @@ void user_zone_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -329,7 +329,7 @@ void user_zone_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	user_zone_t user_zone = {.user_id = user.id, .zone_id = (uint8_t (*)[16])request->body.ptr};
+	user_zone_t user_zone = {.user_id = user.id, .zone_id = (uint8_t (*)[8])request->body.ptr};
 	status = user_zone_delete(db, &user_zone);
 	if (status != 0) {
 		response->status = status;

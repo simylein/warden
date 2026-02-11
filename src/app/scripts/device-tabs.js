@@ -11,7 +11,7 @@ const deviceTabs = () => {
 		{ endpoint: '/uplinks', search: {} },
 		{ endpoint: '/downlinks', search: {} },
 	];
-	const pathname = window.location.pathname.substring(0, 40);
+	const pathname = window.location.pathname.substring(0, 24);
 	routes.forEach((route, index) => {
 		const params = new URLSearchParams();
 		if (route.search.range && typeof getRange === 'function') {

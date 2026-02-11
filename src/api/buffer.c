@@ -42,12 +42,12 @@ uint16_t buffer_select(octet_t *db, bwt_t *bwt, buffer_query_t *query, response_
 	debug("select buffers for user %02x%02x from %lu to %lu bucket %hu\n", bwt->id[0], bwt->id[1], query->from, query->to,
 				query->bucket);
 
-	char uuid[32];
+	char uuid[16];
 	char file[128];
 	octet_stmt_t stmt;
 	for (uint8_t index = 0; index < user_devices_len; index++) {
-		uint8_t (*device_id)[16] =
-				(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+		uint8_t (*device_id)[8] =
+				(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 
 		if (base16_encode(uuid, sizeof(uuid), device_id, sizeof(*device_id)) == -1) {
 			error("failed to encode uuid to base 16\n");
@@ -163,7 +163,7 @@ uint16_t buffer_select_by_device(octet_t *db, device_t *device, buffer_query_t *
 																 uint16_t *buffers_len) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -259,11 +259,11 @@ uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query,
 	debug("select buffers for zone %02x%02x from %lu to %lu bucket %hu\n", (*zone->id)[0], (*zone->id)[1], query->from, query->to,
 				query->bucket);
 
-	char uuid[32];
+	char uuid[16];
 	char file[128];
 	octet_stmt_t stmt;
 	for (uint8_t index = 0; index < devices_len; index++) {
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[index * device_row.size], device_row.id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->chunk[index * device_row.size], device_row.id);
 
 		if (base16_encode(uuid, sizeof(uuid), device_id, sizeof(*device_id)) == -1) {
 			error("failed to encode uuid to base 16\n");
@@ -364,7 +364,7 @@ uint16_t buffer_select_by_zone(octet_t *db, zone_t *zone, buffer_query_t *query,
 uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), buffer->device_id, sizeof(*buffer->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -411,7 +411,7 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 		goto cleanup;
 	}
 
-	uint8_t zone_id[16];
+	uint8_t zone_id[8];
 	device_t device = {.id = buffer->device_id, .zone_id = &zone_id};
 	status = device_update_latest(db, &device, NULL, NULL, buffer, NULL, NULL);
 	if (status != 0) {
@@ -493,7 +493,7 @@ void buffer_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -580,7 +580,7 @@ void buffer_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, response_t
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

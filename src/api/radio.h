@@ -19,7 +19,7 @@ typedef struct radio_t {
 	uint8_t sync_word;
 	bool checksum;
 	time_t captured_at;
-	uint8_t (*device_id)[16];
+	uint8_t (*device_id)[8];
 } radio_t;
 
 typedef struct radio_row_t {

@@ -14,7 +14,7 @@ typedef struct reading_t {
 	float temperature;
 	float humidity;
 	time_t captured_at;
-	uint8_t (*device_id)[16];
+	uint8_t (*device_id)[8];
 } reading_t;
 
 typedef struct reading_query_t {

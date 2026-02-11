@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 typedef struct host_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	char *address;
 	uint8_t address_len;
 	uint16_t port;

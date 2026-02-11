@@ -104,7 +104,7 @@ uint16_t user_existing(octet_t *db, user_t *user) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
 		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
 			status = 0;
 			break;
@@ -173,7 +173,7 @@ uint16_t user_select(octet_t *db, user_query_t *query, response_t *response, uin
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], user_row.id);
 		uint8_t username_len = octet_uint8_read(&db->table[index], user_row.username_len);
 		char *username = octet_text_read(&db->table[index], user_row.username);
 		time_t signup_at = (time_t)octet_uint64_read(&db->table[index], user_row.signup_at);
@@ -221,7 +221,7 @@ uint16_t user_select_one(octet_t *db, user_t *user, response_t *response) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
 		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
 			uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
 			char *username = octet_text_read(db->row, user_row.username);
@@ -426,7 +426,7 @@ uint16_t user_update(octet_t *db, user_t *user) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
 		uint8_t username_len = octet_uint8_read(db->row, user_row.username_len);
 		char *username = octet_text_read(db->row, user_row.username);
 		uint8_t (*password)[32] = (uint8_t (*)[32])octet_blob_read(db->row, user_row.password);
@@ -479,7 +479,7 @@ uint16_t user_delete(octet_t *db, user_t *user) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
 		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
 			break;
 		}
@@ -550,7 +550,7 @@ void user_find_one(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -607,7 +607,7 @@ void user_signup(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	time_t now = time(NULL);
 	uint8_t permissions[8];
 	user_t user = {.id = &id, .permissions = &permissions, .signup_at = &now, .signin_at = &now};
@@ -622,7 +622,7 @@ void user_signup(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	char bwt[116];
+	char bwt[103];
 	if (bwt_sign(&bwt, user.id, user.permissions) == -1) {
 		response->status = 500;
 		return;
@@ -640,7 +640,7 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	uint8_t permissions[8];
 	user_t user = {.id = &id, .permissions = &permissions};
 	if (request->body.len == 0 || user_parse(&user, request) == -1 || user_validate(&user) == -1) {
@@ -655,7 +655,7 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	char bwt[116];
+	char bwt[103];
 	if (bwt_sign(&bwt, user.id, user.permissions) == -1) {
 		response->status = 500;
 		return;
@@ -681,7 +681,7 @@ void user_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

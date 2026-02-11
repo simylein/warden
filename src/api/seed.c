@@ -18,11 +18,11 @@
 #include <string.h>
 #include <time.h>
 
-uint8_t (*user_ids)[16];
+uint8_t (*user_ids)[8];
 uint8_t user_ids_len;
-uint8_t (*zone_ids)[16];
+uint8_t (*zone_ids)[8];
 uint8_t zone_ids_len;
-uint8_t (*device_ids)[16];
+uint8_t (*device_ids)[8];
 uint8_t device_ids_len;
 
 int seed_user(octet_t *db) {
@@ -128,7 +128,7 @@ int seed_device(octet_t *db) {
 			name[ind] = (char)('a' + rand() % 26);
 		}
 
-		uint8_t (*zone_id)[16];
+		uint8_t (*zone_id)[8];
 		char *zone_name;
 		uint8_t (*zone_color)[12];
 		if (rand() % 5 == 0) {

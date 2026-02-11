@@ -5,7 +5,7 @@ const userTabs = () => {
 		{ endpoint: '/devices', search: {} },
 		{ endpoint: '/zones', search: {} },
 	];
-	const pathname = window.location.pathname.substring(0, 38);
+	const pathname = window.location.pathname.substring(0, 22);
 	routes.forEach((route, index) => {
 		const params = new URLSearchParams();
 		if (params.size > 0) {

@@ -404,7 +404,7 @@
 			{
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
+					if (value.length !== 16) return 'device id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
 				},
 			},
@@ -415,7 +415,7 @@
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/device`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 22)}/device`;
 					await fetcher('post', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully created user device');
 					loadDevices(true);
@@ -432,7 +432,7 @@
 			{
 				deviceId: (value) => {
 					if (!value) return 'device id is required';
-					if (value.length !== 32) return 'device id must be 32 characters';
+					if (value.length !== 16) return 'device id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'device id must be lowercase hexadecimal';
 				},
 			},
@@ -443,7 +443,7 @@
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/device`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 22)}/device`;
 					await fetcher('delete', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully deleted user device');
 					loadDevices(true);

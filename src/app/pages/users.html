@@ -280,7 +280,7 @@
 			{
 				userId: (value) => {
 					if (!value) return 'user id is required';
-					if (value.length !== 32) return 'user id must be 32 characters';
+					if (value.length !== 16) return 'user id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'user id must be lowercase hexadecimal';
 				},
 			},

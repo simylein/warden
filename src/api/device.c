@@ -301,7 +301,7 @@ uint16_t device_existing(octet_t *db, device_t *device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			status = 0;
 			break;
@@ -356,10 +356,10 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[table_len], device_row.id);
 		for (uint8_t index = 0; index < user_devices_len; index++) {
-			uint8_t (*device_id)[16] =
-					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			uint8_t (*device_id)[8] =
+					(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 			if (memcmp(id, device_id, sizeof(*device_id)) == 0) {
 				table_len += device_row.size;
 				break;
@@ -386,14 +386,14 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.id);
 		uint8_t name_len = octet_uint8_read(&db->table[index], device_row.name_len);
 		char *name = octet_text_read(&db->table[index], device_row.name);
 		time_t created_at = (time_t)octet_uint64_read(&db->table[index], device_row.created_at);
 		uint8_t updated_at_null = octet_uint8_read(&db->table[index], device_row.updated_at_null);
 		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], device_row.updated_at);
 		uint8_t zone_null = octet_uint8_read(&db->table[index], device_row.zone_null);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.zone_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.zone_id);
 		uint8_t zone_name_len = octet_uint8_read(&db->table[index], device_row.zone_name_len);
 		char *zone_name = octet_text_read(&db->table[index], device_row.zone_name);
 		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], device_row.zone_color);
@@ -491,7 +491,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			uint8_t name_len = octet_uint8_read(db->row, device_row.name_len);
 			char *name = octet_text_read(db->row, device_row.name);
@@ -505,7 +505,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			uint8_t updated_at_null = octet_uint8_read(db->row, device_row.updated_at_null);
 			time_t updated_at = (time_t)octet_uint64_read(db->row, device_row.updated_at);
 			uint8_t zone_null = octet_uint8_read(db->row, device_row.zone_null);
-			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+			uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.zone_id);
 			uint8_t zone_name_len = octet_uint8_read(db->row, device_row.zone_name_len);
 			char *zone_name = octet_text_read(db->row, device_row.zone_name);
 			uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(db->row, device_row.zone_color);
@@ -658,10 +658,10 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[table_len], device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[table_len], device_row.id);
 		for (uint8_t index = 0; index < user_devices_len; index++) {
-			uint8_t (*device_id)[16] =
-					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			uint8_t (*device_id)[8] =
+					(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 			if (memcmp(id, device_id, sizeof(*device_id)) == 0) {
 				table_len += device_row.size;
 				break;
@@ -688,14 +688,14 @@ uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query,
 			status = 0;
 			break;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.id);
 		uint8_t name_len = octet_uint8_read(&db->table[index], device_row.name_len);
 		char *name = octet_text_read(&db->table[index], device_row.name);
 		time_t created_at = (time_t)octet_uint64_read(&db->table[index], device_row.created_at);
 		uint8_t updated_at_null = octet_uint8_read(&db->table[index], device_row.updated_at_null);
 		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], device_row.updated_at);
 		uint8_t zone_null = octet_uint8_read(&db->table[index], device_row.zone_null);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->table[index], device_row.zone_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.zone_id);
 		uint8_t zone_name_len = octet_uint8_read(&db->table[index], device_row.zone_name_len);
 		char *zone_name = octet_text_read(&db->table[index], device_row.zone_name);
 		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], device_row.zone_color);
@@ -758,7 +758,7 @@ uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len) 
 			goto cleanup;
 		}
 		uint8_t zone_null = octet_uint8_read(&db->chunk[chunk_len], device_row.zone_null);
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], device_row.zone_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->chunk[chunk_len], device_row.zone_id);
 		if (zone_null != 0x00 && memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
 			*devices_len += 1;
 			chunk_len += device_row.size;
@@ -800,7 +800,7 @@ int device_parse(device_t *device, request_t *request) {
 		debug("missing zone id on device\n");
 		return -1;
 	}
-	device->zone_id = (uint8_t (*)[16])body_read(request, sizeof(*device->zone_id));
+	device->zone_id = (uint8_t (*)[8])body_read(request, sizeof(*device->zone_id));
 	stage = 2;
 
 	device->firmware_len = 0;
@@ -911,7 +911,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 		return 500;
 	}
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -1057,7 +1057,7 @@ uint16_t device_update(octet_t *db, device_t *device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			if (device->name != NULL) {
 				octet_uint8_write(db->row, device_row.name_len, device->name_len);
@@ -1119,7 +1119,7 @@ uint16_t device_update_zones(octet_t *db, zone_t *zone) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.zone_id);
 		if (memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
 			octet_uint8_write(db->row, device_row.zone_null, 0x01);
 			octet_uint8_write(db->row, device_row.zone_name_len, zone->name_len);
@@ -1167,10 +1167,10 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.id);
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			uint8_t zone_null = octet_uint8_read(db->row, device_row.zone_null);
-			uint8_t (*zone_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, device_row.zone_id);
+			uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.zone_id);
 			if (zone_null != 0x00) {
 				memcpy(device->zone_id, zone_id, sizeof(*zone_id));
 			} else {
@@ -1280,7 +1280,7 @@ void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *re
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -1329,7 +1329,7 @@ void device_find_by_user(octet_t *db, request_t *request, response_t *response) 
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -1381,7 +1381,7 @@ void device_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

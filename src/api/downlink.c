@@ -47,7 +47,7 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 
 	debug("select downlinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
-	char (*uuids)[32] = (char (*)[32])db->alpha;
+	char (*uuids)[16] = (char (*)[16])db->alpha;
 	char (*files)[128] = (char (*)[128])db->bravo;
 	off_t *offsets = (off_t *)db->charlie;
 	time_t *sent_ats = (time_t *)db->delta;
@@ -55,8 +55,8 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 	uint8_t stmts_len = 0;
 
 	for (uint8_t index = 0; index < devices_len; index++) {
-		uint8_t (*device_id)[16] =
-				(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+		uint8_t (*device_id)[8] =
+				(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 
 		if (base16_encode(uuids[index], sizeof(uuids[index]), device_id, sizeof(*device_id)) == -1) {
 			error("failed to encode uuid to base 16\n");
@@ -119,8 +119,8 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 			uint8_t tx_power = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.tx_power);
 			uint8_t preamble_len = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.preamble_len);
 			time_t sent_at = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
-			uint8_t (*device_id)[16] =
-					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			uint8_t (*device_id)[8] =
+					(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(data_len));
@@ -159,7 +159,7 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 																	 uint8_t *downlinks_len) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -307,7 +307,7 @@ int downlink_parse(downlink_t *downlink, request_t *request) {
 		debug("missing device id on downlink\n");
 		return -1;
 	}
-	downlink->device_id = (uint8_t (*)[16])body_read(request, sizeof(*downlink->device_id));
+	downlink->device_id = (uint8_t (*)[8])body_read(request, sizeof(*downlink->device_id));
 
 	if (request->body.len != request->body.pos) {
 		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
@@ -364,7 +364,7 @@ int downlink_validate(downlink_t *downlink) {
 uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), downlink->device_id, sizeof(*downlink->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -420,7 +420,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 		goto cleanup;
 	}
 
-	uint8_t zone_id[16];
+	uint8_t zone_id[8];
 	device_t device = {.id = downlink->device_id, .zone_id = &zone_id};
 	status = device_update_latest(db, &device, NULL, NULL, NULL, NULL, downlink);
 	if (status != 0) {
@@ -484,7 +484,7 @@ void downlink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, respon
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

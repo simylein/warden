@@ -7,7 +7,7 @@ const zoneTabs = () => {
 		{ endpoint: '/buffers', search: { range: true, from: true, to: true } },
 		{ endpoint: '/signals', search: { range: true, from: true, to: true } },
 	];
-	const pathname = window.location.pathname.substring(0, 38);
+	const pathname = window.location.pathname.substring(0, 22);
 	routes.forEach((route, index) => {
 		const params = new URLSearchParams();
 		if (route.search.range && typeof getRange === 'function') {

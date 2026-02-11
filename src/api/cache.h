@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 typedef struct cache_device_t {
-	uint8_t id[16];
+	uint8_t id[8];
 	char name[16];
 	uint8_t name_len;
 	char zone_name[12];
@@ -14,7 +14,7 @@ typedef struct cache_device_t {
 } cache_device_t;
 
 typedef struct cache_zone_t {
-	uint8_t id[16];
+	uint8_t id[8];
 	char name[12];
 	uint8_t name_len;
 } cache_zone_t;

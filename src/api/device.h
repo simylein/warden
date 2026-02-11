@@ -18,10 +18,10 @@ typedef struct uplink_t uplink_t;
 typedef struct downlink_t downlink_t;
 
 typedef struct device_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	char *name;
 	uint8_t name_len;
-	uint8_t (*zone_id)[16];
+	uint8_t (*zone_id)[8];
 	char *zone_name;
 	uint8_t zone_name_len;
 	uint8_t (*zone_color)[12];

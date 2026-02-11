@@ -14,7 +14,7 @@ typedef struct metric_t {
 	float photovoltaic;
 	float battery;
 	time_t captured_at;
-	uint8_t (*device_id)[16];
+	uint8_t (*device_id)[8];
 } metric_t;
 
 typedef struct metric_query_t {

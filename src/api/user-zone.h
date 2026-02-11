@@ -7,8 +7,8 @@
 #include <stdint.h>
 
 typedef struct user_zone_t {
-	uint8_t (*user_id)[16];
-	uint8_t (*zone_id)[16];
+	uint8_t (*user_id)[8];
+	uint8_t (*zone_id)[8];
 } user_zone_t;
 
 typedef struct user_zone_row_t {

@@ -218,7 +218,7 @@
 				uplink.txPower = binary.uint(8);
 				uplink.preambleLen = binary.uint(8);
 				uplink.receivedAt = binary.uint(64);
-				uplink.deviceId = window.location.pathname.substring(8, 40);
+				uplink.deviceId = window.location.pathname.substring(8, 24);
 				uplinks.push(uplink);
 			}
 			return uplinks;
@@ -282,7 +282,7 @@
 			paint(element.children[12].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.receivedAt));
 			element.children[13].children[1].children[0].classList.add('cursor-pointer');
 			element.children[13].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
-			paint(element.children[13].children[1].children[0], [], ['w-80', 'h-4'], data.deviceId);
+			paint(element.children[13].children[1].children[0], [], ['w-40', 'h-4'], data.deviceId);
 			uplinkDialog.showModal();
 		};
 		const closeUplinkDialog = () => {

@@ -38,7 +38,7 @@ const radio_row_t radio_row = {
 uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -194,7 +194,7 @@ int radio_validate(radio_t *radio) {
 uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), radio->device_id, sizeof(*radio->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -343,7 +343,7 @@ void radio_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, respo
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -397,7 +397,7 @@ void radio_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *respo
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

@@ -37,7 +37,7 @@ const config_row_t config_row = {
 uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *response) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -171,7 +171,7 @@ int config_validate(config_t *config) {
 uint16_t config_insert(octet_t *db, config_t *config) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), config->device_id, sizeof(*config->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -307,7 +307,7 @@ void config_find_one_by_device(octet_t *db, bwt_t *bwt, request_t *request, resp
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -361,7 +361,7 @@ void config_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *resp
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

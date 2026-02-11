@@ -7,8 +7,8 @@
 #include <stdint.h>
 
 typedef struct user_device_t {
-	uint8_t (*user_id)[16];
-	uint8_t (*device_id)[16];
+	uint8_t (*user_id)[8];
+	uint8_t (*device_id)[8];
 } user_device_t;
 
 typedef struct user_device_row_t {

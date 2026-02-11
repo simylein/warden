@@ -9,7 +9,7 @@
 #include <time.h>
 
 typedef struct zone_t {
-	uint8_t (*id)[16];
+	uint8_t (*id)[8];
 	char *name;
 	uint8_t name_len;
 	uint8_t (*color)[12];

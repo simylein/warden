@@ -51,15 +51,15 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 
 	debug("select uplinks for user %02x%02x limit %hhu offset %u\n", bwt->id[0], bwt->id[1], query->limit, query->offset);
 
-	char (*uuids)[32] = (char (*)[32])db->alpha;
+	char (*uuids)[16] = (char (*)[16])db->alpha;
 	char (*files)[128] = (char (*)[128])db->bravo;
 	off_t *offsets = (off_t *)db->charlie;
 	time_t *received_ats = (time_t *)db->delta;
 	octet_stmt_t *stmts = (octet_stmt_t *)db->echo;
 	uint8_t stmts_len = 0;
 	for (uint8_t index = 0; index < devices_len; index++) {
-		uint8_t (*device_id)[16] =
-				(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+		uint8_t (*device_id)[8] =
+				(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 
 		if (base16_encode(uuids[index], sizeof(uuids[index]), device_id, sizeof(*device_id)) == -1) {
 			error("failed to encode uuid to base 16\n");
@@ -124,8 +124,8 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 			uint8_t tx_power = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.tx_power);
 			uint8_t preamble_len = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.preamble_len);
 			time_t received_at = (time_t)octet_uint64_read(&db->table[index * uplink_row.size], uplink_row.received_at);
-			uint8_t (*device_id)[16] =
-					(uint8_t (*)[16])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
+			uint8_t (*device_id)[8] =
+					(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 			body_write(response, (uint16_t[]){hton16(frame)}, sizeof(frame));
 			body_write(response, &kind, sizeof(kind));
 			body_write(response, &data_len, sizeof(data_len));
@@ -166,7 +166,7 @@ uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *
 																 uint8_t *uplinks_len) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -238,7 +238,7 @@ uint16_t uplink_signal_select_by_device(octet_t *db, device_t *device, uplink_si
 																				uint16_t *signals_len) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -337,11 +337,11 @@ uint16_t uplink_signal_select_by_zone(octet_t *db, zone_t *zone, uplink_signal_q
 	debug("select signals for zone %02x%02x from %lu to %lu bucket %hu\n", (*zone->id)[0], (*zone->id)[1], query->from, query->to,
 				query->bucket);
 
-	char uuid[32];
+	char uuid[16];
 	char file[128];
 	octet_stmt_t stmt;
 	for (uint8_t index = 0; index < devices_len; index++) {
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[index * device_row.size], device_row.id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->chunk[index * device_row.size], device_row.id);
 
 		if (base16_encode(uuid, sizeof(uuid), device_id, sizeof(*device_id)) == -1) {
 			error("failed to encode uuid to base 16\n");
@@ -538,7 +538,7 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 		debug("missing device id on uplink\n");
 		return -1;
 	}
-	uplink->device_id = (uint8_t (*)[16])body_read(request, sizeof(*uplink->device_id));
+	uplink->device_id = (uint8_t (*)[8])body_read(request, sizeof(*uplink->device_id));
 
 	if (request->body.len != request->body.pos) {
 		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
@@ -605,7 +605,7 @@ int uplink_validate(uplink_t *uplink) {
 uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	uint16_t status;
 
-	char uuid[32];
+	char uuid[16];
 	if (base16_encode(uuid, sizeof(uuid), uplink->device_id, sizeof(*uplink->device_id)) == -1) {
 		error("failed to encode uuid to base 16\n");
 		return 500;
@@ -663,7 +663,7 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 		goto cleanup;
 	}
 
-	uint8_t zone_id[16];
+	uint8_t zone_id[8];
 	device_t device = {.id = uplink->device_id, .zone_id = &zone_id};
 	status = device_update_latest(db, &device, NULL, NULL, NULL, uplink, NULL);
 	if (status != 0) {
@@ -727,7 +727,7 @@ void uplink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -804,7 +804,7 @@ void uplink_signal_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, r
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -891,7 +891,7 @@ void uplink_signal_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, res
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;

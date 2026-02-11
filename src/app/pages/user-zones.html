@@ -379,7 +379,7 @@
 			{
 				zoneId: (value) => {
 					if (!value) return 'zone id is required';
-					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (value.length !== 16) return 'zone id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
 				},
 			},
@@ -390,7 +390,7 @@
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/zone`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 22)}/zone`;
 					await fetcher('post', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully created user zone');
 					loadZones(true);
@@ -407,7 +407,7 @@
 			{
 				zoneId: (value) => {
 					if (!value) return 'zone id is required';
-					if (value.length !== 32) return 'zone id must be 32 characters';
+					if (value.length !== 16) return 'zone id must be 16 characters';
 					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
 				},
 			},
@@ -418,7 +418,7 @@
 				}
 				const data = new Blob([bytes]);
 				try {
-					const endpoint = `/api/user/${window.location.pathname.substring(6, 38)}/zone`;
+					const endpoint = `/api/user/${window.location.pathname.substring(6, 22)}/zone`;
 					await fetcher('delete', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
 					notification('success', 'Successfully deleted user zone');
 					loadZones(true);

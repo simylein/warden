@@ -51,8 +51,8 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.device_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.user_id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.device_id);
 		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			status = 0;
@@ -94,7 +94,7 @@ uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_dev
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(&db->chunk[chunk_len], user_device_row.user_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->chunk[chunk_len], user_device_row.user_id);
 		if (memcmp(user_id, user->id, sizeof(*user->id)) == 0) {
 			*user_devices_len += 1;
 			chunk_len += user_device_row.size;
@@ -134,8 +134,8 @@ uint16_t user_device_insert(octet_t *db, user_device_t *user_device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.device_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.user_id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.device_id);
 		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			status = 409;
@@ -209,8 +209,8 @@ uint16_t user_device_delete(octet_t *db, user_device_t *user_device) {
 			status = octet_error();
 			goto cleanup;
 		}
-		uint8_t (*user_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.user_id);
-		uint8_t (*device_id)[16] = (uint8_t (*)[16])octet_blob_read(db->row, user_device_row.device_id);
+		uint8_t (*user_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.user_id);
+		uint8_t (*device_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_device_row.device_id);
 		if (memcmp(user_id, user_device->user_id, sizeof(*user_device->user_id)) == 0 &&
 				memcmp(device_id, user_device->device_id, sizeof(*user_device->device_id)) == 0) {
 			break;
@@ -257,7 +257,7 @@ void user_device_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -276,7 +276,7 @@ void user_device_create(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	device_t device = {.id = (uint8_t (*)[16])request->body.ptr};
+	device_t device = {.id = (uint8_t (*)[8])request->body.ptr};
 	status = device_existing(db, &device);
 	if (status != 0) {
 		response->status = status;
@@ -309,7 +309,7 @@ void user_device_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	uint8_t id[16];
+	uint8_t id[8];
 	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
 		warn("failed to decode uuid from base 16\n");
 		response->status = 400;
@@ -328,7 +328,7 @@ void user_device_remove(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	user_device_t user_device = {.user_id = user.id, .device_id = (uint8_t (*)[16])request->body.ptr};
+	user_device_t user_device = {.user_id = user.id, .device_id = (uint8_t (*)[8])request->body.ptr};
 	status = user_device_delete(db, &user_device);
 	if (status != 0) {
 		response->status = status;
