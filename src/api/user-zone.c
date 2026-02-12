@@ -16,8 +16,8 @@ const char *user_zone_file = "user-zone";
 
 const user_zone_row_t user_zone_row = {
 		.user_id = 0,
-		.zone_id = 16,
-		.size = 32,
+		.zone_id = 8,
+		.size = 16,
 };
 
 uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone) {

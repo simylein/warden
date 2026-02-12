@@ -17,8 +17,8 @@ const char *user_device_file = "user-device";
 
 const user_device_row_t user_device_row = {
 		.user_id = 0,
-		.device_id = 16,
-		.size = 32,
+		.device_id = 8,
+		.size = 16,
 };
 
 uint16_t user_device_existing(octet_t *db, user_device_t *user_device) {

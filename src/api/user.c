@@ -20,13 +20,13 @@ const char *user_file = "user";
 
 const user_row_t user_row = {
 		.id = 0,
-		.username_len = 16,
-		.username = 17,
-		.password = 33,
-		.signup_at = 65,
-		.signin_at = 73,
-		.permissions = 81,
-		.size = 89,
+		.username_len = 8,
+		.username = 9,
+		.password = 25,
+		.signup_at = 57,
+		.signin_at = 65,
+		.permissions = 73,
+		.size = 81,
 };
 
 int user_rowcmp(uint8_t *alpha, uint8_t *bravo, user_query_t *query) {
