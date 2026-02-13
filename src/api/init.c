@@ -1,6 +1,7 @@
 #include "../lib/logger.h"
 #include "../lib/octet.h"
 #include "device.h"
+#include "host.h"
 #include "user-device.h"
 #include "user-zone.h"
 #include "user.h"
@@ -82,6 +83,21 @@ int init_user_zone(octet_t *db) {
 	return 0;
 }
 
+int init_host(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_creat(file) == -1) {
+		return -1;
+	}
+
+	info("created file %s\n", host_file);
+	return 0;
+}
+
 int init(octet_t *db) {
 	if (octet_mkdir(db->directory) == -1) {
 		return -1;
@@ -102,6 +118,9 @@ int init(octet_t *db) {
 		return -1;
 	}
 	if (init_user_zone(db) == -1) {
+		return -1;
+	}
+	if (init_host(db) == -1) {
 		return -1;
 	}
 

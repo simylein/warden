@@ -5,6 +5,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "host.h"
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
@@ -92,6 +93,21 @@ int drop_user_zone(octet_t *db) {
 	return 0;
 }
 
+int drop_host(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_unlink(file) == -1) {
+		return -1;
+	}
+
+	info("unlinked file %s\n", host_file);
+	return 0;
+}
+
 int drop(octet_t *db) {
 	if (drop_user(db) == -1) {
 		return -1;
@@ -106,6 +122,9 @@ int drop(octet_t *db) {
 		return -1;
 	}
 	if (drop_user_zone(db) == -1) {
+		return -1;
+	}
+	if (drop_host(db) == -1) {
 		return -1;
 	}
 
