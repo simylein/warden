@@ -71,3 +71,46 @@ cleanup:
 	octet_close(&stmt, file);
 	return status;
 }
+
+uint16_t host_insert(octet_t *db, host_t *host) {
+	uint16_t status;
+
+	for (uint8_t index = 0; index < sizeof(*host->id); index++) {
+		(*host->id)[index] = (uint8_t)(rand() & 0xff);
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("insert host %.*s:%hu\n", host->address_len, host->address, host->port);
+
+	off_t offset = 0;
+	octet_blob_write(db->row, host_row.id, (uint8_t *)host->id, sizeof(*host->id));
+	octet_uint8_write(db->row, host_row.address_len, host->address_len);
+	octet_text_write(db->row, host_row.address, host->address, host->address_len);
+	octet_uint16_write(db->row, host_row.port, host->port);
+	octet_uint8_write(db->row, host_row.username_len, host->username_len);
+	octet_text_write(db->row, host_row.username, host->username, host->username_len);
+	octet_uint8_write(db->row, host_row.password_len, host->password_len);
+	octet_text_write(db->row, host_row.password, host->password, host->password_len);
+
+	if (octet_row_write(&stmt, file, offset, db->row, host_row.size) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}

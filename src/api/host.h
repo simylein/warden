@@ -31,3 +31,4 @@ extern const char *host_file;
 extern const host_row_t host_row;
 
 uint16_t host_select_one(octet_t *db, host_t *host);
+uint16_t host_insert(octet_t *db, host_t *host);

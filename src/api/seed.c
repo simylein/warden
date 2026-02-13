@@ -4,6 +4,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "host.h"
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
@@ -200,163 +201,28 @@ int seed_user_device(octet_t *db) {
 	return 0;
 }
 
-int seed_uplink(octet_t *db) {
-	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint16_t frame = 0;
-		int16_t rssi = (int16_t)(rand() % 128 - 157);
-		int8_t snr = (int8_t)(rand() % 144 - 96);
-		uint8_t sf = (uint8_t)(rand() % 7 + 6);
-		uint8_t cr = (uint8_t)(rand() % 4 + 5);
-		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
-		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
-		time_t now = time(NULL);
-		time_t received_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (received_at < now) {
-			uint8_t data[16];
-			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
-			for (uint8_t ind = 0; ind < data_len; ind++) {
-				data[ind] = (uint8_t)rand();
-			}
-			uplink_t uplink = {
-					.frame = frame,
-					.kind = (uint8_t)rand(),
-					.data = data,
-					.data_len = data_len,
-					.airtime = 12 * 16 + (uint16_t)(rand() % 256),
-					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
-					.bandwidth = 125 * 1000,
-					.rssi = rssi,
-					.snr = snr,
-					.sf = sf,
-					.cr = cr,
-					.tx_power = tx_power,
-					.preamble_len = preamble_len,
-					.received_at = received_at,
-					.device_id = &device_ids[index],
-			};
+int seed_host(octet_t *db) {
+	char *address = "0.0.0.0";
+	char *username = "warden";
+	char *password = ".go4Warden";
 
-			if (uplink_insert(db, &uplink) != 0) {
-				return -1;
-			}
-			frame += 1;
-			rssi += (int16_t)(rand() % 5 - 2);
-			if (rssi < -157) {
-				rssi += 10;
-			}
-			if (rssi > -29) {
-				rssi -= 10;
-			}
-			snr += (int8_t)(rand() % 5 - 2);
-			if (snr < -96) {
-				snr += 10;
-			}
-			if (snr > 48) {
-				snr -= 10;
-			}
-			sf += (uint8_t)(rand() % 3 - 1);
-			if (sf < 6) {
-				sf += 1;
-			}
-			if (sf > 12) {
-				sf -= 1;
-			}
-			cr += (uint8_t)(rand() % 3 - 1);
-			if (cr < 5) {
-				cr += 1;
-			}
-			if (cr > 8) {
-				cr -= 1;
-			}
-			tx_power += (uint8_t)(rand() % 3 - 1);
-			if (tx_power < 2) {
-				tx_power += 1;
-			}
-			if (tx_power > 17) {
-				tx_power -= 1;
-			}
-			preamble_len += (uint8_t)(rand() % 3 - 1);
-			if (preamble_len < 6) {
-				preamble_len += 1;
-			}
-			if (preamble_len > 21) {
-				preamble_len -= 1;
-			}
-			received_at += 56 + rand() % 8;
-		}
+	uint8_t id[8];
+	host_t host = {
+			.id = &id,
+			.address = address,
+			.address_len = (uint8_t)strlen(address),
+			.port = 1278,
+			.username = username,
+			.username_len = (uint8_t)strlen(username),
+			.password = password,
+			.password_len = (uint8_t)strlen(password),
+	};
+
+	if (host_insert(db, &host) != 0) {
+		return -1;
 	}
 
-	info("seeded file %s\n", uplink_file);
-	return 0;
-}
-
-int seed_downlink(octet_t *db) {
-	for (uint8_t index = 0; index < device_ids_len; index++) {
-		uint16_t frame = 0;
-		uint8_t sf = (uint8_t)(rand() % 7 + 6);
-		uint8_t cr = (uint8_t)(rand() % 4 + 5);
-		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
-		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
-		time_t now = time(NULL);
-		time_t sent_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (sent_at < now) {
-			uint8_t data[16];
-			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
-			for (uint8_t ind = 0; ind < data_len; ind++) {
-				data[ind] = (uint8_t)rand();
-			}
-			downlink_t downlink = {
-					.frame = frame,
-					.kind = (uint8_t)rand(),
-					.data = data,
-					.data_len = data_len,
-					.airtime = 12 * 16 + (uint16_t)(rand() % 256),
-					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
-					.bandwidth = 125 * 1000,
-					.sf = sf,
-					.cr = cr,
-					.tx_power = tx_power,
-					.preamble_len = preamble_len,
-					.sent_at = sent_at,
-					.device_id = &device_ids[index],
-			};
-
-			if (downlink_insert(db, &downlink) != 0) {
-				return -1;
-			}
-			frame += 1;
-			sf += (uint8_t)(rand() % 3 - 1);
-			if (sf < 6) {
-				sf += 1;
-			}
-			if (sf > 12) {
-				sf -= 1;
-			}
-			cr += (uint8_t)(rand() % 3 - 1);
-			if (cr < 5) {
-				cr += 1;
-			}
-			if (cr > 8) {
-				cr -= 1;
-			}
-			tx_power += (uint8_t)(rand() % 3 - 1);
-			if (tx_power < 2) {
-				tx_power += 1;
-			}
-			if (tx_power > 17) {
-				tx_power -= 1;
-			}
-			preamble_len += (uint8_t)(rand() % 3 - 1);
-			if (preamble_len < 6) {
-				preamble_len += 1;
-			}
-			if (preamble_len > 21) {
-				preamble_len -= 1;
-			}
-			sent_at += 56 + rand() % 8;
-		}
-	}
-
-	info("seeded file %s\n", downlink_file);
+	info("seeded file %s\n", host_file);
 	return 0;
 }
 
@@ -541,6 +407,166 @@ int seed_radio(octet_t *db) {
 	return 0;
 }
 
+int seed_uplink(octet_t *db) {
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint16_t frame = 0;
+		int16_t rssi = (int16_t)(rand() % 128 - 157);
+		int8_t snr = (int8_t)(rand() % 144 - 96);
+		uint8_t sf = (uint8_t)(rand() % 7 + 6);
+		uint8_t cr = (uint8_t)(rand() % 4 + 5);
+		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
+		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
+		time_t now = time(NULL);
+		time_t received_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (received_at < now) {
+			uint8_t data[16];
+			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
+			for (uint8_t ind = 0; ind < data_len; ind++) {
+				data[ind] = (uint8_t)rand();
+			}
+			uplink_t uplink = {
+					.frame = frame,
+					.kind = (uint8_t)rand(),
+					.data = data,
+					.data_len = data_len,
+					.airtime = 12 * 16 + (uint16_t)(rand() % 256),
+					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
+					.bandwidth = 125 * 1000,
+					.rssi = rssi,
+					.snr = snr,
+					.sf = sf,
+					.cr = cr,
+					.tx_power = tx_power,
+					.preamble_len = preamble_len,
+					.received_at = received_at,
+					.device_id = &device_ids[index],
+			};
+
+			if (uplink_insert(db, &uplink) != 0) {
+				return -1;
+			}
+			frame += 1;
+			rssi += (int16_t)(rand() % 5 - 2);
+			if (rssi < -157) {
+				rssi += 10;
+			}
+			if (rssi > -29) {
+				rssi -= 10;
+			}
+			snr += (int8_t)(rand() % 5 - 2);
+			if (snr < -96) {
+				snr += 10;
+			}
+			if (snr > 48) {
+				snr -= 10;
+			}
+			sf += (uint8_t)(rand() % 3 - 1);
+			if (sf < 6) {
+				sf += 1;
+			}
+			if (sf > 12) {
+				sf -= 1;
+			}
+			cr += (uint8_t)(rand() % 3 - 1);
+			if (cr < 5) {
+				cr += 1;
+			}
+			if (cr > 8) {
+				cr -= 1;
+			}
+			tx_power += (uint8_t)(rand() % 3 - 1);
+			if (tx_power < 2) {
+				tx_power += 1;
+			}
+			if (tx_power > 17) {
+				tx_power -= 1;
+			}
+			preamble_len += (uint8_t)(rand() % 3 - 1);
+			if (preamble_len < 6) {
+				preamble_len += 1;
+			}
+			if (preamble_len > 21) {
+				preamble_len -= 1;
+			}
+			received_at += 56 + rand() % 8;
+		}
+	}
+
+	info("seeded file %s\n", uplink_file);
+	return 0;
+}
+
+int seed_downlink(octet_t *db) {
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		uint16_t frame = 0;
+		uint8_t sf = (uint8_t)(rand() % 7 + 6);
+		uint8_t cr = (uint8_t)(rand() % 4 + 5);
+		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
+		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
+		time_t now = time(NULL);
+		time_t sent_at = time(NULL) - 2 * 24 * 60 * 60;
+		while (sent_at < now) {
+			uint8_t data[16];
+			uint8_t data_len = 4 + (uint8_t)(rand() % 12);
+			for (uint8_t ind = 0; ind < data_len; ind++) {
+				data[ind] = (uint8_t)rand();
+			}
+			downlink_t downlink = {
+					.frame = frame,
+					.kind = (uint8_t)rand(),
+					.data = data,
+					.data_len = data_len,
+					.airtime = 12 * 16 + (uint16_t)(rand() % 256),
+					.frequency = (uint32_t)(435625 * 1000 - sf * 200 * 1000),
+					.bandwidth = 125 * 1000,
+					.sf = sf,
+					.cr = cr,
+					.tx_power = tx_power,
+					.preamble_len = preamble_len,
+					.sent_at = sent_at,
+					.device_id = &device_ids[index],
+			};
+
+			if (downlink_insert(db, &downlink) != 0) {
+				return -1;
+			}
+			frame += 1;
+			sf += (uint8_t)(rand() % 3 - 1);
+			if (sf < 6) {
+				sf += 1;
+			}
+			if (sf > 12) {
+				sf -= 1;
+			}
+			cr += (uint8_t)(rand() % 3 - 1);
+			if (cr < 5) {
+				cr += 1;
+			}
+			if (cr > 8) {
+				cr -= 1;
+			}
+			tx_power += (uint8_t)(rand() % 3 - 1);
+			if (tx_power < 2) {
+				tx_power += 1;
+			}
+			if (tx_power > 17) {
+				tx_power -= 1;
+			}
+			preamble_len += (uint8_t)(rand() % 3 - 1);
+			if (preamble_len < 6) {
+				preamble_len += 1;
+			}
+			if (preamble_len > 21) {
+				preamble_len -= 1;
+			}
+			sent_at += 56 + rand() % 8;
+		}
+	}
+
+	info("seeded file %s\n", downlink_file);
+	return 0;
+}
+
 int seed(octet_t *db) {
 	if (seed_user(db) == -1) {
 		return -1;
@@ -557,10 +583,7 @@ int seed(octet_t *db) {
 	if (seed_user_device(db) == -1) {
 		return -1;
 	}
-	if (seed_uplink(db) == -1) {
-		return -1;
-	}
-	if (seed_downlink(db) == -1) {
+	if (seed_host(db) == -1) {
 		return -1;
 	}
 	if (seed_reading(db) == -1) {
@@ -576,6 +599,12 @@ int seed(octet_t *db) {
 		return -1;
 	}
 	if (seed_radio(db) == -1) {
+		return -1;
+	}
+	if (seed_uplink(db) == -1) {
+		return -1;
+	}
+	if (seed_downlink(db) == -1) {
 		return -1;
 	}
 

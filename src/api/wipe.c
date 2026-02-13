@@ -5,6 +5,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "host.h"
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
@@ -158,6 +159,34 @@ cleanup:
 	return status;
 }
 
+int wipe_host(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, host_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", host_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 int wipe(octet_t *db) {
 	if (wipe_user(db) == -1) {
 		return -1;
@@ -172,6 +201,9 @@ int wipe(octet_t *db) {
 		return -1;
 	}
 	if (wipe_user_zone(db) == -1) {
+		return -1;
+	}
+	if (wipe_host(db) == -1) {
 		return -1;
 	}
 
