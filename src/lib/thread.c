@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 
 queue_t queue = {
 		.head = 0,
@@ -156,10 +157,14 @@ void *thread(void *args) {
 void *scaler(void *args) {
 	(void)args;
 
+	time_t scaled = 0;
+
 	while (true) {
 		pthread_mutex_lock(&thread_pool.lock);
 		pthread_cond_wait(&thread_pool.scale, &thread_pool.lock);
 		pthread_mutex_unlock(&thread_pool.lock);
+
+		time_t now = time(NULL);
 
 		if (thread_pool.load >= thread_pool.size) {
 			debug("all worker threads currently busy\n");
@@ -167,15 +172,17 @@ void *scaler(void *args) {
 			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
 				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
 				thread_pool.size = new_size;
+				scaled = now;
 			}
 		}
 
-		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers) {
+		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers && (now - scaled) >= 2) {
 			debug("half worker threads currently idle\n");
 			uint8_t new_size = thread_pool.size - 1;
 			if (join(&thread_pool.workers[new_size], new_size) == 0) {
 				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
 				thread_pool.size = new_size;
+				scaled = now;
 			}
 		}
 	}
