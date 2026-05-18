@@ -146,6 +146,9 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 			query->offset -= 1;
 		}
 		offsets[index] -= uplink_row.size;
+		if (offsets[index] < 0) {
+			continue;
+		}
 
 		if (octet_row_read(&stmts[index], files[index], offsets[index], &db->table[index * uplink_row.size], uplink_row.size) ==
 				-1) {

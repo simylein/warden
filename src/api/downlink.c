@@ -139,6 +139,9 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 			query->offset -= 1;
 		}
 		offsets[index] -= downlink_row.size;
+		if (offsets[index] < 0) {
+			continue;
+		}
 
 		if (octet_row_read(&stmts[index], files[index], offsets[index], &db->table[index * downlink_row.size], downlink_row.size) ==
 				-1) {
