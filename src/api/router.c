@@ -5,6 +5,7 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "alert.h"
 #include "buffer.h"
 #include "config.h"
 #include "device.h"
@@ -511,6 +512,13 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			uplink_signal_find_by_zone(db, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "get", "/api/alerts", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			alert_find(db, &bwt, request, response);
 		}
 	}
 
