@@ -21,6 +21,7 @@ extern file_t page_zone_readings;
 extern file_t page_zone_metrics;
 extern file_t page_zone_buffers;
 extern file_t page_zone_signals;
+extern file_t page_alerts;
 extern file_t page_uplinks;
 extern file_t page_downlinks;
 extern file_t page_users;
