@@ -135,6 +135,69 @@ cleanup:
 	return status;
 }
 
+uint16_t alert_insert(octet_t *db, alert_t *alert) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), alert->device_id, sizeof(*alert->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, alert_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("insert alert for device %02x%02x issued at %lu\n", (*alert->device_id)[0], (*alert->device_id)[1], alert->issued_at);
+
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - alert_row.size, db->row, alert_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t issued_at = (time_t)octet_uint64_read(db->row, alert_row.issued_at);
+		if (issued_at <= alert->issued_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, alert_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= alert_row.size;
+	}
+
+	octet_uint8_write(db->row, alert_row.severity, alert->severity);
+	octet_uint8_write(db->row, alert_row.field, alert->field);
+	octet_int32_write(db->row, alert_row.value, alert->value);
+	octet_uint64_write(db->row, alert_row.issued_at, (uint64_t)alert->issued_at);
+	if (alert->resolved_at != NULL) {
+		octet_uint8_write(db->row, alert_row.resolved_at_null, 0x01);
+		octet_uint64_write(db->row, alert_row.resolved_at, (uint64_t)alert->resolved_at);
+	} else {
+		octet_uint8_write(db->row, alert_row.resolved_at_null, 0x00);
+	}
+
+	if (octet_row_write(&stmt, file, offset, db->row, alert_row.size) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void alert_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *limit;
 	size_t limit_len;

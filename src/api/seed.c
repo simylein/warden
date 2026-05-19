@@ -1,5 +1,6 @@
 #include "../lib/logger.h"
 #include "../lib/octet.h"
+#include "alert.h"
 #include "buffer.h"
 #include "config.h"
 #include "device.h"
@@ -407,6 +408,30 @@ int seed_radio(octet_t *db) {
 	return 0;
 }
 
+int seed_alert(octet_t *db) {
+	time_t issued_at = time(NULL);
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+
+		alert_t alert = {
+				.severity = (uint8_t)(rand() % 3),
+				.field = (uint8_t)(rand() % 6),
+				.value = (int32_t)(512 + (rand() % 2048)),
+				.issued_at = issued_at,
+				.resolved_at = rand() % 2 == 0 ? (time_t[]){issued_at + rand() % 512} : NULL,
+				.device_id = &device_ids[index],
+		};
+
+		if (alert_insert(db, &alert) != 0) {
+			return -1;
+		}
+
+		issued_at -= 50 + rand() % 20;
+	}
+
+	info("seeded file %s\n", alert_file);
+	return 0;
+}
+
 int seed_uplink(octet_t *db) {
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		uint16_t frame = 0;
@@ -599,6 +624,9 @@ int seed(octet_t *db) {
 		return -1;
 	}
 	if (seed_radio(db) == -1) {
+		return -1;
+	}
+	if (seed_alert(db) == -1) {
 		return -1;
 	}
 	if (seed_uplink(db) == -1) {
