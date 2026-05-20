@@ -54,8 +54,8 @@ recursion:
 			char id[32];
 			uint8_t id_len = 0;
 			char *id_start;
-			char class[128];
-			uint8_t class_len = 0;
+			char class[256];
+			uint16_t class_len = 0;
 			char *class_start;
 			while (asset_ind < asset->len) {
 				if (*byte == ' ' && asset_ind + 5 < asset->len && memcmp(byte + 1, "id=\"", 4) == 0) {
