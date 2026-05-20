@@ -54,8 +54,8 @@ recursion:
 			char id[32];
 			uint8_t id_len = 0;
 			char *id_start;
-			char class[256];
-			uint16_t class_len = 0;
+			char class[224];
+			uint8_t class_len = 0;
 			char *class_start;
 			while (asset_ind < asset->len) {
 				if (*byte == ' ' && asset_ind + 5 < asset->len && memcmp(byte + 1, "id=\"", 4) == 0) {
@@ -152,6 +152,15 @@ recursion:
 
 					class_done = true;
 				} else {
+					if (assemble_ind >= assemble_len) {
+						assemble_len += 4096;
+						char *assemble_ptr_new = realloc(assemble_ptr, assemble_len);
+						if (assemble_ptr_new == NULL) {
+							error("failed to allocate %zu bytes for %s because %s\n", assemble_len, asset->path, errno_str());
+							return -1;
+						}
+						assemble_ptr = assemble_ptr_new;
+					}
 					assemble_ptr[assemble_ind] = *component_byte;
 					assemble_ind += 1;
 					component_ind += 1;
