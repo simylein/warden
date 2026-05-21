@@ -13,6 +13,7 @@
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
+#include "rule.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user-zone.h"
@@ -442,6 +443,13 @@ void route(octet_t *db, request_t *request, response_t *response) {
 			if (authorize(&bwt, permission_radio_update, response) == true) {
 				radio_modify(db, &bwt, request, response);
 			}
+		}
+	}
+
+	if (endpoint(request, "get", "/api/device/:id/rules", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			rule_find_by_device(db, &bwt, request, response);
 		}
 	}
 
