@@ -214,6 +214,13 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/device/:id/rules", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			serve_device_rules(db, &bwt, request, response);
+		}
+	}
+
 	if (endpoint(request, "get", "/device/:id/signals", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
