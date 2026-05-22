@@ -267,6 +267,72 @@ cleanup:
 	return status;
 }
 
+uint16_t rule_delete(octet_t *db, rule_t *rule) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), rule->device_id, sizeof(*rule->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, rule_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete rule for device %02x%02x created at %lu\n", (*rule->device_id)[0], (*rule->device_id)[1], rule->created_at);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("rule %lu for device %02x%02x not found\n", rule->created_at, (*rule->device_id)[0], (*rule->device_id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t created_at = (time_t)octet_uint64_read(db->row, rule_row.created_at);
+		if (created_at == rule->created_at) {
+			break;
+		}
+		offset += rule_row.size;
+	}
+
+	off_t index = offset + rule_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - rule_row.size, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += rule_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - rule_row.size)) {
+		status = 500;
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void rule_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	uint8_t uuid_len = 0;
 	const char *uuid = param_find(request, 12, &uuid_len);
@@ -443,5 +509,58 @@ void rule_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 	}
 
 	info("updated rule for device %02x%02x\n", (*rule.device_id)[0], (*rule.device_id)[1]);
+	response->status = 200;
+}
+
+void rule_remove(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	rule_t rule = {.device_id = device.id};
+	if (request->body.len < request->body.pos + sizeof(rule.created_at)) {
+		debug("missing created at on rule\n");
+		response->status = 400;
+		return;
+	}
+	memcpy(&rule.created_at, body_read(request, sizeof(rule.created_at)), sizeof(rule.created_at));
+	rule.created_at = (time_t)ntoh64((uint64_t)rule.created_at);
+	status = rule_delete(db, &rule);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("deleted rule for device %02x%02x\n", (*rule.device_id)[0], (*rule.device_id)[1]);
 	response->status = 200;
 }
