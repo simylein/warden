@@ -10,6 +10,7 @@
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
+#include "rule.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user-zone.h"
@@ -138,8 +139,8 @@ int drop(octet_t *db) {
 	struct dirent *dir;
 	while ((dir = readdir(db_directory)) != NULL) {
 		if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0) {
-			const char *files[] = {uplink_file, downlink_file, reading_file, metric_file,
-														 buffer_file, config_file,	 radio_file,	 alert_file};
+			const char *files[] = {uplink_file, downlink_file, reading_file, metric_file, buffer_file,
+														 config_file, radio_file,		 alert_file,	 rule_file};
 			for (uint8_t index = 0; index < sizeof(files) / sizeof(files[0]); index++) {
 				char file[512];
 				if (sprintf(file, "%s/%s/%s.data", db->directory, dir->d_name, files[index]) == -1) {

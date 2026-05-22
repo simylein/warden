@@ -15,6 +15,7 @@
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
+#include "rule.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user.h"
@@ -995,8 +996,8 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 		goto cleanup;
 	}
 
-	const char *files[] = {uplink_file, downlink_file, reading_file, metric_file,
-												 buffer_file, config_file,	 radio_file,	 alert_file};
+	const char *files[] = {uplink_file, downlink_file, reading_file, metric_file, buffer_file,
+												 config_file, radio_file,		 alert_file,	 rule_file};
 	for (uint8_t index = 0; index < sizeof(files) / sizeof(files[0]); index++) {
 		if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, files[index]) == -1) {
 			error("failed to sprintf uuid to file\n");

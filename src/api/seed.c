@@ -9,6 +9,7 @@
 #include "metric.h"
 #include "radio.h"
 #include "reading.h"
+#include "rule.h"
 #include "uplink.h"
 #include "user-device.h"
 #include "user-zone.h"
@@ -411,7 +412,6 @@ int seed_radio(octet_t *db) {
 int seed_alert(octet_t *db) {
 	time_t issued_at = time(NULL);
 	for (uint8_t index = 0; index < device_ids_len; index++) {
-
 		alert_t alert = {
 				.severity = (uint8_t)(rand() % 3),
 				.field = (uint8_t)(rand() % 6),
@@ -429,6 +429,33 @@ int seed_alert(octet_t *db) {
 	}
 
 	info("seeded file %s\n", alert_file);
+	return 0;
+}
+
+int seed_rule(octet_t *db) {
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		time_t now = time(NULL);
+		time_t created_at = time(NULL) - 5 * 60;
+		while (created_at < now) {
+			rule_t rule = {
+					.severity = (uint8_t)(rand() % 3),
+					.field = (uint8_t)(rand() % 6),
+					.activate = (int32_t)(512 + (rand() % 2048)),
+					.disable = (int32_t)(512 + (rand() % 2048)),
+					.created_at = created_at,
+					.updated_at = rand() % 2 == 0 ? (time_t[]){created_at + rand() % 512} : NULL,
+					.device_id = &device_ids[index],
+			};
+
+			if (rule_insert(db, &rule) != 0) {
+				return -1;
+			}
+
+			created_at += 50 + rand() % 20;
+		}
+	}
+
+	info("seeded file %s\n", rule_file);
 	return 0;
 }
 
@@ -627,6 +654,9 @@ int seed(octet_t *db) {
 		return -1;
 	}
 	if (seed_alert(db) == -1) {
+		return -1;
+	}
+	if (seed_rule(db) == -1) {
 		return -1;
 	}
 	if (seed_uplink(db) == -1) {
