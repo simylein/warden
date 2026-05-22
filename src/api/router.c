@@ -51,6 +51,10 @@ const uint64_t permission_radio_read = 1lu << 39lu;
 const uint64_t permission_radio_create = 1lu << 38lu;
 const uint64_t permission_radio_update = 1lu << 37lu;
 const uint64_t permission_radio_delete = 1lu << 36lu;
+const uint64_t permission_rule_read = 1lu << 35lu;
+const uint64_t permission_rule_create = 1lu << 34lu;
+const uint64_t permission_rule_update = 1lu << 33lu;
+const uint64_t permission_rule_delete = 1lu << 32lu;
 const uint64_t permission_uplink_read = 1lu << 7lu;
 const uint64_t permission_uplink_create = 1lu << 6lu;
 const uint64_t permission_uplink_update = 1lu << 5lu;
@@ -457,6 +461,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
 			rule_find_by_device(db, &bwt, request, response);
+		}
+	}
+
+	if (endpoint(request, "post", "/api/device/:id/rule", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_rule_create, response) == true) {
+				rule_create(db, &bwt, request, response);
+			}
 		}
 	}
 

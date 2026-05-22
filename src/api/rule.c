@@ -1,5 +1,6 @@
 #include "rule.h"
 #include "../lib/base16.h"
+#include "../lib/bwt.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
@@ -10,6 +11,8 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <time.h>
 
 const char *rule_file = "rule";
 
@@ -77,6 +80,121 @@ uint16_t rule_select_by_device(octet_t *db, device_t *device, rule_query_t *quer
 		*rules_len += 1;
 		offset -= rule_row.size;
 	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int rule_parse(rule_t *rule, request_t *request) {
+	request->body.pos = 0;
+
+	if (request->body.len < request->body.pos + sizeof(rule->severity)) {
+		debug("missing severity on rule\n");
+		return -1;
+	}
+	rule->severity = (uint8_t)*body_read(request, sizeof(rule->severity));
+
+	if (request->body.len < request->body.pos + sizeof(rule->field)) {
+		debug("missing field on rule\n");
+		return -1;
+	}
+	rule->field = (uint8_t)*body_read(request, sizeof(rule->field));
+
+	if (request->body.len < request->body.pos + sizeof(rule->activate)) {
+		debug("missing activate on rule\n");
+		return -1;
+	}
+	memcpy(&rule->activate, body_read(request, sizeof(rule->activate)), sizeof(rule->activate));
+	rule->activate = (int32_t)ntoh32((uint32_t)rule->activate);
+
+	if (request->body.len < request->body.pos + sizeof(rule->disable)) {
+		debug("missing disable on rule\n");
+		return -1;
+	}
+	memcpy(&rule->disable, body_read(request, sizeof(rule->disable)), sizeof(rule->disable));
+	rule->disable = (int32_t)ntoh32((uint32_t)rule->disable);
+
+	if (request->body.len != request->body.pos) {
+		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
+		return -1;
+	}
+
+	return 0;
+}
+
+int rule_validate(rule_t *rule) {
+	if (rule->severity > 2) {
+		debug("invalid severity %hhu on rule\n", rule->severity);
+		return -1;
+	}
+
+	if (rule->field > 5) {
+		debug("invalid field %hhu on rule\n", rule->field);
+		return -1;
+	}
+
+	return 0;
+}
+
+uint16_t rule_insert(octet_t *db, rule_t *rule) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), rule->device_id, sizeof(*rule->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, rule_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("insert rule for device %02x%02x created at %lu\n", (*rule->device_id)[0], (*rule->device_id)[1], rule->created_at);
+
+	off_t offset = stmt.stat.st_size;
+	while (offset > 0) {
+		if (octet_row_read(&stmt, file, offset - rule_row.size, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t created_at = (time_t)octet_uint64_read(db->row, rule_row.created_at);
+		if (created_at <= rule->created_at) {
+			break;
+		}
+		if (octet_row_write(&stmt, file, offset, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		offset -= rule_row.size;
+	}
+
+	octet_uint8_write(db->row, rule_row.severity, rule->severity);
+	octet_uint8_write(db->row, rule_row.field, rule->field);
+	octet_int32_write(db->row, rule_row.activate, rule->activate);
+	octet_int32_write(db->row, rule_row.disable, rule->disable);
+	octet_uint64_write(db->row, rule_row.created_at, (uint64_t)rule->created_at);
+	if (rule->updated_at != NULL) {
+		octet_uint8_write(db->row, rule_row.updated_at_null, 0x01);
+		octet_uint64_write(db->row, rule_row.updated_at, (uint64_t)*rule->updated_at);
+	} else {
+		octet_uint8_write(db->row, rule_row.updated_at_null, 0x00);
+	}
+
+	if (octet_row_write(&stmt, file, offset, db->row, rule_row.size) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	status = 0;
 
 cleanup:
 	octet_close(&stmt, file);
@@ -158,4 +276,55 @@ void rule_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hu rules\n", rules_len);
 	response->status = 200;
+}
+
+void rule_create(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	rule_t rule = {.created_at = time(NULL), .updated_at = NULL, .device_id = device.id};
+	if (request->body.len == 0 || rule_parse(&rule, request) == -1 || rule_validate(&rule) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	status = rule_insert(db, &rule);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created rule for device %02x%02x\n", (*rule.device_id)[0], (*rule.device_id)[1]);
+	response->status = 201;
 }

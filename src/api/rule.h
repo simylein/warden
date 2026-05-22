@@ -39,5 +39,7 @@ extern const char *rule_file;
 extern const rule_row_t rule_tow;
 
 uint16_t rule_select_by_device(octet_t *db, device_t *device, rule_query_t *query, response_t *response, uint8_t *rules_len);
+uint16_t rule_insert(octet_t *db, rule_t *rule);
 
 void rule_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void rule_create(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
