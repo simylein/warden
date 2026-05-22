@@ -115,6 +115,15 @@ int rule_parse(rule_t *rule, request_t *request) {
 	memcpy(&rule->disable, body_read(request, sizeof(rule->disable)), sizeof(rule->disable));
 	rule->disable = (int32_t)ntoh32((uint32_t)rule->disable);
 
+	if (rule->updated_at != NULL) {
+		if (request->body.len < request->body.pos + sizeof(rule->created_at)) {
+			debug("missing created at on rule\n");
+			return -1;
+		}
+		memcpy(&rule->created_at, body_read(request, sizeof(rule->created_at)), sizeof(rule->created_at));
+		rule->created_at = (time_t)ntoh64((uint64_t)rule->created_at);
+	}
+
 	if (request->body.len != request->body.pos) {
 		debug("body len %u does not match body pos %u\n", request->body.len, request->body.pos);
 		return -1;
@@ -195,6 +204,63 @@ uint16_t rule_insert(octet_t *db, rule_t *rule) {
 	}
 
 	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t rule_update(octet_t *db, rule_t *rule) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), rule->device_id, sizeof(*rule->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, rule_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("update rule for device %02x%02x updated at %lu\n", (*rule->device_id)[0], (*rule->device_id)[1], *rule->updated_at);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("rule %lu for device %02x%02x not found\n", rule->created_at, (*rule->device_id)[0], (*rule->device_id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, rule_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		time_t created_at = (time_t)octet_uint64_read(db->row, rule_row.created_at);
+		if (created_at == rule->created_at) {
+			octet_uint8_write(db->row, rule_row.severity, rule->severity);
+			octet_uint8_write(db->row, rule_row.field, rule->field);
+			octet_int32_write(db->row, rule_row.activate, rule->activate);
+			octet_int32_write(db->row, rule_row.disable, rule->disable);
+			octet_uint8_write(db->row, rule_row.updated_at_null, 0x01);
+			octet_uint64_write(db->row, rule_row.updated_at, (uint64_t)*rule->updated_at);
+			if (octet_row_write(&stmt, file, offset, db->row, rule_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset += rule_row.size;
+	}
 
 cleanup:
 	octet_close(&stmt, file);
@@ -327,4 +393,55 @@ void rule_create(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 
 	info("created rule for device %02x%02x\n", (*rule.device_id)[0], (*rule.device_id)[1]);
 	response->status = 201;
+}
+
+void rule_modify(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	rule_t rule = {.updated_at = (time_t[]){time(NULL)}, .device_id = device.id};
+	if (request->body.len == 0 || rule_parse(&rule, request) == -1 || rule_validate(&rule) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	status = rule_update(db, &rule);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated rule for device %02x%02x\n", (*rule.device_id)[0], (*rule.device_id)[1]);
+	response->status = 200;
 }
