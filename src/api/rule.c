@@ -175,8 +175,12 @@ uint16_t rule_insert(octet_t *db, rule_t *rule) {
 			status = octet_error();
 			goto cleanup;
 		}
-		time_t created_at = (time_t)octet_uint64_read(db->row, rule_row.created_at);
-		if (created_at <= rule->created_at) {
+		uint8_t severity = octet_uint8_read(db->row, rule_row.severity);
+		uint8_t field = octet_uint8_read(db->row, rule_row.field);
+		if (severity > rule->severity) {
+			break;
+		}
+		if (severity == rule->severity && field >= rule->field) {
 			break;
 		}
 		if (octet_row_write(&stmt, file, offset, db->row, rule_row.size) == -1) {
