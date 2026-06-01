@@ -33,7 +33,7 @@ typedef struct alert_row_t {
 
 extern const char *alert_file;
 
-extern const alert_row_t alert_tow;
+extern const alert_row_t alert_row;
 
 uint16_t alert_select(octet_t *db, bwt_t *bwt, alert_query_t *query, response_t *response, uint8_t *alerts_len);
 uint16_t alert_insert(octet_t *db, alert_t *alert);
