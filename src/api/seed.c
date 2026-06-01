@@ -440,6 +440,7 @@ int seed_rule(octet_t *db) {
 			rule_t rule = {
 					.severity = (uint8_t)(rand() % 3),
 					.field = (uint8_t)(rand() % 6),
+					.edge = (uint8_t)(rand() % 2),
 					.activate = (int32_t)(512 + (rand() % 2048)),
 					.disable = (int32_t)(512 + (rand() % 2048)),
 					.created_at = created_at,

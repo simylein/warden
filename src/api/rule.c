@@ -19,12 +19,13 @@ const char *rule_file = "rule";
 const rule_row_t rule_row = {
 		.severity = 0,
 		.field = 1,
-		.activate = 2,
-		.disable = 6,
-		.created_at = 10,
-		.updated_at_null = 18,
-		.updated_at = 19,
-		.size = 27,
+		.edge = 2,
+		.activate = 3,
+		.disable = 7,
+		.created_at = 11,
+		.updated_at_null = 19,
+		.updated_at = 20,
+		.size = 28,
 };
 
 uint16_t rule_select_by_device(octet_t *db, device_t *device, rule_query_t *query, response_t *response, uint8_t *rules_len) {
@@ -63,6 +64,7 @@ uint16_t rule_select_by_device(octet_t *db, device_t *device, rule_query_t *quer
 		}
 		uint8_t severity = octet_uint8_read(db->row, rule_row.severity);
 		uint8_t field = octet_uint8_read(db->row, rule_row.field);
+		uint8_t edge = octet_uint8_read(db->row, rule_row.edge);
 		int32_t activate = octet_int32_read(db->row, rule_row.activate);
 		int32_t disable = octet_int32_read(db->row, rule_row.disable);
 		uint64_t created_at = octet_uint64_read(db->row, rule_row.created_at);
@@ -70,6 +72,7 @@ uint16_t rule_select_by_device(octet_t *db, device_t *device, rule_query_t *quer
 		uint64_t updated_at = octet_uint64_read(db->row, rule_row.updated_at);
 		body_write(response, &severity, sizeof(severity));
 		body_write(response, &field, sizeof(field));
+		body_write(response, &edge, sizeof(edge));
 		body_write(response, (uint32_t[]){hton32((uint32_t)activate)}, sizeof(activate));
 		body_write(response, (uint32_t[]){hton32((uint32_t)disable)}, sizeof(disable));
 		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
@@ -100,6 +103,12 @@ int rule_parse(rule_t *rule, request_t *request) {
 		return -1;
 	}
 	rule->field = (uint8_t)*body_read(request, sizeof(rule->field));
+
+	if (request->body.len < request->body.pos + sizeof(rule->edge)) {
+		debug("missing edge on rule\n");
+		return -1;
+	}
+	rule->edge = (uint8_t)*body_read(request, sizeof(rule->edge));
 
 	if (request->body.len < request->body.pos + sizeof(rule->activate)) {
 		debug("missing activate on rule\n");
@@ -140,6 +149,11 @@ int rule_validate(rule_t *rule) {
 
 	if (rule->field > 5) {
 		debug("invalid field %hhu on rule\n", rule->field);
+		return -1;
+	}
+
+	if (rule->edge > 1) {
+		debug("invalid edge %hhu on rule\n", rule->edge);
 		return -1;
 	}
 
@@ -192,6 +206,7 @@ uint16_t rule_insert(octet_t *db, rule_t *rule) {
 
 	octet_uint8_write(db->row, rule_row.severity, rule->severity);
 	octet_uint8_write(db->row, rule_row.field, rule->field);
+	octet_uint8_write(db->row, rule_row.edge, rule->edge);
 	octet_int32_write(db->row, rule_row.activate, rule->activate);
 	octet_int32_write(db->row, rule_row.disable, rule->disable);
 	octet_uint64_write(db->row, rule_row.created_at, (uint64_t)rule->created_at);
@@ -252,6 +267,7 @@ uint16_t rule_update(octet_t *db, rule_t *rule) {
 		if (created_at == rule->created_at) {
 			octet_uint8_write(db->row, rule_row.severity, rule->severity);
 			octet_uint8_write(db->row, rule_row.field, rule->field);
+			octet_uint8_write(db->row, rule_row.edge, rule->edge);
 			octet_int32_write(db->row, rule_row.activate, rule->activate);
 			octet_int32_write(db->row, rule_row.disable, rule->disable);
 			octet_uint8_write(db->row, rule_row.updated_at_null, 0x01);

@@ -11,6 +11,7 @@
 typedef struct rule_t {
 	uint8_t severity;
 	uint8_t field;
+	uint8_t edge;
 	int32_t activate;
 	int32_t disable;
 	time_t created_at;
@@ -26,6 +27,7 @@ typedef struct rule_query_t {
 typedef struct rule_row_t {
 	uint8_t severity;
 	uint8_t field;
+	uint8_t edge;
 	uint8_t activate;
 	uint8_t disable;
 	uint8_t created_at;
