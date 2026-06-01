@@ -11,6 +11,17 @@ const severity = (severity) => {
 	}
 };
 
+const edge = (edge) => {
+	switch (true) {
+		case edge === 0:
+			return 'low';
+		case edge === 1:
+			return 'high';
+		default:
+			return 'unknown';
+	}
+};
+
 const field = (field) => {
 	switch (true) {
 		case field === 0:

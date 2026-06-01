@@ -65,6 +65,7 @@
 						>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Severity</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Field</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Edge</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Activate</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Disable</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Created at</th>
@@ -207,6 +208,34 @@
 								</button>
 							</div>
 							<p id="create-field-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						</div>
+						<div class="w-full flex flex-col items-start pb-4">
+							<label for="create-edge" class="mb-2 text-base font-normal">Edge</label>
+							<div id="create-edge" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightEdge(document.getElementById('create-edge'), 0);
+										createForm.setValue('edge', 0);
+										createForm.setTouched('edge', true);
+									"
+								>
+									Low
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightEdge(document.getElementById('create-edge'), 1);
+										createForm.setValue('edge', 1);
+										createForm.setTouched('edge', true);
+									"
+								>
+									High
+								</button>
+							</div>
+							<p id="create-edge-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 						</div>
 						<div class="w-full flex flex-col items-start pb-4">
 							<label for="create-activate" class="mb-2 text-base font-normal">Activate</label>
@@ -367,6 +396,34 @@
 							<p id="update-field-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 						</div>
 						<div class="w-full flex flex-col items-start pb-4">
+							<label for="update-edge" class="mb-2 text-base font-normal">Edge</label>
+							<div id="update-edge" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightEdge(document.getElementById('update-edge'), 0);
+										updateForm.setValue('edge', 0);
+										updateForm.setTouched('edge', true);
+									"
+								>
+									Low
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightEdge(document.getElementById('update-edge'), 1);
+										updateForm.setValue('edge', 1);
+										updateForm.setTouched('edge', true);
+									"
+								>
+									High
+								</button>
+							</div>
+							<p id="update-edge-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+						</div>
+						<div class="w-full flex flex-col items-start pb-4">
 							<label for="update-activate" class="mb-2 text-base font-normal">Activate</label>
 							<input
 								id="update-activate"
@@ -476,18 +533,20 @@
 				loading(element.children[ind].children[0].children[0], ['w-15', 'h-4'], [], '');
 				loading(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				loading(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-8', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
 				loading(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
-				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				loading(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].children[0].onclick = null;
-				element.children[ind].children[6].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].children[1].onclick = null;
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[7].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[7].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[7].children[0].children[0].onclick = null;
+				element.children[ind].children[7].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[7].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[7].children[0].children[1].onclick = null;
 			});
 			loadingPagination();
 		};
@@ -502,26 +561,29 @@
 					fade(element.children[ind].children[0].children[0]);
 					colorSeverity(element.children[ind].children[0].children[0], data[ind].severity);
 					paint(element.children[ind].children[1].children[0], [], ['w-24', 'h-4'], field(data[ind].field));
-					paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].activate));
+					paint(element.children[ind].children[2].children[0], [], ['w-8', 'h-4'], edge(data[ind].edge));
 					fade(element.children[ind].children[2].children[0]);
-					colorValue(element.children[ind].children[2].children[0], data[ind].field, value(data[ind].field, data[ind].activate));
-					paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].disable));
+					colorEdge(element.children[ind].children[2].children[0], data[ind].edge);
+					paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].activate));
 					fade(element.children[ind].children[3].children[0]);
-					colorValue(element.children[ind].children[3].children[0], data[ind].field, value(data[ind].field, data[ind].disable));
-					paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
+					colorValue(element.children[ind].children[3].children[0], data[ind].field, value(data[ind].field, data[ind].activate));
+					paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].disable));
+					fade(element.children[ind].children[4].children[0]);
+					colorValue(element.children[ind].children[4].children[0], data[ind].field, value(data[ind].field, data[ind].disable));
+					paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
 					if (data[ind].updatedAt !== null) {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
-						fade(element.children[ind].children[5].children[0]);
+						paint(element.children[ind].children[6].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
+						fade(element.children[ind].children[6].children[0]);
 					} else {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], 'null');
-						colorNull(element.children[ind].children[5].children[0]);
+						paint(element.children[ind].children[6].children[0], [], ['w-40', 'h-4'], 'null');
+						colorNull(element.children[ind].children[6].children[0]);
 					}
-					element.children[ind].children[6].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[6].children[0].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[6].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
-					element.children[ind].children[6].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[6].children[0].children[1].classList.add('cursor-pointer');
-					element.children[ind].children[6].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[7].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[7].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[7].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[7].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[7].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[7].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 			paintPagination();
@@ -535,18 +597,20 @@
 				error(element.children[ind].children[0].children[0], ['w-15', 'h-4'], [], '');
 				error(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
-				error(element.children[ind].children[2].children[0], ['w-12', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-8', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
 				error(element.children[ind].children[3].children[0], ['w-12', 'h-4'], [], '');
-				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
 				error(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].children[0].onclick = null;
-				element.children[ind].children[6].children[0].children[1].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].children[1].onclick = null;
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[7].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[7].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[7].children[0].children[0].onclick = null;
+				element.children[ind].children[7].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[7].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[7].children[0].children[1].onclick = null;
 			});
 			errorPagination();
 		};
@@ -555,9 +619,10 @@
 			const binary = new Binary(buffer);
 			const rules = [];
 			while (binary.offset < buffer.byteLength) {
-				const rule = { severity: null, field: null, activate: null, disable: null, createdAt: null, updatedAt: null };
+				const rule = { severity: null, field: null, edge: null, activate: null, disable: null, createdAt: null, updatedAt: null };
 				rule.severity = binary.uint(8);
 				rule.field = binary.uint(8);
+				rule.edge = binary.uint(8);
 				rule.activate = binary.int(32);
 				rule.disable = binary.int(32);
 				rule.createdAt = binary.uint(64);
@@ -622,12 +687,29 @@
 				element.children[field].classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-100', 'dark:background-blue-900');
 			}
 		};
+		const highlightEdge = (element, edge) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (edge) {
+				case 0:
+					fade(element.children[0]);
+					element.children[0].classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-100', 'dark:background-blue-900');
+					break;
+				case 1:
+					fade(element.children[1]);
+					element.children[1].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					break;
+			}
+		};
 		const createDialog = document.getElementById('create-dialog');
 		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
 		const openCreateDialog = () => {
 			highlightSeverity(document.getElementById('create-severity'), null);
 			highlightField(document.getElementById('create-field'), null);
+			highlightEdge(document.getElementById('create-edge'), null);
 			document.getElementById('create-activate').value = '';
 			document.getElementById('create-disable').value = '';
 			createDialog.showModal();
@@ -643,6 +725,9 @@
 			updateForm.setValue('field', rule.field);
 			updateForm.setTouched('field', true);
 			highlightField(document.getElementById('update-field'), rule.field);
+			updateForm.setValue('edge', rule.edge);
+			updateForm.setTouched('edge', true);
+			highlightEdge(document.getElementById('update-edge'), rule.edge);
 			updateForm.setValue('activate', `${rule.activate}`);
 			updateForm.setTouched('activate', true);
 			document.getElementById('update-activate').value = `${rule.activate}`;
@@ -671,6 +756,7 @@
 				button: document.getElementById('create-button'),
 				severity: document.getElementById('create-severity-validation'),
 				field: document.getElementById('create-field-validation'),
+				edge: document.getElementById('create-edge-validation'),
 				activate: document.getElementById('create-activate-validation'),
 				disable: document.getElementById('create-disable-validation'),
 			},
@@ -683,6 +769,10 @@
 					if (!value && value !== 0) return 'field is required';
 					if (typeof value !== 'number') return 'field must be a number';
 				},
+				edge: (value) => {
+					if (!value && value !== 0) return 'edge is required';
+					if (typeof value !== 'number') return 'edge must be a number';
+				},
 				activate: (value) => {
 					if (!value) return 'activate is required';
 					if (!value.match(/^-?[0-9]+$/)) return 'activate must be a number';
@@ -693,12 +783,13 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(10);
+				const bytes = new Uint8Array(11);
 				const view = new DataView(bytes.buffer);
 				view.setUint8(0, values.severity);
 				view.setUint8(1, values.field);
-				view.setInt32(2, values.activate);
-				view.setInt32(6, values.disable);
+				view.setUint8(2, values.edge);
+				view.setInt32(3, values.activate);
+				view.setInt32(7, values.disable);
 				const data = new Blob([view]);
 				try {
 					const endpoint = `/api/device/${window.location.pathname.substring(8, 24)}/rule`;
@@ -716,6 +807,7 @@
 				button: document.getElementById('update-button'),
 				severity: document.getElementById('update-severity-validation'),
 				field: document.getElementById('update-field-validation'),
+				edge: document.getElementById('update-edge-validation'),
 				activate: document.getElementById('update-activate-validation'),
 				disable: document.getElementById('update-disable-validation'),
 			},
@@ -727,6 +819,10 @@
 				field: (value) => {
 					if (!value && value !== 0) return 'field is required';
 					if (typeof value !== 'number') return 'field must be a number';
+				},
+				edge: (value) => {
+					if (!value && value !== 0) return 'edge is required';
+					if (typeof value !== 'number') return 'edge must be a number';
 				},
 				activate: (value) => {
 					if (!value) return 'activate is required';
@@ -742,13 +838,14 @@
 				},
 			},
 			async (values) => {
-				const bytes = new Uint8Array(18);
+				const bytes = new Uint8Array(19);
 				const view = new DataView(bytes.buffer);
 				view.setUint8(0, values.severity);
 				view.setUint8(1, values.field);
-				view.setInt32(2, values.activate);
-				view.setInt32(6, values.disable);
-				view.setBigUint64(10, values.createdAt);
+				view.setUint8(2, values.edge);
+				view.setInt32(3, values.activate);
+				view.setInt32(7, values.disable);
+				view.setBigUint64(11, values.createdAt);
 				const data = new Blob([view]);
 				try {
 					const endpoint = `/api/device/${window.location.pathname.substring(8, 24)}/rule`;

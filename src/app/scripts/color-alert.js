@@ -9,6 +9,15 @@ const colorSeverity = (element, severity) => {
 	}
 };
 
+const colorEdge = (element, edge) => {
+	switch (true) {
+		case edge === 0:
+			return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
+		case edge === 1:
+			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
+	}
+};
+
 const colorValue = (element, field, value) => {
 	switch (true) {
 		case field === 0:
