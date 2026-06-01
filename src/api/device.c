@@ -1143,8 +1143,7 @@ cleanup:
 	return status;
 }
 
-uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading, metric_t *metric, buffer_t *buffer,
-															uplink_t *uplink, downlink_t *downlink) {
+uint16_t device_update_latest(octet_t *db, device_t *device) {
 	uint16_t status;
 
 	char file[128];
@@ -1181,52 +1180,52 @@ uint16_t device_update_latest(octet_t *db, device_t *device, reading_t *reading,
 			}
 			uint8_t reading_null = octet_uint8_read(db->row, device_row.reading_null);
 			time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
-			if (reading != NULL && (reading_null == 0x00 || reading->captured_at >= reading_captured_at)) {
+			if (device->reading != NULL && (reading_null == 0x00 || device->reading->captured_at >= reading_captured_at)) {
 				octet_uint8_write(db->row, device_row.reading_null, 0x01);
-				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(reading->temperature * 100));
-				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(reading->humidity * 100));
-				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)reading->captured_at);
+				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(device->reading->temperature * 100));
+				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(device->reading->humidity * 100));
+				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)device->reading->captured_at);
 			}
 			uint8_t metric_null = octet_uint8_read(db->row, device_row.metric_null);
 			time_t metric_captured_at = (time_t)octet_uint64_read(db->row, device_row.metric_captured_at);
-			if (metric != NULL && (metric_null == 0x00 || metric->captured_at >= metric_captured_at)) {
+			if (device->metric != NULL && (metric_null == 0x00 || device->metric->captured_at >= metric_captured_at)) {
 				octet_uint8_write(db->row, device_row.metric_null, 0x01);
-				octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(metric->photovoltaic * 1000));
-				octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(metric->battery * 1000));
-				octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)metric->captured_at);
+				octet_uint16_write(db->row, device_row.metric_photovoltaic, (uint16_t)(device->metric->photovoltaic * 1000));
+				octet_uint16_write(db->row, device_row.metric_battery, (uint16_t)(device->metric->battery * 1000));
+				octet_uint64_write(db->row, device_row.metric_captured_at, (uint64_t)device->metric->captured_at);
 			}
 			uint8_t buffer_null = octet_uint8_read(db->row, device_row.buffer_null);
 			time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
-			if (buffer != NULL && (buffer_null == 0x00 || buffer->captured_at >= buffer_captured_at)) {
+			if (device->buffer != NULL && (buffer_null == 0x00 || device->buffer->captured_at >= buffer_captured_at)) {
 				octet_uint8_write(db->row, device_row.buffer_null, 0x01);
-				octet_uint32_write(db->row, device_row.buffer_delay, buffer->delay);
-				octet_uint16_write(db->row, device_row.buffer_level, buffer->level);
-				octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)buffer->captured_at);
+				octet_uint32_write(db->row, device_row.buffer_delay, device->buffer->delay);
+				octet_uint16_write(db->row, device_row.buffer_level, device->buffer->level);
+				octet_uint64_write(db->row, device_row.buffer_captured_at, (uint64_t)device->buffer->captured_at);
 			}
 			uint8_t uplink_null = octet_uint8_read(db->row, device_row.uplink_null);
 			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
-			if (uplink != NULL && (uplink_null == 0x00 || uplink->received_at >= uplink_received_at)) {
+			if (device->uplink != NULL && (uplink_null == 0x00 || device->uplink->received_at >= uplink_received_at)) {
 				uint16_t (*airtime)[8] = (uint16_t (*)[8])octet_blob_read(db->row, device_row.airtime);
 				time_t airtime_bucket = (time_t)octet_uint64_read(db->row, device_row.airtime_bucket);
-				airtime_account(airtime, &airtime_bucket, uplink);
+				airtime_account(airtime, &airtime_bucket, device->uplink);
 				octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(*airtime));
 				octet_uint64_write(db->row, device_row.airtime_bucket, (uint64_t)airtime_bucket);
 				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
-				octet_uint8_write(db->row, device_row.uplink_kind, uplink->kind);
-				octet_int16_write(db->row, device_row.uplink_rssi, uplink->rssi);
-				octet_int8_write(db->row, device_row.uplink_snr, uplink->snr);
-				octet_uint8_write(db->row, device_row.uplink_sf, uplink->sf);
-				octet_uint64_write(db->row, device_row.uplink_received_at, (uint64_t)uplink->received_at);
+				octet_uint8_write(db->row, device_row.uplink_kind, device->uplink->kind);
+				octet_int16_write(db->row, device_row.uplink_rssi, device->uplink->rssi);
+				octet_int8_write(db->row, device_row.uplink_snr, device->uplink->snr);
+				octet_uint8_write(db->row, device_row.uplink_sf, device->uplink->sf);
+				octet_uint64_write(db->row, device_row.uplink_received_at, (uint64_t)device->uplink->received_at);
 			}
 			uint8_t downlink_null = octet_uint8_read(db->row, device_row.downlink_null);
 			time_t downlink_sent_at = (time_t)octet_uint64_read(db->row, device_row.downlink_sent_at);
-			if (downlink != NULL && (downlink_null == 0x00 || downlink->sent_at >= downlink_sent_at)) {
+			if (device->downlink != NULL && (downlink_null == 0x00 || device->downlink->sent_at >= downlink_sent_at)) {
 				octet_uint8_write(db->row, device_row.downlink_null, 0x01);
-				octet_uint8_write(db->row, device_row.downlink_kind, downlink->kind);
-				octet_uint8_write(db->row, device_row.downlink_sf, downlink->sf);
-				octet_uint8_write(db->row, device_row.downlink_cr, downlink->cr);
-				octet_uint8_write(db->row, device_row.downlink_tx_power, downlink->tx_power);
-				octet_uint64_write(db->row, device_row.downlink_sent_at, (uint64_t)downlink->sent_at);
+				octet_uint8_write(db->row, device_row.downlink_kind, device->downlink->kind);
+				octet_uint8_write(db->row, device_row.downlink_sf, device->downlink->sf);
+				octet_uint8_write(db->row, device_row.downlink_cr, device->downlink->cr);
+				octet_uint8_write(db->row, device_row.downlink_tx_power, device->downlink->tx_power);
+				octet_uint64_write(db->row, device_row.downlink_sent_at, (uint64_t)device->downlink->sent_at);
 			}
 			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
 				status = octet_error();

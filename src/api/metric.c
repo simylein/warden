@@ -400,8 +400,16 @@ uint16_t metric_insert(octet_t *db, metric_t *metric) {
 	}
 
 	uint8_t zone_id[8];
-	device_t device = {.id = metric->device_id, .zone_id = &zone_id};
-	status = device_update_latest(db, &device, NULL, metric, NULL, NULL, NULL);
+	device_t device = {
+			.id = metric->device_id,
+			.zone_id = &zone_id,
+			.reading = NULL,
+			.metric = metric,
+			.buffer = NULL,
+			.uplink = NULL,
+			.downlink = NULL,
+	};
+	status = device_update_latest(db, &device);
 	if (status != 0) {
 		goto cleanup;
 	}

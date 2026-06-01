@@ -412,8 +412,16 @@ uint16_t buffer_insert(octet_t *db, buffer_t *buffer) {
 	}
 
 	uint8_t zone_id[8];
-	device_t device = {.id = buffer->device_id, .zone_id = &zone_id};
-	status = device_update_latest(db, &device, NULL, NULL, buffer, NULL, NULL);
+	device_t device = {
+			.id = buffer->device_id,
+			.zone_id = &zone_id,
+			.reading = NULL,
+			.metric = NULL,
+			.buffer = buffer,
+			.uplink = NULL,
+			.downlink = NULL,
+	};
+	status = device_update_latest(db, &device);
 	if (status != 0) {
 		goto cleanup;
 	}

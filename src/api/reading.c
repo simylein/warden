@@ -401,8 +401,16 @@ uint16_t reading_insert(octet_t *db, reading_t *reading) {
 	}
 
 	uint8_t zone_id[8];
-	device_t device = {.id = reading->device_id, .zone_id = &zone_id};
-	status = device_update_latest(db, &device, reading, NULL, NULL, NULL, NULL);
+	device_t device = {
+			.id = reading->device_id,
+			.zone_id = &zone_id,
+			.reading = reading,
+			.metric = NULL,
+			.buffer = NULL,
+			.uplink = NULL,
+			.downlink = NULL,
+	};
+	status = device_update_latest(db, &device);
 	if (status != 0) {
 		goto cleanup;
 	}
