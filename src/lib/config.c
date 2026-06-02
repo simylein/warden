@@ -14,6 +14,9 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
+uint8_t alert_interval = 60;
+uint32_t alert_lookback = 604800;
+
 uint8_t devices_size = 64;
 uint8_t zones_size = 16;
 

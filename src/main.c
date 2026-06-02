@@ -3,6 +3,7 @@
 #include "api/init.h"
 #include "api/seed.h"
 #include "api/wipe.h"
+#include "app/alert.h"
 #include "app/page.h"
 #include "lib/config.h"
 #include "lib/error.h"
@@ -149,6 +150,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	trace("spawning scaler thread\n");
 	if ((errno = pthread_create(&thread_pool.scaler, NULL, &scaler, NULL)) != 0) {
 		fatal("failed to spawn scaler thread because %s\n", errno_str());
 		exit(1);
@@ -168,6 +170,18 @@ int main(int argc, char *argv[]) {
 	}
 
 	info("spawned %hhu worker threads\n", least_workers);
+
+	alerter_buffer = malloc(database_buffer * sizeof(char));
+	if (alerter_buffer == NULL) {
+		fatal("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
+		exit(1);
+	}
+
+	trace("spawning alerter thread\n");
+	if ((errno = pthread_create(&alerter_thread, NULL, &alerter, (void *)&alerter_octet)) != 0) {
+		fatal("failed to spawn alerter because %s\n", errno_str());
+		exit(1);
+	}
 
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
 		fatal("failed to create socket because %s\n", errno_str());
@@ -253,11 +267,19 @@ int main(int argc, char *argv[]) {
 
 	pthread_mutex_unlock(&thread_pool.lock);
 
+	trace("joining alerter thread\n");
+	pthread_cancel(alerter_thread);
+	pthread_join(alerter_thread, NULL);
+
+	trace("joining scaler thread\n");
 	pthread_cancel(thread_pool.scaler);
 	pthread_join(thread_pool.scaler, NULL);
+
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
 		join(&thread_pool.workers[index], index);
 	}
+
+	free(alerter_buffer);
 
 	free(cache.devices);
 	free(cache.zones);

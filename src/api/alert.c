@@ -1,6 +1,7 @@
 #include "alert.h"
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
+#include "../lib/config.h"
 #include "../lib/endian.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
@@ -10,6 +11,7 @@
 #include "user-device.h"
 #include "user.h"
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -192,6 +194,66 @@ uint16_t alert_insert(octet_t *db, alert_t *alert) {
 	}
 
 	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+uint16_t alert_update(octet_t *db, alert_t *alert) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), alert->device_id, sizeof(*alert->device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, alert_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("update alert for device %02x%02x resolved at %lu\n", (*alert->device_id)[0], (*alert->device_id)[1],
+				*alert->resolved_at);
+
+	off_t offset = stmt.stat.st_size - alert_row.size;
+	while (true) {
+		if (offset < 0) {
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, alert_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t severity = octet_uint8_read(db->row, alert_row.severity);
+		uint8_t field = octet_uint8_read(db->row, alert_row.field);
+		time_t issued_at = (time_t)octet_uint64_read(db->row, alert_row.issued_at);
+		uint8_t resolved_at_null = octet_uint8_read(db->row, alert_row.resolved_at_null);
+		if (issued_at + alert_lookback < *alert->resolved_at) {
+			status = 0;
+			break;
+		}
+		if (severity == alert->severity && field == alert->field && resolved_at_null == 0x00) {
+			octet_uint8_write(db->row, alert_row.resolved_at_null, 0x01);
+			octet_uint64_write(db->row, alert_row.resolved_at, (uint64_t)*alert->resolved_at);
+			if (octet_row_write(&stmt, file, offset, db->row, alert_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset -= alert_row.size;
+	}
 
 cleanup:
 	octet_close(&stmt, file);

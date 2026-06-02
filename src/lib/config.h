@@ -13,6 +13,9 @@ extern uint8_t queue_size;
 extern uint8_t least_workers;
 extern uint8_t most_workers;
 
+extern uint8_t alert_interval;
+extern uint32_t alert_lookback;
+
 extern uint8_t devices_size;
 extern uint8_t zones_size;
 
