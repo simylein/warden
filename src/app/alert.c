@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -87,22 +88,24 @@ int alert_load_by_device(octet_t *db, device_t *device, uint8_t *alerts_len) {
 
 	time_t now = time(NULL);
 	off_t offset = stmt.stat.st_size - alert_row.size;
+	uint16_t alpha_len = 0;
 	while (true) {
-		if (offset < 0 || offset + alert_row.size > db->alpha_len) {
+		if (offset < 0 || alpha_len + alert_row.size > db->alpha_len) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, &db->alpha[offset], alert_row.size) == -1) {
+		if (octet_row_read(&stmt, file, offset, &db->alpha[alpha_len], alert_row.size) == -1) {
 			status = -1;
 			goto cleanup;
 		}
-		time_t issued_at = (time_t)octet_uint64_read(&db->alpha[offset], alert_row.issued_at);
+		time_t issued_at = (time_t)octet_uint64_read(&db->alpha[alpha_len], alert_row.issued_at);
 		if (issued_at + alert_lookback < now) {
 			status = 0;
 			break;
 		}
 		*alerts_len += 1;
 		offset -= alert_row.size;
+		alpha_len += alert_row.size;
 	}
 
 cleanup:
@@ -158,27 +161,33 @@ cleanup:
 	return status;
 }
 
-int evaluate(rule_t *rule, float threshold, float value) {
+int evaluate(rule_t *rule, alert_t *alert, float fraction, float value) {
+	float activate = (float)rule->activate / fraction;
+	float disable = (float)rule->disable / fraction;
 	if (rule->edge == 1 && rule->activate > rule->disable) {
-		if (value >= threshold) {
+		if (alert == NULL && value >= activate) {
 			return 1;
-		} else {
+		} else if (alert != NULL && value <= disable) {
 			return 0;
+		} else {
+			return alert != NULL ? 1 : 0;
 		}
 	} else if (rule->edge == 0 && rule->activate < rule->disable) {
-		if (value <= threshold) {
+		if (alert == NULL && value <= activate) {
 			return 1;
-		} else {
+		} else if (alert != NULL && value >= disable) {
 			return 0;
+		} else {
+			return alert != NULL ? 1 : 0;
 		}
 	} else {
-		warn("rule invalid edge %hhu activate %d disable %d on device %02x%02x\n", rule->edge, rule->activate, rule->disable,
+		warn("invalid rule edge %hhu activate %d disable %d on device %02x%02x\n", rule->edge, rule->activate, rule->disable,
 				 (*rule->device_id)[0], (*rule->device_id)[1]);
 		return -1;
 	}
 }
 
-int alerting(rule_t *rule, device_t *device, int32_t *value) {
+int alerting(rule_t *rule, device_t *device, int32_t *value, alert_t *alert) {
 	switch (rule->field) {
 	case 0:
 		if (device->reading == NULL) {
@@ -186,42 +195,42 @@ int alerting(rule_t *rule, device_t *device, int32_t *value) {
 			return -1;
 		}
 		*value = (int32_t)(device->reading->temperature * 100);
-		return evaluate(rule, (float)rule->activate / 100.0f, device->reading->temperature);
+		return evaluate(rule, alert, 100.0f, device->reading->temperature);
 	case 1:
 		if (device->reading == NULL) {
 			warn("device %02x%02x reading null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)(device->reading->humidity * 100);
-		return evaluate(rule, (float)rule->activate / 100.0f, device->reading->humidity);
+		return evaluate(rule, alert, 100.0f, device->reading->humidity);
 	case 2:
 		if (device->metric == NULL) {
 			warn("device %02x%02x metric null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)(device->metric->photovoltaic * 1000);
-		return evaluate(rule, (float)rule->activate / 1000.0f, device->metric->photovoltaic);
+		return evaluate(rule, alert, 1000.0f, device->metric->photovoltaic);
 	case 3:
 		if (device->metric == NULL) {
 			warn("device %02x%02x metric null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)(device->metric->battery * 1000);
-		return evaluate(rule, (float)rule->activate / 1000.0f, device->metric->battery);
+		return evaluate(rule, alert, 1000.0f, device->metric->battery);
 	case 4:
 		if (device->buffer == NULL) {
 			warn("device %02x%02x buffer null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)device->buffer->delay;
-		return evaluate(rule, (float)rule->activate, (float)device->buffer->delay);
+		return evaluate(rule, alert, 1.0f, (float)device->buffer->delay);
 	case 5:
 		if (device->buffer == NULL) {
 			warn("device %02x%02x buffer null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)device->buffer->level;
-		return evaluate(rule, (float)rule->activate, (float)device->buffer->level);
+		return evaluate(rule, alert, 1.0f, (float)device->buffer->level);
 	default:
 		warn("invalid rule field %hhu\n", rule->field);
 		return -1;
@@ -256,7 +265,7 @@ void *alerter(void *args) {
 
 		uint8_t devices_len = 0;
 		if (device_load(db, &devices_len) == -1) {
-			goto sleep;
+			continue;
 		}
 
 		debug("found %hhu devices\n", devices_len);
@@ -313,48 +322,44 @@ void *alerter(void *args) {
 				rule.activate = octet_int32_read(&db->bravo[ind * rule_row.size], rule_row.activate);
 				rule.disable = octet_int32_read(&db->bravo[ind * rule_row.size], rule_row.disable);
 
+				alert_t alert = {.device_id = device.id};
+				alert_t *existing = NULL;
+				for (uint8_t i = 0; i < alerts_len; i++) {
+					alert.severity = octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.severity);
+					alert.field = octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.field);
+					alert.edge = octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.edge);
+					if (octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.resolved_at_null) != 0x00) {
+						alert.resolved_at = (time_t[]){(time_t)octet_uint64_read(&db->alpha[i * alert_row.size], alert_row.resolved_at)};
+					} else {
+						alert.resolved_at = NULL;
+					}
+					if (alert.severity == rule.severity && alert.field == rule.field && alert.edge == rule.edge &&
+							alert.resolved_at == NULL) {
+						existing = &alert;
+						break;
+					}
+				}
+
 				int32_t value;
-				int result = alerting(&rule, &device, &value);
-				if (result == 1) {
-					bool existing = false;
-					for (uint8_t i = 0; i < alerts_len; i++) {
-						alert_t alert = {.device_id = device.id};
-						alert.severity = octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.severity);
-						alert.field = octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.field);
-						if (octet_uint8_read(&db->alpha[i * alert_row.size], alert_row.resolved_at_null) != 0x00) {
-							alert.resolved_at = (time_t[]){(time_t)octet_uint64_read(&db->alpha[i * alert_row.size], alert_row.resolved_at)};
-						} else {
-							alert.resolved_at = NULL;
-						}
-						if (alert.severity == rule.severity && alert.field == rule.field && alert.resolved_at == NULL) {
-							existing = true;
-							break;
-						}
-					}
-					if (existing == true) {
-						continue;
-					}
-					alert_t alert = {
-							.severity = rule.severity,
-							.field = rule.field,
-							.edge = rule.edge,
-							.value = value,
-							.issued_at = time(NULL),
-							.resolved_at = NULL,
-							.device_id = device.id,
-					};
+				int result = alerting(&rule, &device, &value, existing);
+				if (result == 1 && existing == NULL) {
+					alert.severity = rule.severity;
+					alert.field = rule.field;
+					alert.edge = rule.edge;
+					alert.value = value;
+					alert.issued_at = time(NULL);
+					alert.resolved_at = NULL;
+					alert.device_id = device.id;
 					if (alert_insert(db, &alert) != 0) {
 						continue;
 					}
 					info("created alert issued at %lu\n", alert.issued_at);
-				} else if (result == 0) {
-					alert_t alert = {
-							.severity = rule.severity,
-							.field = rule.field,
-							.edge = rule.edge,
-							.device_id = device.id,
-							.resolved_at = (time_t[]){time(NULL)},
-					};
+				} else if (result == 0 && existing != NULL) {
+					alert.severity = rule.severity;
+					alert.field = rule.field;
+					alert.edge = rule.edge;
+					alert.device_id = device.id;
+					alert.resolved_at = (time_t[]){time(NULL)};
 					uint16_t status = alert_update(db, &alert);
 					if (status == 0) {
 						info("updated alert resolved at %lu\n", *alert.resolved_at);
@@ -366,8 +371,8 @@ void *alerter(void *args) {
 			}
 		}
 
-	sleep:
-		trace("alerter thread sleeping for %hhus\n", alert_interval);
-		sleep(alert_interval);
+		unsigned int duration = alert_interval - 4 + (uint8_t)(rand() % 9);
+		trace("alerter thread sleeping for %hhus\n", duration);
+		sleep(duration);
 	}
 }
