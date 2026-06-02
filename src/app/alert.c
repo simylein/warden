@@ -337,6 +337,7 @@ void *alerter(void *args) {
 					alert_t alert = {
 							.severity = rule.severity,
 							.field = rule.field,
+							.edge = rule.edge,
 							.value = value,
 							.issued_at = time(NULL),
 							.resolved_at = NULL,
