@@ -371,7 +371,7 @@ void *alerter(void *args) {
 			}
 		}
 
-		unsigned int duration = alert_interval - 4 + (uint8_t)(rand() % 9);
+		unsigned int duration = (uint8_t)(alert_interval - 4) + (uint8_t)(rand() % 9);
 		trace("alerter thread sleeping for %hhus\n", duration);
 		sleep(duration);
 	}
