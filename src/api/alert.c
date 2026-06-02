@@ -20,11 +20,12 @@ const char *alert_file = "alert";
 const alert_row_t alert_row = {
 		.severity = 0,
 		.field = 1,
-		.value = 2,
-		.issued_at = 6,
-		.resolved_at_null = 14,
-		.resolved_at = 15,
-		.size = 23,
+		.edge = 2,
+		.value = 3,
+		.issued_at = 7,
+		.resolved_at_null = 15,
+		.resolved_at = 16,
+		.size = 24,
 };
 
 uint16_t alert_select(octet_t *db, bwt_t *bwt, alert_query_t *query, response_t *response, uint8_t *alerts_len) {
@@ -99,6 +100,7 @@ uint16_t alert_select(octet_t *db, bwt_t *bwt, alert_query_t *query, response_t 
 		if (query->offset == 0) {
 			uint8_t severity = octet_uint8_read(&db->table[index * alert_row.size], alert_row.severity);
 			uint8_t field = octet_uint8_read(&db->table[index * alert_row.size], alert_row.field);
+			uint8_t edge = octet_uint8_read(&db->table[index * alert_row.size], alert_row.edge);
 			int32_t value = octet_int32_read(&db->table[index * alert_row.size], alert_row.value);
 			time_t issued_at = (time_t)octet_uint64_read(&db->table[index * alert_row.size], alert_row.issued_at);
 			uint8_t resolved_at_null = octet_uint8_read(&db->table[index * alert_row.size], alert_row.resolved_at_null);
@@ -107,6 +109,7 @@ uint16_t alert_select(octet_t *db, bwt_t *bwt, alert_query_t *query, response_t 
 					(uint8_t (*)[8])octet_blob_read(&db->chunk[index * user_device_row.size], user_device_row.device_id);
 			body_write(response, &severity, sizeof(severity));
 			body_write(response, &field, sizeof(field));
+			body_write(response, &edge, sizeof(edge));
 			body_write(response, (uint32_t[]){hton32((uint32_t)value)}, sizeof(value));
 			body_write(response, (uint64_t[]){hton64((uint64_t)issued_at)}, sizeof(issued_at));
 			body_write(response, (uint8_t[]){resolved_at_null != 0x00}, sizeof(resolved_at_null));
@@ -179,6 +182,7 @@ uint16_t alert_insert(octet_t *db, alert_t *alert) {
 
 	octet_uint8_write(db->row, alert_row.severity, alert->severity);
 	octet_uint8_write(db->row, alert_row.field, alert->field);
+	octet_uint8_write(db->row, alert_row.edge, alert->edge);
 	octet_int32_write(db->row, alert_row.value, alert->value);
 	octet_uint64_write(db->row, alert_row.issued_at, (uint64_t)alert->issued_at);
 	if (alert->resolved_at != NULL) {
@@ -236,13 +240,14 @@ uint16_t alert_update(octet_t *db, alert_t *alert) {
 		}
 		uint8_t severity = octet_uint8_read(db->row, alert_row.severity);
 		uint8_t field = octet_uint8_read(db->row, alert_row.field);
+		uint8_t edge = octet_uint8_read(db->row, alert_row.edge);
 		time_t issued_at = (time_t)octet_uint64_read(db->row, alert_row.issued_at);
 		uint8_t resolved_at_null = octet_uint8_read(db->row, alert_row.resolved_at_null);
 		if (issued_at + alert_lookback < *alert->resolved_at) {
 			status = 0;
 			break;
 		}
-		if (severity == alert->severity && field == alert->field && resolved_at_null == 0x00) {
+		if (severity == alert->severity && field == alert->field && edge == alert->edge && resolved_at_null == 0x00) {
 			octet_uint8_write(db->row, alert_row.resolved_at_null, 0x01);
 			octet_uint64_write(db->row, alert_row.resolved_at, (uint64_t)*alert->resolved_at);
 			if (octet_row_write(&stmt, file, offset, db->row, alert_row.size) == -1) {

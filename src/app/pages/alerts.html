@@ -38,6 +38,7 @@
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Device id</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Severity</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Field</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Edge</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Value</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Status</th>
 						</tr>
@@ -103,9 +104,11 @@
 				loading(element.children[ind].children[2].children[0], ['w-15', 'h-4'], [], '');
 				loading(element.children[ind].children[3].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				loading(element.children[ind].children[4].children[0], ['w-8', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				loading(element.children[ind].children[5].children[0], ['w-16', 'h-4'], [], '');
+				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-16', 'h-4'], [], '');
 			});
 			loadingPagination();
 		};
@@ -121,12 +124,15 @@
 					fade(element.children[ind].children[2].children[0]);
 					colorSeverity(element.children[ind].children[2].children[0], data[ind].severity);
 					paint(element.children[ind].children[3].children[0], [], ['w-24', 'h-4'], field(data[ind].field));
-					paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].value));
+					paint(element.children[ind].children[4].children[0], [], ['w-8', 'h-4'], edge(data[ind].edge));
 					fade(element.children[ind].children[4].children[0]);
-					colorValue(element.children[ind].children[4].children[0], data[ind].field, value(data[ind].field, data[ind].value));
-					paint(element.children[ind].children[5].children[0], [], ['w-16', 'h-4'], status(data[ind].resolvedAt));
+					colorEdge(element.children[ind].children[4].children[0], data[ind].edge);
+					paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].value));
 					fade(element.children[ind].children[5].children[0]);
-					colorStatus(element.children[ind].children[5].children[0], status(data[ind].resolvedAt));
+					colorValue(element.children[ind].children[5].children[0], data[ind].field, value(data[ind].field, data[ind].value));
+					paint(element.children[ind].children[6].children[0], [], ['w-16', 'h-4'], status(data[ind].resolvedAt));
+					fade(element.children[ind].children[6].children[0]);
+					colorStatus(element.children[ind].children[6].children[0], status(data[ind].resolvedAt));
 				}
 			});
 			paintPagination();
@@ -141,9 +147,11 @@
 				error(element.children[ind].children[2].children[0], ['w-15', 'h-4'], [], '');
 				error(element.children[ind].children[3].children[0], ['w-24', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				error(element.children[ind].children[4].children[0], ['w-8', 'h-4'], [], '');
 				fade(element.children[ind].children[5].children[0]);
-				error(element.children[ind].children[5].children[0], ['w-16', 'h-4'], [], '');
+				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-16', 'h-4'], [], '');
 			});
 			errorPagination();
 		};
@@ -152,9 +160,10 @@
 			const binary = new Binary(buffer);
 			const alerts = [];
 			while (binary.offset < buffer.byteLength) {
-				const alert = { severity: null, field: null, value: null, issuedAt: null, resolvedAt: null, deviceId: null };
+				const alert = { severity: null, field: null, edge: null, value: null, issuedAt: null, resolvedAt: null, deviceId: null };
 				alert.severity = binary.uint(8);
 				alert.field = binary.uint(8);
+				alert.edge = binary.uint(8);
 				alert.value = binary.int(32);
 				alert.issuedAt = binary.uint(64);
 				if (binary.byte() !== 0) {

@@ -415,6 +415,7 @@ int seed_alert(octet_t *db) {
 		alert_t alert = {
 				.severity = (uint8_t)(rand() % 3),
 				.field = (uint8_t)(rand() % 6),
+				.edge = (uint8_t)(rand() % 2),
 				.value = (int32_t)(512 + (rand() % 2048)),
 				.issued_at = issued_at,
 				.resolved_at = rand() % 2 == 0 ? (time_t[]){issued_at + rand() % 512} : NULL,

@@ -10,6 +10,7 @@
 typedef struct alert_t {
 	uint8_t severity;
 	uint8_t field;
+	uint8_t edge;
 	int32_t value;
 	time_t issued_at;
 	time_t *resolved_at;
@@ -24,6 +25,7 @@ typedef struct alert_query_t {
 typedef struct alert_row_t {
 	uint8_t severity;
 	uint8_t field;
+	uint8_t edge;
 	uint8_t value;
 	uint8_t issued_at;
 	uint8_t resolved_at_null;

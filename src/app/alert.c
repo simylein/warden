@@ -350,6 +350,7 @@ void *alerter(void *args) {
 					alert_t alert = {
 							.severity = rule.severity,
 							.field = rule.field,
+							.edge = rule.edge,
 							.device_id = device.id,
 							.resolved_at = (time_t[]){time(NULL)},
 					};
