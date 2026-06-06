@@ -316,7 +316,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="name"
 							autofocus
-							onchange="updateForm.setValue('name', event.target.value)"
+							oninput="updateForm.setValue('name', event.target.value)"
 							onblur="updateForm.setTouched('name', true)"
 						/>
 						<p id="update-name-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -328,7 +328,7 @@
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="zone id"
-							onchange="updateForm.setValue('zoneId', event.target.value)"
+							oninput="updateForm.setValue('zoneId', event.target.value)"
 							onblur="updateForm.setTouched('zoneId', true)"
 						/>
 						<p id="update-zone-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>

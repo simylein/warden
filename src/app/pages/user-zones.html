@@ -150,7 +150,7 @@
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="zone id"
 							autofocus
-							onchange="createForm.setValue('zoneId', event.target.value)"
+							oninput="createForm.setValue('zoneId', event.target.value)"
 							onblur="createForm.setTouched('zoneId', true)"
 						/>
 						<p id="zone-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>

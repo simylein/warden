@@ -244,7 +244,7 @@
 								type="text"
 								class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 								placeholder="activate"
-								onchange="createForm.setValue('activate', event.target.value)"
+								oninput="createForm.setValue('activate', event.target.value)"
 								onblur="createForm.setTouched('activate', true)"
 							/>
 							<p id="create-activate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -256,7 +256,7 @@
 								type="text"
 								class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 								placeholder="disable"
-								onchange="createForm.setValue('disable', event.target.value)"
+								oninput="createForm.setValue('disable', event.target.value)"
 								onblur="createForm.setTouched('disable', true)"
 							/>
 							<p id="create-disable-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -430,7 +430,7 @@
 								type="text"
 								class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 								placeholder="activate"
-								onchange="updateForm.setValue('activate', event.target.value)"
+								oninput="updateForm.setValue('activate', event.target.value)"
 								onblur="updateForm.setTouched('activate', true)"
 							/>
 							<p id="update-activate-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -442,7 +442,7 @@
 								type="text"
 								class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 								placeholder="disable"
-								onchange="updateForm.setValue('disable', event.target.value)"
+								oninput="updateForm.setValue('disable', event.target.value)"
 								onblur="updateForm.setTouched('disable', true)"
 							/>
 							<p id="update-disable-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>

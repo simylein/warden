@@ -140,7 +140,7 @@
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 									placeholder="frequency"
 									autofocus
-									onchange="updateForm.setValue('frequency', event.target.value)"
+									oninput="updateForm.setValue('frequency', event.target.value)"
 									onblur="updateForm.setTouched('frequency', true)"
 								/>
 								<p id="update-frequency-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -152,7 +152,7 @@
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 									placeholder="bandwidth"
-									onchange="updateForm.setValue('bandwidth', event.target.value)"
+									oninput="updateForm.setValue('bandwidth', event.target.value)"
 									onblur="updateForm.setTouched('bandwidth', true)"
 								/>
 								<p id="update-bandwidth-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -299,7 +299,7 @@
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 									placeholder="preamble length"
-									onchange="updateForm.setValue('preambleLength', event.target.value)"
+									oninput="updateForm.setValue('preambleLength', event.target.value)"
 									onblur="updateForm.setTouched('preambleLength', true)"
 								/>
 								<p id="update-preamble-length-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -311,7 +311,7 @@
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 									placeholder="tx power"
-									onchange="updateForm.setValue('txPower', event.target.value)"
+									oninput="updateForm.setValue('txPower', event.target.value)"
 									onblur="updateForm.setTouched('txPower', true)"
 								/>
 								<p id="update-tx-power-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
@@ -323,7 +323,7 @@
 									type="text"
 									class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 									placeholder="sync word"
-									onchange="updateForm.setValue('syncWord', event.target.value)"
+									oninput="updateForm.setValue('syncWord', event.target.value)"
 									onblur="updateForm.setTouched('syncWord', true)"
 								/>
 								<p id="update-sync-word-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
