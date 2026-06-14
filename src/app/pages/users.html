@@ -108,6 +108,483 @@
 					</tbody>
 				</table>
 			</div>
+			<dialog id="update-dialog" class="w-full max-w-96 lg:max-w-md p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-4" onsubmit="updateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Update user?</h1>
+					<div class="flex flex-col lg:flex-row gap-4">
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-user" class="mb-2 text-base font-normal">User</label>
+								<div id="update-user" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user'), 0);
+											updatePermission(updateForm, 63n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user'), 1);
+											updatePermission(updateForm, 62n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user'), 2);
+											updatePermission(updateForm, 61n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user'), 3);
+											updatePermission(updateForm, 60n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-user-device" class="mb-2 text-base font-normal">User device</label>
+								<div id="update-user-device" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-device'), 0);
+											updatePermission(updateForm, 59n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-device'), 1);
+											updatePermission(updateForm, 58n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-device'), 2);
+											updatePermission(updateForm, 57n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-device'), 3);
+											updatePermission(updateForm, 56n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-user-zone" class="mb-2 text-base font-normal">User zone</label>
+								<div id="update-user-zone" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-zone'), 0);
+											updatePermission(updateForm, 55n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-zone'), 1);
+											updatePermission(updateForm, 54n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-zone'), 2);
+											updatePermission(updateForm, 53n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-user-zone'), 3);
+											updatePermission(updateForm, 52n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-device" class="mb-2 text-base font-normal">Device</label>
+								<div id="update-device" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-device'), 0);
+											updatePermission(updateForm, 51n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-device'), 1);
+											updatePermission(updateForm, 50n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-device'), 2);
+											updatePermission(updateForm, 49n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-device'), 3);
+											updatePermission(updateForm, 48n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-zone" class="mb-2 text-base font-normal">Zone</label>
+								<div id="update-zone" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-zone'), 0);
+											updatePermission(updateForm, 47n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-zone'), 1);
+											updatePermission(updateForm, 46n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-zone'), 2);
+											updatePermission(updateForm, 45n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-zone'), 3);
+											updatePermission(updateForm, 44n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="w-full flex flex-col gap-4">
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-config" class="mb-2 text-base font-normal">Config</label>
+								<div id="update-config" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-config'), 0);
+											updatePermission(updateForm, 43n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-config'), 1);
+											updatePermission(updateForm, 42n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-config'), 2);
+											updatePermission(updateForm, 41n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-config'), 3);
+											updatePermission(updateForm, 40n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-radio" class="mb-2 text-base font-normal">Radio</label>
+								<div id="update-radio" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-radio'), 0);
+											updatePermission(updateForm, 39n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-radio'), 1);
+											updatePermission(updateForm, 38n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-radio'), 2);
+											updatePermission(updateForm, 37n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-radio'), 3);
+											updatePermission(updateForm, 36n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-rule" class="mb-2 text-base font-normal">Rule</label>
+								<div id="update-rule" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-rule'), 0);
+											updatePermission(updateForm, 35n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-rule'), 1);
+											updatePermission(updateForm, 34n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-rule'), 2);
+											updatePermission(updateForm, 33n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-rule'), 3);
+											updatePermission(updateForm, 32n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-uplink" class="mb-2 text-base font-normal">Uplink</label>
+								<div id="update-uplink" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-uplink'), 0);
+											updatePermission(updateForm, 7n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-uplink'), 1);
+											updatePermission(updateForm, 6n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-uplink'), 2);
+											updatePermission(updateForm, 5n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-uplink'), 3);
+											updatePermission(updateForm, 4n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+							<div class="w-full flex flex-col items-start pb-4">
+								<label for="update-downlink" class="mb-2 text-base font-normal">Downlink</label>
+								<div id="update-downlink" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-downlink'), 0);
+											updatePermission(updateForm, 3n);
+										"
+									>
+										Read
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-downlink'), 1);
+											updatePermission(updateForm, 2n);
+										"
+									>
+										Create
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-downlink'), 2);
+											updatePermission(updateForm, 1n);
+										"
+									>
+										Update
+									</button>
+									<button
+										type="button"
+										class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+										onclick="
+											highlightPermission(document.getElementById('update-downlink'), 3);
+											updatePermission(updateForm, 0n);
+										"
+									>
+										Delete
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="update-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-blue-300 dark:background-blue-700 outline-none cursor-pointer"
+						>
+							Update
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeUpdateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 			<dialog id="delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-2" onsubmit="deleteForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Delete user?</h1>
@@ -145,6 +622,7 @@
 		import './src/app/scripts/resize.js';
 		import './src/app/scripts/timestamp.js';
 		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
@@ -191,9 +669,12 @@
 				element.children[ind].children[3].classList.remove('cursor-pointer');
 				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
 				element.children[ind].children[4].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[5].children[0].onclick = null;
+				element.children[ind].children[5].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].children[0].onclick = null;
+				element.children[ind].children[5].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].children[1].onclick = null;
 			});
 		};
 		const paintUsers = (element, data) => {
@@ -215,9 +696,12 @@
 					paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], data[ind].permissions);
 					element.children[ind].children[4].classList.add('cursor-pointer');
 					element.children[ind].children[4].onclick = () => (window.location.href = `/user/${data[ind].id}`);
-					element.children[ind].children[5].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[5].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[5].children[0].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[5].children[0].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[5].children[0].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[5].children[0].children[0].onclick = () => openUpdateDialog(data[ind]);
+					element.children[ind].children[5].children[0].children[1].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[5].children[0].children[1].classList.add('cursor-pointer');
+					element.children[ind].children[5].children[0].children[1].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -233,9 +717,12 @@
 				element.children[ind].children[3].classList.remove('cursor-pointer');
 				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
 				element.children[ind].children[4].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[5].children[0].onclick = null;
+				element.children[ind].children[5].children[0].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].children[0].onclick = null;
+				element.children[ind].children[5].children[0].children[1].classList.remove('cursor-pointer');
+				element.children[ind].children[5].children[0].children[1].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[5].children[0].children[1].onclick = null;
 			});
 		};
 		const parseUsers = async (response) => {
@@ -264,7 +751,87 @@
 			(context) => window.requestAnimationFrame(() => paintUsers(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorUsers(context.element)),
 		);
+		const highlightPermission = (element, ind) => {
+			switch (ind) {
+				case 0:
+					if (element.children[ind].classList.contains('background-neutral-200') && element.children[ind].classList.contains('dark:background-neutral-800')) {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-100', 'dark:background-blue-900');
+					} else {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+					}
+					break;
+				case 1:
+					if (element.children[ind].classList.contains('background-neutral-200') && element.children[ind].classList.contains('dark:background-neutral-800')) {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					} else {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+					}
+					break;
+				case 2:
+					if (element.children[ind].classList.contains('background-neutral-200') && element.children[ind].classList.contains('dark:background-neutral-800')) {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					} else {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+					}
+					break;
+				case 3:
+					if (element.children[ind].classList.contains('background-neutral-200') && element.children[ind].classList.contains('dark:background-neutral-800')) {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-red-600', 'dark:text-red-400', 'background-red-100', 'dark:background-red-900');
+					} else {
+						fade(element.children[ind]);
+						element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+					}
+					break;
+			}
+		};
+		const updatePermission = (form, ind) => {
+			let permissions = BigInt('0x' + form.values.permissions);
+			permissions = permissions ^ (1n << ind);
+			form.setValue('permissions', permissions.toString(16));
+		};
+		const updateDialog = document.getElementById('update-dialog');
 		const deleteDialog = document.getElementById('delete-dialog');
+		const openUpdateDialog = (user) => {
+			const permissions = BigInt('0x' + user.permissions);
+			const permission = {
+				user: { read: 1n << 63n, create: 1n << 62n, update: 1n << 61n, delete: 1n << 60n },
+				'user-device': { read: 1n << 59n, create: 1n << 58n, update: 1n << 57n, delete: 1n << 56n },
+				'user-zone': { read: 1n << 55n, create: 1n << 54n, update: 1n << 53n, delete: 1n << 52n },
+				device: { read: 1n << 51n, create: 1n << 50n, update: 1n << 49n, delete: 1n << 48n },
+				zone: { read: 1n << 47n, create: 1n << 46n, update: 1n << 45n, delete: 1n << 44n },
+				config: { read: 1n << 43n, create: 1n << 42n, update: 1n << 41n, delete: 1n << 40n },
+				radio: { read: 1n << 39n, create: 1n << 38n, update: 1n << 37n, delete: 1n << 36n },
+				rule: { read: 1n << 35n, create: 1n << 34n, update: 1n << 33n, delete: 1n << 32n },
+				uplink: { read: 1n << 7n, create: 1n << 6n, update: 1n << 5n, delete: 1n << 4n },
+				downlink: { read: 1n << 3n, create: 1n << 2n, update: 1n << 1n, delete: 1n << 0n },
+			};
+			Object.keys(permission).forEach((key) => {
+				Object.keys(permission[key]).forEach((k, i) => {
+					const element = document.getElementById(`update-${key}`);
+					fade(element.children[i]);
+					element.children[i].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+					if (permissions & permission[key][k]) {
+						highlightPermission(element, i);
+					}
+				});
+			});
+			updateForm.setValue('userId', user.id);
+			updateForm.setTouched('userId', true);
+			updateForm.setValue('permissions', user.permissions);
+			updateForm.setTouched('permissions', true);
+			updateDialog.showModal();
+		};
+		const closeUpdateDialog = () => {
+			updateForm.reset();
+			updateDialog.close();
+		};
 		const openDeleteDialog = (user) => {
 			deleteForm.setValue('userId', user.id);
 			deleteForm.setTouched('userId', true);
@@ -274,6 +841,37 @@
 			deleteForm.reset();
 			deleteDialog.close();
 		};
+		const updateForm = formik(
+			{
+				button: document.getElementById('update-button'),
+			},
+			{
+				userId: (value) => {
+					if (!value) return 'user id is required';
+					if (value.length !== 16) return 'user id must be 16 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'user id must be lowercase hexadecimal';
+				},
+				permissions: (value) => {
+					if (!value) return 'permissions is required';
+					if (value.length !== 16) return 'permissions must be 16 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'permissions must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const bytes = new Uint8Array(8);
+				const view = new DataView(bytes.buffer);
+				view.setBigUint64(0, BigInt('0x' + values.permissions));
+				const data = new Blob([bytes]);
+				try {
+					await fetcher('patch', `/api/user/${values.userId}`, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully updated user');
+					loadUsers(true);
+				} catch (err) {
+					report(err);
+				}
+				closeUpdateDialog();
+			},
+		);
 		const deleteForm = formik(
 			{
 				button: document.getElementById('delete-button'),
