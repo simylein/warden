@@ -191,10 +191,14 @@ uint16_t rule_insert(octet_t *db, rule_t *rule) {
 		}
 		uint8_t severity = octet_uint8_read(db->row, rule_row.severity);
 		uint8_t field = octet_uint8_read(db->row, rule_row.field);
+		uint8_t edge = octet_uint8_read(db->row, rule_row.edge);
 		if (severity > rule->severity) {
 			break;
 		}
 		if (severity == rule->severity && field >= rule->field) {
+			break;
+		}
+		if (severity == rule->severity && field == rule->field && edge >= rule->edge) {
 			break;
 		}
 		if (octet_row_write(&stmt, file, offset, db->row, rule_row.size) == -1) {
