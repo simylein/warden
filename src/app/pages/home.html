@@ -90,6 +90,32 @@
 			</div>
 			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
+					<h2 class="m-0 text-base font-normal">Dewpoint</h2>
+					<p id="dewpoint-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+				</div>
+				<div class="overflow-x-auto scrollbar-none">
+					<graph-guide ref="./src/app/components/graph-guide.html" id="dewpoint-guide" />
+				</div>
+				<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
+					<graph-scale ref="./src/app/components/graph-scale.html" id="dewpoint-scale" />
+					<div class="relative flex flex-col">
+						<svg id="dewpoint-graph" class="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+							<path ref="./src/app/components/graph-dewpoint-path.html" />
+							<path ref="./src/app/components/graph-multi-paths.html" />
+						</svg>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+						<span class="box-border h-8 border-0 border-b-1 border-solid border-neutral-300 dark:border-neutral-600"></span>
+					</div>
+					<div></div>
+					<graph-label ref="./src/app/components/graph-label.html" id="dewpoint-label" />
+				</div>
+			</div>
+			<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
+				<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 					<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
 					<p id="photovoltaic-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 				</div>
@@ -219,6 +245,7 @@
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/color-metric.js';
 		import './src/app/scripts/color-buffer.js';
+		import './src/app/scripts/dewpoint.js';
 		import './src/app/scripts/search.js';
 		import './src/app/scripts/binary.js';
 		import './src/app/scripts/fetcher.js';
@@ -241,6 +268,13 @@
 			guide: document.getElementById('humidity-guide'),
 			graph: document.getElementById('humidity-graph'),
 			label: document.getElementById('humidity-label'),
+		};
+		const dewpoint = {
+			range: document.getElementById('dewpoint-range'),
+			scale: document.getElementById('dewpoint-scale'),
+			guide: document.getElementById('dewpoint-guide'),
+			graph: document.getElementById('dewpoint-graph'),
+			label: document.getElementById('dewpoint-label'),
 		};
 		const photovoltaic = {
 			range: document.getElementById('photovoltaic-range'),
@@ -604,6 +638,132 @@
 					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
 					const factor = width / (humiditySkeleton.length - 1);
 					const skeleton = humiditySkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const loadingDewpoint = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			loading(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				loading(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				loading(element.scale.children[ind], ['h-3'], [], '');
+			});
+			loading(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-neutral-200', 'dark:stroke-neutral-800');
+					element.graph.children[ind].classList.remove('stroke-red-200', 'dark:stroke-red-800');
+					const factor = width / (dewpointSkeleton.length - 1);
+					const skeleton = dewpointSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
+				} else {
+					element.graph.children[ind].removeAttribute('d');
+				}
+			});
+		};
+		const paintDewpoint = (element, width, dewpoint, capturedAt) => {
+			const interval = (Number(capturedAt.end) - Number(capturedAt.start)) / (element.label.children.length - 1);
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				array(element.label.children.length).forEach((ind) => {
+					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
+					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
+				});
+			}
+			if (dewpoint.min.abs !== null && dewpoint.max.abs !== null) {
+				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range.children[0], [], [], dewpoint.min.abs.toFixed(2));
+				fade(element.range.children[0]);
+				colorDewpoint(element.range.children[0], dewpoint.min.abs);
+				paint(element.range.children[1], [], [], ' - ');
+				paint(element.range.children[2], [], [], dewpoint.max.abs.toFixed(2));
+				fade(element.range.children[2]);
+				colorDewpoint(element.range.children[2], dewpoint.max.abs);
+			}
+			if (dewpoint.min.floor !== null && dewpoint.max.ceil !== null) {
+				const scaleLength = element.scale.children.length;
+				const interval = (dewpoint.max.ceil - dewpoint.min.floor) / scaleLength;
+				array(scaleLength).forEach((ind) => {
+					paint(element.scale.children[scaleLength - 1 - ind], [], ['h-3'], (dewpoint.min.floor + ind * interval).toFixed(1));
+				});
+			}
+			const devices = Array.from(new Set(dewpoint.points.map((point) => point.d))).sort();
+			const mappings = new Map(devices.map((id, ind) => [id, ind]));
+			if (devices.length !== 0) {
+				paint(element.guide, [], []);
+				array(element.guide.children.length).forEach((ind) => {
+					if (ind < devices.length) {
+						element.guide.children[ind].children[0].classList.remove('hidden');
+						paint(element.guide.children[ind].children[1], [], [], dewpoint.mapping.get(devices[ind]) ?? devices[ind].substring(0, 4));
+					} else {
+						element.guide.children[ind].children[0].classList.add('hidden');
+						paint(element.guide.children[ind].children[1], [], [], '');
+					}
+				});
+			}
+			dewpoint.points.forEach((point) => {
+				const index = mappings.get(point.d);
+				dewpoint.devices[index].push(point);
+			});
+			dewpoint.devices.forEach((points, index) => {
+				const distance = width / points.length;
+				points.forEach((point, ind) => {
+					const last = ind === 0 ? point : points[ind - 1];
+					let type = dewpoint.paths[index + 1].length === 0 ? 'M' : 'L';
+					if (last.x - point.x > distance * 8) {
+						type = 'M';
+					}
+					dewpoint.paths[index + 1].push(`${type} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
+				});
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			const factor = width / (dewpointSkeleton.length - 1);
+			const skeleton = dewpointSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
+			element.graph.children[0].setAttribute('d', skeleton.join(' '));
+			if (capturedAt.start !== null && capturedAt.end !== null) {
+				dewpoint.paths.forEach((path, ind) => {
+					if (path.length !== 0) {
+						element.graph.children[ind].setAttribute('d', path.join(' '));
+					} else {
+						element.graph.children[ind].removeAttribute('d');
+					}
+				});
+			}
+		};
+		const errorDewpoint = (element, width) => {
+			array(element.label.children.length).forEach((ind) => {
+				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
+			});
+			error(element.range, ['w-28', 'h-4'], []);
+			array(element.range.children.length).forEach((ind) => {
+				error(element.range.children[ind], [], [], '');
+			});
+			array(element.scale.children.length).forEach((ind) => {
+				error(element.scale.children[ind], ['h-3'], [], '');
+			});
+			error(element.guide, [], []);
+			array(element.guide.children.length).forEach((ind) => {
+				element.guide.children[ind].children[0].classList.add('hidden');
+				paint(element.guide.children[ind].children[1], [], [], '');
+			});
+			element.graph.setAttribute('viewBox', `0 0 ${width} 100`);
+			array(element.graph.children.length).forEach((ind) => {
+				if (ind === 0) {
+					element.graph.children[ind].classList.add('stroke-red-200', 'dark:stroke-red-800');
+					element.graph.children[ind].classList.remove('stroke-neutral-200', 'dark:stroke-neutral-800');
+					const factor = width / (dewpointSkeleton.length - 1);
+					const skeleton = dewpointSkeleton.map((value, ind) => `${ind === 0 ? 'M' : 'L'} ${(ind * factor).toFixed(2)} ${value}`);
 					element.graph.children[ind].setAttribute('d', skeleton.join(' '));
 				} else {
 					element.graph.children[ind].removeAttribute('d');
@@ -1126,6 +1286,14 @@
 					devices: array(humidity.guide.children.length).map(() => []),
 					paths: array(humidity.graph.children.length).map(() => []),
 				},
+				dewpoint: {
+					min: { abs: null, floor: null },
+					max: { abs: null, ceil: null },
+					mapping: null,
+					points: [],
+					devices: array(dewpoint.guide.children.length).map(() => []),
+					paths: array(dewpoint.graph.children.length).map(() => []),
+				},
 				capturedAt: { start: null, end: null },
 			};
 			if (data !== null) {
@@ -1141,10 +1309,13 @@
 				const mapping = new Map(data.map((reading) => [reading.device.id, reading.device.name]));
 				readings.temperature.mapping = mapping;
 				readings.humidity.mapping = mapping;
+				readings.dewpoint.mapping = mapping;
 				envelope(readings, data, 'temperature');
 				envelope(readings, data, 'humidity');
+				envelope(readings, data, 'dewpoint');
 				coordinate(readings, data, 'temperature', 'capturedAt', width);
 				coordinate(readings, data, 'humidity', 'capturedAt', width);
+				coordinate(readings, data, 'dewpoint', 'capturedAt', width);
 			}
 			return readings;
 		};
@@ -1163,9 +1334,10 @@
 				}
 				const length = binary.uint(16);
 				for (let ind = 0; ind < length; ind++) {
-					const reading = { temperature: null, humidity: null, capturedAt: null, device: null };
+					const reading = { temperature: null, humidity: null, dewpoint: null, capturedAt: null, device: null };
 					reading.temperature = binary.int(16) / 100;
 					reading.humidity = binary.uint(16) / 100;
+					reading.dewpoint = dewpointing(reading.temperature, reading.humidity);
 					reading.capturedAt = binary.uint(64);
 					reading.device = device;
 					readings.push(reading);
@@ -1309,6 +1481,7 @@
 				context.width = breakpoint(temperature.graph.clientWidth);
 				window.requestAnimationFrame(() => loadingTemperature(temperature, context.width));
 				window.requestAnimationFrame(() => loadingHumidity(humidity, context.width));
+				window.requestAnimationFrame(() => loadingDewpoint(dewpoint, context.width));
 			},
 			(context) => {
 				let from = getFrom();
@@ -1330,6 +1503,7 @@
 				const summary = calculateReadings(context.data, context.width);
 				window.requestAnimationFrame(() => paintTemperature(temperature, context.width, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, context.width, summary.humidity, summary.capturedAt));
+				window.requestAnimationFrame(() => paintDewpoint(dewpoint, context.width, summary.dewpoint, summary.capturedAt));
 				if (getFrom() === null || getTo() === null) {
 					highlightRange(getRange());
 				}
@@ -1337,6 +1511,7 @@
 			(context) => {
 				window.requestAnimationFrame(() => errorTemperature(temperature, context.width));
 				window.requestAnimationFrame(() => errorHumidity(humidity, context.width));
+				window.requestAnimationFrame(() => errorDewpoint(dewpoint, context.width));
 			},
 		);
 		const loadMetrics = fetching(
