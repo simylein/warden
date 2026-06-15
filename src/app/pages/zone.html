@@ -103,6 +103,14 @@
 								</tr>
 								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
 									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Dewpoint</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-12 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
 										<p class="m-0">Captured at</p>
 									</td>
 									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
@@ -330,7 +338,9 @@
 			fade(table.reading.children[1].children[1].children[0]);
 			loading(table.reading.children[1].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.reading.children[2].children[1].children[0]);
-			loading(table.reading.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
+			loading(table.reading.children[2].children[1].children[0], ['w-12', 'h-4'], [], '');
+			fade(table.reading.children[3].children[1].children[0]);
+			loading(table.reading.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
 			fade(table.metric.children[0].children[1].children[0]);
 			loading(table.metric.children[0].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.metric.children[1].children[1].children[0]);
@@ -363,19 +373,24 @@
 			fade(table.reading.children[0].children[1].children[0]);
 			fade(table.reading.children[1].children[1].children[0]);
 			fade(table.reading.children[2].children[1].children[0]);
+			fade(table.reading.children[3].children[1].children[0]);
 			if (data.reading !== null && Number(data.reading.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 				paint(table.reading.children[0].children[1].children[0], [], ['w-12', 'h-4'], data.reading.temperature.toFixed(2));
 				colorTemperature(table.reading.children[0].children[1].children[0], data.reading.temperature);
 				paint(table.reading.children[1].children[1].children[0], [], ['w-12', 'h-4'], data.reading.humidity.toFixed(2));
 				colorHumidity(table.reading.children[1].children[1].children[0], data.reading.humidity);
-				paint(table.reading.children[2].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.reading.capturedAt));
+				paint(table.reading.children[2].children[1].children[0], [], ['w-12', 'h-4'], data.reading.dewpoint.toFixed(2));
+				colorDewpoint(table.reading.children[2].children[1].children[0], data.reading.dewpoint);
+				paint(table.reading.children[3].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.reading.capturedAt));
 			} else {
 				paint(table.reading.children[0].children[1].children[0], [], ['w-12', 'h-4'], 'null');
 				colorNull(table.reading.children[0].children[1].children[0]);
 				paint(table.reading.children[1].children[1].children[0], [], ['w-12', 'h-4'], 'null');
 				colorNull(table.reading.children[1].children[1].children[0]);
-				paint(table.reading.children[2].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				paint(table.reading.children[2].children[1].children[0], [], ['w-12', 'h-4'], 'null');
 				colorNull(table.reading.children[2].children[1].children[0]);
+				paint(table.reading.children[3].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(table.reading.children[3].children[1].children[0]);
 			}
 			fade(table.metric.children[0].children[1].children[0]);
 			fade(table.metric.children[1].children[1].children[0]);
@@ -427,7 +442,9 @@
 			fade(table.reading.children[1].children[1].children[0]);
 			error(table.reading.children[1].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.reading.children[2].children[1].children[0]);
-			error(table.reading.children[2].children[1].children[0], ['w-40', 'h-4'], [], '');
+			error(table.reading.children[2].children[1].children[0], ['w-12', 'h-4'], [], '');
+			fade(table.reading.children[3].children[1].children[0]);
+			error(table.reading.children[3].children[1].children[0], ['w-40', 'h-4'], [], '');
 			fade(table.metric.children[0].children[1].children[0]);
 			error(table.metric.children[0].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.metric.children[1].children[1].children[0]);
@@ -456,6 +473,7 @@
 				zone.reading = {};
 				zone.reading.temperature = binary.int(16) / 100;
 				zone.reading.humidity = binary.uint(16) / 100;
+				zone.reading.dewpoint = binary.int(16) / 100;
 				zone.reading.capturedAt = binary.uint(64);
 			}
 			if (binary.byte() !== 0) {
