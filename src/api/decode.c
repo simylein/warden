@@ -7,6 +7,7 @@
 #include "radio.h"
 #include "reading.h"
 #include "uplink.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -33,6 +34,9 @@ int decode_kind_01(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
+
+	float gamma = (17.625f * reading->temperature) / (243.04f + reading->temperature) + logf(reading->humidity / 100.0f);
+	reading->dewpoint = (243.04f * gamma) / (17.625f - gamma);
 
 	reading->captured_at = received_at;
 
@@ -69,6 +73,9 @@ int decode_kind_03(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
+
+	float gamma = (17.625f * reading->temperature) / (243.04f + reading->temperature) + logf(reading->humidity / 100.0f);
+	reading->dewpoint = (243.04f * gamma) / (17.625f - gamma);
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[4] << 4) | (uint16_t)((data[5] >> 4) & 0x0f);
 	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
@@ -191,6 +198,9 @@ int decode_kind_81(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
 
+	float gamma = (17.625f * reading->temperature) / (243.04f + reading->temperature) + logf(reading->humidity / 100.0f);
+	reading->dewpoint = (243.04f * gamma) / (17.625f - gamma);
+
 	buffer->delay = (uint32_t)(data[4] << 16) | (uint32_t)(data[5] << 8) | (uint32_t)data[6];
 	buffer->level = (uint16_t)(data[7] << 8) | (uint16_t)data[8];
 
@@ -237,6 +247,9 @@ int decode_kind_83(uint8_t *data, uint8_t data_len, time_t received_at, reading_
 
 	uint16_t humidity_raw = (uint16_t)(data[2] << 8) | (uint16_t)data[3];
 	reading->humidity = ((125.0f * humidity_raw) / 65536.0f) - 6.0f;
+
+	float gamma = (17.625f * reading->temperature) / (243.04f + reading->temperature) + logf(reading->humidity / 100.0f);
+	reading->dewpoint = (243.04f * gamma) / (17.625f - gamma);
 
 	uint16_t photovoltaic_raw = (uint16_t)(data[4] << 4) | (uint16_t)((data[5] >> 4) & 0x0f);
 	metric->photovoltaic = (photovoltaic_raw * 3.3f) / 4095.0f;
