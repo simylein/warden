@@ -10,6 +10,7 @@
 #include "../lib/response.h"
 #include "../lib/sha256.h"
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -451,6 +452,52 @@ cleanup:
 	return status;
 }
 
+uint16_t user_update_permissions(octet_t *db, user_t *user) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("update user %02x%02x\n", (*user->id)[0], (*user->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("user %02x%02x not found\n", (*user->id)[0], (*user->id)[1]);
+			status = 404;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, user_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_row.id);
+		if (memcmp(id, user->id, sizeof(*user->id)) == 0) {
+			octet_blob_write(db->row, user_row.permissions, (uint8_t *)user->permissions, sizeof(*user->permissions));
+			if (octet_row_write(&stmt, file, offset, db->row, user_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			status = 0;
+			break;
+		}
+		offset += user_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 uint16_t user_delete(octet_t *db, user_t *user) {
 	uint16_t status;
 
@@ -665,6 +712,43 @@ void user_signin(octet_t *db, request_t *request, response_t *response) {
 							 bwt_ttl);
 	info("user %.*s signed in\n", (int)user.username_len, user.username);
 	response->status = 201;
+}
+
+void user_modify_permissions(octet_t *db, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 10, &uuid_len);
+	if (uuid_len != sizeof(*((user_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((user_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	if (request->body.len != 8) {
+		response->status = 400;
+		return;
+	}
+
+	user_t user = {.id = &id, .permissions = (uint8_t (*)[8])request->body.ptr};
+	uint16_t status = user_update_permissions(db, &user);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("updated user %02x%02x\n", (*user.id)[0], (*user.id)[1]);
+	response->status = 200;
 }
 
 void user_remove(octet_t *db, request_t *request, response_t *response) {
