@@ -37,6 +37,7 @@ typedef struct zone_row_t {
 	uint8_t reading_null;
 	uint8_t reading_temperature;
 	uint8_t reading_humidity;
+	uint8_t reading_dewpoint;
 	uint8_t reading_captured_at;
 	uint8_t metric_null;
 	uint8_t metric_photovoltaic;

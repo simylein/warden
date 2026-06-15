@@ -31,16 +31,17 @@ const zone_row_t zone_row = {
 		.reading_null = 50,
 		.reading_temperature = 51,
 		.reading_humidity = 53,
-		.reading_captured_at = 55,
-		.metric_null = 63,
-		.metric_photovoltaic = 64,
-		.metric_battery = 66,
-		.metric_captured_at = 68,
-		.buffer_null = 76,
-		.buffer_delay = 77,
-		.buffer_level = 81,
-		.buffer_captured_at = 83,
-		.size = 91,
+		.reading_dewpoint = 55,
+		.reading_captured_at = 57,
+		.metric_null = 65,
+		.metric_photovoltaic = 66,
+		.metric_battery = 68,
+		.metric_captured_at = 70,
+		.buffer_null = 78,
+		.buffer_delay = 79,
+		.buffer_level = 83,
+		.buffer_captured_at = 85,
+		.size = 93,
 };
 
 int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
@@ -124,6 +125,24 @@ int zone_rowcmp(uint8_t *alpha, uint8_t *bravo, zone_query_t *query) {
 		uint16_t humidity_alpha = octet_uint16_read(alpha, zone_row.reading_humidity);
 		uint16_t humidity_bravo = octet_uint16_read(bravo, zone_row.reading_humidity);
 		int result = (humidity_alpha > humidity_bravo) - (humidity_alpha < humidity_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "dewpoint", query->order_len) == 0) {
+		uint8_t reading_null_alpha = octet_uint8_read(alpha, zone_row.reading_null);
+		uint8_t reading_null_bravo = octet_uint8_read(bravo, zone_row.reading_null);
+		if (reading_null_alpha != reading_null_bravo) {
+			return reading_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (reading_null_alpha == 0x00) {
+			return 0;
+		}
+		int16_t dewpoint_alpha = octet_int16_read(alpha, zone_row.reading_dewpoint);
+		int16_t dewpoint_bravo = octet_int16_read(bravo, zone_row.reading_dewpoint);
+		int result = (dewpoint_alpha > dewpoint_bravo) - (dewpoint_alpha < dewpoint_bravo);
 		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
 			result = -result;
 		}
@@ -371,6 +390,7 @@ uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *r
 		uint8_t reading_null = octet_uint8_read(&db->table[index], zone_row.reading_null);
 		int16_t reading_temperature = octet_int16_read(&db->table[index], zone_row.reading_temperature);
 		uint16_t reading_humidity = octet_uint16_read(&db->table[index], zone_row.reading_humidity);
+		int16_t reading_dewpoint = octet_int16_read(&db->table[index], zone_row.reading_dewpoint);
 		time_t reading_captured_at = (time_t)octet_uint64_read(&db->table[index], zone_row.reading_captured_at);
 		uint8_t metric_null = octet_uint8_read(&db->table[index], zone_row.metric_null);
 		uint16_t metric_photovoltaic = octet_uint16_read(&db->table[index], zone_row.metric_photovoltaic);
@@ -388,6 +408,7 @@ uint16_t zone_select(octet_t *db, bwt_t *bwt, zone_query_t *query, response_t *r
 		if (reading_null != 0x00) {
 			body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
 			body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
+			body_write(response, (uint16_t[]){hton16((uint16_t)reading_dewpoint)}, sizeof(reading_dewpoint));
 			body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 		}
 		body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
@@ -456,6 +477,7 @@ uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *resp
 			uint8_t reading_null = octet_uint8_read(db->row, zone_row.reading_null);
 			int16_t reading_temperature = octet_int16_read(db->row, zone_row.reading_temperature);
 			uint16_t reading_humidity = octet_uint16_read(db->row, zone_row.reading_humidity);
+			int16_t reading_dewpoint = octet_int16_read(db->row, zone_row.reading_dewpoint);
 			time_t reading_captured_at = (time_t)octet_uint64_read(db->row, zone_row.reading_captured_at);
 			uint8_t metric_null = octet_uint8_read(db->row, zone_row.metric_null);
 			uint16_t metric_photovoltaic = octet_uint16_read(db->row, zone_row.metric_photovoltaic);
@@ -478,6 +500,7 @@ uint16_t zone_select_one(octet_t *db, bwt_t *bwt, zone_t *zone, response_t *resp
 			if (reading_null != 0x00) {
 				body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
 				body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
+				body_write(response, (uint16_t[]){hton16((uint16_t)reading_dewpoint)}, sizeof(reading_dewpoint));
 				body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 			}
 			body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
@@ -794,6 +817,7 @@ uint16_t zone_update_latest(octet_t *db, zone_t *zone) {
 
 	int32_t reading_temperature_avg = 0;
 	uint32_t reading_humidity_avg = 0;
+	int32_t reading_dewpoint_avg = 0;
 	time_t reading_captured_at_max = 0;
 	uint8_t reading_bucket_len = 0;
 	uint32_t metric_photovoltaic_avg = 0;
@@ -820,9 +844,11 @@ uint16_t zone_update_latest(octet_t *db, zone_t *zone) {
 			if (reading_null != 0x00) {
 				int16_t reading_temperature = octet_int16_read(db->row, device_row.reading_temperature);
 				uint16_t reading_humidity = octet_uint16_read(db->row, device_row.reading_humidity);
+				int16_t reading_dewpoint = octet_int16_read(db->row, device_row.reading_dewpoint);
 				time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
 				reading_temperature_avg += reading_temperature;
 				reading_humidity_avg += reading_humidity;
+				reading_dewpoint_avg += reading_dewpoint;
 				if (reading_captured_at_max < reading_captured_at) {
 					reading_captured_at_max = reading_captured_at;
 				}
@@ -890,6 +916,7 @@ uint16_t zone_update_latest(octet_t *db, zone_t *zone) {
 				octet_uint8_write(db->row, zone_row.reading_null, 0x01);
 				octet_int16_write(db->row, zone_row.reading_temperature, (int16_t)(reading_temperature_avg / reading_bucket_len));
 				octet_uint16_write(db->row, zone_row.reading_humidity, (uint16_t)(reading_humidity_avg / reading_bucket_len));
+				octet_int16_write(db->row, zone_row.reading_dewpoint, (int16_t)(reading_dewpoint_avg / reading_bucket_len));
 				octet_uint64_write(db->row, zone_row.reading_captured_at, (uint64_t)reading_captured_at_max);
 			}
 			if (metric_bucket_len != 0) {

@@ -321,6 +321,7 @@
 					zone.reading = {};
 					zone.reading.temperature = binary.int(16) / 100;
 					zone.reading.humidity = binary.uint(16) / 100;
+					zone.reading.dewpoint = binary.int(16) / 100;
 					zone.reading.capturedAt = binary.uint(64);
 				}
 				if (binary.byte() !== 0) {

@@ -51,28 +51,29 @@ const device_row_t device_row = {
 		.reading_null = 134,
 		.reading_temperature = 135,
 		.reading_humidity = 137,
-		.reading_captured_at = 139,
-		.metric_null = 147,
-		.metric_photovoltaic = 148,
-		.metric_battery = 150,
-		.metric_captured_at = 152,
-		.buffer_null = 160,
-		.buffer_delay = 161,
-		.buffer_level = 165,
-		.buffer_captured_at = 167,
-		.uplink_null = 175,
-		.uplink_kind = 176,
-		.uplink_rssi = 177,
-		.uplink_snr = 179,
-		.uplink_sf = 180,
-		.uplink_received_at = 181,
-		.downlink_null = 189,
-		.downlink_kind = 190,
-		.downlink_sf = 191,
-		.downlink_cr = 192,
-		.downlink_tx_power = 193,
-		.downlink_sent_at = 194,
-		.size = 202,
+		.reading_dewpoint = 139,
+		.reading_captured_at = 141,
+		.metric_null = 149,
+		.metric_photovoltaic = 150,
+		.metric_battery = 152,
+		.metric_captured_at = 154,
+		.buffer_null = 162,
+		.buffer_delay = 163,
+		.buffer_level = 167,
+		.buffer_captured_at = 169,
+		.uplink_null = 177,
+		.uplink_kind = 178,
+		.uplink_rssi = 179,
+		.uplink_snr = 181,
+		.uplink_sf = 182,
+		.uplink_received_at = 183,
+		.downlink_null = 191,
+		.downlink_kind = 192,
+		.downlink_sf = 193,
+		.downlink_cr = 194,
+		.downlink_tx_power = 195,
+		.downlink_sent_at = 196,
+		.size = 204,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -176,6 +177,24 @@ int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
 		uint16_t humidity_alpha = octet_uint16_read(alpha, device_row.reading_humidity);
 		uint16_t humidity_bravo = octet_uint16_read(bravo, device_row.reading_humidity);
 		int result = (humidity_alpha > humidity_bravo) - (humidity_alpha < humidity_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "dewpoint", query->order_len) == 0) {
+		uint8_t reading_null_alpha = octet_uint8_read(alpha, device_row.reading_null);
+		uint8_t reading_null_bravo = octet_uint8_read(bravo, device_row.reading_null);
+		if (reading_null_alpha != reading_null_bravo) {
+			return reading_null_alpha == 0x00 ? -1 : 1;
+		}
+		if (reading_null_alpha == 0x00) {
+			return 0;
+		}
+		int16_t dewpoint_alpha = octet_int16_read(alpha, device_row.reading_dewpoint);
+		int16_t dewpoint_bravo = octet_int16_read(bravo, device_row.reading_dewpoint);
+		int result = (dewpoint_alpha > dewpoint_bravo) - (dewpoint_alpha < dewpoint_bravo);
 		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
 			result = -result;
 		}
@@ -402,6 +421,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 		uint8_t reading_null = octet_uint8_read(&db->table[index], device_row.reading_null);
 		int16_t reading_temperature = octet_int16_read(&db->table[index], device_row.reading_temperature);
 		uint16_t reading_humidity = octet_uint16_read(&db->table[index], device_row.reading_humidity);
+		int16_t reading_dewpoint = octet_int16_read(&db->table[index], device_row.reading_dewpoint);
 		time_t reading_captured_at = (time_t)octet_uint64_read(&db->table[index], device_row.reading_captured_at);
 		uint8_t metric_null = octet_uint8_read(&db->table[index], device_row.metric_null);
 		uint16_t metric_photovoltaic = octet_uint16_read(&db->table[index], device_row.metric_photovoltaic);
@@ -430,6 +450,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 		if (reading_null != 0x00) {
 			body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
 			body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
+			body_write(response, (uint16_t[]){hton16((uint16_t)reading_dewpoint)}, sizeof(reading_dewpoint));
 			body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 		}
 		body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
@@ -514,6 +535,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			uint8_t reading_null = octet_uint8_read(db->row, device_row.reading_null);
 			int16_t reading_temperature = octet_int16_read(db->row, device_row.reading_temperature);
 			uint16_t reading_humidity = octet_uint16_read(db->row, device_row.reading_humidity);
+			int16_t reading_dewpoint = octet_int16_read(db->row, device_row.reading_dewpoint);
 			time_t reading_captured_at = (time_t)octet_uint64_read(db->row, device_row.reading_captured_at);
 			uint8_t metric_null = octet_uint8_read(db->row, device_row.metric_null);
 			uint16_t metric_photovoltaic = octet_uint16_read(db->row, device_row.metric_photovoltaic);
@@ -565,6 +587,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			if (reading_null != 0x00) {
 				body_write(response, (uint16_t[]){hton16((uint16_t)reading_temperature)}, sizeof(reading_temperature));
 				body_write(response, (uint16_t[]){hton16(reading_humidity)}, sizeof(reading_humidity));
+				body_write(response, (uint16_t[]){hton16((uint16_t)reading_dewpoint)}, sizeof(reading_dewpoint));
 				body_write(response, (uint64_t[]){hton64((uint64_t)reading_captured_at)}, sizeof(reading_captured_at));
 			}
 			body_write(response, (uint8_t[]){metric_null != 0x00}, sizeof(metric_null));
@@ -1184,6 +1207,7 @@ uint16_t device_update_latest(octet_t *db, device_t *device) {
 				octet_uint8_write(db->row, device_row.reading_null, 0x01);
 				octet_int16_write(db->row, device_row.reading_temperature, (int16_t)(device->reading->temperature * 100));
 				octet_uint16_write(db->row, device_row.reading_humidity, (uint16_t)(device->reading->humidity * 100));
+				octet_int16_write(db->row, device_row.reading_dewpoint, (int16_t)(device->reading->dewpoint * 100));
 				octet_uint64_write(db->row, device_row.reading_captured_at, (uint64_t)device->reading->captured_at);
 			}
 			uint8_t metric_null = octet_uint8_read(db->row, device_row.metric_null);

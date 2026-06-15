@@ -13,6 +13,7 @@ typedef struct device_t device_t;
 typedef struct reading_t {
 	float temperature;
 	float humidity;
+	float dewpoint;
 	time_t captured_at;
 	uint8_t (*device_id)[8];
 } reading_t;
