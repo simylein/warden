@@ -572,7 +572,7 @@ void rule_remove(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 	}
 
 	rule_t rule = {.device_id = device.id};
-	if (request->body.len < request->body.pos + sizeof(rule.created_at)) {
+	if (request->body.len != sizeof(rule.created_at)) {
 		debug("missing created at on rule\n");
 		response->status = 400;
 		return;
