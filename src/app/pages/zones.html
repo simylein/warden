@@ -84,6 +84,18 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
+								id="dewpoint"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintSorting('dewpoint');
+									loadZones();
+								"
+							>
+								Dewpoint
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
 								id="photovoltaic"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
@@ -184,6 +196,7 @@
 			name: document.getElementById('name'),
 			temperature: document.getElementById('temperature'),
 			humidity: document.getElementById('humidity'),
+			dewpoint: document.getElementById('dewpoint'),
 			photovoltaic: document.getElementById('photovoltaic'),
 			battery: document.getElementById('battery'),
 			delay: document.getElementById('delay'),
@@ -224,9 +237,11 @@
 				fade(element.children[ind].children[5].children[0]);
 				loading(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				loading(element.children[ind].children[6].children[0], ['w-8', 'h-4'], [], '');
+				loading(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				loading(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				loading(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
 			});
 		};
 		const paintZones = (element, data) => {
@@ -244,46 +259,52 @@
 					fade(element.children[ind].children[2].children[0]);
 					element.children[ind].children[3].onclick = () => (window.location.href = `/zone/${data[ind].id}/readings`);
 					fade(element.children[ind].children[3].children[0]);
+					element.children[ind].children[4].onclick = () => (window.location.href = `/zone/${data[ind].id}/readings`);
+					fade(element.children[ind].children[4].children[0]);
 					if (data[ind].reading !== null && Number(data[ind].reading.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
 						paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], data[ind].reading.temperature.toFixed(2));
 						colorTemperature(element.children[ind].children[2].children[0], data[ind].reading.temperature);
 						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], data[ind].reading.humidity.toFixed(2));
 						colorHumidity(element.children[ind].children[3].children[0], data[ind].reading.humidity);
+						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].reading.dewpoint.toFixed(2));
+						colorDewpoint(element.children[ind].children[4].children[0], data[ind].reading.dewpoint);
 					} else {
 						paint(element.children[ind].children[2].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[2].children[0]);
 						paint(element.children[ind].children[3].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[3].children[0]);
-					}
-					element.children[ind].children[4].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
-					fade(element.children[ind].children[4].children[0]);
-					element.children[ind].children[5].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
-					fade(element.children[ind].children[5].children[0]);
-					if (data[ind].metric !== null && Number(data[ind].metric.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
-						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
-						colorPhotovoltaic(element.children[ind].children[4].children[0], data[ind].metric.photovoltaic);
-						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].metric.battery.toFixed(3));
-						colorBattery(element.children[ind].children[5].children[0], data[ind].metric.battery);
-					} else {
 						paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[4].children[0]);
+					}
+					element.children[ind].children[5].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
+					fade(element.children[ind].children[5].children[0]);
+					element.children[ind].children[6].onclick = () => (window.location.href = `/zone/${data[ind].id}/metrics`);
+					fade(element.children[ind].children[6].children[0]);
+					if (data[ind].metric !== null && Number(data[ind].metric.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
+						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], data[ind].metric.photovoltaic.toFixed(3));
+						colorPhotovoltaic(element.children[ind].children[5].children[0], data[ind].metric.photovoltaic);
+						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], data[ind].metric.battery.toFixed(3));
+						colorBattery(element.children[ind].children[6].children[0], data[ind].metric.battery);
+					} else {
 						paint(element.children[ind].children[5].children[0], [], ['w-12', 'h-4'], 'null');
 						colorNull(element.children[ind].children[5].children[0]);
+						paint(element.children[ind].children[6].children[0], [], ['w-12', 'h-4'], 'null');
+						colorNull(element.children[ind].children[6].children[0]);
 					}
-					element.children[ind].children[6].onclick = () => (window.location.href = `/zone/${data[ind].id}/buffers`);
-					fade(element.children[ind].children[6].children[0]);
 					element.children[ind].children[7].onclick = () => (window.location.href = `/zone/${data[ind].id}/buffers`);
 					fade(element.children[ind].children[7].children[0]);
+					element.children[ind].children[8].onclick = () => (window.location.href = `/zone/${data[ind].id}/buffers`);
+					fade(element.children[ind].children[8].children[0]);
 					if (data[ind].buffer !== null && Number(data[ind].buffer.capturedAt) > Math.floor(Date.now() / 1000) - 3600) {
-						paint(element.children[ind].children[6].children[0], [], ['w-8', 'h-4'], duration(data[ind].buffer.delay));
-						colorDelay(element.children[ind].children[6].children[0], data[ind].buffer.delay);
-						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], data[ind].buffer.level);
-						colorLevel(element.children[ind].children[7].children[0], data[ind].buffer.level);
+						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], duration(data[ind].buffer.delay));
+						colorDelay(element.children[ind].children[7].children[0], data[ind].buffer.delay);
+						paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], data[ind].buffer.level);
+						colorLevel(element.children[ind].children[8].children[0], data[ind].buffer.level);
 					} else {
-						paint(element.children[ind].children[6].children[0], [], ['w-8', 'h-4'], 'null');
-						colorNull(element.children[ind].children[6].children[0]);
 						paint(element.children[ind].children[7].children[0], [], ['w-8', 'h-4'], 'null');
 						colorNull(element.children[ind].children[7].children[0]);
+						paint(element.children[ind].children[8].children[0], [], ['w-8', 'h-4'], 'null');
+						colorNull(element.children[ind].children[8].children[0]);
 					}
 				}
 			});
@@ -303,9 +324,11 @@
 				fade(element.children[ind].children[5].children[0]);
 				error(element.children[ind].children[5].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[6].children[0]);
-				error(element.children[ind].children[6].children[0], ['w-8', 'h-4'], [], '');
+				error(element.children[ind].children[6].children[0], ['w-12', 'h-4'], [], '');
 				fade(element.children[ind].children[7].children[0]);
 				error(element.children[ind].children[7].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[8].children[0]);
+				error(element.children[ind].children[8].children[0], ['w-8', 'h-4'], [], '');
 			});
 		};
 		const parseZones = async (response) => {
