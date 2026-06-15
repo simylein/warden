@@ -63,3 +63,36 @@ const colorHumidity = (element, humidity) => {
 			return element.classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-50', 'dark:background-indigo-950');
 	}
 };
+
+const colorDewpoint = (element, dewpoint) => {
+	switch (true) {
+		case dewpoint < -32:
+			return element.classList.add('text-purple-600', 'dark:text-purple-400', 'background-purple-50', 'dark:background-purple-950');
+		case dewpoint >= -32 && dewpoint < -26:
+			return element.classList.add('text-violet-600', 'dark:text-violet-400', 'background-violet-50', 'dark:background-violet-950');
+		case dewpoint >= -26 && dewpoint < -20:
+			return element.classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-50', 'dark:background-indigo-950');
+		case dewpoint >= -20 && dewpoint < -14:
+			return element.classList.add('text-blue-600', 'dark:text-blue-400', 'background-blue-50', 'dark:background-blue-950');
+		case dewpoint >= -14 && dewpoint < -8:
+			return element.classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-50', 'dark:background-sky-950');
+		case dewpoint >= -8 && dewpoint < -2:
+			return element.classList.add('text-cyan-600', 'dark:text-cyan-400', 'background-cyan-50', 'dark:background-cyan-950');
+		case dewpoint >= -2 && dewpoint < 2:
+			return element.classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-50', 'dark:background-teal-950');
+		case dewpoint >= 2 && dewpoint < 6:
+			return element.classList.add('text-emerald-600', 'dark:text-emerald-400', 'background-emerald-50', 'dark:background-emerald-950');
+		case dewpoint >= 6 && dewpoint < 10:
+			return element.classList.add('text-green-600', 'dark:text-green-400', 'background-green-50', 'dark:background-green-950');
+		case dewpoint >= 10 && dewpoint < 14:
+			return element.classList.add('text-lime-600', 'dark:text-lime-400', 'background-lime-50', 'dark:background-lime-950');
+		case dewpoint >= 14 && dewpoint < 16:
+			return element.classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-50', 'dark:background-yellow-950');
+		case dewpoint >= 16 && dewpoint < 18:
+			return element.classList.add('text-amber-600', 'dark:text-amber-400', 'background-amber-50', 'dark:background-amber-950');
+		case dewpoint >= 18 && dewpoint < 20:
+			return element.classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-50', 'dark:background-orange-950');
+		case dewpoint >= 20:
+			return element.classList.add('text-red-600', 'dark:text-red-400', 'background-red-50', 'dark:background-red-950');
+	}
+};

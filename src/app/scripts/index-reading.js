@@ -63,3 +63,36 @@ const indexHumidity = (humidity) => {
 			return 12;
 	}
 };
+
+const indexDewpoint = (dewpoint) => {
+	switch (true) {
+		case dewpoint < -32:
+			return 1;
+		case dewpoint >= -32 && dewpoint < -26:
+			return 2;
+		case dewpoint >= -26 && dewpoint < -20:
+			return 3;
+		case dewpoint >= -20 && dewpoint < -14:
+			return 4;
+		case dewpoint >= -14 && dewpoint < -8:
+			return 5;
+		case dewpoint >= -8 && dewpoint < -2:
+			return 6;
+		case dewpoint >= -2 && dewpoint < 2:
+			return 7;
+		case dewpoint >= 2 && dewpoint < 6:
+			return 8;
+		case dewpoint >= 6 && dewpoint < 10:
+			return 9;
+		case dewpoint >= 10 && dewpoint < 14:
+			return 10;
+		case dewpoint >= 14 && dewpoint < 16:
+			return 11;
+		case dewpoint >= 16 && dewpoint < 18:
+			return 12;
+		case dewpoint >= 18 && dewpoint < 20:
+			return 13;
+		case dewpoint >= 20:
+			return 14;
+	}
+};
