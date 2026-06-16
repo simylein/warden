@@ -29,18 +29,22 @@ const colorValue = (element, field, value) => {
 			element.innerText = value.toFixed(2);
 			break;
 		case field === 2:
+			colorDewpoint(element, value);
+			element.innerText = value.toFixed(2);
+			break;
+		case field === 3:
 			colorPhotovoltaic(element, value);
 			element.innerText = value.toFixed(3);
 			break;
-		case field === 3:
+		case field === 4:
 			colorBattery(element, value);
 			element.innerText = value.toFixed(3);
 			break;
-		case field === 4:
+		case field === 5:
 			colorDelay(element, value);
 			element.innerText = duration(value);
 			break;
-		case field === 5:
+		case field === 6:
 			colorLevel(element, value);
 			element.innerText = value;
 			break;

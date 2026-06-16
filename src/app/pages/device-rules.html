@@ -171,7 +171,7 @@
 										createForm.setTouched('field', true);
 									"
 								>
-									Photovoltaic
+									Dewpoint
 								</button>
 								<button
 									type="button"
@@ -182,7 +182,7 @@
 										createForm.setTouched('field', true);
 									"
 								>
-									Battery
+									Photovoltaic
 								</button>
 								<button
 									type="button"
@@ -193,7 +193,7 @@
 										createForm.setTouched('field', true);
 									"
 								>
-									Delay
+									Battery
 								</button>
 								<button
 									type="button"
@@ -201,6 +201,17 @@
 									onclick="
 										highlightField(document.getElementById('create-field'), 5);
 										createForm.setValue('field', 5);
+										createForm.setTouched('field', true);
+									"
+								>
+									Delay
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('create-field'), 6);
+										createForm.setValue('field', 6);
 										createForm.setTouched('field', true);
 									"
 								>
@@ -357,7 +368,7 @@
 										updateForm.setTouched('field', true);
 									"
 								>
-									Photovoltaic
+									Dewpoint
 								</button>
 								<button
 									type="button"
@@ -368,7 +379,7 @@
 										updateForm.setTouched('field', true);
 									"
 								>
-									Battery
+									Photovoltaic
 								</button>
 								<button
 									type="button"
@@ -379,7 +390,7 @@
 										updateForm.setTouched('field', true);
 									"
 								>
-									Delay
+									Battery
 								</button>
 								<button
 									type="button"
@@ -387,6 +398,17 @@
 									onclick="
 										highlightField(document.getElementById('update-field'), 5);
 										updateForm.setValue('field', 5);
+										updateForm.setTouched('field', true);
+									"
+								>
+									Delay
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('update-field'), 6);
+										updateForm.setValue('field', 6);
 										updateForm.setTouched('field', true);
 									"
 								>

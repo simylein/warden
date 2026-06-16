@@ -147,7 +147,7 @@ int rule_validate(rule_t *rule) {
 		return -1;
 	}
 
-	if (rule->field > 5) {
+	if (rule->field > 6) {
 		debug("invalid field %hhu on rule\n", rule->field);
 		return -1;
 	}

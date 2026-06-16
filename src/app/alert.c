@@ -204,27 +204,34 @@ int alerting(rule_t *rule, device_t *device, int32_t *value, alert_t *alert) {
 		*value = (int32_t)(device->reading->humidity * 100);
 		return evaluate(rule, alert, 100.0f, device->reading->humidity);
 	case 2:
+		if (device->reading == NULL) {
+			warn("device %02x%02x reading null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
+			return -1;
+		}
+		*value = (int32_t)(device->reading->dewpoint * 100);
+		return evaluate(rule, alert, 100.0f, device->reading->dewpoint);
+	case 3:
 		if (device->metric == NULL) {
 			warn("device %02x%02x metric null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)(device->metric->photovoltaic * 1000);
 		return evaluate(rule, alert, 1000.0f, device->metric->photovoltaic);
-	case 3:
+	case 4:
 		if (device->metric == NULL) {
 			warn("device %02x%02x metric null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)(device->metric->battery * 1000);
 		return evaluate(rule, alert, 1000.0f, device->metric->battery);
-	case 4:
+	case 5:
 		if (device->buffer == NULL) {
 			warn("device %02x%02x buffer null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
 		}
 		*value = (int32_t)device->buffer->delay;
 		return evaluate(rule, alert, 1.0f, (float)device->buffer->delay);
-	case 5:
+	case 6:
 		if (device->buffer == NULL) {
 			warn("device %02x%02x buffer null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
 			return -1;
@@ -279,8 +286,10 @@ void *alerter(void *args) {
 				device.reading = &reading;
 				int16_t temperature = octet_int16_read(&db->table[index * device_row.size], device_row.reading_temperature);
 				uint16_t humidity = octet_uint16_read(&db->table[index * device_row.size], device_row.reading_humidity);
+				int16_t dewpoint = octet_int16_read(&db->table[index * device_row.size], device_row.reading_dewpoint);
 				device.reading->temperature = temperature / 100.0f;
 				device.reading->humidity = humidity / 100.0f;
+				device.reading->dewpoint = dewpoint / 100.0f;
 			} else {
 				device.reading = NULL;
 			}

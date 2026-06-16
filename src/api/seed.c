@@ -414,7 +414,7 @@ int seed_alert(octet_t *db) {
 	for (uint8_t index = 0; index < device_ids_len; index++) {
 		alert_t alert = {
 				.severity = (uint8_t)(rand() % 3),
-				.field = (uint8_t)(rand() % 6),
+				.field = (uint8_t)(rand() % 7),
 				.edge = (uint8_t)(rand() % 2),
 				.value = (int32_t)(512 + (rand() % 2048)),
 				.issued_at = issued_at,
@@ -440,7 +440,7 @@ int seed_rule(octet_t *db) {
 		while (created_at < now) {
 			rule_t rule = {
 					.severity = (uint8_t)(rand() % 3),
-					.field = (uint8_t)(rand() % 6),
+					.field = (uint8_t)(rand() % 7),
 					.edge = (uint8_t)(rand() % 2),
 					.activate = (int32_t)(512 + (rand() % 2048)),
 					.disable = (int32_t)(512 + (rand() % 2048)),

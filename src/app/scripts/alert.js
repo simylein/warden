@@ -29,12 +29,14 @@ const field = (field) => {
 		case field === 1:
 			return 'humidity';
 		case field === 2:
-			return 'photovoltaic';
+			return 'dewpoint';
 		case field === 3:
-			return 'battery';
+			return 'photovoltaic';
 		case field === 4:
-			return 'delay';
+			return 'battery';
 		case field === 5:
+			return 'delay';
+		case field === 6:
 			return 'level';
 		default:
 			return 'unknown';
@@ -48,12 +50,14 @@ const value = (field, value) => {
 		case field === 1:
 			return value / 100;
 		case field === 2:
-			return value / 1000;
+			return value / 100;
 		case field === 3:
 			return value / 1000;
 		case field === 4:
-			return value;
+			return value / 1000;
 		case field === 5:
+			return value;
+		case field === 6:
 			return value;
 		default:
 			return value;
