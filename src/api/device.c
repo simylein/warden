@@ -62,18 +62,20 @@ const device_row_t device_row = {
 		.buffer_level = 167,
 		.buffer_captured_at = 169,
 		.uplink_null = 177,
-		.uplink_kind = 178,
-		.uplink_rssi = 179,
-		.uplink_snr = 181,
-		.uplink_sf = 182,
-		.uplink_received_at = 183,
-		.downlink_null = 191,
-		.downlink_kind = 192,
-		.downlink_sf = 193,
-		.downlink_cr = 194,
-		.downlink_tx_power = 195,
-		.downlink_sent_at = 196,
-		.size = 204,
+		.uplink_frame = 178,
+		.uplink_kind = 180,
+		.uplink_rssi = 181,
+		.uplink_snr = 183,
+		.uplink_sf = 184,
+		.uplink_received_at = 185,
+		.downlink_null = 193,
+		.downlink_frame = 194,
+		.downlink_kind = 196,
+		.downlink_sf = 197,
+		.downlink_cr = 198,
+		.downlink_tx_power = 199,
+		.downlink_sent_at = 200,
+		.size = 208,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -1235,6 +1237,7 @@ uint16_t device_update_latest(octet_t *db, device_t *device) {
 				octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(*airtime));
 				octet_uint64_write(db->row, device_row.airtime_bucket, (uint64_t)airtime_bucket);
 				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
+				octet_uint16_write(db->row, device_row.uplink_frame, device->uplink->frame);
 				octet_uint8_write(db->row, device_row.uplink_kind, device->uplink->kind);
 				octet_int16_write(db->row, device_row.uplink_rssi, device->uplink->rssi);
 				octet_int8_write(db->row, device_row.uplink_snr, device->uplink->snr);
@@ -1245,6 +1248,7 @@ uint16_t device_update_latest(octet_t *db, device_t *device) {
 			time_t downlink_sent_at = (time_t)octet_uint64_read(db->row, device_row.downlink_sent_at);
 			if (device->downlink != NULL && (downlink_null == 0x00 || device->downlink->sent_at >= downlink_sent_at)) {
 				octet_uint8_write(db->row, device_row.downlink_null, 0x01);
+				octet_uint16_write(db->row, device_row.downlink_frame, device->downlink->frame);
 				octet_uint8_write(db->row, device_row.downlink_kind, device->downlink->kind);
 				octet_uint8_write(db->row, device_row.downlink_sf, device->downlink->sf);
 				octet_uint8_write(db->row, device_row.downlink_cr, device->downlink->cr);

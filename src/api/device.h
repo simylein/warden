@@ -79,12 +79,14 @@ typedef struct device_row_t {
 	uint8_t buffer_level;
 	uint8_t buffer_captured_at;
 	uint8_t uplink_null;
+	uint8_t uplink_frame;
 	uint8_t uplink_kind;
 	uint8_t uplink_rssi;
 	uint8_t uplink_snr;
 	uint8_t uplink_sf;
 	uint8_t uplink_received_at;
 	uint8_t downlink_null;
+	uint8_t downlink_frame;
 	uint8_t downlink_kind;
 	uint8_t downlink_sf;
 	uint8_t downlink_cr;
