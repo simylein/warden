@@ -548,12 +548,14 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			uint16_t buffer_level = octet_uint16_read(db->row, device_row.buffer_level);
 			time_t buffer_captured_at = (time_t)octet_uint64_read(db->row, device_row.buffer_captured_at);
 			uint8_t uplink_null = octet_uint8_read(db->row, device_row.uplink_null);
+			uint16_t uplink_frame = octet_uint16_read(db->row, device_row.uplink_frame);
 			uint8_t uplink_kind = octet_uint8_read(db->row, device_row.uplink_kind);
 			int16_t uplink_rssi = octet_int16_read(db->row, device_row.uplink_rssi);
 			int8_t uplink_snr = octet_int8_read(db->row, device_row.uplink_snr);
 			uint8_t uplink_sf = octet_uint8_read(db->row, device_row.uplink_sf);
 			time_t uplink_received_at = (time_t)octet_uint64_read(db->row, device_row.uplink_received_at);
 			uint8_t downlink_null = octet_uint8_read(db->row, device_row.downlink_null);
+			uint16_t downlink_frame = octet_uint16_read(db->row, device_row.downlink_frame);
 			uint8_t downlink_kind = octet_uint8_read(db->row, device_row.downlink_kind);
 			uint8_t downlink_sf = octet_uint8_read(db->row, device_row.downlink_sf);
 			uint8_t downlink_cr = octet_uint8_read(db->row, device_row.downlink_cr);
@@ -606,6 +608,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			}
 			body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
 			if (uplink_null != 0x00) {
+				body_write(response, (uint16_t[]){hton16(uplink_frame)}, sizeof(uplink_frame));
 				body_write(response, &uplink_kind, sizeof(uplink_kind));
 				body_write(response, (uint16_t[]){hton16((uint16_t)uplink_rssi)}, sizeof(uplink_rssi));
 				body_write(response, &uplink_snr, sizeof(uplink_snr));
@@ -614,6 +617,7 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			}
 			body_write(response, (uint8_t[]){downlink_null != 0x00}, sizeof(downlink_null));
 			if (downlink_null != 0x00) {
+				body_write(response, (uint16_t[]){hton16(downlink_frame)}, sizeof(downlink_frame));
 				body_write(response, &downlink_kind, sizeof(downlink_kind));
 				body_write(response, &downlink_sf, sizeof(downlink_sf));
 				body_write(response, &downlink_cr, sizeof(downlink_cr));
