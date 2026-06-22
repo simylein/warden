@@ -45,5 +45,5 @@ uint16_t airtime_calculate(uint16_t (*airtime)[8], time_t airtime_bucket) {
 	if (span == 0) {
 		return 0;
 	}
-	return (uint16_t)(((float)sum / (float)span) * 100.0f * 1000.0f);
+	return (uint16_t)((sum * 100000u) / span);
 }
