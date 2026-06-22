@@ -51,8 +51,6 @@ typedef struct device_row_t {
 	uint8_t id;
 	uint8_t name_len;
 	uint8_t name;
-	uint8_t airtime;
-	uint8_t airtime_bucket;
 	uint8_t firmware_len;
 	uint8_t firmware;
 	uint8_t hardware_len;
@@ -60,6 +58,11 @@ typedef struct device_row_t {
 	uint8_t created_at;
 	uint8_t updated_at_null;
 	uint8_t updated_at;
+	uint8_t airtime;
+	uint8_t airtime_bucket;
+	uint8_t packet_rx;
+	uint8_t packet_lost;
+	uint8_t packet_bucket;
 	uint8_t zone_null;
 	uint8_t zone_id;
 	uint8_t zone_name_len;

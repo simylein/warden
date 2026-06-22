@@ -51,82 +51,96 @@
 			</div>
 			<div class="w-full h-full flex flex-col gap-4 sm:gap-6 lg:gap-8 overflow-x-auto scrollbar-none">
 				<div class="w-full h-full flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-					<table class="w-full h-full text-nowrap border-collapse">
-						<tbody id="device">
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Id</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="font-mono m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Name</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-32 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Zone id</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="font-mono m-0 w-40 h-4 text-blue-600 dark:text-blue-400 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Zone name</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Airtime</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-14 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Firmware</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Hardware</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Created at</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-							<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
-									<p class="m-0">Updated at</p>
-								</td>
-								<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
-									<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="w-full h-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
+						<table class="w-full h-full text-nowrap border-collapse">
+							<tbody id="device">
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Id</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="font-mono m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Name</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-32 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Zone id</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="font-mono m-0 w-40 h-4 text-blue-600 dark:text-blue-400 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Zone name</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Firmware</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Hardware</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Created at</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Updated at</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-40 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<table class="w-full h-full text-nowrap border-collapse">
+							<tbody id="stat">
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Airtime</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-14 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+								<tr class="border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-300 dark:border-b-neutral-700">
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-neutral-600 dark:text-neutral-400">
+										<p class="m-0">Packet loss</p>
+									</td>
+									<td class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4">
+										<p class="m-0 w-16 h-4 background-neutral-200 dark:background-neutral-800"></p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 					<div class="w-full h-full flex flex-col gap-4 sm:gap-6 lg:gap-8">
 						<table class="w-full text-nowrap border-collapse">
 							<tbody id="reading">
@@ -395,6 +409,7 @@
 		import './src/app/scripts/color-null.js';
 		import './src/app/scripts/color-zone.js';
 		import './src/app/scripts/color-airtime.js';
+		import './src/app/scripts/color-packet-loss.js';
 		import './src/app/scripts/color-reading.js';
 		import './src/app/scripts/color-metric.js';
 		import './src/app/scripts/color-buffer.js';
@@ -413,6 +428,7 @@
 		const device = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null };
 		const table = {
 			device: document.getElementById('device'),
+			stat: document.getElementById('stat'),
 			reading: document.getElementById('reading'),
 			metric: document.getElementById('metric'),
 			buffer: document.getElementById('buffer'),
@@ -431,14 +447,16 @@
 			fade(table.device.children[3].children[1].children[0]);
 			loading(table.device.children[3].children[1].children[0], ['w-24', 'h-4'], [], '');
 			fade(table.device.children[4].children[1].children[0]);
-			loading(table.device.children[4].children[1].children[0], ['w-14', 'h-4'], [], '');
+			loading(table.device.children[4].children[1].children[0], ['w-16', 'h-4'], [], '');
 			fade(table.device.children[5].children[1].children[0]);
 			loading(table.device.children[5].children[1].children[0], ['w-16', 'h-4'], [], '');
-			fade(table.device.children[6].children[1].children[0]);
-			loading(table.device.children[6].children[1].children[0], ['w-16', 'h-4'], [], '');
+			loading(table.device.children[6].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(table.device.children[7].children[1].children[0]);
 			loading(table.device.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
-			fade(table.device.children[8].children[1].children[0]);
-			loading(table.device.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(table.stat.children[0].children[1].children[0]);
+			loading(table.stat.children[0].children[1].children[0], ['w-14', 'h-4'], [], '');
+			fade(table.stat.children[1].children[1].children[0]);
+			loading(table.stat.children[1].children[1].children[0], ['w-16', 'h-4'], [], '');
 			fade(table.reading.children[0].children[1].children[0]);
 			loading(table.reading.children[0].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.reading.children[1].children[1].children[0]);
@@ -502,31 +520,34 @@
 				paint(table.device.children[3].children[1].children[0], [], ['w-24', 'h-4'], 'null');
 				colorNull(table.device.children[3].children[1].children[0]);
 			}
-			fade(table.device.children[4].children[1].children[0]);
-			paint(table.device.children[4].children[1].children[0], [], ['w-14', 'h-4'], `${data.airtime.toFixed(3)}%`);
-			colorAirtime(table.device.children[4].children[1].children[0], data.airtime);
 			if (data.firmware !== null) {
-				paint(table.device.children[5].children[1].children[0], [], ['w-16', 'h-4'], data.firmware);
+				paint(table.device.children[4].children[1].children[0], [], ['w-16', 'h-4'], data.firmware);
+				fade(table.device.children[4].children[1].children[0]);
+			} else {
+				paint(table.device.children[4].children[1].children[0], [], ['w-16', 'h-4'], 'null');
+				colorNull(table.device.children[4].children[1].children[0]);
+			}
+			if (data.hardware !== null) {
+				paint(table.device.children[5].children[1].children[0], [], ['w-16', 'h-4'], data.hardware);
 				fade(table.device.children[5].children[1].children[0]);
 			} else {
 				paint(table.device.children[5].children[1].children[0], [], ['w-16', 'h-4'], 'null');
 				colorNull(table.device.children[5].children[1].children[0]);
 			}
-			if (data.hardware !== null) {
-				paint(table.device.children[6].children[1].children[0], [], ['w-16', 'h-4'], data.hardware);
-				fade(table.device.children[6].children[1].children[0]);
-			} else {
-				paint(table.device.children[6].children[1].children[0], [], ['w-16', 'h-4'], 'null');
-				colorNull(table.device.children[6].children[1].children[0]);
-			}
-			paint(table.device.children[7].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.createdAt));
+			paint(table.device.children[6].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.createdAt));
 			if (data.updatedAt !== null) {
-				paint(table.device.children[8].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.updatedAt));
-				fade(table.device.children[8].children[1].children[0]);
+				paint(table.device.children[7].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.updatedAt));
+				fade(table.device.children[7].children[1].children[0]);
 			} else {
-				paint(table.device.children[8].children[1].children[0], [], ['w-40', 'h-4'], 'null');
-				colorNull(table.device.children[8].children[1].children[0]);
+				paint(table.device.children[7].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(table.device.children[7].children[1].children[0]);
 			}
+			fade(table.stat.children[0].children[1].children[0]);
+			paint(table.stat.children[0].children[1].children[0], [], ['w-14', 'h-4'], `${data.airtime.toFixed(3)}%`);
+			colorAirtime(table.stat.children[0].children[1].children[0], data.airtime);
+			fade(table.stat.children[1].children[1].children[0]);
+			paint(table.stat.children[1].children[1].children[0], [], ['w-16', 'h-4'], `${data.packetLoss.toFixed(2)}%`);
+			colorPacketLoss(table.stat.children[1].children[1].children[0], data.packetLoss);
 			fade(table.reading.children[0].children[1].children[0]);
 			fade(table.reading.children[1].children[1].children[0]);
 			fade(table.reading.children[2].children[1].children[0]);
@@ -655,14 +676,16 @@
 			fade(table.device.children[3].children[1].children[0]);
 			error(table.device.children[3].children[1].children[0], ['w-24', 'h-4'], [], '');
 			fade(table.device.children[4].children[1].children[0]);
-			error(table.device.children[4].children[1].children[0], ['w-14', 'h-4'], [], '');
+			error(table.device.children[4].children[1].children[0], ['w-16', 'h-4'], [], '');
 			fade(table.device.children[5].children[1].children[0]);
 			error(table.device.children[5].children[1].children[0], ['w-16', 'h-4'], [], '');
-			fade(table.device.children[6].children[1].children[0]);
-			error(table.device.children[6].children[1].children[0], ['w-16', 'h-4'], [], '');
+			error(table.device.children[6].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(table.device.children[7].children[1].children[0]);
 			error(table.device.children[7].children[1].children[0], ['w-40', 'h-4'], [], '');
-			fade(table.device.children[8].children[1].children[0]);
-			error(table.device.children[8].children[1].children[0], ['w-40', 'h-4'], [], '');
+			fade(table.stat.children[0].children[1].children[0]);
+			error(table.stat.children[0].children[1].children[0], ['w-14', 'h-4'], [], '');
+			fade(table.stat.children[1].children[1].children[0]);
+			error(table.stat.children[1].children[1].children[0], ['w-16', 'h-4'], [], '');
 			fade(table.reading.children[0].children[1].children[0]);
 			error(table.reading.children[0].children[1].children[0], ['w-12', 'h-4'], [], '');
 			fade(table.reading.children[1].children[1].children[0]);
@@ -712,11 +735,12 @@
 			const device = {
 				id: null,
 				name: null,
-				airtime: null,
 				firmware: null,
 				hardware: null,
 				createdAt: null,
 				updatedAt: null,
+				airtime: null,
+				packetLoss: null,
 				zone: null,
 				reading: null,
 				metric: null,
@@ -726,7 +750,6 @@
 			};
 			device.id = binary.uuid();
 			device.name = binary.string();
-			device.airtime = binary.uint(16) / 1000;
 			if (binary.byte() !== 0) {
 				device.firmware = binary.string();
 			}
@@ -737,6 +760,8 @@
 			if (binary.byte() !== 0) {
 				device.updatedAt = binary.uint(64);
 			}
+			device.airtime = binary.uint(16) / 1000;
+			device.packetLoss = binary.uint(16) / 100;
 			if (binary.byte() !== 0) {
 				device.zone = {};
 				device.zone.id = binary.uuid();

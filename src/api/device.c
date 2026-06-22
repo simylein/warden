@@ -1,5 +1,6 @@
 #include "device.h"
 #include "../app/airtime.h"
+#include "../app/packet.h"
 #include "../lib/base16.h"
 #include "../lib/bwt.h"
 #include "../lib/endian.h"
@@ -34,48 +35,51 @@ const device_row_t device_row = {
 		.id = 0,
 		.name_len = 8,
 		.name = 9,
-		.airtime = 25,
-		.airtime_bucket = 41,
-		.firmware_len = 49,
-		.firmware = 50,
-		.hardware_len = 62,
-		.hardware = 63,
-		.created_at = 75,
-		.updated_at_null = 83,
-		.updated_at = 84,
-		.zone_null = 92,
-		.zone_id = 93,
-		.zone_name_len = 109,
-		.zone_name = 110,
-		.zone_color = 122,
-		.reading_null = 134,
-		.reading_temperature = 135,
-		.reading_humidity = 137,
-		.reading_dewpoint = 139,
-		.reading_captured_at = 141,
-		.metric_null = 149,
-		.metric_photovoltaic = 150,
-		.metric_battery = 152,
-		.metric_captured_at = 154,
-		.buffer_null = 162,
-		.buffer_delay = 163,
-		.buffer_level = 167,
-		.buffer_captured_at = 169,
-		.uplink_null = 177,
-		.uplink_frame = 178,
-		.uplink_kind = 180,
-		.uplink_rssi = 181,
-		.uplink_snr = 183,
-		.uplink_sf = 184,
-		.uplink_received_at = 185,
-		.downlink_null = 193,
-		.downlink_frame = 194,
-		.downlink_kind = 196,
-		.downlink_sf = 197,
-		.downlink_cr = 198,
-		.downlink_tx_power = 199,
-		.downlink_sent_at = 200,
-		.size = 208,
+		.firmware_len = 25,
+		.firmware = 26,
+		.hardware_len = 38,
+		.hardware = 39,
+		.created_at = 51,
+		.updated_at_null = 59,
+		.updated_at = 60,
+		.airtime = 68,
+		.airtime_bucket = 84,
+		.packet_rx = 92,
+		.packet_lost = 100,
+		.packet_bucket = 108,
+		.zone_null = 116,
+		.zone_id = 117,
+		.zone_name_len = 133,
+		.zone_name = 134,
+		.zone_color = 146,
+		.reading_null = 158,
+		.reading_temperature = 159,
+		.reading_humidity = 161,
+		.reading_dewpoint = 163,
+		.reading_captured_at = 165,
+		.metric_null = 173,
+		.metric_photovoltaic = 174,
+		.metric_battery = 176,
+		.metric_captured_at = 178,
+		.buffer_null = 186,
+		.buffer_delay = 187,
+		.buffer_level = 191,
+		.buffer_captured_at = 193,
+		.uplink_null = 201,
+		.uplink_frame = 202,
+		.uplink_kind = 204,
+		.uplink_rssi = 205,
+		.uplink_snr = 207,
+		.uplink_sf = 208,
+		.uplink_received_at = 209,
+		.downlink_null = 217,
+		.downlink_frame = 218,
+		.downlink_kind = 220,
+		.downlink_sf = 221,
+		.downlink_cr = 222,
+		.downlink_tx_power = 223,
+		.downlink_sent_at = 224,
+		.size = 232,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -520,8 +524,6 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
 			uint8_t name_len = octet_uint8_read(db->row, device_row.name_len);
 			char *name = octet_text_read(db->row, device_row.name);
-			uint16_t (*airtime)[8] = (uint16_t (*)[8])octet_blob_read(db->row, device_row.airtime);
-			time_t airtime_bucket = (time_t)octet_uint64_read(db->row, device_row.airtime_bucket);
 			uint8_t firmware_len = octet_uint8_read(db->row, device_row.firmware_len);
 			char *firmware = octet_text_read(db->row, device_row.firmware);
 			uint8_t hardware_len = octet_uint8_read(db->row, device_row.hardware_len);
@@ -529,6 +531,11 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			time_t created_at = (time_t)octet_uint64_read(db->row, device_row.created_at);
 			uint8_t updated_at_null = octet_uint8_read(db->row, device_row.updated_at_null);
 			time_t updated_at = (time_t)octet_uint64_read(db->row, device_row.updated_at);
+			uint16_t (*airtime)[8] = (uint16_t (*)[8])octet_blob_read(db->row, device_row.airtime);
+			time_t airtime_bucket = (time_t)octet_uint64_read(db->row, device_row.airtime_bucket);
+			uint8_t (*packet_rx)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.packet_rx);
+			uint8_t (*packet_lost)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.packet_lost);
+			time_t packet_bucket = (time_t)octet_uint64_read(db->row, device_row.packet_bucket);
 			uint8_t zone_null = octet_uint8_read(db->row, device_row.zone_null);
 			uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.zone_id);
 			uint8_t zone_name_len = octet_uint8_read(db->row, device_row.zone_name_len);
@@ -564,7 +571,6 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			body_write(response, id, sizeof(*id));
 			body_write(response, name, name_len);
 			body_write(response, (char[]){0x00}, sizeof(char));
-			body_write(response, (uint16_t[]){hton16(airtime_calculate(airtime, airtime_bucket))}, sizeof((*airtime)[0]));
 			body_write(response, (uint8_t[]){firmware_len != 0}, sizeof(firmware_len));
 			if (firmware_len != 0) {
 				body_write(response, firmware, firmware_len);
@@ -580,6 +586,8 @@ uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t
 			if (updated_at_null != 0x00) {
 				body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
 			}
+			body_write(response, (uint16_t[]){hton16(airtime_calculate(airtime, airtime_bucket))}, sizeof((*airtime)[0]));
+			body_write(response, (uint16_t[]){hton16(packet_calculate(packet_rx, packet_lost, packet_bucket))}, sizeof(uint16_t));
 			body_write(response, (uint8_t[]){zone_null != 0x00}, sizeof(zone_null));
 			if (zone_null != 0x00) {
 				body_write(response, zone_id, sizeof(*zone_id));
@@ -981,11 +989,16 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	}
 
 	uint16_t airtime[8] = {0x00};
+	uint8_t packet_rx[8] = {0x00};
+	uint8_t packet_lost[8] = {0x00};
 	octet_blob_write(db->row, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
 	octet_uint8_write(db->row, device_row.name_len, device->name_len);
 	octet_text_write(db->row, device_row.name, (char *)device->name, device->name_len);
 	octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(airtime));
 	octet_uint64_write(db->row, device_row.airtime_bucket, 0);
+	octet_blob_write(db->row, device_row.packet_rx, packet_rx, sizeof(packet_rx));
+	octet_blob_write(db->row, device_row.packet_lost, packet_lost, sizeof(packet_lost));
+	octet_uint64_write(db->row, device_row.packet_bucket, 0);
 	if (device->zone_id != NULL) {
 		octet_uint8_write(db->row, device_row.zone_null, 0x01);
 		octet_blob_write(db->row, device_row.zone_id, (uint8_t *)device->zone_id, sizeof(*device->zone_id));
@@ -1240,6 +1253,14 @@ uint16_t device_update_latest(octet_t *db, device_t *device) {
 				airtime_account(airtime, &airtime_bucket, device->uplink);
 				octet_blob_write(db->row, device_row.airtime, (uint8_t *)airtime, sizeof(*airtime));
 				octet_uint64_write(db->row, device_row.airtime_bucket, (uint64_t)airtime_bucket);
+				uint8_t (*packet_rx)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.packet_rx);
+				uint8_t (*packet_lost)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.packet_lost);
+				time_t packet_bucket = (time_t)octet_uint64_read(db->row, device_row.packet_bucket);
+				uint16_t last_frame = octet_uint16_read(db->row, device_row.uplink_frame);
+				packet_account(packet_rx, packet_lost, &packet_bucket, &last_frame, device->uplink);
+				octet_blob_write(db->row, device_row.packet_rx, (uint8_t *)packet_rx, sizeof(*packet_rx));
+				octet_blob_write(db->row, device_row.packet_lost, (uint8_t *)packet_lost, sizeof(*packet_lost));
+				octet_uint64_write(db->row, device_row.packet_bucket, (uint64_t)packet_bucket);
 				octet_uint8_write(db->row, device_row.uplink_null, 0x01);
 				octet_uint16_write(db->row, device_row.uplink_frame, device->uplink->frame);
 				octet_uint8_write(db->row, device_row.uplink_kind, device->uplink->kind);
