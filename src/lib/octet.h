@@ -41,7 +41,9 @@ int octet_trunc(octet_stmt_t *stmt, const char *file, off_t offset);
 void octet_close(octet_stmt_t *stmt, const char *file);
 
 ssize_t octet_row_read(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size);
+ssize_t octet_row_read_all(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size, uint8_t rows);
 ssize_t octet_row_write(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size);
+ssize_t octet_row_write_all(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size, uint8_t rows);
 
 uint8_t octet_uint8_read(uint8_t *row, uint8_t row_ind);
 uint16_t octet_uint16_read(uint8_t *row, uint8_t row_ind);

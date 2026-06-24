@@ -130,6 +130,41 @@ ssize_t octet_row_read(octet_stmt_t *stmt, const char *file, off_t offset, uint8
 	return bytes;
 }
 
+ssize_t octet_row_read_all(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size, uint8_t rows) {
+	uint16_t rows_size = row_size * rows;
+
+	if (lseek(stmt->fd, offset, SEEK_SET) == -1) {
+		error("failed to seek to offset %zu on file %s because %s\n", (size_t)offset, file, errno_str());
+		return -1;
+	}
+
+	ssize_t bytes = 0;
+	uint8_t reads = 0;
+	uint8_t limit = 16;
+	while (bytes < rows_size) {
+		if (reads + 1 > limit) {
+			error("reads %hhu exceeded allowed limit %hhu while reading %zu bytes\n", reads, limit, bytes);
+			return -1;
+		}
+
+		ssize_t bytes_further = read(stmt->fd, &row[bytes], rows_size - (size_t)bytes);
+		if (bytes_further == -1 || bytes_further == 0) {
+			error("failed read %hu bytes from %s because %s\n", (uint16_t)(rows_size - (size_t)bytes), file, errno_str());
+			return -1;
+		}
+
+		bytes += (size_t)bytes_further;
+		reads++;
+	}
+
+	if (bytes != rows_size) {
+		error("failed to fully read %hu bytes from %s\n", rows_size, file);
+		return -1;
+	}
+
+	return bytes;
+}
+
 ssize_t octet_row_write(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size) {
 	if (lseek(stmt->fd, offset, SEEK_SET) == -1) {
 		error("failed to seek to offset %zu on file %s because %s\n", (size_t)offset, file, errno_str());
@@ -144,6 +179,41 @@ ssize_t octet_row_write(octet_stmt_t *stmt, const char *file, off_t offset, uint
 
 	if (bytes != row_size) {
 		error("failed to fully write %hhu bytes from %s because %s\n", row_size, file, errno_str());
+		return -1;
+	}
+
+	return bytes;
+}
+
+ssize_t octet_row_write_all(octet_stmt_t *stmt, const char *file, off_t offset, uint8_t *row, uint8_t row_size, uint8_t rows) {
+	uint16_t rows_size = row_size * rows;
+
+	if (lseek(stmt->fd, offset, SEEK_SET) == -1) {
+		error("failed to seek to offset %zu on file %s because %s\n", (size_t)offset, file, errno_str());
+		return -1;
+	}
+
+	ssize_t bytes = 0;
+	uint8_t writes = 0;
+	uint8_t limit = 16;
+	while (bytes < rows_size) {
+		if (writes + 1 > limit) {
+			error("writes %hhu exceeded allowed limit %hhu while writing %zu bytes\n", writes, limit, bytes);
+			return -1;
+		}
+
+		ssize_t bytes_further = write(stmt->fd, &row[bytes], rows_size - (size_t)bytes);
+		if (bytes_further == -1 || bytes_further == 0) {
+			error("failed write %hu bytes from %s because %s\n", (uint16_t)(rows_size - (size_t)bytes), file, errno_str());
+			return -1;
+		}
+
+		bytes += (size_t)bytes_further;
+		writes++;
+	}
+
+	if (bytes != rows_size) {
+		error("failed to fully write %hu bytes from %s because %s\n", rows_size, file, errno_str());
 		return -1;
 	}
 
