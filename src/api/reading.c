@@ -93,19 +93,31 @@ uint16_t reading_select(octet_t *db, bwt_t *bwt, reading_query_t *query, respons
 		time_t bucket_start = 0;
 		time_t bucket_end = 0;
 		uint8_t bucket_len = 0;
+		uint8_t batch_index = 0;
 		off_t offset = stmt.stat.st_size - reading_row.size;
 		while (true) {
 			if (offset < 0) {
 				status = 0;
 				break;
 			}
-			if (octet_row_read(&stmt, file, offset, db->row, reading_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
+			if (batch_index == 0) {
+				if (offset >= reading_row.size * 63 && db->table_len >= reading_row.size * 64) {
+					batch_index = 63;
+					if (octet_row_read_all(&stmt, file, offset - reading_row.size * 63, db->table, reading_row.size, 64) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				} else {
+					batch_index = 0;
+					if (octet_row_read(&stmt, file, offset, db->table, reading_row.size) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				}
 			}
-			int16_t temperature = octet_int16_read(db->row, reading_row.temperature);
-			uint16_t humidity = octet_uint16_read(db->row, reading_row.humidity);
-			time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
+			int16_t temperature = octet_int16_read(&db->table[batch_index * reading_row.size], reading_row.temperature);
+			uint16_t humidity = octet_uint16_read(&db->table[batch_index * reading_row.size], reading_row.humidity);
+			time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * reading_row.size], reading_row.captured_at);
 			if (response->body.len + sizeof(temperature) + sizeof(humidity) + sizeof(captured_at) > response->body.cap) {
 				error("readings amount %hu exceeds buffer length %u\n", *readings_len, response->body.cap);
 				status = 500;
@@ -142,6 +154,9 @@ uint16_t reading_select(octet_t *db, bwt_t *bwt, reading_query_t *query, respons
 				bucket_end = captured_at;
 			}
 			offset -= reading_row.size;
+			if (batch_index > 0) {
+				batch_index--;
+			}
 		}
 
 	cleanup:
@@ -185,19 +200,31 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 	time_t bucket_start = 0;
 	time_t bucket_end = 0;
 	uint8_t bucket_len = 0;
+	uint8_t batch_index = 0;
 	off_t offset = stmt.stat.st_size - reading_row.size;
 	while (true) {
 		if (offset < 0) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->row, reading_row.size) == -1) {
-			status = octet_error();
-			goto cleanup;
+		if (batch_index == 0) {
+			if (offset >= reading_row.size * 63 && db->table_len >= reading_row.size * 64) {
+				batch_index = 63;
+				if (octet_row_read_all(&stmt, file, offset - reading_row.size * 63, db->table, reading_row.size, 64) == -1) {
+					status = octet_error();
+					goto cleanup;
+				}
+			} else {
+				batch_index = 0;
+				if (octet_row_read(&stmt, file, offset, db->table, reading_row.size) == -1) {
+					status = octet_error();
+					goto cleanup;
+				}
+			}
 		}
-		int16_t temperature = octet_int16_read(db->row, reading_row.temperature);
-		uint16_t humidity = octet_uint16_read(db->row, reading_row.humidity);
-		time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
+		int16_t temperature = octet_int16_read(&db->table[batch_index * reading_row.size], reading_row.temperature);
+		uint16_t humidity = octet_uint16_read(&db->table[batch_index * reading_row.size], reading_row.humidity);
+		time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * reading_row.size], reading_row.captured_at);
 		if (response->body.len + sizeof(temperature) + sizeof(humidity) + sizeof(captured_at) > response->body.cap) {
 			error("readings amount %hu exceeds buffer length %u\n", *readings_len, response->body.cap);
 			status = 500;
@@ -232,6 +259,9 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 			bucket_end = captured_at;
 		}
 		offset -= reading_row.size;
+		if (batch_index > 0) {
+			batch_index--;
+		}
 	}
 
 cleanup:
@@ -288,19 +318,31 @@ uint16_t reading_select_by_zone(octet_t *db, zone_t *zone, reading_query_t *quer
 		time_t bucket_start = 0;
 		time_t bucket_end = 0;
 		uint8_t bucket_len = 0;
+		uint8_t batch_index = 0;
 		off_t offset = stmt.stat.st_size - reading_row.size;
 		while (true) {
 			if (offset < 0) {
 				status = 0;
 				break;
 			}
-			if (octet_row_read(&stmt, file, offset, db->row, reading_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
+			if (batch_index == 0) {
+				if (offset >= reading_row.size * 63 && db->table_len >= reading_row.size * 64) {
+					batch_index = 63;
+					if (octet_row_read_all(&stmt, file, offset - reading_row.size * 63, db->table, reading_row.size, 64) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				} else {
+					batch_index = 0;
+					if (octet_row_read(&stmt, file, offset, db->table, reading_row.size) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				}
 			}
-			int16_t temperature = octet_int16_read(db->row, reading_row.temperature);
-			uint16_t humidity = octet_uint16_read(db->row, reading_row.humidity);
-			time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
+			int16_t temperature = octet_int16_read(&db->table[batch_index * reading_row.size], reading_row.temperature);
+			uint16_t humidity = octet_uint16_read(&db->table[batch_index * reading_row.size], reading_row.humidity);
+			time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * reading_row.size], reading_row.captured_at);
 			if (response->body.len + sizeof(temperature) + sizeof(humidity) + sizeof(captured_at) > response->body.cap) {
 				error("readings amount %hu exceeds buffer length %u\n", *readings_len, response->body.cap);
 				status = 500;
@@ -337,6 +379,9 @@ uint16_t reading_select_by_zone(octet_t *db, zone_t *zone, reading_query_t *quer
 				bucket_end = captured_at;
 			}
 			offset -= reading_row.size;
+			if (batch_index > 0) {
+				batch_index--;
+			}
 		}
 
 	cleanup:

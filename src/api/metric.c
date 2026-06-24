@@ -93,19 +93,31 @@ uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_
 		time_t bucket_start = 0;
 		time_t bucket_end = 0;
 		uint8_t bucket_len = 0;
+		uint8_t batch_index = 0;
 		off_t offset = stmt.stat.st_size - metric_row.size;
 		while (true) {
 			if (offset < 0) {
 				status = 0;
 				break;
 			}
-			if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
+			if (batch_index == 0) {
+				if (offset >= metric_row.size * 63 && db->table_len >= metric_row.size * 64) {
+					batch_index = 63;
+					if (octet_row_read_all(&stmt, file, offset - metric_row.size * 63, db->table, metric_row.size, 64) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				} else {
+					batch_index = 0;
+					if (octet_row_read(&stmt, file, offset, db->table, metric_row.size) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				}
 			}
-			uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
-			uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
-			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+			uint16_t photovoltaic = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.photovoltaic);
+			uint16_t battery = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.battery);
+			time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * metric_row.size], metric_row.captured_at);
 			if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 				status = 500;
@@ -142,6 +154,9 @@ uint16_t metric_select(octet_t *db, bwt_t *bwt, metric_query_t *query, response_
 				bucket_end = captured_at;
 			}
 			offset -= metric_row.size;
+			if (batch_index > 0) {
+				batch_index--;
+			}
 		}
 
 	cleanup:
@@ -185,19 +200,31 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 	time_t bucket_start = 0;
 	time_t bucket_end = 0;
 	uint8_t bucket_len = 0;
+	uint8_t batch_index = 0;
 	off_t offset = stmt.stat.st_size - metric_row.size;
 	while (true) {
 		if (offset < 0) {
 			status = 0;
 			break;
 		}
-		if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
-			status = octet_error();
-			goto cleanup;
+		if (batch_index == 0) {
+			if (offset >= metric_row.size * 63 && db->table_len >= metric_row.size * 64) {
+				batch_index = 63;
+				if (octet_row_read_all(&stmt, file, offset - metric_row.size * 63, db->table, metric_row.size, 64) == -1) {
+					status = octet_error();
+					goto cleanup;
+				}
+			} else {
+				batch_index = 0;
+				if (octet_row_read(&stmt, file, offset, db->table, metric_row.size) == -1) {
+					status = octet_error();
+					goto cleanup;
+				}
+			}
 		}
-		uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
-		uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
-		time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+		uint16_t photovoltaic = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.photovoltaic);
+		uint16_t battery = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.battery);
+		time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * metric_row.size], metric_row.captured_at);
 		if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 			error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 			status = 500;
@@ -232,6 +259,9 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 			bucket_end = captured_at;
 		}
 		offset -= metric_row.size;
+		if (batch_index > 0) {
+			batch_index--;
+		}
 	}
 
 cleanup:
@@ -287,19 +317,31 @@ uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query,
 		time_t bucket_start = 0;
 		time_t bucket_end = 0;
 		uint8_t bucket_len = 0;
+		uint8_t batch_index = 0;
 		off_t offset = stmt.stat.st_size - metric_row.size;
 		while (true) {
 			if (offset < 0) {
 				status = 0;
 				break;
 			}
-			if (octet_row_read(&stmt, file, offset, db->row, metric_row.size) == -1) {
-				status = octet_error();
-				goto cleanup;
+			if (batch_index == 0) {
+				if (offset >= metric_row.size * 63 && db->table_len >= metric_row.size * 64) {
+					batch_index = 63;
+					if (octet_row_read_all(&stmt, file, offset - metric_row.size * 63, db->table, metric_row.size, 64) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				} else {
+					batch_index = 0;
+					if (octet_row_read(&stmt, file, offset, db->table, metric_row.size) == -1) {
+						status = octet_error();
+						goto cleanup;
+					}
+				}
 			}
-			uint16_t photovoltaic = octet_uint16_read(db->row, metric_row.photovoltaic);
-			uint16_t battery = octet_uint16_read(db->row, metric_row.battery);
-			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+			uint16_t photovoltaic = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.photovoltaic);
+			uint16_t battery = octet_uint16_read(&db->table[batch_index * metric_row.size], metric_row.battery);
+			time_t captured_at = (time_t)octet_uint64_read(&db->table[batch_index * metric_row.size], metric_row.captured_at);
 			if (response->body.len + sizeof(photovoltaic) + sizeof(battery) + sizeof(captured_at) > response->body.cap) {
 				error("metrics amount %hu exceeds buffer length %u\n", *metrics_len, response->body.cap);
 				status = 500;
@@ -336,6 +378,9 @@ uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query,
 				bucket_end = captured_at;
 			}
 			offset -= metric_row.size;
+			if (batch_index > 0) {
+				batch_index--;
+			}
 		}
 
 	cleanup:
