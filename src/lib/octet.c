@@ -153,7 +153,7 @@ ssize_t octet_row_read_all(octet_stmt_t *stmt, const char *file, off_t offset, u
 			return -1;
 		}
 
-		bytes += (size_t)bytes_further;
+		bytes += bytes_further;
 		reads++;
 	}
 
@@ -208,7 +208,7 @@ ssize_t octet_row_write_all(octet_stmt_t *stmt, const char *file, off_t offset, 
 			return -1;
 		}
 
-		bytes += (size_t)bytes_further;
+		bytes += bytes_further;
 		writes++;
 	}
 
