@@ -4,10 +4,10 @@
 #include "error.h"
 #include "logger.h"
 #include <errno.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <time.h>
 
 queue_t queue = {
 		.head = 0,
@@ -24,6 +24,7 @@ thread_pool_t thread_pool = {
 		.lock = PTHREAD_MUTEX_INITIALIZER,
 		.scale = PTHREAD_COND_INITIALIZER,
 		.available = PTHREAD_COND_INITIALIZER,
+		.stopping = false,
 };
 
 void cancel(void *lock) { pthread_mutex_unlock((pthread_mutex_t *)lock); }
@@ -119,37 +120,55 @@ void *thread(void *args) {
 	arg_t *arg = (arg_t *)args;
 
 	while (true) {
-		pthread_mutex_lock(&queue.lock);
-		pthread_cleanup_push(cancel, &queue.lock);
+		uint8_t head = atomic_load_explicit(&queue.head, memory_order_relaxed);
+		uint8_t tail = atomic_load_explicit(&queue.tail, memory_order_acquire);
 
-		while (queue.size == 0) {
-			pthread_cond_wait(&queue.filled, &queue.lock);
+		if (head == tail) {
+			pthread_mutex_lock(&queue.lock);
+			pthread_cleanup_push(cancel, &queue.lock);
+
+			while ((head = atomic_load_explicit(&queue.head, memory_order_relaxed)) ==
+						 (tail = atomic_load_explicit(&queue.tail, memory_order_acquire))) {
+				pthread_cond_wait(&queue.filled, &queue.lock);
+			}
+
+			pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+			pthread_cleanup_pop(false);
+			pthread_mutex_unlock(&queue.lock);
+			continue;
 		}
 
-		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &arg->state);
-		pthread_cleanup_pop(false);
+		if (atomic_compare_exchange_weak_explicit(&queue.head, &head, (uint8_t)((head + 1) % queue_size), memory_order_acq_rel,
+																							memory_order_relaxed) == 0) {
+			continue;
+		}
 
-		task_t task = queue.tasks[queue.head];
-		queue.head = (uint8_t)((queue.head + 1) % queue_size);
-		queue.size--;
-		trace("worker thread %hhu decreased queue size to %hhu\n", arg->id, queue.size);
-		pthread_cond_signal(&queue.available);
-		pthread_mutex_unlock(&queue.lock);
+		task_t task = queue.tasks[head];
+		uint8_t size = atomic_fetch_sub_explicit(&queue.size, 1, memory_order_relaxed);
+		trace("worker thread %hhu decreased queue size to %hhu\n", arg->id, size - 1);
 
-		pthread_mutex_lock(&thread_pool.lock);
-		thread_pool.load++;
-		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, thread_pool.load);
-		pthread_mutex_unlock(&thread_pool.lock);
+		if (size == queue_size - 1) {
+			pthread_mutex_lock(&queue.lock);
+			pthread_cond_signal(&queue.available);
+			pthread_mutex_unlock(&queue.lock);
+		}
+
+		pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+		uint8_t load = atomic_fetch_add_explicit(&thread_pool.load, 1, memory_order_relaxed);
+		trace("worker thread %hhu increased thread pool load to %hhu\n", arg->id, load + 1);
 
 		handle(&arg->db, arg->request_buffer, arg->response_buffer, &task.client_sock, &task.client_addr);
 
-		pthread_mutex_lock(&thread_pool.lock);
-		thread_pool.load--;
-		trace("worker thread %hhu decreased thread pool load to %hhu\n", arg->id, thread_pool.load);
-		pthread_cond_signal(&thread_pool.available);
-		pthread_mutex_unlock(&thread_pool.lock);
+		load = atomic_fetch_sub_explicit(&thread_pool.load, 1, memory_order_release);
+		trace("worker thread %hhu decreased thread pool load to %hhu\n", arg->id, load - 1);
 
-		pthread_setcancelstate(arg->state, NULL);
+		if (atomic_load_explicit(&thread_pool.stopping, memory_order_acquire) == true) {
+			pthread_mutex_lock(&thread_pool.lock);
+			pthread_cond_signal(&thread_pool.available);
+			pthread_mutex_unlock(&thread_pool.lock);
+		}
+
+		pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 		pthread_testcancel();
 	}
 }
@@ -157,32 +176,29 @@ void *thread(void *args) {
 void *scaler(void *args) {
 	(void)args;
 
-	time_t scaled = 0;
-
 	while (true) {
 		pthread_mutex_lock(&thread_pool.lock);
 		pthread_cond_wait(&thread_pool.scale, &thread_pool.lock);
 		pthread_mutex_unlock(&thread_pool.lock);
 
-		time_t now = time(NULL);
+		uint8_t load = atomic_load_explicit(&thread_pool.load, memory_order_acquire);
+		uint8_t size = atomic_load_explicit(&thread_pool.size, memory_order_acquire);
 
-		if (thread_pool.load >= thread_pool.size) {
+		if (load >= size && size < most_workers) {
 			debug("all worker threads currently busy\n");
-			uint8_t new_size = thread_pool.size + 1;
-			if (new_size <= most_workers && spawn(&thread_pool.workers[thread_pool.size], thread_pool.size, &thread, &error) == 0) {
-				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
-				thread_pool.size = new_size;
-				scaled = now;
+			uint8_t new_size = size + 1;
+			if (spawn(&thread_pool.workers[size], size, &thread, &error) == 0) {
+				info("scaled threads from %hhu to %hhu\n", size, new_size);
+				atomic_store_explicit(&thread_pool.size, new_size, memory_order_release);
 			}
 		}
 
-		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers && (now - scaled) >= 2) {
+		if (load <= size / 2 && size > least_workers) {
 			debug("half worker threads currently idle\n");
-			uint8_t new_size = thread_pool.size - 1;
+			uint8_t new_size = size - 1;
 			if (join(&thread_pool.workers[new_size], new_size) == 0) {
-				info("scaled threads from %hhu to %hhu\n", thread_pool.size, new_size);
-				thread_pool.size = new_size;
-				scaled = now;
+				info("scaled threads from %hhu to %hhu\n", size, new_size);
+				atomic_store_explicit(&thread_pool.size, new_size, memory_order_release);
 			}
 		}
 	}

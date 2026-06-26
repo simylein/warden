@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,8 +24,6 @@
 #include <time.h>
 #include <unistd.h>
 
-bool stopping = false;
-
 int server_sock;
 struct sockaddr_in server_addr;
 
@@ -32,7 +31,7 @@ void stop(int sig) {
 	signal(sig, SIG_DFL);
 	trace("received signal %d\n", sig);
 
-	stopping = true;
+	atomic_store_explicit(&thread_pool.stopping, true, memory_order_release);
 
 	if (close(server_sock) == -1) {
 		error("failed to close socket because %s\n", errno_str());
@@ -209,32 +208,50 @@ int main(int argc, char *argv[]) {
 
 	info("listening on %s:%d\n", inet_ntoa(server_addr.sin_addr), ntohs(server_addr.sin_port));
 
+	time_t scaled = 0;
 	while (true) {
-		pthread_mutex_lock(&queue.lock);
+		uint8_t tail = atomic_load_explicit(&queue.tail, memory_order_relaxed);
+		uint8_t head = atomic_load_explicit(&queue.head, memory_order_acquire);
 
-		while (queue.size >= queue_size) {
-			warn("waiting for queue size %hhu to decrease\n", queue.size);
-			pthread_cond_wait(&queue.available, &queue.lock);
+		if (head == (tail + 1) % queue_size) {
+			pthread_mutex_lock(&queue.lock);
+
+			while (((tail = atomic_load_explicit(&queue.tail, memory_order_relaxed)) + 1) % queue_size ==
+						 (head = atomic_load_explicit(&queue.head, memory_order_acquire))) {
+				warn("waiting for queue size %hhu to decrease\n", (tail - head + queue_size) % queue_size);
+				pthread_cond_wait(&queue.available, &queue.lock);
+			}
+
+			pthread_mutex_unlock(&queue.lock);
+			tail = atomic_load_explicit(&queue.tail, memory_order_relaxed);
 		}
 
-		pthread_mutex_unlock(&queue.lock);
+		time_t now = time(NULL);
 
-		pthread_mutex_lock(&thread_pool.lock);
+		uint8_t pool_load = atomic_load_explicit(&thread_pool.load, memory_order_relaxed);
+		uint8_t pool_size = atomic_load_explicit(&thread_pool.size, memory_order_relaxed);
 
-		if (thread_pool.load >= thread_pool.size) {
+		if (pool_load >= pool_size && pool_size < most_workers) {
+			pthread_mutex_lock(&thread_pool.lock);
 			pthread_cond_signal(&thread_pool.scale);
+			pthread_mutex_unlock(&thread_pool.lock);
+			scaled = now;
 		}
 
-		if (thread_pool.load <= thread_pool.size / 2 && thread_pool.size > least_workers) {
+		if (pool_load <= pool_size / 2 && pool_size > least_workers && now - scaled >= 2) {
+			pthread_mutex_lock(&thread_pool.lock);
 			pthread_cond_signal(&thread_pool.scale);
+			pthread_mutex_unlock(&thread_pool.lock);
+			scaled = now;
 		}
-
-		pthread_mutex_unlock(&thread_pool.lock);
 
 		struct sockaddr_in client_addr;
 		int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &(socklen_t){sizeof(client_addr)});
 
-		if (stopping == true) {
+		if (atomic_load_explicit(&thread_pool.stopping, memory_order_acquire) == true) {
+			pthread_mutex_lock(&queue.lock);
+			pthread_cond_broadcast(&queue.filled);
+			pthread_mutex_unlock(&queue.lock);
 			break;
 		}
 
@@ -243,24 +260,25 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 
-		pthread_mutex_lock(&queue.lock);
+		queue.tasks[tail].client_sock = client_sock;
+		memcpy(&queue.tasks[tail].client_addr, &client_addr, sizeof(client_addr));
+		atomic_store_explicit(&queue.tail, (uint8_t)((tail + 1) % queue_size), memory_order_relaxed);
 
-		queue.tasks[queue.tail].client_sock = client_sock;
-		memcpy(&queue.tasks[queue.tail].client_addr, &client_addr, sizeof(client_addr));
-		queue.tail = (uint8_t)((queue.tail + 1) % queue_size);
-		queue.size++;
-		trace("main thread increased queue size to %hhu\n", queue.size);
-
-		pthread_cond_signal(&queue.filled);
-		pthread_mutex_unlock(&queue.lock);
+		uint8_t size = atomic_fetch_add_explicit(&queue.size, 1, memory_order_relaxed);
+		if (size == 0) {
+			pthread_mutex_lock(&queue.lock);
+			pthread_cond_signal(&queue.filled);
+			pthread_mutex_unlock(&queue.lock);
+		}
+		trace("main thread increased queue size to %hhu\n", size + 1);
 	}
 
 	pthread_mutex_lock(&thread_pool.lock);
 
-	if (thread_pool.load > 0) {
+	if (atomic_load_explicit(&thread_pool.load, memory_order_acquire) > 0) {
 		info("waiting for %hhu threads...\n", thread_pool.load);
 	}
-	while (thread_pool.load > 0) {
+	while (atomic_load_explicit(&thread_pool.load, memory_order_acquire) > 0) {
 		trace("waiting for %hhu connections to close\n", thread_pool.load);
 		pthread_cond_wait(&thread_pool.available, &thread_pool.lock);
 	}
