@@ -577,6 +577,7 @@ void rule_remove(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 		response->status = 400;
 		return;
 	}
+	request->body.pos = 0;
 	memcpy(&rule.created_at, body_read(request, sizeof(rule.created_at)), sizeof(rule.created_at));
 	rule.created_at = (time_t)ntoh64((uint64_t)rule.created_at);
 	status = rule_delete(db, &rule);
