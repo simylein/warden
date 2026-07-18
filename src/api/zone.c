@@ -766,7 +766,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 		if (offset >= stmt.stat.st_size) {
 			warn("zone %02x%02x not found\n", (*zone->id)[0], (*zone->id)[1]);
 			status = 404;
-			break;
+			goto cleanup;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, zone_row.size) == -1) {
 			status = octet_error();
