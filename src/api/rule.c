@@ -319,7 +319,7 @@ uint16_t rule_delete(octet_t *db, rule_t *rule) {
 		if (offset >= stmt.stat.st_size) {
 			warn("rule %lu for device %02x%02x not found\n", rule->created_at, (*rule->device_id)[0], (*rule->device_id)[1]);
 			status = 404;
-			break;
+			goto cleanup;
 		}
 		if (octet_row_read(&stmt, file, offset, db->row, rule_row.size) == -1) {
 			status = octet_error();
