@@ -187,7 +187,7 @@ uint16_t alert_insert(octet_t *db, alert_t *alert) {
 	octet_uint64_write(db->row, alert_row.issued_at, (uint64_t)alert->issued_at);
 	if (alert->resolved_at != NULL) {
 		octet_uint8_write(db->row, alert_row.resolved_at_null, 0x01);
-		octet_uint64_write(db->row, alert_row.resolved_at, (uint64_t)alert->resolved_at);
+		octet_uint64_write(db->row, alert_row.resolved_at, (uint64_t)*alert->resolved_at);
 	} else {
 		octet_uint8_write(db->row, alert_row.resolved_at_null, 0x00);
 	}
