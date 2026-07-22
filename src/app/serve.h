@@ -15,6 +15,7 @@ void serve_device_buffers(octet_t *db, bwt_t *bwt, request_t *request, response_
 void serve_device_config(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_radio(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_rules(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void serve_device_alerts(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_signals(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_uplinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void serve_device_downlinks(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

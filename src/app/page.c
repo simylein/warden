@@ -17,6 +17,7 @@ file_t page_device_buffers = {.path = "./src/app/pages/device-buffers.html", .lo
 file_t page_device_config = {.path = "./src/app/pages/device-config.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_device_radio = {.path = "./src/app/pages/device-radio.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_device_rules = {.path = "./src/app/pages/device-rules.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_device_alerts = {.path = "./src/app/pages/device-alerts.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_device_signals = {.path = "./src/app/pages/device-signals.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_device_uplinks = {.path = "./src/app/pages/device-uplinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_device_downlinks = {.path = "./src/app/pages/device-downlinks.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -61,6 +62,7 @@ file_t *pages[] = {
 		&page_device_config,
 		&page_device_radio,
 		&page_device_rules,
+		&page_device_alerts,
 		&page_device_signals,
 		&page_device_uplinks,
 		&page_device_downlinks,
