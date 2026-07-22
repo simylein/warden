@@ -8,6 +8,7 @@ const deviceTabs = () => {
 		{ endpoint: '/config', search: {} },
 		{ endpoint: '/radio', search: {} },
 		{ endpoint: '/rules', search: {} },
+		{ endpoint: '/alerts', search: {} },
 		{ endpoint: '/signals', search: { range: true, from: true, to: true } },
 		{ endpoint: '/uplinks', search: {} },
 		{ endpoint: '/downlinks', search: {} },
