@@ -42,3 +42,4 @@ uint16_t alert_insert(octet_t *db, alert_t *alert);
 uint16_t alert_update(octet_t *db, alert_t *alert);
 
 void alert_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
+void alert_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

@@ -8,6 +8,8 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/strn.h"
+#include "cache.h"
+#include "device.h"
 #include "user-device.h"
 #include "user.h"
 #include <fcntl.h>
@@ -137,6 +139,66 @@ cleanup:
 	for (uint8_t index = 0; index < stmts_len; index++) {
 		octet_close(&stmts[index], files[index]);
 	}
+	return status;
+}
+
+uint16_t alert_select_by_device(octet_t *db, device_t *device, alert_query_t *query, response_t *response,
+																uint8_t *alerts_len) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, alert_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("select alerts for device %02x%02x limit %hhu offset %u\n", (*device->id)[0], (*device->id)[1], query->limit,
+				query->offset);
+
+	off_t offset = stmt.stat.st_size - alert_row.size - query->offset * alert_row.size;
+	while (true) {
+		if (offset < 0 || *alerts_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, alert_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t severity = octet_uint8_read(db->row, alert_row.severity);
+		uint8_t field = octet_uint8_read(db->row, alert_row.field);
+		uint8_t edge = octet_uint8_read(db->row, alert_row.edge);
+		int32_t value = octet_int32_read(db->row, alert_row.value);
+		time_t issued_at = (time_t)octet_uint64_read(db->row, alert_row.issued_at);
+		uint8_t resolved_at_null = octet_uint8_read(db->row, alert_row.resolved_at_null);
+		time_t resolved_at = (time_t)octet_uint64_read(db->row, alert_row.resolved_at);
+		body_write(response, &severity, sizeof(severity));
+		body_write(response, &field, sizeof(field));
+		body_write(response, &edge, sizeof(edge));
+		body_write(response, (uint32_t[]){hton32((uint32_t)value)}, sizeof(value));
+		body_write(response, (uint64_t[]){hton64((uint64_t)issued_at)}, sizeof(issued_at));
+		body_write(response, (uint8_t[]){resolved_at_null != 0x00}, sizeof(resolved_at_null));
+		if (resolved_at_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)resolved_at)}, sizeof(resolved_at));
+		}
+		*alerts_len += 1;
+		offset -= alert_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
 	return status;
 }
 
@@ -303,5 +365,82 @@ void alert_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respons
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu alerts\n", alerts_len);
+	response->status = 200;
+}
+
+void alert_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	const char *limit;
+	size_t limit_len;
+	if (strnfind(request->search.ptr, request->search.len, "limit=", "&", &limit, &limit_len, 4) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	const char *offset;
+	size_t offset_len;
+	if (strnfind(request->search.ptr, request->search.len, "offset=", "", &offset, &offset_len, 4) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	alert_query_t query = {.limit = 0, .offset = 0};
+	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
+		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		response->status = 400;
+		return;
+	}
+
+	if (query.limit < 4 || query.limit > 64 || query.offset > 16777216) {
+		warn("failed to validate query limit %hhu offset %u\n", query.limit, query.offset);
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_existing(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	user_device_t user_device = {.user_id = &bwt->id, .device_id = device.id};
+	status = user_device_existing(db, &user_device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	uint8_t alerts_len = 0;
+	status = alert_select_by_device(db, &device, &query, response, &alerts_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	cache_device_t cache_device;
+	if (cache_device_read(&cache_device, &device) != -1) {
+		header_write(response, "device-name:%.*s\r\n", cache_device.name_len, cache_device.name);
+		if (cache_device.zone_name_len != 0) {
+			header_write(response, "device-zone-name:%.*s\r\n", cache_device.zone_name_len, cache_device.zone_name);
+		}
+	}
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hu alerts\n", alerts_len);
 	response->status = 200;
 }
