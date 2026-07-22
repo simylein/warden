@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="description" content="View the latest alerts of your device" />
+		<title>Warden device alerts</title>
+		<style></style>
+	</head>
+	<body
+		class="font-sans min-h-dvh flex flex-col m-0 text-base leading-none text-black dark:text-white background-white dark:background-black"
+		onload="loadAlerts()"
+	>
+		<header class="sticky top-0 w-full background-neutral-100 dark:background-neutral-900 z-4">
+			<div class="flex items-center justify-between gap-4 sm:gap-6 lg:gap-8 pr-4 sm:pr-6 lg:pr-8 pl-4 sm:pl-6 lg:pl-8">
+				<nav class="flex flex-row gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-lg font-normal overflow-x-auto scrollbar-none">
+					<a href="/" class="no-underline text-black dark:text-white">Home</a>
+					<a href="/devices" class="no-underline text-black dark:text-white">Devices</a>
+					<a href="/zones" class="no-underline text-black dark:text-white">Zones</a>
+					<a href="/alerts" class="no-underline text-black dark:text-white">Alerts</a>
+					<a href="/uplinks" class="no-underline text-black dark:text-white">Uplinks</a>
+					<a href="/downlinks" class="no-underline text-black dark:text-white">Downlinks</a>
+					<a href="/users" class="no-underline text-black dark:text-white">Users</a>
+				</nav>
+				<a href="/profile" class="flex text-black dark:text-white">
+					<icon-user ref="./src/app/components/icon-user.html" class="w-5 lg:w-6 h-5 lg:h-6" />
+				</a>
+			</div>
+		</header>
+		<main class="flex flex-col grow m-4 sm:m-6 lg:m-8">
+			<h1 id="title" class="m-0 w-56 h-4.5 text-lg font-normal background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></h1>
+			<div
+				id="tabs"
+				class="flex gap-2 sm:gap-3 lg:gap-4 m-0 mb-2 sm:mb-3 lg:mb-4 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
+			>
+				<a class="no-underline text-black dark:text-white">Details</a>
+				<a class="no-underline text-black dark:text-white">Readings</a>
+				<a class="no-underline text-black dark:text-white">Metrics</a>
+				<a class="no-underline text-black dark:text-white">Buffers</a>
+				<a class="no-underline text-black dark:text-white">Config</a>
+				<a class="no-underline text-black dark:text-white">Radio</a>
+				<a class="no-underline text-black dark:text-white">Rules</a>
+				<a class="no-underline text-blue-600 dark:text-blue-400">Alerts</a>
+				<a class="no-underline text-black dark:text-white">Signals</a>
+				<a class="no-underline text-black dark:text-white">Uplinks</a>
+				<a class="no-underline text-black dark:text-white">Downlinks</a>
+			</div>
+			<div class="overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Timestamp</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Severity</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Field</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Edge</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Value</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Status</th>
+						</tr>
+					</thead>
+					<tbody id="alerts">
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+						<alert-row ref="./src/app/components/device-alert-row.html" />
+					</tbody>
+				</table>
+			</div>
+			<pagination ref="./src/app/components/pagination.html" class="pt-2 sm:pt-3 lg:pt-4" />
+			<alert-dialog ref="./src/app/components/alert-dialog.html" id="alert-dialog" />
+		</main>
+		<footer class="w-full background-neutral-100 dark:background-neutral-900">
+			<div
+				class="flex flex-row justify-between gap-2 sm:gap-3 lg:gap-4 pt-2 sm:pt-3 lg:pt-4 pr-4 sm:pr-6 lg:pr-8 pb-2 sm:pb-3 lg:pb-4 pl-4 sm:pl-6 lg:pl-8 text-lg font-normal text-nowrap overflow-x-auto scrollbar-none"
+			>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">warden {version} {commit}</p>
+				<p class="m-0 text-xs font-normal text-neutral-400 dark:text-neutral-600">written by simylein</p>
+			</div>
+		</footer>
+	</body>
+	<script>
+		import './src/app/scripts/device-tabs.js';
+		import './src/app/scripts/device-title.js';
+		import './src/app/scripts/array.js';
+		import './src/app/scripts/resize.js';
+		import './src/app/scripts/timestamp.js';
+		import './src/app/scripts/alert.js';
+		import './src/app/scripts/state.js';
+		import './src/app/scripts/fade.js';
+		import './src/app/scripts/color-null.js';
+		import './src/app/scripts/color-alert.js';
+		import './src/app/scripts/color-reading.js';
+		import './src/app/scripts/color-metric.js';
+		import './src/app/scripts/color-buffer.js';
+		import './src/app/scripts/binary.js';
+		import './src/app/scripts/fetcher.js';
+		import './src/app/scripts/fetching.js';
+		import './src/app/scripts/paginate.js';
+		const title = document.getElementById('title');
+		const alert = document.getElementById('alert');
+		const alerts = { retries: 0, reload: 10, timeout: null, controller: null, data: null, response: null, element: document.getElementById('alerts') };
+		deviceTabs();
+		const loadingAlerts = (element) => {
+			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				element.children[ind].onclick = null;
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				loading(element.children[ind].children[1].children[0], ['w-15', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				loading(element.children[ind].children[3].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[5].children[0], ['w-16', 'h-4'], [], '');
+			});
+			loadingPagination();
+		};
+		const paintAlerts = (element, data) => {
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					element.children[ind].classList.add('cursor-pointer');
+					element.children[ind].onclick = () => openAlertDialog(alert, data[ind]);
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].issuedAt));
+					paint(element.children[ind].children[1].children[0], [], ['w-15', 'h-4'], severity(data[ind].severity));
+					fade(element.children[ind].children[1].children[0]);
+					colorSeverity(element.children[ind].children[1].children[0], data[ind].severity);
+					paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], field(data[ind].field));
+					paint(element.children[ind].children[3].children[0], [], ['w-8', 'h-4'], edge(data[ind].edge));
+					fade(element.children[ind].children[3].children[0]);
+					colorEdge(element.children[ind].children[3].children[0], data[ind].edge);
+					paint(element.children[ind].children[4].children[0], [], ['w-12', 'h-4'], value(data[ind].field, data[ind].value));
+					fade(element.children[ind].children[4].children[0]);
+					colorValue(element.children[ind].children[4].children[0], data[ind].field, value(data[ind].field, data[ind].value));
+					paint(element.children[ind].children[5].children[0], [], ['w-16', 'h-4'], status(data[ind].resolvedAt));
+					fade(element.children[ind].children[5].children[0]);
+					colorStatus(element.children[ind].children[5].children[0], status(data[ind].resolvedAt));
+				}
+			});
+			paintPagination();
+		};
+		const errorAlerts = (element) => {
+			array(element.children.length).forEach((ind) => {
+				element.children[ind].classList.remove('cursor-pointer');
+				element.children[ind].onclick = null;
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[1].children[0], ['w-15', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[3].children[0], ['w-8', 'h-4'], [], '');
+				fade(element.children[ind].children[4].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-12', 'h-4'], [], '');
+				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[5].children[0], ['w-16', 'h-4'], [], '');
+			});
+			errorPagination();
+		};
+		const parseAlerts = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const alerts = [];
+			while (binary.offset < buffer.byteLength) {
+				const alert = { severity: null, field: null, edge: null, value: null, issuedAt: null, resolvedAt: null, deviceId: null };
+				alert.severity = binary.uint(8);
+				alert.field = binary.uint(8);
+				alert.edge = binary.uint(8);
+				alert.value = binary.int(32);
+				alert.issuedAt = binary.uint(64);
+				if (binary.byte() !== 0) {
+					alert.resolvedAt = binary.uint(64);
+				}
+				alert.deviceId = window.location.pathname.substring(8, 24);
+				alerts.push(alert);
+			}
+			return alerts;
+		};
+		const loadAlerts = fetching(
+			alerts,
+			(context) => {
+				loadingDeviceTitle(title);
+				window.requestAnimationFrame(() => loadingAlerts(context.element));
+			},
+			(context) => {
+				const endpoint = `/api/device/${window.location.pathname.substring(8)}?limit=${getLimit()}&offset=${getOffset()}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => {
+				context.data = await parseAlerts(response);
+				context.response = response;
+			},
+			(context) => {
+				paintDeviceTitle(title, context.response);
+				window.requestAnimationFrame(() => paintAlerts(context.element, context.data));
+			},
+			(context) => {
+				errorDeviceTitle(title);
+				window.requestAnimationFrame(() => errorAlerts(context.element));
+			},
+		);
+		const onPaginate = () => loadAlerts();
+		const alertDialog = document.getElementById('alert-dialog');
+		const openAlertDialog = (element, data) => {
+			paint(element.children[0].children[1].children[0], [], ['w-15', 'h-4'], severity(data.severity));
+			fade(element.children[0].children[1].children[0]);
+			colorSeverity(element.children[0].children[1].children[0], data.severity);
+			paint(element.children[1].children[1].children[0], [], ['w-24', 'h-4'], field(data.field));
+			paint(element.children[2].children[1].children[0], [], ['w-15', 'h-4'], edge(data.edge));
+			fade(element.children[2].children[1].children[0]);
+			colorEdge(element.children[2].children[1].children[0], data.edge);
+			paint(element.children[3].children[1].children[0], [], ['w-12', 'h-4'], value(data.field, data.value));
+			fade(element.children[3].children[1].children[0]);
+			colorValue(element.children[3].children[1].children[0], data.field, value(data.field, data.value));
+			paint(element.children[4].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.issuedAt));
+			if (data.resolvedAt !== null) {
+				paint(element.children[5].children[1].children[0], [], ['w-40', 'h-4'], timestamp(data.resolvedAt));
+				fade(element.children[5].children[1].children[0]);
+			} else {
+				paint(element.children[5].children[1].children[0], [], ['w-40', 'h-4'], 'null');
+				colorNull(element.children[5].children[1].children[0]);
+			}
+			element.children[6].children[1].children[0].classList.add('cursor-pointer');
+			element.children[6].children[1].children[0].onclick = () => (window.location.href = `/device/${data.deviceId}`);
+			paint(element.children[6].children[1].children[0], [], ['w-40', 'h-4'], data.deviceId);
+			alertDialog.showModal();
+		};
+		const closeAlertDialog = () => {
+			alertDialog.close();
+		};
+	</script>
+</html>
