@@ -188,6 +188,7 @@ int evaluate(rule_t *rule, alert_t *alert, float fraction, float value) {
 }
 
 int alerting(rule_t *rule, device_t *device, int32_t *value, alert_t *alert) {
+	time_t now = time(NULL);
 	switch (rule->field) {
 	case 0:
 		if (device->reading == NULL) {
@@ -238,6 +239,20 @@ int alerting(rule_t *rule, device_t *device, int32_t *value, alert_t *alert) {
 		}
 		*value = (int32_t)device->buffer->level;
 		return evaluate(rule, alert, 1.0f, (float)device->buffer->level);
+	case 7:
+		if (device->uplink == NULL) {
+			warn("device %02x%02x uplink null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
+			return -1;
+		}
+		*value = (int32_t)(now - device->uplink->received_at);
+		return evaluate(rule, alert, 1.0f, (float)(now - device->uplink->received_at));
+	case 8:
+		if (device->downlink == NULL) {
+			warn("device %02x%02x downlink null unable to evaluate rule\n", (*rule->device_id)[0], (*rule->device_id)[1]);
+			return -1;
+		}
+		*value = (int32_t)(now - device->downlink->sent_at);
+		return evaluate(rule, alert, 1.0f, (float)(now - device->downlink->sent_at));
 	default:
 		warn("invalid rule field %hhu\n", rule->field);
 		return -1;
@@ -280,6 +295,8 @@ void *alerter(void *args) {
 			reading_t reading;
 			metric_t metric;
 			buffer_t buffer;
+			uplink_t uplink;
+			downlink_t downlink;
 			device_t device;
 			device.id = (uint8_t (*)[8])octet_blob_read(&db->table[index * device_row.size], device_row.id);
 			if (octet_uint8_read(&db->table[index * device_row.size], device_row.reading_null) != 0x00) {
@@ -308,6 +325,23 @@ void *alerter(void *args) {
 				device.buffer->level = octet_uint16_read(&db->table[index * device_row.size], device_row.buffer_level);
 			} else {
 				device.buffer = NULL;
+			}
+			if (octet_uint8_read(&db->table[index * device_row.size], device_row.uplink_null) != 0x00) {
+				device.uplink = &uplink;
+				device.uplink->frame = octet_uint16_read(&db->table[index * device_row.size], device_row.uplink_frame);
+				device.uplink->kind = octet_uint8_read(&db->table[index * device_row.size], device_row.uplink_kind);
+				device.uplink->received_at =
+						(time_t)octet_uint64_read(&db->table[index * device_row.size], device_row.uplink_received_at);
+			} else {
+				device.uplink = NULL;
+			}
+			if (octet_uint8_read(&db->table[index * device_row.size], device_row.downlink_null) != 0x00) {
+				device.downlink = &downlink;
+				device.downlink->frame = octet_uint16_read(&db->table[index * device_row.size], device_row.downlink_frame);
+				device.downlink->kind = octet_uint8_read(&db->table[index * device_row.size], device_row.downlink_kind);
+				device.downlink->sent_at = (time_t)octet_uint64_read(&db->table[index * device_row.size], device_row.downlink_sent_at);
+			} else {
+				device.downlink = NULL;
 			}
 
 			uint8_t alerts_len = 0;
