@@ -48,6 +48,14 @@ const colorValue = (element, field, value) => {
 			colorLevel(element, value);
 			element.innerText = value;
 			break;
+		case field === 7:
+			colorDelay(element, value);
+			element.innerText = duration(value);
+			break;
+		case field === 8:
+			colorDelay(element, value);
+			element.innerText = duration(value);
+			break;
 	}
 };
 

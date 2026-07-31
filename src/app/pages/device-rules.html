@@ -218,6 +218,28 @@
 								>
 									Level
 								</button>
+								<button
+									type="button"
+									class="h-8 text-base text-nowrap font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('create-field'), 7);
+										createForm.setValue('field', 7);
+										createForm.setTouched('field', true);
+									"
+								>
+									Received at
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base text-nowrap font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('create-field'), 8);
+										createForm.setValue('field', 8);
+										createForm.setTouched('field', true);
+									"
+								>
+									Sent at
+								</button>
 							</div>
 							<p id="create-field-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 						</div>
@@ -414,6 +436,28 @@
 									"
 								>
 									Level
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base text-nowrap font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('update-field'), 7);
+										updateForm.setValue('field', 7);
+										updateForm.setTouched('field', true);
+									"
+								>
+									Received at
+								</button>
+								<button
+									type="button"
+									class="h-8 text-base text-nowrap font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+									onclick="
+										highlightField(document.getElementById('update-field'), 8);
+										updateForm.setValue('field', 8);
+										updateForm.setTouched('field', true);
+									"
+								>
+									Sent at
 								</button>
 							</div>
 							<p id="update-field-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>

@@ -38,6 +38,10 @@ const field = (field) => {
 			return 'delay';
 		case field === 6:
 			return 'level';
+		case field === 7:
+			return 'received at';
+		case field === 8:
+			return 'sent at';
 		default:
 			return 'unknown';
 	}
