@@ -6,6 +6,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "email.h"
 #include "host.h"
 #include "metric.h"
 #include "radio.h"
@@ -189,6 +190,34 @@ cleanup:
 	return status;
 }
 
+int wipe_email(octet_t *db) {
+	int status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, email_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	if (octet_trunc(&stmt, file, 0) == -1) {
+		status = -1;
+		goto cleanup;
+	}
+
+	info("wiped file %s\n", email_file);
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 int wipe(octet_t *db) {
 	if (wipe_user(db) == -1) {
 		return -1;
@@ -206,6 +235,9 @@ int wipe(octet_t *db) {
 		return -1;
 	}
 	if (wipe_host(db) == -1) {
+		return -1;
+	}
+	if (wipe_email(db) == -1) {
 		return -1;
 	}
 

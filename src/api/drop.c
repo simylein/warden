@@ -6,6 +6,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "email.h"
 #include "host.h"
 #include "metric.h"
 #include "radio.h"
@@ -110,6 +111,21 @@ int drop_host(octet_t *db) {
 	return 0;
 }
 
+int drop_email(octet_t *db) {
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, email_file) == -1) {
+		error("failed to sprintf to file\n");
+		return -1;
+	}
+
+	if (octet_unlink(file) == -1) {
+		return -1;
+	}
+
+	info("unlinked file %s\n", email_file);
+	return 0;
+}
+
 int drop(octet_t *db) {
 	if (drop_user(db) == -1) {
 		return -1;
@@ -127,6 +143,9 @@ int drop(octet_t *db) {
 		return -1;
 	}
 	if (drop_host(db) == -1) {
+		return -1;
+	}
+	if (drop_email(db) == -1) {
 		return -1;
 	}
 

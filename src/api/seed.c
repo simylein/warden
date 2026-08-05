@@ -5,6 +5,7 @@
 #include "config.h"
 #include "device.h"
 #include "downlink.h"
+#include "email.h"
 #include "host.h"
 #include "metric.h"
 #include "radio.h"
@@ -225,6 +226,29 @@ int seed_host(octet_t *db) {
 	}
 
 	info("seeded file %s\n", host_file);
+	return 0;
+}
+
+int seed_email(octet_t *db) {
+	char *address = "0.0.0.0";
+	char *from = "warden@example.com";
+	char *to = "alerts@example.com";
+
+	email_t email = {
+			.address = address,
+			.address_len = (uint8_t)strlen(address),
+			.port = 25,
+			.from = from,
+			.from_len = (uint8_t)strlen(from),
+			.to = to,
+			.to_len = (uint8_t)strlen(to),
+	};
+
+	if (email_insert(db, &email) != 0) {
+		return -1;
+	}
+
+	info("seeded file %s\n", email_file);
 	return 0;
 }
 
@@ -638,6 +662,9 @@ int seed(octet_t *db) {
 		return -1;
 	}
 	if (seed_host(db) == -1) {
+		return -1;
+	}
+	if (seed_email(db) == -1) {
 		return -1;
 	}
 	if (seed_reading(db) == -1) {
