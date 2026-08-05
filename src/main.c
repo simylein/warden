@@ -55,6 +55,11 @@ int main(int argc, char *argv[]) {
 		info("--queue-size          -qs  size of clients in queue         (%hhu)\n", queue_size);
 		info("--least-workers       -lw  least amount of worker threads   (%hhu)\n", least_workers);
 		info("--most-workers        -mw  most amount of worker threads    (%hhu)\n", most_workers);
+		info("--emit-alerts         -ea  evaluate and emit alerts         (%s)\n", human_bool(emit_alerts));
+		info("--alert-interval      -ai  seconds between alert checks     (%hhu)\n", alert_interval);
+		info("--alert-lookback      -al  seconds to look back for alerts  (%u)\n", alert_lookback);
+		info("--devices-size        -ds  most devices in cache            (%hhu)\n", devices_size);
+		info("--zones-size          -zs  most zones in cache              (%hhu)\n", zones_size);
 		info("--bwt-key             -bk  random bytes for bwt signing     (%s)\n", bwt_key);
 		info("--bwt-ttl             -bt  time to live for bwt expiry      (%u)\n", bwt_ttl);
 		info("--database-directory  -dd  path to database directory       (%s)\n", database_directory);
@@ -170,16 +175,18 @@ int main(int argc, char *argv[]) {
 
 	info("spawned %hhu worker threads\n", least_workers);
 
-	alerter_buffer = malloc(database_buffer * sizeof(char));
-	if (alerter_buffer == NULL) {
-		fatal("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
-		exit(1);
-	}
+	if (emit_alerts == true) {
+		alerter_buffer = malloc(database_buffer * sizeof(char));
+		if (alerter_buffer == NULL) {
+			fatal("failed to allocate %u bytes because %s\n", database_buffer, errno_str());
+			exit(1);
+		}
 
-	trace("spawning alerter thread\n");
-	if ((errno = pthread_create(&alerter_thread, NULL, &alerter, (void *)&alerter_octet)) != 0) {
-		fatal("failed to spawn alerter because %s\n", errno_str());
-		exit(1);
+		trace("spawning alerter thread\n");
+		if ((errno = pthread_create(&alerter_thread, NULL, &alerter, (void *)&alerter_octet)) != 0) {
+			fatal("failed to spawn alerter because %s\n", errno_str());
+			exit(1);
+		}
 	}
 
 	if ((server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
@@ -285,9 +292,13 @@ int main(int argc, char *argv[]) {
 
 	pthread_mutex_unlock(&thread_pool.lock);
 
-	trace("joining alerter thread\n");
-	pthread_cancel(alerter_thread);
-	pthread_join(alerter_thread, NULL);
+	if (emit_alerts == true) {
+		trace("joining alerter thread\n");
+		pthread_cancel(alerter_thread);
+		pthread_join(alerter_thread, NULL);
+
+		free(alerter_buffer);
+	}
 
 	trace("joining scaler thread\n");
 	pthread_cancel(thread_pool.scaler);
@@ -296,14 +307,12 @@ int main(int argc, char *argv[]) {
 	for (uint8_t index = 0; index < thread_pool.size; index++) {
 		join(&thread_pool.workers[index], index);
 	}
-
-	free(alerter_buffer);
+	free(thread_pool.workers);
 
 	free(cache.devices);
 	free(cache.zones);
 
 	free(queue.tasks);
-	free(thread_pool.workers);
 
 	page_close();
 	page_free();

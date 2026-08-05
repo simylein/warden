@@ -14,6 +14,7 @@ uint8_t queue_size = 8;
 uint8_t least_workers = 4;
 uint8_t most_workers = 64;
 
+bool emit_alerts = false;
 uint8_t alert_interval = 60;
 uint32_t alert_lookback = 604800;
 
@@ -205,10 +206,25 @@ int configure(int argc, char *argv[], uint8_t *cmds) {
 			errors += parse_uint8(value, "queue size", 1, 127, &queue_size);
 		} else if (match_arg(flag, "--least-workers", "-lw")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint8(value, "least-workers", 1, 63, &least_workers);
+			errors += parse_uint8(value, "least workers", 1, 63, &least_workers);
 		} else if (match_arg(flag, "--most-workers", "-mw")) {
 			const char *value = next_arg(argc, argv, &ind);
-			errors += parse_uint8(value, "most-workers", 3, 255, &most_workers);
+			errors += parse_uint8(value, "most workers", 3, 255, &most_workers);
+		} else if (match_arg(flag, "--emit-alerts", "-ea")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_bool(value, "emit alerts", &emit_alerts);
+		} else if (match_arg(flag, "--alert-interval", "-ai")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "alert interval", 10, 240, &alert_interval);
+		} else if (match_arg(flag, "--alert-lookback", "-al")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint32(value, "alert lookback", 86400, 2592000, &alert_lookback);
+		} else if (match_arg(flag, "--devices-size", "-ds")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "devices size", 4, 128, &devices_size);
+		} else if (match_arg(flag, "--zones-size", "-zs")) {
+			const char *value = next_arg(argc, argv, &ind);
+			errors += parse_uint8(value, "zones size", 2, 32, &zones_size);
 		} else if (match_arg(flag, "--bwt-key", "-bk")) {
 			const char *value = next_arg(argc, argv, &ind);
 			errors += parse_str(value, "bwt key", 16, 64, &bwt_key);
