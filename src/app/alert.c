@@ -8,6 +8,7 @@
 #include "../lib/config.h"
 #include "../lib/logger.h"
 #include "../lib/octet.h"
+#include "email.h"
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -299,6 +300,8 @@ void *alerter(void *args) {
 			downlink_t downlink;
 			device_t device;
 			device.id = (uint8_t (*)[8])octet_blob_read(&db->table[index * device_row.size], device_row.id);
+			device.name = octet_text_read(&db->table[index * device_row.size], device_row.name);
+			device.name_len = octet_uint8_read(&db->table[index * device_row.size], device_row.name_len);
 			if (octet_uint8_read(&db->table[index * device_row.size], device_row.reading_null) != 0x00) {
 				device.reading = &reading;
 				int16_t temperature = octet_int16_read(&db->table[index * device_row.size], device_row.reading_temperature);
@@ -397,6 +400,10 @@ void *alerter(void *args) {
 						continue;
 					}
 					info("created alert issued at %lu\n", alert.issued_at);
+					if (email_send(db, &alert, &device) == -1) {
+						continue;
+					}
+					info("successfully sent alert email\n");
 				} else if (result == 0 && existing != NULL) {
 					alert.severity = rule.severity;
 					alert.field = rule.field;
