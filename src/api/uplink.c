@@ -33,10 +33,11 @@ const uplink_row_t uplink_row = {
 		.snr = 48,
 		.sf = 49,
 		.cr = 50,
-		.tx_power = 51,
-		.preamble_len = 52,
-		.received_at = 53,
-		.size = 61,
+		.crc = 51,
+		.tx_power = 52,
+		.preamble_len = 53,
+		.received_at = 54,
+		.size = 62,
 };
 
 uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
@@ -121,6 +122,7 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 			int8_t snr = octet_int8_read(&db->table[index * uplink_row.size], uplink_row.snr);
 			uint8_t sf = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.sf);
 			uint8_t cr = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.cr);
+			bool crc = octet_bool_read(&db->table[index * uplink_row.size], uplink_row.crc);
 			uint8_t tx_power = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.tx_power);
 			uint8_t preamble_len = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.preamble_len);
 			time_t received_at = (time_t)octet_uint64_read(&db->table[index * uplink_row.size], uplink_row.received_at);
@@ -137,6 +139,7 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 			body_write(response, &snr, sizeof(snr));
 			body_write(response, &sf, sizeof(sf));
 			body_write(response, &cr, sizeof(cr));
+			body_write(response, &crc, sizeof(crc));
 			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &preamble_len, sizeof(preamble_len));
 			body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
@@ -211,6 +214,7 @@ uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *
 		int8_t snr = octet_int8_read(db->row, uplink_row.snr);
 		uint8_t sf = octet_uint8_read(db->row, uplink_row.sf);
 		uint8_t cr = octet_uint8_read(db->row, uplink_row.cr);
+		bool crc = octet_bool_read(db->row, uplink_row.crc);
 		uint8_t tx_power = octet_uint8_read(db->row, uplink_row.tx_power);
 		uint8_t preamble_len = octet_uint8_read(db->row, uplink_row.preamble_len);
 		time_t received_at = (time_t)octet_uint64_read(db->row, uplink_row.received_at);
@@ -225,6 +229,7 @@ uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *
 		body_write(response, &snr, sizeof(snr));
 		body_write(response, &sf, sizeof(sf));
 		body_write(response, &cr, sizeof(cr));
+		body_write(response, &crc, sizeof(crc));
 		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &preamble_len, sizeof(preamble_len));
 		body_write(response, (uint64_t[]){hton64((uint64_t)received_at)}, sizeof(received_at));
@@ -518,6 +523,12 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 	}
 	uplink->cr = *(uint8_t *)body_read(request, sizeof(uplink->cr));
 
+	if (request->body.len < request->body.pos + sizeof(uplink->crc)) {
+		debug("missing crc on uplink\n");
+		return -1;
+	}
+	uplink->crc = *(bool *)body_read(request, sizeof(uplink->crc));
+
 	if (request->body.len < request->body.pos + sizeof(uplink->tx_power)) {
 		debug("missing tx power on uplink\n");
 		return -1;
@@ -657,6 +668,7 @@ uint16_t uplink_insert(octet_t *db, uplink_t *uplink) {
 	octet_int8_write(db->row, uplink_row.snr, uplink->snr);
 	octet_uint8_write(db->row, uplink_row.sf, uplink->sf);
 	octet_uint8_write(db->row, uplink_row.cr, uplink->cr);
+	octet_bool_write(db->row, uplink_row.crc, uplink->crc);
 	octet_uint8_write(db->row, uplink_row.tx_power, uplink->tx_power);
 	octet_uint8_write(db->row, uplink_row.preamble_len, uplink->preamble_len);
 	octet_uint64_write(db->row, uplink_row.received_at, (uint64_t)uplink->received_at);

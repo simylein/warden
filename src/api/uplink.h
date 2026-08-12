@@ -6,6 +6,7 @@
 #include "../lib/response.h"
 #include "device.h"
 #include "zone.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -21,6 +22,7 @@ typedef struct uplink_t {
 	int8_t snr;
 	uint8_t sf;
 	uint8_t cr;
+	bool crc;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t received_at;
@@ -50,6 +52,7 @@ typedef struct uplink_row_t {
 	uint8_t snr;
 	uint8_t sf;
 	uint8_t cr;
+	uint8_t crc;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	uint8_t received_at;
