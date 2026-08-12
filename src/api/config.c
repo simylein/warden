@@ -69,10 +69,10 @@ uint16_t config_select_one_by_device(octet_t *db, device_t *device, response_t *
 		goto cleanup;
 	}
 
-	bool led_debug = octet_uint8_read(db->row, config_row.led_debug);
-	bool reading_enable = octet_uint8_read(db->row, config_row.reading_enable);
-	bool metric_enable = octet_uint8_read(db->row, config_row.metric_enable);
-	bool buffer_enable = octet_uint8_read(db->row, config_row.buffer_enable);
+	bool led_debug = octet_bool_read(db->row, config_row.led_debug);
+	bool reading_enable = octet_bool_read(db->row, config_row.reading_enable);
+	bool metric_enable = octet_bool_read(db->row, config_row.metric_enable);
+	bool buffer_enable = octet_bool_read(db->row, config_row.buffer_enable);
 	uint16_t reading_interval = octet_uint16_read(db->row, config_row.reading_interval);
 	uint16_t metric_interval = octet_uint16_read(db->row, config_row.metric_interval);
 	uint16_t buffer_interval = octet_uint16_read(db->row, config_row.buffer_interval);
@@ -209,10 +209,10 @@ uint16_t config_insert(octet_t *db, config_t *config) {
 		offset -= config_row.size;
 	}
 
-	octet_uint8_write(db->row, config_row.led_debug, config->led_debug);
-	octet_uint8_write(db->row, config_row.reading_enable, config->reading_enable);
-	octet_uint8_write(db->row, config_row.metric_enable, config->metric_enable);
-	octet_uint8_write(db->row, config_row.buffer_enable, config->buffer_enable);
+	octet_bool_write(db->row, config_row.led_debug, config->led_debug);
+	octet_bool_write(db->row, config_row.reading_enable, config->reading_enable);
+	octet_bool_write(db->row, config_row.metric_enable, config->metric_enable);
+	octet_bool_write(db->row, config_row.buffer_enable, config->buffer_enable);
 	octet_uint16_write(db->row, config_row.reading_interval, config->reading_interval);
 	octet_uint16_write(db->row, config_row.metric_interval, config->metric_interval);
 	octet_uint16_write(db->row, config_row.buffer_interval, config->buffer_interval);

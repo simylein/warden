@@ -77,7 +77,7 @@ uint16_t radio_select_one_by_device(octet_t *db, device_t *device, response_t *r
 	uint8_t preamble_length = octet_uint8_read(db->row, radio_row.preamble_length);
 	uint8_t tx_power = octet_uint8_read(db->row, radio_row.tx_power);
 	uint8_t sync_word = octet_uint8_read(db->row, radio_row.sync_word);
-	bool checksum = octet_uint8_read(db->row, radio_row.checksum);
+	bool checksum = octet_bool_read(db->row, radio_row.checksum);
 	time_t captured_at = (time_t)octet_uint64_read(db->row, radio_row.captured_at);
 	body_write(response, (uint32_t[]){hton32((uint32_t)frequency)}, sizeof(frequency));
 	body_write(response, (uint32_t[]){hton32((uint32_t)bandwidth)}, sizeof(bandwidth));
@@ -239,7 +239,7 @@ uint16_t radio_insert(octet_t *db, radio_t *radio) {
 	octet_uint8_write(db->row, radio_row.preamble_length, radio->preamble_length);
 	octet_uint8_write(db->row, radio_row.tx_power, radio->tx_power);
 	octet_uint8_write(db->row, radio_row.sync_word, radio->sync_word);
-	octet_uint8_write(db->row, radio_row.checksum, radio->checksum);
+	octet_bool_write(db->row, radio_row.checksum, radio->checksum);
 	octet_uint64_write(db->row, radio_row.captured_at, (uint64_t)radio->captured_at);
 
 	if (octet_row_write(&stmt, file, offset, db->row, radio_row.size) == -1) {
