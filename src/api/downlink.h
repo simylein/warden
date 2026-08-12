@@ -5,6 +5,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "device.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -18,6 +19,7 @@ typedef struct downlink_t {
 	uint32_t bandwidth;
 	uint8_t sf;
 	uint8_t cr;
+	bool crc;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	time_t sent_at;
@@ -39,6 +41,7 @@ typedef struct downlink_row_t {
 	uint8_t bandwidth;
 	uint8_t sf;
 	uint8_t cr;
+	uint8_t crc;
 	uint8_t tx_power;
 	uint8_t preamble_len;
 	uint8_t sent_at;

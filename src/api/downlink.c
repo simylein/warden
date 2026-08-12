@@ -29,10 +29,11 @@ const downlink_row_t downlink_row = {
 		.bandwidth = 42,
 		.sf = 46,
 		.cr = 47,
-		.tx_power = 48,
-		.preamble_len = 49,
-		.sent_at = 50,
-		.size = 58,
+		.crc = 48,
+		.tx_power = 49,
+		.preamble_len = 50,
+		.sent_at = 51,
+		.size = 59,
 };
 
 uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, response_t *response, uint8_t *downlinks_len) {
@@ -116,6 +117,7 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 			uint32_t bandwidth = octet_uint32_read(&db->table[index * downlink_row.size], downlink_row.bandwidth);
 			uint8_t sf = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.sf);
 			uint8_t cr = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.cr);
+			bool crc = octet_bool_read(&db->table[index * downlink_row.size], downlink_row.crc);
 			uint8_t tx_power = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.tx_power);
 			uint8_t preamble_len = octet_uint8_read(&db->table[index * downlink_row.size], downlink_row.preamble_len);
 			time_t sent_at = (time_t)octet_uint64_read(&db->table[index * downlink_row.size], downlink_row.sent_at);
@@ -130,6 +132,7 @@ uint16_t downlink_select(octet_t *db, bwt_t *bwt, downlink_query_t *query, respo
 			body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
 			body_write(response, &sf, sizeof(sf));
 			body_write(response, &cr, sizeof(cr));
+			body_write(response, &crc, sizeof(crc));
 			body_write(response, &tx_power, sizeof(tx_power));
 			body_write(response, &preamble_len, sizeof(preamble_len));
 			body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
@@ -202,6 +205,7 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 		uint32_t bandwidth = octet_uint32_read(db->row, downlink_row.bandwidth);
 		uint8_t sf = octet_uint8_read(db->row, downlink_row.sf);
 		uint8_t cr = octet_uint8_read(db->row, downlink_row.cr);
+		bool crc = octet_bool_read(db->row, downlink_row.crc);
 		uint8_t tx_power = octet_uint8_read(db->row, downlink_row.tx_power);
 		uint8_t preamble_len = octet_uint8_read(db->row, downlink_row.preamble_len);
 		time_t sent_at = (time_t)octet_uint64_read(db->row, downlink_row.sent_at);
@@ -214,6 +218,7 @@ uint16_t downlink_select_by_device(octet_t *db, device_t *device, downlink_query
 		body_write(response, (uint32_t[]){hton32(bandwidth)}, sizeof(bandwidth));
 		body_write(response, &sf, sizeof(sf));
 		body_write(response, &cr, sizeof(cr));
+		body_write(response, &crc, sizeof(crc));
 		body_write(response, &tx_power, sizeof(tx_power));
 		body_write(response, &preamble_len, sizeof(preamble_len));
 		body_write(response, (uint64_t[]){hton64((uint64_t)sent_at)}, sizeof(sent_at));
@@ -286,6 +291,12 @@ int downlink_parse(downlink_t *downlink, request_t *request) {
 		return -1;
 	}
 	downlink->cr = *(uint8_t *)body_read(request, sizeof(downlink->cr));
+
+	if (request->body.len < request->body.pos + sizeof(downlink->crc)) {
+		debug("missing crc on downlink\n");
+		return -1;
+	}
+	downlink->crc = *(bool *)body_read(request, sizeof(downlink->crc));
 
 	if (request->body.len < request->body.pos + sizeof(downlink->tx_power)) {
 		debug("missing tx power on downlink\n");
@@ -414,6 +425,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	octet_uint32_write(db->row, downlink_row.bandwidth, downlink->bandwidth);
 	octet_uint8_write(db->row, downlink_row.sf, downlink->sf);
 	octet_uint8_write(db->row, downlink_row.cr, downlink->cr);
+	octet_bool_write(db->row, downlink_row.crc, downlink->crc);
 	octet_uint8_write(db->row, downlink_row.tx_power, downlink->tx_power);
 	octet_uint8_write(db->row, downlink_row.preamble_len, downlink->preamble_len);
 	octet_uint64_write(db->row, downlink_row.sent_at, (uint64_t)downlink->sent_at);

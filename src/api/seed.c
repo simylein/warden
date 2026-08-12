@@ -581,6 +581,7 @@ int seed_downlink(octet_t *db) {
 		uint16_t frame = 0;
 		uint8_t sf = (uint8_t)(rand() % 7 + 6);
 		uint8_t cr = (uint8_t)(rand() % 4 + 5);
+		bool crc = (bool)(rand() % 6 != 0);
 		uint8_t tx_power = (uint8_t)(rand() % 16 + 2);
 		uint8_t preamble_len = (uint8_t)(rand() % 16 + 6);
 		time_t now = time(NULL);
@@ -601,6 +602,7 @@ int seed_downlink(octet_t *db) {
 					.bandwidth = 125 * 1000,
 					.sf = sf,
 					.cr = cr,
+					.crc = crc,
 					.tx_power = tx_power,
 					.preamble_len = preamble_len,
 					.sent_at = sent_at,
