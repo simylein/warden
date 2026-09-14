@@ -475,6 +475,92 @@ cleanup:
 	return status;
 }
 
+uint16_t reading_insert_many(octet_t *db, reading_t *readings, uint8_t readings_len) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), readings[0].device_id, sizeof(*readings[0].device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, reading_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	for (uint8_t index = 0; index < readings_len; index++) {
+		debug("insert reading for device %02x%02x captured at %lu\n", (*readings[index].device_id)[0],
+					(*readings[index].device_id)[1], readings[index].captured_at);
+
+		off_t offset = stmt.stat.st_size + index * reading_row.size;
+		while (offset > 0) {
+			if (octet_row_read(&stmt, file, offset - reading_row.size, db->row, reading_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			time_t captured_at = (time_t)octet_uint64_read(db->row, reading_row.captured_at);
+			if (captured_at <= readings[index].captured_at) {
+				break;
+			}
+			if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			offset -= reading_row.size;
+		}
+
+		octet_int16_write(db->row, reading_row.temperature, (int16_t)(readings[index].temperature * 100));
+		octet_uint16_write(db->row, reading_row.humidity, (uint16_t)(readings[index].humidity * 100));
+		octet_uint64_write(db->row, reading_row.captured_at, (uint64_t)readings[index].captured_at);
+
+		if (octet_row_write(&stmt, file, offset, db->row, reading_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+
+		if (index + 1 < readings_len) {
+			continue;
+		}
+
+		uint8_t zone_id[8];
+		device_t device = {
+				.id = readings[index].device_id,
+				.zone_id = &zone_id,
+				.reading = &readings[index],
+				.metric = NULL,
+				.buffer = NULL,
+				.uplink = NULL,
+				.downlink = NULL,
+		};
+		status = device_update_latest(db, &device);
+		if (status != 0) {
+			goto cleanup;
+		}
+
+		if (device.zone_id != NULL) {
+			zone_t zone = {.id = device.zone_id};
+			status = zone_update_latest(db, &zone);
+			if (status != 0) {
+				goto cleanup;
+			}
+		}
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void reading_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *from;
 	size_t from_len;

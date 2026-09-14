@@ -474,6 +474,92 @@ cleanup:
 	return status;
 }
 
+uint16_t metric_insert_many(octet_t *db, metric_t *metrics, uint8_t metrics_len) {
+	uint16_t status;
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), metrics[0].device_id, sizeof(*metrics[0].device_id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char file[128];
+	if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, metric_file) == -1) {
+		error("failed to sprintf uuid to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	for (uint8_t index = 0; index < metrics_len; index++) {
+		debug("insert metric for device %02x%02x captured at %lu\n", (*metrics[index].device_id)[0], (*metrics[index].device_id)[1],
+					metrics[index].captured_at);
+
+		off_t offset = stmt.stat.st_size + index * metric_row.size;
+		while (offset > 0) {
+			if (octet_row_read(&stmt, file, offset - metric_row.size, db->row, metric_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			time_t captured_at = (time_t)octet_uint64_read(db->row, metric_row.captured_at);
+			if (captured_at <= metrics[index].captured_at) {
+				break;
+			}
+			if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+			offset -= metric_row.size;
+		}
+
+		octet_uint16_write(db->row, metric_row.photovoltaic, (uint16_t)(metrics[index].photovoltaic * 1000));
+		octet_uint16_write(db->row, metric_row.battery, (uint16_t)(metrics[index].battery * 1000));
+		octet_uint64_write(db->row, metric_row.captured_at, (uint64_t)metrics[index].captured_at);
+
+		if (octet_row_write(&stmt, file, offset, db->row, metric_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+
+		if (index + 1 < metrics_len) {
+			continue;
+		}
+
+		uint8_t zone_id[8];
+		device_t device = {
+				.id = metrics[index].device_id,
+				.zone_id = &zone_id,
+				.reading = NULL,
+				.metric = &metrics[index],
+				.buffer = NULL,
+				.uplink = NULL,
+				.downlink = NULL,
+		};
+		status = device_update_latest(db, &device);
+		if (status != 0) {
+			goto cleanup;
+		}
+
+		if (device.zone_id != NULL) {
+			zone_t zone = {.id = device.zone_id};
+			status = zone_update_latest(db, &zone);
+			if (status != 0) {
+				goto cleanup;
+			}
+		}
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void metric_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	const char *from;
 	size_t from_len;

@@ -41,6 +41,7 @@ uint16_t reading_select_by_device(octet_t *db, device_t *device, reading_query_t
 uint16_t reading_select_by_zone(octet_t *db, zone_t *zone, reading_query_t *query, response_t *response,
 																uint16_t *readings_len);
 uint16_t reading_insert(octet_t *db, reading_t *reading);
+uint16_t reading_insert_many(octet_t *db, reading_t *readings, uint8_t readings_len);
 
 void reading_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void reading_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);

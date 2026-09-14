@@ -39,6 +39,7 @@ uint16_t metric_select_by_device(octet_t *db, device_t *device, metric_query_t *
 																 uint16_t *metrics_len);
 uint16_t metric_select_by_zone(octet_t *db, zone_t *zone, metric_query_t *query, response_t *response, uint16_t *metrics_len);
 uint16_t metric_insert(octet_t *db, metric_t *metric);
+uint16_t metric_insert_many(octet_t *db, metric_t *metrics, uint8_t metrics_len);
 
 void metric_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void metric_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
