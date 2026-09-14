@@ -258,16 +258,21 @@ int seed_reading(octet_t *db) {
 		float humidity = (float)(rand() % 10000) / 100;
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (captured_at < now) {
-			reading_t reading = {
-					.temperature = temperature,
-					.humidity = humidity,
-					.captured_at = captured_at,
-					.device_id = &device_ids[index],
-			};
 
-			if (reading_insert(db, &reading) != 0) {
-				return -1;
+		reading_t readings[64];
+		uint8_t readings_len = 0;
+		while (captured_at < now) {
+			readings[readings_len].temperature = temperature;
+			readings[readings_len].humidity = humidity;
+			readings[readings_len].captured_at = captured_at;
+			readings[readings_len].device_id = &device_ids[index];
+			readings_len++;
+
+			if (readings_len == 64) {
+				if (reading_insert_many(db, (reading_t *)&readings, readings_len) != 0) {
+					return -1;
+				}
+				readings_len = 0;
 			}
 			temperature += ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
 			if (temperature < -20) {
@@ -285,6 +290,12 @@ int seed_reading(octet_t *db) {
 			}
 			captured_at += 56 + rand() % 8;
 		}
+
+		if (readings_len != 0) {
+			if (reading_insert_many(db, (reading_t *)&readings, readings_len) != 0) {
+				return -1;
+			}
+		}
 	}
 
 	info("seeded file %s\n", reading_file);
@@ -297,16 +308,21 @@ int seed_metric(octet_t *db) {
 		float battery = (float)(rand() % 1000) / 1000 + 3.2f;
 		time_t now = time(NULL);
 		time_t captured_at = time(NULL) - 2 * 24 * 60 * 60;
-		while (captured_at < now) {
-			metric_t metric = {
-					.photovoltaic = photovoltaic,
-					.battery = battery,
-					.captured_at = captured_at,
-					.device_id = &device_ids[index],
-			};
 
-			if (metric_insert(db, &metric) != 0) {
-				return -1;
+		metric_t metrics[64];
+		uint8_t metrics_len = 0;
+		while (captured_at < now) {
+			metrics[metrics_len].photovoltaic = photovoltaic;
+			metrics[metrics_len].battery = battery;
+			metrics[metrics_len].captured_at = captured_at;
+			metrics[metrics_len].device_id = &device_ids[index];
+			metrics_len++;
+
+			if (metrics_len == 64) {
+				if (metric_insert_many(db, (metric_t *)&metrics, metrics_len) != 0) {
+					return -1;
+				}
+				metrics_len = 0;
 			}
 			photovoltaic += ((float)rand() / (float)RAND_MAX) * 0.2f - 0.1f;
 			if (photovoltaic < 0) {
@@ -323,6 +339,12 @@ int seed_metric(octet_t *db) {
 				battery -= 0.1f;
 			}
 			captured_at += 56 + rand() % 8;
+		}
+
+		if (metrics_len != 0) {
+			if (metric_insert_many(db, (metric_t *)&metrics, metrics_len) != 0) {
+				return -1;
+			}
 		}
 	}
 
