@@ -13,6 +13,43 @@
 #include <stdio.h>
 #include <time.h>
 
+void decode_sht45(uint8_t (*data)[4], time_t captured_at, reading_t *reading) {
+	uint16_t temperature_raw = (uint16_t)((*data)[0] << 8) | (uint16_t)(*data)[1];
+	reading->temperature = ((175.0f * temperature_raw) / 65535.0f) - 45.0f;
+
+	uint16_t humidity_raw = (uint16_t)((*data)[2] << 8) | (uint16_t)(*data)[3];
+	reading->humidity = ((125.0f * humidity_raw) / 65535.0f) - 6.0f;
+
+	float humidity_log = logf(fmaxf(0.01f, reading->humidity) / 100.0f);
+	float gamma = (17.625f * reading->temperature) / (243.04f + reading->temperature) + humidity_log;
+	reading->dewpoint = (243.04f * gamma) / (17.625f - gamma);
+
+	reading->captured_at = captured_at;
+
+	debug("temperature %.2f humidity %.2f captured at %lu\n", reading->temperature, reading->humidity, reading->captured_at);
+}
+
+void decode_adc49(uint8_t (*data)[3], time_t captured_at, metric_t *metric) {
+	uint16_t photovoltaic_raw = (uint16_t)((*data)[0] << 4) | (uint16_t)(((*data)[1] >> 4) & 0x0f);
+	metric->photovoltaic = (photovoltaic_raw * 3.3f * 1.5f) / 4095.0f;
+
+	uint16_t battery_raw = (uint16_t)(((*data)[1] & 0x0f) << 8) | (uint16_t)(*data)[2];
+	metric->battery = (battery_raw * 3.3f * 1.5f) / 4095.0f;
+
+	metric->captured_at = captured_at;
+
+	debug("photovoltaic %.3f battery %.3f captured at %lu\n", metric->photovoltaic, metric->battery, metric->captured_at);
+}
+
+void decode_dlbf32(uint8_t (*data)[5], time_t captured_at, buffer_t *buffer) {
+	buffer->delay = (uint32_t)((*data)[0] << 16) | (uint32_t)((*data)[1] << 8) | (uint32_t)(*data)[2];
+	buffer->level = (uint16_t)((*data)[3] << 8) | (uint16_t)(*data)[4];
+
+	buffer->captured_at = captured_at;
+
+	debug("delay %u level %hu captured at %lu\n", buffer->delay, buffer->level, buffer->captured_at);
+}
+
 int decode_kind_00(uint8_t data_len, time_t received_at) {
 	if (data_len != 0) {
 		error("uplink data len must be 0 bytes\n");
@@ -168,6 +205,166 @@ int decode_kind_06(uint8_t *data, uint8_t data_len, time_t received_at, radio_t 
 				radio->coding_rate, radio->spreading_factor);
 	debug("preamble length %hhu tx power %hhu sync word %02x checksum %s captured at %lu\n", radio->preamble_length,
 				radio->tx_power, radio->sync_word, human_bool(radio->checksum), radio->captured_at);
+	return 0;
+}
+
+int decode_kind_11(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading) {
+	if (data_len != 4) {
+		error("uplink data len must be 4 bytes\n");
+		return -1;
+	}
+
+	decode_sht45((uint8_t (*)[4])data, received_at, reading);
+
+	return 0;
+}
+
+int decode_kind_12(uint8_t *data, uint8_t data_len, time_t received_at, metric_t *metric) {
+	if (data_len != 3) {
+		error("uplink data len must be 3 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])data, received_at, metric);
+
+	return 0;
+}
+
+int decode_kind_13(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, metric_t *metric) {
+	if (data_len != 7) {
+		error("uplink data len must be 7 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at, metric);
+	decode_sht45((uint8_t (*)[4])data, received_at, reading);
+
+	return 0;
+}
+
+int decode_kind_21(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[2]) {
+	if (data_len != 9) {
+		error("uplink data len must be 9 bytes\n");
+		return -1;
+	}
+
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at, &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[4], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_22(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[2]) {
+	if (data_len != 7) {
+		error("uplink data len must be 7 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at, &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - data[3], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_23(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[2], metric_t (*metric)[2]) {
+	if (data_len != 15) {
+		error("uplink data len must be 15 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at, &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at, &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - data[7], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[7], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_31(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[3]) {
+	if (data_len != 14) {
+		error("uplink data len must be 14 bytes\n");
+		return -1;
+	}
+
+	decode_sht45((uint8_t (*)[4])(&data[10]), received_at, &(*reading)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at - data[9], &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[4] - data[9], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_32(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[3]) {
+	if (data_len != 11) {
+		error("uplink data len must be 11 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[8]), received_at, &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - data[7], &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - data[3] - data[7], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_33(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[3], metric_t (*metric)[3]) {
+	if (data_len != 23) {
+		error("uplink data len must be 23 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[20]), received_at, &(*metric)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[16]), received_at, &(*reading)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - data[15], &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at - data[15], &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - data[7] - data[15], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[7] - data[15], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_41(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[4]) {
+	if (data_len != 19) {
+		error("uplink data len must be 19 bytes\n");
+		return -1;
+	}
+
+	decode_sht45((uint8_t (*)[4])(&data[15]), received_at, &(*reading)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[10]), received_at - data[14], &(*reading)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at - data[9] - data[14], &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[4] - data[9] - data[14], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_42(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[4]) {
+	if (data_len != 15) {
+		error("uplink data len must be 15 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at, &(*metric)[3]);
+	decode_adc49((uint8_t (*)[3])(&data[8]), received_at - data[11], &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - data[7] - data[11], &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - data[3] - data[7] - data[11], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_43(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[4], metric_t (*metric)[4]) {
+	if (data_len != 31) {
+		error("uplink data len must be 31 bytes\n");
+		return -1;
+	}
+
+	decode_adc49((uint8_t (*)[3])(&data[28]), received_at, &(*metric)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[24]), received_at, &(*reading)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[16]), received_at - data[23], &(*reading)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[20]), received_at - data[23], &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - data[15] - data[23], &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at - data[15] - data[23], &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - data[7] - data[15] - data[23], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - data[7] - data[15] - data[23], &(*reading)[0]);
+
 	return 0;
 }
 
@@ -365,6 +562,182 @@ int decode_kind_86(uint8_t *data, uint8_t data_len, time_t received_at, radio_t 
 	return 0;
 }
 
+int decode_kind_91(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, buffer_t *buffer) {
+	if (data_len != 9) {
+		error("uplink data len must be 9 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[4]), received_at, buffer);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay, reading);
+
+	return 0;
+}
+
+int decode_kind_92(uint8_t *data, uint8_t data_len, time_t received_at, metric_t *metric, buffer_t *buffer) {
+	if (data_len != 8) {
+		error("uplink data len must be 8 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[3]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])data, received_at - buffer->delay, metric);
+
+	return 0;
+}
+
+int decode_kind_93(uint8_t *data, uint8_t data_len, time_t received_at, reading_t *reading, metric_t *metric,
+									 buffer_t *buffer) {
+	if (data_len != 12) {
+		error("uplink data len must be 12 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[7]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay, metric);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay, reading);
+
+	return 0;
+}
+
+int decode_kind_a1(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[2], buffer_t *buffer) {
+	if (data_len != 14) {
+		error("uplink data len must be 14 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[9]), received_at, buffer);
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at - buffer->delay, &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[4], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_a2(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[2], buffer_t *buffer) {
+	if (data_len != 12) {
+		error("uplink data len must be 12 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[7]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay, &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - buffer->delay - data[3], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_a3(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[2], metric_t (*metric)[2],
+									 buffer_t *buffer) {
+	if (data_len != 20) {
+		error("uplink data len must be 20 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[15]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - buffer->delay, &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at - buffer->delay, &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay - data[7], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[7], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_b1(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[3], buffer_t *buffer) {
+	if (data_len != 19) {
+		error("uplink data len must be 19 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[14]), received_at, buffer);
+	decode_sht45((uint8_t (*)[4])(&data[10]), received_at - buffer->delay, &(*reading)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at - buffer->delay - data[9], &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[4] - data[9], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_b2(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[3], buffer_t *buffer) {
+	if (data_len != 16) {
+		error("uplink data len must be 16 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[11]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[8]), received_at - buffer->delay, &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay - data[7], &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - buffer->delay - data[3] - data[7], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_b3(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[3], metric_t (*metric)[3],
+									 buffer_t *buffer) {
+	if (data_len != 28) {
+		error("uplink data len must be 28 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[23]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[20]), received_at - buffer->delay, &(*metric)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[16]), received_at - buffer->delay, &(*reading)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - buffer->delay - data[15], &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at - buffer->delay - data[15], &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay - data[7] - data[15], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[7] - data[15], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_c1(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[4], buffer_t *buffer) {
+	if (data_len != 24) {
+		error("uplink data len must be 24 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[19]), received_at, buffer);
+	decode_sht45((uint8_t (*)[4])(&data[15]), received_at - buffer->delay, &(*reading)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[10]), received_at - buffer->delay - data[14], &(*reading)[2]);
+	decode_sht45((uint8_t (*)[4])(&data[5]), received_at - buffer->delay - data[9] - data[14], &(*reading)[1]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[4] - data[9] - data[14], &(*reading)[0]);
+
+	return 0;
+}
+
+int decode_kind_c2(uint8_t *data, uint8_t data_len, time_t received_at, metric_t (*metric)[4], buffer_t *buffer) {
+	if (data_len != 20) {
+		error("uplink data len must be 20 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[15]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - buffer->delay, &(*metric)[3]);
+	decode_adc49((uint8_t (*)[3])(&data[8]), received_at - buffer->delay - data[11], &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay - data[7] - data[11], &(*metric)[1]);
+	decode_adc49((uint8_t (*)[3])data, received_at - buffer->delay - data[3] - data[7] - data[11], &(*metric)[0]);
+
+	return 0;
+}
+
+int decode_kind_c3(uint8_t *data, uint8_t data_len, time_t received_at, reading_t (*reading)[4], metric_t (*metric)[4],
+									 buffer_t *buffer) {
+	if (data_len != 36) {
+		error("uplink data len must be 36 bytes\n");
+		return -1;
+	}
+
+	decode_dlbf32((uint8_t (*)[5])(&data[31]), received_at, buffer);
+	decode_adc49((uint8_t (*)[3])(&data[28]), received_at - buffer->delay, &(*metric)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[24]), received_at - buffer->delay, &(*reading)[3]);
+	decode_sht45((uint8_t (*)[4])(&data[16]), received_at - buffer->delay - data[23], &(*reading)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[20]), received_at - buffer->delay - data[23], &(*metric)[2]);
+	decode_adc49((uint8_t (*)[3])(&data[12]), received_at - buffer->delay - data[15] - data[23], &(*metric)[1]);
+	decode_sht45((uint8_t (*)[4])(&data[8]), received_at - buffer->delay - data[15] - data[23], &(*reading)[1]);
+	decode_adc49((uint8_t (*)[3])(&data[4]), received_at - buffer->delay - data[7] - data[15] - data[23], &(*metric)[0]);
+	decode_sht45((uint8_t (*)[4])data, received_at - buffer->delay - data[7] - data[15] - data[23], &(*reading)[0]);
+
+	return 0;
+}
+
 uint16_t decode(octet_t *db, uplink_t *uplink) {
 	trace("decoding uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
 	switch (uplink->kind) {
@@ -457,6 +830,202 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = radio_insert(db, &radio)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x11: {
+		reading_t reading = {.device_id = uplink->device_id};
+		if (decode_kind_11(uplink->data, uplink->data_len, uplink->received_at, &reading) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert(db, &reading)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x12: {
+		metric_t metric = {.device_id = uplink->device_id};
+		if (decode_kind_12(uplink->data, uplink->data_len, uplink->received_at, &metric) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert(db, &metric)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x13: {
+		reading_t reading = {.device_id = uplink->device_id};
+		metric_t metric = {.device_id = uplink->device_id};
+		if (decode_kind_13(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert(db, &reading)) != 0) {
+			return status;
+		}
+		if ((status = metric_insert(db, &metric)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x21: {
+		reading_t readings[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		if (decode_kind_21(uplink->data, uplink->data_len, uplink->received_at, &readings) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x22: {
+		metric_t metrics[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		if (decode_kind_22(uplink->data, uplink->data_len, uplink->received_at, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x23: {
+		reading_t readings[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		metric_t metrics[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		if (decode_kind_23(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x31: {
+		reading_t readings[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_31(uplink->data, uplink->data_len, uplink->received_at, &readings) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x32: {
+		metric_t metrics[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_32(uplink->data, uplink->data_len, uplink->received_at, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x33: {
+		reading_t readings[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		metric_t metrics[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_33(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x41: {
+		reading_t readings[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_41(uplink->data, uplink->data_len, uplink->received_at, &readings) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x42: {
+		metric_t metrics[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_42(uplink->data, uplink->data_len, uplink->received_at, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x43: {
+		reading_t readings[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		metric_t metrics[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		if (decode_kind_43(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
 			return status;
 		}
 		return 0;
@@ -576,6 +1145,250 @@ uint16_t decode(octet_t *db, uplink_t *uplink) {
 		}
 		uint16_t status;
 		if ((status = radio_insert(db, &radio)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x91: {
+		reading_t reading = {.device_id = uplink->device_id};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_91(uplink->data, uplink->data_len, uplink->received_at, &reading, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert(db, &reading)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x92: {
+		metric_t metric = {.device_id = uplink->device_id};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_92(uplink->data, uplink->data_len, uplink->received_at, &metric, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert(db, &metric)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0x93: {
+		reading_t reading = {.device_id = uplink->device_id};
+		metric_t metric = {.device_id = uplink->device_id};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_93(uplink->data, uplink->data_len, uplink->received_at, &reading, &metric, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert(db, &reading)) != 0) {
+			return status;
+		}
+		if ((status = metric_insert(db, &metric)) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xa1: {
+		reading_t readings[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_a1(uplink->data, uplink->data_len, uplink->received_at, &readings, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xa2: {
+		metric_t metrics[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_a2(uplink->data, uplink->data_len, uplink->received_at, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xa3: {
+		reading_t readings[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		metric_t metrics[2] = {{.device_id = uplink->device_id}, {.device_id = uplink->device_id}};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_a3(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xb1: {
+		reading_t readings[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_b1(uplink->data, uplink->data_len, uplink->received_at, &readings, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xb2: {
+		metric_t metrics[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_b2(uplink->data, uplink->data_len, uplink->received_at, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xb3: {
+		reading_t readings[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		metric_t metrics[3] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_b3(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xc1: {
+		reading_t readings[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_c1(uplink->data, uplink->data_len, uplink->received_at, &readings, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xc2: {
+		metric_t metrics[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_c2(uplink->data, uplink->data_len, uplink->received_at, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
+			return status;
+		}
+		if ((status = buffer_insert(db, &buffer)) != 0) {
+			return status;
+		}
+		return 0;
+	}
+	case 0xc3: {
+		reading_t readings[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		metric_t metrics[4] = {
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+				{.device_id = uplink->device_id},
+		};
+		buffer_t buffer = {.device_id = uplink->device_id};
+		if (decode_kind_c3(uplink->data, uplink->data_len, uplink->received_at, &readings, &metrics, &buffer) == -1) {
+			warn("failed to decode uplink kind %02x length %hhu\n", uplink->kind, uplink->data_len);
+			return 400;
+		}
+		uint16_t status;
+		if ((status = reading_insert_many(db, (reading_t *)&readings, sizeof(readings) / sizeof(readings[0]))) != 0) {
+			return status;
+		}
+		if ((status = metric_insert_many(db, (metric_t *)&metrics, sizeof(metrics) / sizeof(metrics[0]))) != 0) {
 			return status;
 		}
 		if ((status = buffer_insert(db, &buffer)) != 0) {
