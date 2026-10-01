@@ -182,6 +182,7 @@
 				const summary = calculateReadings(readings.data, readings.width);
 				window.requestAnimationFrame(() => paintTemperature(temperature, readings.width, summary.temperature, summary.capturedAt));
 				window.requestAnimationFrame(() => paintHumidity(humidity, readings.width, summary.humidity, summary.capturedAt));
+				window.requestAnimationFrame(() => paintDewpoint(dewpoint, readings.width, summary.dewpoint, summary.capturedAt));
 			}
 		});
 		const getFrom = () => {
