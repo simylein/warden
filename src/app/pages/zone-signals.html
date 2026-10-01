@@ -49,7 +49,7 @@
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
 						<h2 class="m-0 text-base font-normal">Rssi</h2>
-						<p id="rssi-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<p id="rssi-range" class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
 						<graph-scale ref="./src/app/components/graph-scale.html" id="rssi-scale" />
@@ -229,7 +229,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
-			loading(element.range, ['w-28', 'h-4'], []);
+			loading(element.range, ['w-24', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});
@@ -258,7 +258,7 @@
 				});
 			}
 			if (rssi.min.abs !== null && rssi.max.abs !== null) {
-				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range, [], ['w-24', 'h-4']);
 				paint(element.range.children[0], [], [], rssi.min.abs.toFixed(0));
 				fade(element.range.children[0]);
 				colorRssi(element.range.children[0], rssi.min.abs, sf.max.abs);
@@ -317,7 +317,7 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
-			error(element.range, ['w-28', 'h-4'], []);
+			error(element.range, ['w-24', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
 			});

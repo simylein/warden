@@ -57,7 +57,7 @@
 						<h2 class="flex gap-2 m-0 text-base font-normal">
 							<span>Delay</span><span id="delay-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
 						</h2>
-						<p id="delay-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<p id="delay-range" class="m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
 						<graph-scale ref="./src/app/components/graph-scale.html" id="delay-scale" />
@@ -82,7 +82,7 @@
 						<h2 class="flex gap-2 m-0 text-base font-normal">
 							<span>Level</span><span id="level-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
 						</h2>
-						<p id="level-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
+						<p id="level-range" class="m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
 						<graph-scale ref="./src/app/components/graph-scale.html" id="level-scale" />
@@ -238,7 +238,7 @@
 			});
 			fade(element.fresh);
 			loading(element.fresh, ['w-8', 'h-4'], [], '');
-			loading(element.range, ['w-28', 'h-4'], []);
+			loading(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});
@@ -272,7 +272,7 @@
 				colorDelay(element.fresh, delay.points[0].v);
 			}
 			if (delay.min.abs !== null && delay.max.abs !== null) {
-				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range, [], ['w-20', 'h-4']);
 				paint(element.range.children[0], [], [], duration(delay.min.abs));
 				fade(element.range.children[0]);
 				colorDelay(element.range.children[0], delay.min.abs);
@@ -323,7 +323,7 @@
 			});
 			fade(element.fresh);
 			error(element.fresh, ['w-8', 'h-4'], [], '');
-			error(element.range, ['w-28', 'h-4'], []);
+			error(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
 			});
@@ -349,7 +349,7 @@
 			});
 			fade(element.fresh);
 			loading(element.fresh, ['w-8', 'h-4'], [], '');
-			loading(element.range, ['w-28', 'h-4'], []);
+			loading(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
 			});
@@ -383,7 +383,7 @@
 				colorLevel(element.fresh, level.points[0].v);
 			}
 			if (level.min.abs !== null && level.max.abs !== null) {
-				paint(element.range, [], ['w-28', 'h-4']);
+				paint(element.range, [], ['w-20', 'h-4']);
 				paint(element.range.children[0], [], [], level.min.abs.toFixed(0));
 				fade(element.range.children[0]);
 				colorLevel(element.range.children[0], level.min.abs);
@@ -434,7 +434,7 @@
 			});
 			fade(element.fresh);
 			error(element.fresh, ['w-8', 'h-4'], [], '');
-			error(element.range, ['w-28', 'h-4'], []);
+			error(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
 			});
