@@ -54,7 +54,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Photovoltaic</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Photovoltaic</span><span id="photovoltaic-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="photovoltaic-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -77,7 +79,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Battery</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Battery</span><span id="battery-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="battery-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -134,12 +138,14 @@
 		const times = document.getElementById('times');
 		const metrics = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const photovoltaic = {
+			fresh: document.getElementById('photovoltaic-fresh'),
 			range: document.getElementById('photovoltaic-range'),
 			scale: document.getElementById('photovoltaic-scale'),
 			graph: document.getElementById('photovoltaic-graph'),
 			label: document.getElementById('photovoltaic-label'),
 		};
 		const battery = {
+			fresh: document.getElementById('battery-fresh'),
 			range: document.getElementById('battery-range'),
 			scale: document.getElementById('battery-scale'),
 			graph: document.getElementById('battery-graph'),
@@ -229,6 +235,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -256,6 +264,11 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (photovoltaic.points.length !== 0) {
+				paint(element.fresh, [], ['w-12', 'h-4'], photovoltaic.points[0].v.toFixed(3));
+				fade(element.fresh);
+				colorPhotovoltaic(element.fresh, photovoltaic.points[0].v);
 			}
 			if (photovoltaic.min.abs !== null && photovoltaic.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -309,6 +322,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -333,6 +348,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -360,6 +377,11 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (battery.points.length !== 0) {
+				paint(element.fresh, [], ['w-12', 'h-4'], battery.points[0].v.toFixed(3));
+				fade(element.fresh);
+				colorBattery(element.fresh, battery.points[0].v);
 			}
 			if (battery.min.abs !== null && battery.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -413,6 +435,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');

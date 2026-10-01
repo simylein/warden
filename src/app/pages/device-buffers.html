@@ -54,7 +54,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Delay</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Delay</span><span id="delay-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="delay-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -77,7 +79,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Level</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Level</span><span id="level-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="level-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -135,12 +139,14 @@
 		const times = document.getElementById('times');
 		const buffers = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const delay = {
+			fresh: document.getElementById('delay-fresh'),
 			range: document.getElementById('delay-range'),
 			scale: document.getElementById('delay-scale'),
 			graph: document.getElementById('delay-graph'),
 			label: document.getElementById('delay-label'),
 		};
 		const level = {
+			fresh: document.getElementById('level-fresh'),
 			range: document.getElementById('level-range'),
 			scale: document.getElementById('level-scale'),
 			graph: document.getElementById('level-graph'),
@@ -230,6 +236,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-8', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -257,6 +265,11 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (delay.points.length !== 0) {
+				paint(element.fresh, [], ['w-8', 'h-4'], duration(delay.points[0].v));
+				fade(element.fresh);
+				colorDelay(element.fresh, delay.points[0].v);
 			}
 			if (delay.min.abs !== null && delay.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -308,6 +321,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-8', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -332,6 +347,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-8', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -359,6 +376,11 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (level.points.length !== 0) {
+				paint(element.fresh, [], ['w-8', 'h-4'], level.points[0].v.toFixed(0));
+				fade(element.fresh);
+				colorLevel(element.fresh, level.points[0].v);
 			}
 			if (level.min.abs !== null && level.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -410,6 +432,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-8', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
