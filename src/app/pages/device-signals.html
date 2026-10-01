@@ -150,8 +150,8 @@
 			if (width !== signals.width) {
 				signals.width = width;
 				const summary = calculateSignals(signals.data, signals.width);
-				window.requestAnimationFrame(() => paintRssi(rssi, signals.width, summary.rssi, summary.receivedAt));
-				window.requestAnimationFrame(() => paintSnr(snr, signals.width, summary.snr, summary.receivedAt));
+				window.requestAnimationFrame(() => paintRssi(rssi, signals.width, summary.rssi, summary.sf, summary.receivedAt));
+				window.requestAnimationFrame(() => paintSnr(snr, signals.width, summary.snr, summary.sf, summary.receivedAt));
 			}
 		});
 		const getFrom = () => {
