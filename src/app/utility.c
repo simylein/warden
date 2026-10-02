@@ -486,7 +486,7 @@ void font(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 			{.key = "font-normal", .key_len = 11, .val = "font-weight:400", .val_len = 15},
 			{.key = "font-medium", .key_len = 11, .val = "font-weight:500", .val_len = 15},
 			{.key = "font-semibold", .key_len = 13, .val = "font-weight:600", .val_len = 15},
-			{.key = "font-bold", .key_len = 10, .val = "font-weight:700", .val_len = 15},
+			{.key = "font-bold", .key_len = 9, .val = "font-weight:700", .val_len = 15},
 			{.key = "font-extrabold", .key_len = 14, .val = "font-weight:800", .val_len = 15},
 			{.key = "font-black", .key_len = 11, .val = "font-weight:900", .val_len = 15},
 	};
