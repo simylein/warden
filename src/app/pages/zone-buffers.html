@@ -48,7 +48,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Delay</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Delay</span><span id="delay-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="delay-range" class="m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -74,7 +76,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Level</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Level</span><span id="level-fresh" class="w-8 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="level-range" class="m-0 w-20 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -135,12 +139,14 @@
 		const times = document.getElementById('times');
 		const buffers = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const delay = {
+			fresh: document.getElementById('delay-fresh'),
 			range: document.getElementById('delay-range'),
 			scale: document.getElementById('delay-scale'),
 			graph: document.getElementById('delay-graph'),
 			label: document.getElementById('delay-label'),
 		};
 		const level = {
+			fresh: document.getElementById('level-fresh'),
 			range: document.getElementById('level-range'),
 			scale: document.getElementById('level-scale'),
 			graph: document.getElementById('level-graph'),
@@ -230,6 +236,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-8', 'h-4'], [], '');
 			loading(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -257,6 +265,12 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (delay.fresh.length !== 0) {
+				const avg = delay.fresh.reduce((acc, item) => acc + item.value, 0) / delay.fresh.length;
+				paint(element.fresh, [], ['w-8', 'h-4'], duration(avg));
+				fade(element.fresh);
+				colorDelay(element.fresh, avg);
 			}
 			if (delay.min.abs !== null && delay.max.abs !== null) {
 				paint(element.range, [], ['w-20', 'h-4']);
@@ -316,6 +330,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-8', 'h-4'], [], '');
 			error(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -340,6 +356,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-8', 'h-4'], [], '');
 			loading(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -367,6 +385,12 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (level.fresh.length !== 0) {
+				const avg = level.fresh.reduce((acc, item) => acc + item.value, 0) / level.fresh.length;
+				paint(element.fresh, [], ['w-8', 'h-4'], avg.toFixed(0));
+				fade(element.fresh);
+				colorLevel(element.fresh, avg);
 			}
 			if (level.min.abs !== null && level.max.abs !== null) {
 				paint(element.range, [], ['w-20', 'h-4']);
@@ -426,6 +450,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-8', 'h-4'], [], '');
 			error(element.range, ['w-20', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -449,6 +475,7 @@
 		const calculateBuffers = (data, width) => {
 			const buffers = {
 				delay: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -456,6 +483,7 @@
 					paths: array(delay.graph.children.length).map(() => []),
 				},
 				level: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -474,6 +502,8 @@
 					buffers.capturedAt.start = Math.floor(Date.now() / 1000);
 					buffers.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				latest(buffers, data, 'delay');
+				latest(buffers, data, 'level');
 				envelope(buffers, data, 'delay');
 				envelope(buffers, data, 'level');
 				coordinate(buffers, data, 'delay', 'capturedAt', width);

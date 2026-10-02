@@ -1,3 +1,14 @@
+const latest = (collection, items, value) => {
+	const seen = new Set();
+	const target = collection[value];
+	items.forEach((item) => {
+		if (!seen.has(item.device.id)) {
+			target.fresh.push({ value: item[value], device: item.device.id });
+			seen.add(item.device.id);
+		}
+	});
+};
+
 const envelope = (collection, items, value) => {
 	const target = collection[value];
 	items.forEach((item) => {

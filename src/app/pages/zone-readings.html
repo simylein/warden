@@ -48,7 +48,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Temperature</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Temperature</span><span id="temperature-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="temperature-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -74,7 +76,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Humidity</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Humidity</span><span id="humidity-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="humidity-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -100,7 +104,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Dewpoint</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Dewpoint</span><span id="dewpoint-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="dewpoint-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -161,18 +167,21 @@
 		const times = document.getElementById('times');
 		const readings = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const temperature = {
+			fresh: document.getElementById('temperature-fresh'),
 			range: document.getElementById('temperature-range'),
 			scale: document.getElementById('temperature-scale'),
 			graph: document.getElementById('temperature-graph'),
 			label: document.getElementById('temperature-label'),
 		};
 		const humidity = {
+			fresh: document.getElementById('humidity-fresh'),
 			range: document.getElementById('humidity-range'),
 			scale: document.getElementById('humidity-scale'),
 			graph: document.getElementById('humidity-graph'),
 			label: document.getElementById('humidity-label'),
 		};
 		const dewpoint = {
+			fresh: document.getElementById('dewpoint-fresh'),
 			range: document.getElementById('dewpoint-range'),
 			scale: document.getElementById('dewpoint-scale'),
 			graph: document.getElementById('dewpoint-graph'),
@@ -263,6 +272,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -290,6 +301,12 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (temperature.fresh.length !== 0) {
+				const avg = temperature.fresh.reduce((acc, item) => acc + item.value, 0) / temperature.fresh.length;
+				paint(element.fresh, [], ['w-12', 'h-4'], avg.toFixed(2));
+				fade(element.fresh);
+				colorTemperature(element.fresh, avg);
 			}
 			if (temperature.min.abs !== null && temperature.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -351,6 +368,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -375,6 +394,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -402,6 +423,12 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (humidity.fresh.length !== 0) {
+				const avg = humidity.fresh.reduce((acc, item) => acc + item.value, 0) / humidity.fresh.length;
+				paint(element.fresh, [], ['w-12', 'h-4'], avg.toFixed(2));
+				fade(element.fresh);
+				colorHumidity(element.fresh, avg);
 			}
 			if (humidity.min.abs !== null && humidity.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -463,6 +490,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -487,6 +516,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -514,6 +545,12 @@
 					const label = timespan(Number(capturedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (dewpoint.fresh.length !== 0) {
+				const avg = dewpoint.fresh.reduce((acc, item) => acc + item.value, 0) / dewpoint.fresh.length;
+				paint(element.fresh, [], ['w-12', 'h-4'], avg.toFixed(2));
+				fade(element.fresh);
+				colorDewpoint(element.fresh, avg);
 			}
 			if (dewpoint.min.abs !== null && dewpoint.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -575,6 +612,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -598,6 +637,7 @@
 		const calculateReadings = (data, width) => {
 			const readings = {
 				temperature: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -605,6 +645,7 @@
 					paths: array(temperature.graph.children.length).map(() => []),
 				},
 				humidity: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -612,6 +653,7 @@
 					paths: array(humidity.graph.children.length).map(() => []),
 				},
 				dewpoint: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -630,6 +672,9 @@
 					readings.capturedAt.start = Math.floor(Date.now() / 1000);
 					readings.capturedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				latest(readings, data, 'temperature');
+				latest(readings, data, 'humidity');
+				latest(readings, data, 'dewpoint');
 				envelope(readings, data, 'temperature');
 				envelope(readings, data, 'humidity');
 				envelope(readings, data, 'dewpoint');

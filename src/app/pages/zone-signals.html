@@ -48,7 +48,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Rssi</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Rssi</span><span id="rssi-fresh" class="w-9 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="rssi-range" class="m-0 w-24 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -74,7 +76,9 @@
 				</div>
 				<div class="p-2 sm:p-3 lg:p-4 background-neutral-100 dark:background-neutral-900">
 					<div class="flex justify-between gap-2 mb-1 sm:mb-2">
-						<h2 class="m-0 text-base font-normal">Snr</h2>
+						<h2 class="flex gap-2 m-0 text-base font-normal">
+							<span>Snr</span><span id="snr-fresh" class="w-12 h-4 background-neutral-200 dark:background-neutral-800"></span>
+						</h2>
 						<p id="snr-range" class="m-0 w-28 h-4 background-neutral-200 dark:background-neutral-800"><span></span><span></span><span></span></p>
 					</div>
 					<div style="grid-template-columns: auto 1fr; grid-template-rows: auto auto" class="grid gap-1 sm:gap-2">
@@ -134,12 +138,14 @@
 		const times = document.getElementById('times');
 		const signals = { retries: 0, reload: null, timeout: null, controller: null, data: null, response: null, width: null };
 		const rssi = {
+			fresh: document.getElementById('rssi-fresh'),
 			range: document.getElementById('rssi-range'),
 			scale: document.getElementById('rssi-scale'),
 			graph: document.getElementById('rssi-graph'),
 			label: document.getElementById('rssi-label'),
 		};
 		const snr = {
+			fresh: document.getElementById('snr-fresh'),
 			range: document.getElementById('snr-range'),
 			scale: document.getElementById('snr-scale'),
 			graph: document.getElementById('snr-graph'),
@@ -229,6 +235,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-9', 'h-4'], [], '');
 			loading(element.range, ['w-24', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -256,6 +264,13 @@
 					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (rssi.fresh.length !== 0) {
+				const avgRssi = rssi.fresh.reduce((acc, item) => acc + item.value, 0) / rssi.fresh.length;
+				const avgSf = sf.fresh.reduce((acc, item) => acc + item.value, 0) / sf.fresh.length;
+				paint(element.fresh, [], ['w-9', 'h-4'], avgRssi.toFixed(0));
+				fade(element.fresh);
+				colorRssi(element.fresh, avgRssi, avgSf);
 			}
 			if (rssi.min.abs !== null && rssi.max.abs !== null) {
 				paint(element.range, [], ['w-24', 'h-4']);
@@ -317,6 +332,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-9', 'h-4'], [], '');
 			error(element.range, ['w-24', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -341,6 +358,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				loading(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			loading(element.fresh, ['w-12', 'h-4'], [], '');
 			loading(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				loading(element.range.children[ind], [], [], '');
@@ -368,6 +387,13 @@
 					const label = timespan(Number(receivedAt.start) + ind * interval, getRange());
 					paint(element.label.children[element.label.children.length - ind - 1], [], ['w-8', 'h-3'], label);
 				});
+			}
+			if (snr.fresh.length !== 0) {
+				const avgSnr = snr.fresh.reduce((acc, item) => acc + item.value, 0) / snr.fresh.length;
+				const avgSf = sf.fresh.reduce((acc, item) => acc + item.value, 0) / sf.fresh.length;
+				paint(element.fresh, [], ['w-12', 'h-4'], avgSnr.toFixed(2));
+				fade(element.fresh);
+				colorSnr(element.fresh, avgSnr, avgSf);
 			}
 			if (snr.min.abs !== null && snr.max.abs !== null) {
 				paint(element.range, [], ['w-28', 'h-4']);
@@ -429,6 +455,8 @@
 			array(element.label.children.length).forEach((ind) => {
 				error(element.label.children[ind], ['w-8', 'h-3'], [], '');
 			});
+			fade(element.fresh);
+			error(element.fresh, ['w-12', 'h-4'], [], '');
 			error(element.range, ['w-28', 'h-4'], []);
 			array(element.range.children.length).forEach((ind) => {
 				error(element.range.children[ind], [], [], '');
@@ -452,6 +480,7 @@
 		const calculateSignals = (data, width) => {
 			const signals = {
 				rssi: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -459,6 +488,7 @@
 					paths: array(rssi.graph.children.length).map(() => []),
 				},
 				snr: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -466,6 +496,7 @@
 					paths: array(snr.graph.children.length).map(() => []),
 				},
 				sf: {
+					fresh: [],
 					min: { abs: null, floor: null },
 					max: { abs: null, ceil: null },
 					points: [],
@@ -482,6 +513,9 @@
 					signals.receivedAt.start = Math.floor(Date.now() / 1000);
 					signals.receivedAt.end = Math.floor(Date.now() / 1000 - getRange());
 				}
+				latest(signals, data, 'rssi');
+				latest(signals, data, 'snr');
+				latest(signals, data, 'sf');
 				envelope(signals, data, 'rssi');
 				envelope(signals, data, 'snr');
 				envelope(signals, data, 'sf');
