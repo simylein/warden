@@ -114,37 +114,37 @@ int radio_parse(radio_t *radio, request_t *request) {
 	radio->bandwidth = ntoh32(radio->bandwidth);
 
 	if (request->body.len < request->body.pos + sizeof(radio->coding_rate)) {
-		debug("missing coding rate enable on radio\n");
+		debug("missing coding rate on radio\n");
 		return -1;
 	}
 	radio->coding_rate = (uint8_t)*body_read(request, sizeof(radio->coding_rate));
 
 	if (request->body.len < request->body.pos + sizeof(radio->spreading_factor)) {
-		debug("missing spreading factor enable on radio\n");
+		debug("missing spreading factor on radio\n");
 		return -1;
 	}
 	radio->spreading_factor = (uint8_t)*body_read(request, sizeof(radio->spreading_factor));
 
 	if (request->body.len < request->body.pos + sizeof(radio->preamble_length)) {
-		debug("missing preamble length enable on radio\n");
+		debug("missing preamble length on radio\n");
 		return -1;
 	}
 	radio->preamble_length = (uint8_t)*body_read(request, sizeof(radio->preamble_length));
 
 	if (request->body.len < request->body.pos + sizeof(radio->tx_power)) {
-		debug("missing tx power enable on radio\n");
+		debug("missing tx power on radio\n");
 		return -1;
 	}
 	radio->tx_power = (uint8_t)*body_read(request, sizeof(radio->tx_power));
 
 	if (request->body.len < request->body.pos + sizeof(radio->sync_word)) {
-		debug("missing sync word enable on radio\n");
+		debug("missing sync word on radio\n");
 		return -1;
 	}
 	radio->sync_word = (uint8_t)*body_read(request, sizeof(radio->sync_word));
 
 	if (request->body.len < request->body.pos + sizeof(radio->checksum)) {
-		debug("missing checksum enable on radio\n");
+		debug("missing checksum on radio\n");
 		return -1;
 	}
 	radio->checksum = *body_read(request, sizeof(radio->checksum));
