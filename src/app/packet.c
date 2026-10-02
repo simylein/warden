@@ -38,15 +38,14 @@ uint16_t packet_calculate(uint8_t (*packet_rx)[8], uint8_t (*packet_lost)[8], ti
 	if (start_index >= 8) {
 		return 0;
 	}
-	uint16_t rx_sum = 0;
+	uint32_t rx_sum = 0;
+	uint32_t lost_sum = 0;
 	for (uint8_t index = start_index; index < 8; index++) {
-		rx_sum += (*packet_rx)[index];
+		uint16_t weight = (index == 7) ? (uint16_t)(age % 900) : 900;
+		rx_sum += (*packet_rx)[index] * weight;
+		lost_sum += (*packet_lost)[index] * weight;
 	}
-	uint16_t lost_sum = 0;
-	for (uint8_t index = start_index; index < 8; index++) {
-		lost_sum += (*packet_lost)[index];
-	}
-	uint16_t total = rx_sum + lost_sum;
+	uint32_t total = rx_sum + lost_sum;
 	if (total == 0) {
 		return 0;
 	}
