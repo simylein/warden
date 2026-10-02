@@ -292,7 +292,7 @@ void user_device_create(octet_t *db, request_t *request, response_t *response) {
 
 	info("created user %02x%02x device %02x%02x\n", (*user_device.user_id)[0], (*user_device.user_id)[1],
 			 (*user_device.device_id)[0], (*user_device.device_id)[1]);
-	response->status = 200;
+	response->status = 201;
 }
 
 void user_device_remove(octet_t *db, request_t *request, response_t *response) {
