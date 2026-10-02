@@ -717,7 +717,7 @@ void uplink_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 
 	uplink_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}
@@ -773,7 +773,7 @@ void uplink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 
 	uplink_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}
@@ -858,7 +858,7 @@ void uplink_signal_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, r
 	uplink_signal_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
 			strnto16(bucket, bucket_len, &query.bucket) == -1) {
-		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+		warn("failed to parse query from %.*s to %.*s bucket %.*s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
 				 bucket);
 		response->status = 400;
 		return;
@@ -945,7 +945,7 @@ void uplink_signal_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, res
 	uplink_signal_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
 			strnto16(bucket, bucket_len, &query.bucket) == -1) {
-		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+		warn("failed to parse query from %.*s to %.*s bucket %.*s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
 				 bucket);
 		response->status = 400;
 		return;

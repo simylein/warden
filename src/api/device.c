@@ -968,7 +968,7 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 		goto cleanup;
 	}
 
-	debug("insert device name %*.s created at %lu\n", device->name_len, device->name, *device->created_at);
+	debug("insert device name %.*s created at %lu\n", device->name_len, device->name, *device->created_at);
 
 	off_t offset = stmt.stat.st_size;
 	while (offset > 0) {

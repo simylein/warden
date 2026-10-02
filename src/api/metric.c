@@ -585,7 +585,7 @@ void metric_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 	metric_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
 			strnto16(bucket, bucket_len, &query.bucket) == -1) {
-		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+		warn("failed to parse query from %.*s to %.*s bucket %.*s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
 				 bucket);
 		response->status = 400;
 		return;
@@ -651,7 +651,7 @@ void metric_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 	metric_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
 			strnto16(bucket, bucket_len, &query.bucket) == -1) {
-		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+		warn("failed to parse query from %.*s to %.*s bucket %.*s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
 				 bucket);
 		response->status = 400;
 		return;
@@ -738,7 +738,7 @@ void metric_find_by_zone(octet_t *db, bwt_t *bwt, request_t *request, response_t
 	metric_query_t query = {.from = 0, .to = 0, .bucket = 0};
 	if (strnto64(from, from_len, (uint64_t *)&query.from) == -1 || strnto64(to, to_len, (uint64_t *)&query.to) == -1 ||
 			strnto16(bucket, bucket_len, &query.bucket) == -1) {
-		warn("failed to parse query from %*.s to %*.s bucket %*.s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
+		warn("failed to parse query from %.*s to %.*s bucket %.*s\n", (int)from_len, from, (int)to_len, to, (int)bucket_len,
 				 bucket);
 		response->status = 400;
 		return;

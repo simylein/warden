@@ -474,7 +474,7 @@ void downlink_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *resp
 
 	downlink_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}
@@ -530,7 +530,7 @@ void downlink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, respon
 
 	downlink_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}

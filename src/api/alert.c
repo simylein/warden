@@ -344,7 +344,7 @@ void alert_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respons
 
 	alert_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}
@@ -400,7 +400,7 @@ void alert_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_
 
 	alert_query_t query = {.limit = 0, .offset = 0};
 	if (strnto8(limit, limit_len, &query.limit) == -1 || strnto32(offset, offset_len, &query.offset) == -1) {
-		warn("failed to parse query limit %*.s offset %*.s\n", (int)limit_len, limit, (int)offset_len, offset);
+		warn("failed to parse query limit %.*s offset %.*s\n", (int)limit_len, limit, (int)offset_len, offset);
 		response->status = 400;
 		return;
 	}
