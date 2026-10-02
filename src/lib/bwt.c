@@ -5,9 +5,9 @@
 #include "format.h"
 #include "logger.h"
 #include "sha256.h"
-#include "string.h"
 #include "strn.h"
 #include <stdint.h>
+#include <string.h>
 #include <time.h>
 
 int bwt_sign(char (*buffer)[103], uint8_t (*id)[8], uint8_t (*data)[8]) {
