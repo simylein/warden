@@ -231,8 +231,8 @@ uint16_t user_device_delete(octet_t *db, user_device_t *user_device) {
 		index += user_device_row.size;
 	}
 
-	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_device_row.size)) {
-		status = 500;
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_device_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 

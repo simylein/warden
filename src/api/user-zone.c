@@ -232,8 +232,8 @@ uint16_t user_zone_delete(octet_t *db, user_zone_t *user_zone) {
 		index += user_zone_row.size;
 	}
 
-	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_zone_row.size)) {
-		status = 500;
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_zone_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 

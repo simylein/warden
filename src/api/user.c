@@ -546,8 +546,8 @@ uint16_t user_delete(octet_t *db, user_t *user) {
 		index += user_row.size;
 	}
 
-	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_row.size)) {
-		status = 500;
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 

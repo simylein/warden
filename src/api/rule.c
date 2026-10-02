@@ -345,8 +345,8 @@ uint16_t rule_delete(octet_t *db, rule_t *rule) {
 		index += rule_row.size;
 	}
 
-	if (octet_trunc(&stmt, file, stmt.stat.st_size - rule_row.size)) {
-		status = 500;
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - rule_row.size) == -1) {
+		status = octet_error();
 		goto cleanup;
 	}
 
