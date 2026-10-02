@@ -441,6 +441,6 @@ void alert_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response_
 	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
-	info("found %hu alerts\n", alerts_len);
+	info("found %hhu alerts\n", alerts_len);
 	response->status = 200;
 }

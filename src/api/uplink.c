@@ -814,7 +814,7 @@ void uplink_find_by_device(octet_t *db, bwt_t *bwt, request_t *request, response
 	}
 	header_write(response, "content-type:application/octet-stream\r\n");
 	header_write(response, "content-length:%u\r\n", response->body.len);
-	info("found %hu uplinks\n", uplinks_len);
+	info("found %hhu uplinks\n", uplinks_len);
 	response->status = 200;
 }
 
