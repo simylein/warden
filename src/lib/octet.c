@@ -314,25 +314,25 @@ void octet_uint64_write(uint8_t *row, uint8_t row_ind, uint64_t value) {
 void octet_int8_write(uint8_t *row, uint8_t row_ind, int8_t value) { row[row_ind] = (uint8_t)value; }
 
 void octet_int16_write(uint8_t *row, uint8_t row_ind, int16_t value) {
-	row[row_ind] = (uint8_t)(value >> 8);
+	row[row_ind] = (uint8_t)((uint16_t)value >> 8);
 	row[row_ind + 1] = (uint8_t)(value & 0xff);
 }
 
 void octet_int32_write(uint8_t *row, uint8_t row_ind, int32_t value) {
-	row[row_ind] = (uint8_t)(value >> 24);
-	row[row_ind + 1] = (uint8_t)(value >> 16);
-	row[row_ind + 2] = (uint8_t)(value >> 8);
+	row[row_ind] = (uint8_t)((uint32_t)value >> 24);
+	row[row_ind + 1] = (uint8_t)((uint32_t)value >> 16);
+	row[row_ind + 2] = (uint8_t)((uint32_t)value >> 8);
 	row[row_ind + 3] = (uint8_t)(value & 0xff);
 }
 
 void octet_int64_write(uint8_t *row, uint8_t row_ind, int64_t value) {
-	row[row_ind] = (uint8_t)(value >> 56);
-	row[row_ind + 1] = (uint8_t)(value >> 48);
-	row[row_ind + 2] = (uint8_t)(value >> 40);
-	row[row_ind + 3] = (uint8_t)(value >> 32);
-	row[row_ind + 4] = (uint8_t)(value >> 24);
-	row[row_ind + 5] = (uint8_t)(value >> 16);
-	row[row_ind + 6] = (uint8_t)(value >> 8);
+	row[row_ind] = (uint8_t)((uint64_t)value >> 56);
+	row[row_ind + 1] = (uint8_t)((uint64_t)value >> 48);
+	row[row_ind + 2] = (uint8_t)((uint64_t)value >> 40);
+	row[row_ind + 3] = (uint8_t)((uint64_t)value >> 32);
+	row[row_ind + 4] = (uint8_t)((uint64_t)value >> 24);
+	row[row_ind + 5] = (uint8_t)((uint64_t)value >> 16);
+	row[row_ind + 6] = (uint8_t)((uint64_t)value >> 8);
 	row[row_ind + 7] = (uint8_t)(value & 0xff);
 }
 
