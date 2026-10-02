@@ -352,7 +352,7 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
-	if (endpoint(request, "get", "/profile", &method_found, &pathname_found)) {
+	if (endpoint(request, "get", "/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
 			serve(&page_profile, response);
