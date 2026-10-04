@@ -26,18 +26,18 @@ const uplink_row_t uplink_row = {
 		.kind = 2,
 		.data_len = 3,
 		.data = 4,
-		.airtime = 36,
-		.frequency = 38,
-		.bandwidth = 42,
-		.rssi = 46,
-		.snr = 48,
-		.sf = 49,
-		.cr = 50,
-		.crc = 51,
-		.tx_power = 52,
-		.preamble_len = 53,
-		.received_at = 54,
-		.size = 62,
+		.airtime = 68,
+		.frequency = 70,
+		.bandwidth = 74,
+		.rssi = 78,
+		.snr = 80,
+		.sf = 81,
+		.cr = 82,
+		.crc = 83,
+		.tx_power = 84,
+		.preamble_len = 85,
+		.received_at = 86,
+		.size = 94,
 };
 
 uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_t *response, uint8_t *uplinks_len) {
@@ -114,7 +114,7 @@ uint16_t uplink_select(octet_t *db, bwt_t *bwt, uplink_query_t *query, response_
 			uint16_t frame = octet_uint16_read(&db->table[index * uplink_row.size], uplink_row.frame);
 			uint8_t kind = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.kind);
 			uint8_t data_len = octet_uint8_read(&db->table[index * uplink_row.size], uplink_row.data_len);
-			uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(&db->table[index * uplink_row.size], uplink_row.data);
+			uint8_t (*data)[64] = (uint8_t (*)[64])octet_blob_read(&db->table[index * uplink_row.size], uplink_row.data);
 			uint16_t airtime = octet_uint16_read(&db->table[index * uplink_row.size], uplink_row.airtime);
 			uint32_t frequency = octet_uint32_read(&db->table[index * uplink_row.size], uplink_row.frequency);
 			uint32_t bandwidth = octet_uint32_read(&db->table[index * uplink_row.size], uplink_row.bandwidth);
@@ -206,7 +206,7 @@ uint16_t uplink_select_by_device(octet_t *db, device_t *device, uplink_query_t *
 		uint16_t frame = octet_uint16_read(db->row, uplink_row.frame);
 		uint8_t kind = octet_uint8_read(db->row, uplink_row.kind);
 		uint8_t data_len = octet_uint8_read(db->row, uplink_row.data_len);
-		uint8_t (*data)[32] = (uint8_t (*)[32])octet_blob_read(db->row, uplink_row.data);
+		uint8_t (*data)[64] = (uint8_t (*)[64])octet_blob_read(db->row, uplink_row.data);
 		uint16_t airtime = octet_uint16_read(db->row, uplink_row.airtime);
 		uint32_t frequency = octet_uint32_read(db->row, uplink_row.frequency);
 		uint32_t bandwidth = octet_uint32_read(db->row, uplink_row.bandwidth);
@@ -563,7 +563,7 @@ int uplink_parse(uplink_t *uplink, request_t *request) {
 }
 
 int uplink_validate(uplink_t *uplink) {
-	if (uplink->data_len > 32) {
+	if (uplink->data_len > 64) {
 		debug("invalid data len %hhu on uplink\n", uplink->data_len);
 		return -1;
 	}
