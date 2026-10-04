@@ -340,6 +340,16 @@ void octet_blob_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t val
 	memcpy(&row[row_ind], value, value_len);
 }
 
+void octet_blobn_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t value_len, uint8_t value_cap) {
+	memcpy(&row[row_ind], value, value_len);
+	memset(&row[row_ind + value_len], 0x00, value_cap - value_len);
+}
+
 void octet_text_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len) {
 	memcpy(&row[row_ind], value, value_len);
+}
+
+void octet_textn_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len, uint8_t value_cap) {
+	memcpy(&row[row_ind], value, value_len);
+	memset(&row[row_ind + value_len], 0x00, value_cap - value_len);
 }

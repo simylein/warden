@@ -419,7 +419,7 @@ uint16_t downlink_insert(octet_t *db, downlink_t *downlink) {
 	octet_uint16_write(db->row, downlink_row.frame, downlink->frame);
 	octet_uint8_write(db->row, downlink_row.kind, downlink->kind);
 	octet_uint8_write(db->row, downlink_row.data_len, downlink->data_len);
-	octet_blob_write(db->row, downlink_row.data, downlink->data, downlink->data_len);
+	octet_blobn_write(db->row, downlink_row.data, downlink->data, downlink->data_len, 32);
 	octet_uint16_write(db->row, downlink_row.airtime, downlink->airtime);
 	octet_uint32_write(db->row, downlink_row.frequency, downlink->frequency);
 	octet_uint32_write(db->row, downlink_row.bandwidth, downlink->bandwidth);

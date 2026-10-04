@@ -90,12 +90,12 @@ uint16_t email_insert(octet_t *db, email_t *email) {
 
 	off_t offset = 0;
 	octet_uint8_write(db->row, email_row.address_len, email->address_len);
-	octet_text_write(db->row, email_row.address, email->address, email->address_len);
+	octet_textn_write(db->row, email_row.address, email->address, email->address_len, 16);
 	octet_uint16_write(db->row, email_row.port, email->port);
 	octet_uint8_write(db->row, email_row.from_len, email->from_len);
-	octet_text_write(db->row, email_row.from, email->from, email->from_len);
+	octet_textn_write(db->row, email_row.from, email->from, email->from_len, 32);
 	octet_uint8_write(db->row, email_row.to_len, email->to_len);
-	octet_text_write(db->row, email_row.to, email->to, email->to_len);
+	octet_textn_write(db->row, email_row.to, email->to, email->to_len, 32);
 
 	if (octet_row_write(&stmt, file, offset, db->row, email_row.size) == -1) {
 		status = octet_error();

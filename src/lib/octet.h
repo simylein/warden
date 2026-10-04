@@ -74,4 +74,6 @@ void octet_int32_write(uint8_t *row, uint8_t row_ind, int32_t value);
 void octet_int64_write(uint8_t *row, uint8_t row_ind, int64_t value);
 
 void octet_blob_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t value_len);
+void octet_blobn_write(uint8_t *row, uint8_t row_ind, uint8_t *value, uint8_t value_len, uint8_t value_cap);
 void octet_text_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len);
+void octet_textn_write(uint8_t *row, uint8_t row_ind, char *value, uint8_t value_len, uint8_t value_cap);

@@ -377,7 +377,7 @@ uint16_t user_insert(octet_t *db, user_t *user) {
 
 	octet_blob_write(db->row, user_row.id, (uint8_t *)user->id, sizeof(*user->id));
 	octet_uint8_write(db->row, user_row.username_len, user->username_len);
-	octet_text_write(db->row, user_row.username, user->username, user->username_len);
+	octet_textn_write(db->row, user_row.username, user->username, user->username_len, 16);
 	octet_blob_write(db->row, user_row.password, hash, sizeof(hash));
 	octet_uint64_write(db->row, user_row.signup_at, (uint64_t)*user->signup_at);
 	octet_uint64_write(db->row, user_row.signin_at, (uint64_t)*user->signin_at);

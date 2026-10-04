@@ -724,7 +724,7 @@ uint16_t zone_insert(octet_t *db, zone_t *zone) {
 
 	octet_blob_write(db->row, zone_row.id, (uint8_t *)zone->id, sizeof(*zone->id));
 	octet_uint8_write(db->row, zone_row.name_len, zone->name_len);
-	octet_text_write(db->row, zone_row.name, (char *)zone->name, zone->name_len);
+	octet_textn_write(db->row, zone_row.name, (char *)zone->name, zone->name_len, 12);
 	octet_blob_write(db->row, zone_row.color, (uint8_t *)zone->color, sizeof(*zone->color));
 	octet_uint64_write(db->row, zone_row.created_at, (uint64_t)*zone->created_at);
 	octet_uint8_write(db->row, zone_row.updated_at_null, 0x00);
@@ -775,7 +775,7 @@ uint16_t zone_update(octet_t *db, zone_t *zone) {
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, zone_row.id);
 		if (memcmp(id, zone->id, sizeof(*zone->id)) == 0) {
 			octet_uint8_write(db->row, zone_row.name_len, zone->name_len);
-			octet_text_write(db->row, zone_row.name, (char *)zone->name, zone->name_len);
+			octet_textn_write(db->row, zone_row.name, (char *)zone->name, zone->name_len, 12);
 			octet_blob_write(db->row, zone_row.color, (uint8_t *)zone->color, sizeof(*zone->color));
 			octet_uint8_write(db->row, zone_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, zone_row.updated_at, (uint64_t)*zone->updated_at);
