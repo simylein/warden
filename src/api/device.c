@@ -1007,18 +1007,24 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 		octet_blob_write(db->row, device_row.zone_color, (uint8_t *)device->zone_color, sizeof(*device->zone_color));
 	} else {
 		octet_uint8_write(db->row, device_row.zone_null, 0x00);
+		octet_blobn_write(db->row, device_row.zone_id, (uint8_t[]){0x00}, 0, sizeof(*device->zone_id));
+		octet_uint8_write(db->row, device_row.zone_name_len, 0);
+		octet_textn_write(db->row, device_row.zone_name, (char[]){0x00}, 0, 12);
+		octet_blobn_write(db->row, device_row.zone_color, (uint8_t[]){0x00}, 0, sizeof(*device->zone_color));
 	}
 	if (device->firmware != NULL) {
 		octet_uint8_write(db->row, device_row.firmware_len, device->firmware_len);
 		octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 12);
 	} else {
 		octet_uint8_write(db->row, device_row.firmware_len, 0);
+		octet_textn_write(db->row, device_row.firmware, (char[]){0x00}, 0, 12);
 	}
 	if (device->hardware != NULL) {
 		octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
 		octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 12);
 	} else {
 		octet_uint8_write(db->row, device_row.hardware_len, 0);
+		octet_textn_write(db->row, device_row.hardware, (char[]){0x00}, 0, 12);
 	}
 	octet_uint64_write(db->row, device_row.created_at, (uint64_t)*device->created_at);
 	octet_uint8_write(db->row, device_row.updated_at_null, 0x00);
@@ -1114,14 +1120,26 @@ uint16_t device_update(octet_t *db, device_t *device) {
 				octet_uint8_write(db->row, device_row.zone_name_len, device->zone_name_len);
 				octet_textn_write(db->row, device_row.zone_name, (char *)device->zone_name, device->zone_name_len, 12);
 				octet_blob_write(db->row, device_row.zone_color, (uint8_t *)device->zone_color, sizeof(*device->zone_color));
+			} else {
+				octet_uint8_write(db->row, device_row.zone_null, 0x00);
+				octet_blobn_write(db->row, device_row.zone_id, (uint8_t[]){0x00}, 0, sizeof(*device->zone_id));
+				octet_uint8_write(db->row, device_row.zone_name_len, 0);
+				octet_textn_write(db->row, device_row.zone_name, (char[]){0x00}, 0, 12);
+				octet_blobn_write(db->row, device_row.zone_color, (uint8_t[]){0x00}, 0, sizeof(*device->zone_color));
 			}
 			if (device->firmware != NULL) {
 				octet_uint8_write(db->row, device_row.firmware_len, device->firmware_len);
 				octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 12);
+			} else {
+				octet_uint8_write(db->row, device_row.firmware_len, 0);
+				octet_textn_write(db->row, device_row.firmware, (char[]){0x00}, 0, 12);
 			}
 			if (device->hardware != NULL) {
 				octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
 				octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 12);
+			} else {
+				octet_uint8_write(db->row, device_row.hardware_len, 0);
+				octet_textn_write(db->row, device_row.hardware, (char[]){0x00}, 0, 12);
 			}
 			octet_uint8_write(db->row, device_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, device_row.updated_at, (uint64_t)*device->updated_at);
