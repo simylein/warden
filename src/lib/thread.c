@@ -45,7 +45,7 @@ int spawn(worker_t *worker, uint8_t id, void *(*function)(void *),
 	uint32_t offset = 0;
 
 	worker->arg.db.row = (uint8_t *)&worker->arg.database_buffer[offset];
-	worker->arg.db.row_len = UINT8_MAX;
+	worker->arg.db.row_len = 512;
 	offset += worker->arg.db.row_len;
 
 	worker->arg.db.alpha = (uint8_t *)&worker->arg.database_buffer[offset];

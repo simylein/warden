@@ -90,9 +90,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (cmds != 0x00) {
-		uint8_t row[255];
-		uint8_t chunk[2048];
-		uint8_t table[16384];
+		uint8_t row[512];
+		uint8_t chunk[16384];
+		uint8_t table[65536];
 		octet_t db = {
 				.directory = database_directory,
 				.row = row,

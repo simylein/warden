@@ -8,7 +8,7 @@
 typedef struct octet_t {
 	const char *directory;
 	uint8_t *row;
-	uint8_t row_len;
+	uint16_t row_len;
 	uint8_t *alpha;
 	uint16_t alpha_len;
 	uint8_t *bravo;
