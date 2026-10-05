@@ -569,7 +569,7 @@
 					if (!value) return 'name is required';
 					if (value.length < 2) return 'name is too short';
 					if (value.length > 12) return 'name is too long';
-					if (!value.match(/^[a-z0-9]+$/)) return 'name must be lowercase letters or numbers';
+					if (!value.match(/^[a-z0-9 ]+$/)) return 'name must be lowercase letters or numbers';
 				},
 				color: (value) => {
 					if (!value) return 'color is required';

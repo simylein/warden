@@ -673,7 +673,7 @@ int zone_validate(zone_t *zone) {
 	uint8_t name_index = 0;
 	while (name_index < zone->name_len) {
 		char *byte = &zone->name[name_index];
-		if ((*byte < 'a' || *byte > 'z') && (*byte < '0' || *byte > '9')) {
+		if ((*byte < 'a' || *byte > 'z') && (*byte < '0' || *byte > '9') && *byte != ' ') {
 			debug("name contains invalid character %02x\n", *byte);
 			return -1;
 		}
