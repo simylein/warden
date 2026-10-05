@@ -25,15 +25,15 @@ typedef struct rule_query_t {
 } rule_query_t;
 
 typedef struct rule_row_t {
-	uint8_t severity;
-	uint8_t field;
-	uint8_t edge;
-	uint8_t activate;
-	uint8_t disable;
-	uint8_t created_at;
-	uint8_t updated_at_null;
-	uint8_t updated_at;
-	uint8_t size;
+	uint16_t severity;
+	uint16_t field;
+	uint16_t edge;
+	uint16_t activate;
+	uint16_t disable;
+	uint16_t created_at;
+	uint16_t updated_at_null;
+	uint16_t updated_at;
+	uint16_t size;
 } rule_row_t;
 
 extern const char *rule_file;

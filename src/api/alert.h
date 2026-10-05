@@ -23,14 +23,14 @@ typedef struct alert_query_t {
 } alert_query_t;
 
 typedef struct alert_row_t {
-	uint8_t severity;
-	uint8_t field;
-	uint8_t edge;
-	uint8_t value;
-	uint8_t issued_at;
-	uint8_t resolved_at_null;
-	uint8_t resolved_at;
-	uint8_t size;
+	uint16_t severity;
+	uint16_t field;
+	uint16_t edge;
+	uint16_t value;
+	uint16_t issued_at;
+	uint16_t resolved_at_null;
+	uint16_t resolved_at;
+	uint16_t size;
 } alert_row_t;
 
 extern const char *alert_file;

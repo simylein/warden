@@ -15,15 +15,15 @@ typedef struct host_t {
 } host_t;
 
 typedef struct host_row_t {
-	uint8_t id;
-	uint8_t address_len;
-	uint8_t address;
-	uint8_t port;
-	uint8_t username_len;
-	uint8_t username;
-	uint8_t password_len;
-	uint8_t password;
-	uint8_t size;
+	uint16_t id;
+	uint16_t address_len;
+	uint16_t address;
+	uint16_t port;
+	uint16_t username_len;
+	uint16_t username;
+	uint16_t password_len;
+	uint16_t password;
+	uint16_t size;
 } host_row_t;
 
 extern const char *host_file;

@@ -14,14 +14,14 @@ typedef struct email_t {
 } email_t;
 
 typedef struct email_row_t {
-	uint8_t address_len;
-	uint8_t address;
-	uint8_t port;
-	uint8_t from_len;
-	uint8_t from;
-	uint8_t to_len;
-	uint8_t to;
-	uint8_t size;
+	uint16_t address_len;
+	uint16_t address;
+	uint16_t port;
+	uint16_t from_len;
+	uint16_t from;
+	uint16_t to_len;
+	uint16_t to;
+	uint16_t size;
 } email_row_t;
 
 extern const char *email_file;

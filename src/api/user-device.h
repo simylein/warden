@@ -12,9 +12,9 @@ typedef struct user_device_t {
 } user_device_t;
 
 typedef struct user_device_row_t {
-	uint8_t user_id;
-	uint8_t device_id;
-	uint8_t size;
+	uint16_t user_id;
+	uint16_t device_id;
+	uint16_t size;
 } user_device_row_t;
 
 extern const char *user_device_file;

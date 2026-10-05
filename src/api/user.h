@@ -28,14 +28,14 @@ typedef struct user_query_t {
 } user_query_t;
 
 typedef struct user_row_t {
-	uint8_t id;
-	uint8_t username_len;
-	uint8_t username;
-	uint8_t password;
-	uint8_t signup_at;
-	uint8_t signin_at;
-	uint8_t permissions;
-	uint8_t size;
+	uint16_t id;
+	uint16_t username_len;
+	uint16_t username;
+	uint16_t password;
+	uint16_t signup_at;
+	uint16_t signin_at;
+	uint16_t permissions;
+	uint16_t size;
 } user_row_t;
 
 extern const char *user_file;

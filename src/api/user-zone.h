@@ -12,9 +12,9 @@ typedef struct user_zone_t {
 } user_zone_t;
 
 typedef struct user_zone_row_t {
-	uint8_t user_id;
-	uint8_t zone_id;
-	uint8_t size;
+	uint16_t user_id;
+	uint16_t zone_id;
+	uint16_t size;
 } user_zone_row_t;
 
 extern const char *user_zone_file;

@@ -25,10 +25,10 @@ typedef struct reading_query_t {
 } reading_query_t;
 
 typedef struct reading_row_t {
-	uint8_t temperature;
-	uint8_t humidity;
-	uint8_t captured_at;
-	uint8_t size;
+	uint16_t temperature;
+	uint16_t humidity;
+	uint16_t captured_at;
+	uint16_t size;
 } reading_row_t;
 
 extern const char *reading_file;

@@ -24,10 +24,10 @@ typedef struct metric_query_t {
 } metric_query_t;
 
 typedef struct metric_row_t {
-	uint8_t photovoltaic;
-	uint8_t battery;
-	uint8_t captured_at;
-	uint8_t size;
+	uint16_t photovoltaic;
+	uint16_t battery;
+	uint16_t captured_at;
+	uint16_t size;
 } metric_row_t;
 
 extern const char *metric_file;

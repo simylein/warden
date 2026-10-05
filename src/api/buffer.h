@@ -24,10 +24,10 @@ typedef struct buffer_query_t {
 } buffer_query_t;
 
 typedef struct buffer_row_t {
-	uint8_t delay;
-	uint8_t level;
-	uint8_t captured_at;
-	uint8_t size;
+	uint16_t delay;
+	uint16_t level;
+	uint16_t captured_at;
+	uint16_t size;
 } buffer_row_t;
 
 extern const char *buffer_file;

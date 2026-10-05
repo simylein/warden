@@ -21,15 +21,15 @@ typedef struct config_t {
 } config_t;
 
 typedef struct config_row_t {
-	uint8_t led_debug;
-	uint8_t reading_enable;
-	uint8_t metric_enable;
-	uint8_t buffer_enable;
-	uint8_t reading_interval;
-	uint8_t metric_interval;
-	uint8_t buffer_interval;
-	uint8_t captured_at;
-	uint8_t size;
+	uint16_t led_debug;
+	uint16_t reading_enable;
+	uint16_t metric_enable;
+	uint16_t buffer_enable;
+	uint16_t reading_interval;
+	uint16_t metric_interval;
+	uint16_t buffer_interval;
+	uint16_t captured_at;
+	uint16_t size;
 } config_row_t;
 
 extern const char *config_file;

@@ -27,27 +27,27 @@ typedef struct zone_query_t {
 } zone_query_t;
 
 typedef struct zone_row_t {
-	uint8_t id;
-	uint8_t name_len;
-	uint8_t name;
-	uint8_t color;
-	uint8_t created_at;
-	uint8_t updated_at_null;
-	uint8_t updated_at;
-	uint8_t reading_null;
-	uint8_t reading_temperature;
-	uint8_t reading_humidity;
-	uint8_t reading_dewpoint;
-	uint8_t reading_captured_at;
-	uint8_t metric_null;
-	uint8_t metric_photovoltaic;
-	uint8_t metric_battery;
-	uint8_t metric_captured_at;
-	uint8_t buffer_null;
-	uint8_t buffer_delay;
-	uint8_t buffer_level;
-	uint8_t buffer_captured_at;
-	uint8_t size;
+	uint16_t id;
+	uint16_t name_len;
+	uint16_t name;
+	uint16_t color;
+	uint16_t created_at;
+	uint16_t updated_at_null;
+	uint16_t updated_at;
+	uint16_t reading_null;
+	uint16_t reading_temperature;
+	uint16_t reading_humidity;
+	uint16_t reading_dewpoint;
+	uint16_t reading_captured_at;
+	uint16_t metric_null;
+	uint16_t metric_photovoltaic;
+	uint16_t metric_battery;
+	uint16_t metric_captured_at;
+	uint16_t buffer_null;
+	uint16_t buffer_delay;
+	uint16_t buffer_level;
+	uint16_t buffer_captured_at;
+	uint16_t size;
 } zone_row_t;
 
 extern const char *zone_file;

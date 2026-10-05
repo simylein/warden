@@ -32,20 +32,20 @@ typedef struct downlink_query_t {
 } downlink_query_t;
 
 typedef struct downlink_row_t {
-	uint8_t frame;
-	uint8_t kind;
-	uint8_t data_len;
-	uint8_t data;
-	uint8_t airtime;
-	uint8_t frequency;
-	uint8_t bandwidth;
-	uint8_t sf;
-	uint8_t cr;
-	uint8_t crc;
-	uint8_t tx_power;
-	uint8_t preamble_len;
-	uint8_t sent_at;
-	uint8_t size;
+	uint16_t frame;
+	uint16_t kind;
+	uint16_t data_len;
+	uint16_t data;
+	uint16_t airtime;
+	uint16_t frequency;
+	uint16_t bandwidth;
+	uint16_t sf;
+	uint16_t cr;
+	uint16_t crc;
+	uint16_t tx_power;
+	uint16_t preamble_len;
+	uint16_t sent_at;
+	uint16_t size;
 } downlink_row_t;
 
 extern const char *downlink_file;

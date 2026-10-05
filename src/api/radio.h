@@ -23,16 +23,16 @@ typedef struct radio_t {
 } radio_t;
 
 typedef struct radio_row_t {
-	uint8_t frequency;
-	uint8_t bandwidth;
-	uint8_t coding_rate;
-	uint8_t spreading_factor;
-	uint8_t preamble_length;
-	uint8_t tx_power;
-	uint8_t sync_word;
-	uint8_t checksum;
-	uint8_t captured_at;
-	uint8_t size;
+	uint16_t frequency;
+	uint16_t bandwidth;
+	uint16_t coding_rate;
+	uint16_t spreading_factor;
+	uint16_t preamble_length;
+	uint16_t tx_power;
+	uint16_t sync_word;
+	uint16_t checksum;
+	uint16_t captured_at;
+	uint16_t size;
 } radio_row_t;
 
 extern const char *radio_file;
