@@ -106,18 +106,6 @@
 								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
-							<th
-								id="received-at"
-								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
-								onclick="
-									paintSorting('receivedAt');
-									loadDevices();
-								"
-							>
-								Received at
-								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
-								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
-							</th>
 							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
 						</tr>
 					</thead>
@@ -231,7 +219,6 @@
 			name: document.getElementById('name'),
 			createdAt: document.getElementById('created-at'),
 			updatedAt: document.getElementById('updated-at'),
-			receivedAt: document.getElementById('received-at'),
 		};
 		const paintSorting = (column) => {
 			const element = columns[column];
@@ -264,11 +251,9 @@
 				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
 				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[5].children[0].onclick = null;
+				element.children[ind].children[4].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[4].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[4].children[0].onclick = null;
 			});
 		};
 		const paintZones = (element, data) => {
@@ -290,16 +275,9 @@
 						paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], 'null');
 						colorNull(element.children[ind].children[3].children[0]);
 					}
-					fade(element.children[ind].children[4].children[0]);
-					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
-						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
-					} else {
-						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], 'null');
-						colorNull(element.children[ind].children[4].children[0]);
-					}
-					element.children[ind].children[5].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[5].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[5].children[0].onclick = () => openDeleteDialog(data[ind]);
+					element.children[ind].children[4].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[4].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[4].children[0].onclick = () => openDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -314,11 +292,9 @@
 				error(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
 				fade(element.children[ind].children[3].children[0]);
 				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[5].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[5].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[5].children[0].onclick = null;
+				element.children[ind].children[4].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[4].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[4].children[0].onclick = null;
 			});
 		};
 		const parseZones = async (response) => {
@@ -326,18 +302,13 @@
 			const binary = new Binary(buffer);
 			const zones = [];
 			while (binary.offset < buffer.byteLength) {
-				const zone = { id: null, name: null, color: null, createdAt: null, updatedAt: null, uplink: null };
+				const zone = { id: null, name: null, color: null, createdAt: null, updatedAt: null };
 				zone.id = binary.uuid();
 				zone.name = binary.string();
 				zone.color = binary.hex(12);
 				zone.createdAt = binary.uint(64);
 				if (binary.byte() !== 0) {
 					zone.updatedAt = binary.uint(64);
-				}
-				if (binary.byte() !== 0) {
-					device.uplink = {};
-					device.uplink.id = binary.uuid();
-					device.uplink.receivedAt = binary.uint(64);
 				}
 				zones.push(zone);
 			}

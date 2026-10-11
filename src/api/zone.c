@@ -610,7 +610,6 @@ uint16_t zone_select_by_user(octet_t *db, user_t *user, zone_query_t *query, res
 		time_t created_at = (time_t)octet_uint64_read(&db->table[index], zone_row.created_at);
 		uint8_t updated_at_null = octet_uint8_read(&db->table[index], zone_row.updated_at_null);
 		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], zone_row.updated_at);
-		uint8_t uplink_null = 0x00;
 		body_write(response, id, sizeof(*id));
 		body_write(response, name, name_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
@@ -620,7 +619,6 @@ uint16_t zone_select_by_user(octet_t *db, user_t *user, zone_query_t *query, res
 		if (updated_at_null != 0x00) {
 			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
 		}
-		body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
 		*zones_len += 1;
 		index += zone_row.size;
 	}
