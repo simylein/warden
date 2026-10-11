@@ -383,6 +383,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "post", "/api/device", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_device_create, response) == true) {
+				device_create(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {

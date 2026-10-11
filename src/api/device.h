@@ -118,4 +118,5 @@ void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *respon
 void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_by_user(octet_t *db, request_t *request, response_t *response);
 void device_inventory_find(octet_t *db, request_t *request, response_t *response);
+void device_create(octet_t *db, request_t *request, response_t *response);
 void device_modify(octet_t *db, request_t *request, response_t *response);
