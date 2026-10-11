@@ -150,14 +150,14 @@ int seed_device(octet_t *db) {
 		uint8_t firmware_len = 0;
 		if (rand() % 4 != 0) {
 			firmware_len =
-					(uint8_t)sprintf(firmware, "v%hhu.%hhu.%hhu", (uint8_t)(rand() % 4), (uint8_t)(rand() % 8), (uint8_t)(rand() % 16));
+					(uint8_t)sprintf(firmware, "%hhu.%hhu.%hhu", (uint8_t)(rand() % 4), (uint8_t)(rand() % 8), (uint8_t)(rand() % 16));
 		}
 
 		char hardware[16];
 		uint8_t hardware_len = 0;
 		if (rand() % 4 != 0) {
 			hardware_len =
-					(uint8_t)sprintf(hardware, "v%hhu.%hhu.%hhu", (uint8_t)(rand() % 2), (uint8_t)(rand() % 4), (uint8_t)(rand() % 8));
+					(uint8_t)sprintf(hardware, "%hhu.%hhu.%hhu", (uint8_t)(rand() % 2), (uint8_t)(rand() % 4), (uint8_t)(rand() % 8));
 		}
 
 		device_t device = {
