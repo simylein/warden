@@ -119,6 +119,11 @@ int seed_device(octet_t *db) {
 		return -1;
 	}
 
+	for (uint8_t index = 0; index < device_ids_len; index++) {
+		device_ids[index][0] = (uint8_t)(rand() & 0xff);
+		device_ids[index][1] = (uint8_t)(rand() & 0xff);
+	}
+
 	char *zone_names[] = {"indoor", "outdoor"};
 	uint8_t zone_colors[][12] = {
 			{0x16, 0xa3, 0x4a, 0x4a, 0xde, 0x80, 0xf0, 0xfd, 0xf4, 0x05, 0x2e, 0x16},
