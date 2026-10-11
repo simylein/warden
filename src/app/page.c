@@ -34,6 +34,7 @@ file_t page_users = {.path = "./src/app/pages/users.html", .lock = PTHREAD_RWLOC
 file_t page_user = {.path = "./src/app/pages/user.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_user_devices = {.path = "./src/app/pages/user-devices.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_user_zones = {.path = "./src/app/pages/user-zones.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
+file_t page_inventory = {.path = "./src/app/pages/inventory.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_profile = {.path = "./src/app/pages/profile.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_signin = {.path = "./src/app/pages/signin.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
 file_t page_signup = {.path = "./src/app/pages/signup.html", .lock = PTHREAD_RWLOCK_INITIALIZER};
@@ -79,6 +80,7 @@ file_t *pages[] = {
 		&page_user,
 		&page_user_devices,
 		&page_user_zones,
+		&page_inventory,
 		&page_profile,
 		&page_signin,
 		&page_signup,

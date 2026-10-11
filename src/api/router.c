@@ -352,6 +352,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/inventory", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(true, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_device_read, response) == true) {
+				serve(&page_inventory, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(true, &bwt, request, response) == true) {
