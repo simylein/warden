@@ -810,6 +810,139 @@ cleanup:
 	return status;
 }
 
+uint16_t device_inventory_select(octet_t *db, device_query_t *query, response_t *response, uint8_t *devices_len) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select inventory devices order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len,
+				query->sort);
+
+	off_t offset = 0;
+	uint32_t table_len = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		table_len += device_row.size;
+		offset += device_row.size;
+	}
+
+	if (table_len >= device_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / device_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / device_row.size; ind++) {
+				if (device_rowcmp(&db->table[index * device_row.size], &db->table[ind * device_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * device_row.size], device_row.size);
+					memcpy(&db->table[index * device_row.size], &db->table[ind * device_row.size], device_row.size);
+					memcpy(&db->table[ind * device_row.size], db->row, device_row.size);
+				}
+			}
+		}
+	}
+
+	uint32_t index = device_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *devices_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.id);
+		uint8_t name_len = octet_uint8_read(&db->table[index], device_row.name_len);
+		char *name = octet_text_read(&db->table[index], device_row.name);
+		time_t created_at = (time_t)octet_uint64_read(&db->table[index], device_row.created_at);
+		uint8_t updated_at_null = octet_uint8_read(&db->table[index], device_row.updated_at_null);
+		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], device_row.updated_at);
+		uint8_t zone_null = octet_uint8_read(&db->table[index], device_row.zone_null);
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.zone_id);
+		uint8_t zone_name_len = octet_uint8_read(&db->table[index], device_row.zone_name_len);
+		char *zone_name = octet_text_read(&db->table[index], device_row.zone_name);
+		uint8_t (*zone_color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], device_row.zone_color);
+		uint8_t uplink_null = octet_uint8_read(&db->table[index], device_row.uplink_null);
+		time_t uplink_received_at = (time_t)octet_uint64_read(&db->table[index], device_row.uplink_received_at);
+		body_write(response, id, sizeof(*id));
+		body_write(response, name, name_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+		if (updated_at_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+		}
+		body_write(response, (uint8_t[]){zone_null != 0x00}, sizeof(zone_null));
+		if (zone_null != 0x00) {
+			body_write(response, zone_id, sizeof(*zone_id));
+			body_write(response, zone_name, zone_name_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+			body_write(response, zone_color, sizeof(*zone_color));
+		}
+		body_write(response, (uint8_t[]){uplink_null != 0x00}, sizeof(uplink_null));
+		if (uplink_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)uplink_received_at)}, sizeof(uplink_received_at));
+		}
+		*devices_len += 1;
+		index += device_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
+int device_create_parse(device_t *device, request_t *request) {
+	request->body.pos = 0;
+
+	uint8_t stage = 0;
+
+	if (request->body.len < request->body.pos + sizeof(uint16_t)) {
+		debug("missing id on device\n");
+		return -1;
+	}
+	memcpy(device->id, body_read(request, sizeof(uint16_t)), sizeof(uint16_t));
+	stage = 1;
+
+	device->name_len = 0;
+	const uint8_t name_index = (uint8_t)request->body.pos;
+	while (stage == 1 && device->name_len < 16 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 2;
+		} else {
+			device->name_len++;
+		}
+	}
+	if (device->name_len != 0) {
+		device->name = &request->body.ptr[name_index];
+	} else {
+		device->name = NULL;
+	}
+	if (stage != 2) {
+		debug("found name with %hhu bytes\n", device->name_len);
+		return -1;
+	}
+
+	return 0;
+}
+
 int device_modify_parse(device_t *device, request_t *request) {
 	request->body.pos = 0;
 
@@ -1426,6 +1559,54 @@ void device_find_by_user(octet_t *db, request_t *request, response_t *response) 
 	header_write(response, "content-length:%u\r\n", response->body.len);
 	info("found %hhu devices\n", devices_len);
 	response->status = 200;
+}
+
+void device_inventory_find(octet_t *db, request_t *request, response_t *response) {
+	device_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t devices_len = 0;
+	uint16_t status = device_inventory_select(db, &query, response, &devices_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hhu devices\n", devices_len);
+	response->status = 200;
+}
+
+void device_create(octet_t *db, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	device_t device = {.id = &id, .created_at = (time_t[]){time(NULL)}};
+	if (request->body.len == 0 || device_create_parse(&device, request) == -1 || device_validate(&device) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = device_insert(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 201;
 }
 
 void device_modify(octet_t *db, request_t *request, response_t *response) {

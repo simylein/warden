@@ -108,6 +108,7 @@ uint16_t device_select(octet_t *db, bwt_t *bwt, device_query_t *query, response_
 uint16_t device_select_one(octet_t *db, bwt_t *bwt, device_t *device, response_t *response);
 uint16_t device_select_by_user(octet_t *db, user_t *user, device_query_t *query, response_t *response, uint8_t *devices_len);
 uint16_t device_select_by_zone(octet_t *db, zone_t *zone, uint8_t *devices_len);
+uint16_t device_inventory_select(octet_t *db, device_query_t *query, response_t *response, uint8_t *devices_len);
 uint16_t device_insert(octet_t *db, device_t *device);
 uint16_t device_update(octet_t *db, device_t *device);
 uint16_t device_update_zones(octet_t *db, zone_t *zone);
@@ -116,4 +117,5 @@ uint16_t device_update_latest(octet_t *db, device_t *device);
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void device_find_by_user(octet_t *db, request_t *request, response_t *response);
+void device_inventory_find(octet_t *db, request_t *request, response_t *response);
 void device_modify(octet_t *db, request_t *request, response_t *response);

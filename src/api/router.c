@@ -713,6 +713,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "get", "/api/inventory/devices", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_device_read, response) == true) {
+				device_inventory_find(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/profile", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
