@@ -36,8 +36,8 @@
 				class="flex items-center justify-between border-0 border-b-1 border-solid border-b-neutral-400 dark:border-b-neutral-600 overflow-x-auto scrollbar-none"
 			>
 				<div id="tabs" class="flex gap-2 sm:gap-3 lg:gap-4 m-0 pt-2 sm:pt-3 lg:pt-4 pb-2 sm:pb-3 lg:pb-4 text-base font-normal">
-					<a class="no-underline text-blue-600 dark:text-blue-400">Devices</a>
-					<a class="no-underline text-black dark:text-white">Zones</a>
+					<p class="m-0 text-blue-600 dark:text-blue-400">Devices</p>
+					<p class="m-0 text-black dark:text-white">Zones</p>
 				</div>
 				<svg
 					id="create"
@@ -51,18 +51,18 @@
 					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 				</svg>
 			</div>
-			<div class="overflow-x-auto scrollbar-none">
+			<div id="device-container" class="overflow-x-auto scrollbar-none">
 				<table class="w-full text-nowrap border-collapse">
 					<thead>
 						<tr
 							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
 						>
 							<th
-								id="id"
+								id="device-id"
 								sort="asc"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('id');
+									paintDeviceSorting('id');
 									loadDevices();
 								"
 							>
@@ -71,10 +71,10 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="name"
+								id="device-name"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('name');
+									paintDeviceSorting('name');
 									loadDevices();
 								"
 							>
@@ -83,10 +83,10 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="zone"
+								id="device-zone"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('zone');
+									paintDeviceSorting('zone');
 									loadDevices();
 								"
 							>
@@ -95,10 +95,10 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="created-at"
+								id="device-created-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('createdAt');
+									paintDeviceSorting('createdAt');
 									loadDevices();
 								"
 							>
@@ -107,10 +107,10 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="updated-at"
+								id="device-updated-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('updatedAt');
+									paintDeviceSorting('updatedAt');
 									loadDevices();
 								"
 							>
@@ -119,10 +119,10 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
-								id="received-at"
+								id="device-received-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
-									paintSorting('receivedAt');
+									paintDeviceSorting('receivedAt');
 									loadDevices();
 								"
 							>
@@ -153,13 +153,91 @@
 					</tbody>
 				</table>
 			</div>
+			<div id="zone-container" class="hidden overflow-x-auto scrollbar-none">
+				<table class="w-full text-nowrap border-collapse">
+					<thead>
+						<tr
+							class="text-neutral-600 dark:text-neutral-400 border-solid border-t-0 border-r-0 border-b-1 border-l-0 border-b-neutral-400 dark:border-b-neutral-600"
+						>
+							<th
+								id="zone-id"
+								sort="asc"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintZoneSorting('id');
+									loadZones();
+								"
+							>
+								Id
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
+								id="zone-name"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintZoneSorting('name');
+									loadZones();
+								"
+							>
+								Name
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
+								id="zone-created-at"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintZoneSorting('createdAt');
+									loadZones();
+								"
+							>
+								Created at
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
+								id="zone-updated-at"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintZoneSorting('updatedAt');
+									loadZones();
+								"
+							>
+								Updated at
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal">Actions</th>
+						</tr>
+					</thead>
+					<tbody id="zones">
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+						<inventory-zone-row ref="./src/app/components/inventory-zone-row.html" />
+					</tbody>
+				</table>
+			</div>
 			<dialog id="device-create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
 				<form class="m-4 flex flex-col gap-2" onsubmit="deviceCreateForm.handleSubmit(event)">
 					<h1 class="m-0 text-xl font-medium">Create device?</h1>
 					<div class="w-full flex flex-col items-start pb-4">
-						<label for="device-id" class="mb-2 text-base font-normal">Id</label>
+						<label for="device-create-id" class="mb-2 text-base font-normal">Id</label>
 						<input
-							id="device-id"
+							id="device-create-id"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="id"
@@ -170,9 +248,9 @@
 						<p id="device-create-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
 					</div>
 					<div class="w-full flex flex-col items-start pb-4">
-						<label for="device-name" class="mb-2 text-base font-normal">Name</label>
+						<label for="device-create-name" class="mb-2 text-base font-normal">Name</label>
 						<input
-							id="device-name"
+							id="device-create-name"
 							type="text"
 							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
 							placeholder="name"
@@ -221,6 +299,146 @@
 					</div>
 				</form>
 			</dialog>
+			<dialog id="zone-create-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="zoneCreateForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Create zone?</h1>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="zone-create-id" class="mb-2 text-base font-normal">Id</label>
+						<input
+							id="zone-create-id"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="id"
+							autofocus
+							oninput="zoneCreateForm.setValue('id', event.target.value)"
+							onblur="zoneCreateForm.setTouched('id', true)"
+						/>
+						<p id="zone-create-id-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start pb-4">
+						<label for="zone-create-name" class="mb-2 text-base font-normal">Name</label>
+						<input
+							id="zone-create-name"
+							type="text"
+							class="box-border w-full h-9 p-2 text-base border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800"
+							placeholder="name"
+							oninput="zoneCreateForm.setValue('name', event.target.value)"
+							onblur="zoneCreateForm.setTouched('name', true)"
+						/>
+						<p id="zone-create-name-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="w-full flex flex-col items-start">
+						<label for="zone-create-colors" class="mb-2 text-base font-normal">Color</label>
+						<div id="zone-create-colors" class="w-full flex flex-row gap-2 overflow-x-auto scrollbar-none">
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), 'ea580cfb923cfff7ed431407');
+									zoneCreateForm.setValue('color', 'ea580cfb923cfff7ed431407');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Orange
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), 'ca8a04facc15fefce8422006');
+									zoneCreateForm.setValue('color', 'ca8a04facc15fefce8422006');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Yellow
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), '16a34a4ade80f0fdf4052e16');
+									zoneCreateForm.setValue('color', '16a34a4ade80f0fdf4052e16');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Green
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), '0d94882dd4bff0fdfa042f2e');
+									zoneCreateForm.setValue('color', '0d94882dd4bff0fdfa042f2e');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Teal
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), '0284c738bdf8f0f9ff082f49');
+									zoneCreateForm.setValue('color', '0284c738bdf8f0f9ff082f49');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Sky
+							</button>
+							<button
+								type="button"
+								class="h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-200 dark:background-neutral-800 outline-none cursor-pointer"
+								onclick="
+									highlightColor(document.getElementById('zone-create-colors'), '4f46e5818cf8eef2ff1e1b4b');
+									zoneCreateForm.setValue('color', '4f46e5818cf8eef2ff1e1b4b');
+									zoneCreateForm.setTouched('color', true);
+								"
+							>
+								Indigo
+							</button>
+						</div>
+						<p id="zone-create-color-validation" class="m-0 mt-2 hidden text-red-600 dark:text-red-400"></p>
+					</div>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="zone-create-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-green-300 dark:background-green-700 outline-none cursor-pointer"
+						>
+							Create
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeZoneCreateDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
+			<dialog id="zone-delete-dialog" class="w-full max-w-96 p-0 border-0 text-black dark:text-white background-neutral-100 dark:background-neutral-900">
+				<form class="m-4 flex flex-col gap-2" onsubmit="zoneDeleteForm.handleSubmit(event)">
+					<h1 class="m-0 text-xl font-medium">Delete zone?</h1>
+					<p class="m-0 text-base font-normal">Deleting this zone will erase all associated connections.</p>
+					<div class="flex flex-row-reverse justify-start gap-2">
+						<button
+							id="zone-delete-button"
+							type="submit"
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-red-300 dark:background-red-700 outline-none cursor-pointer"
+						>
+							Delete
+						</button>
+						<button
+							class="min-w-28 h-8 text-base font-normal pt-1 pr-4 pb-1 pl-4 border-0 text-black dark:text-white background-neutral-300 dark:background-neutral-700 outline-none cursor-pointer"
+							type="button"
+							onclick="closeZoneDeleteDialog()"
+						>
+							Cancel
+						</button>
+					</div>
+				</form>
+			</dialog>
 		</main>
 		<footer class="w-full background-neutral-100 dark:background-neutral-900">
 			<div
@@ -247,22 +465,107 @@
 		import './src/app/scripts/report.js';
 		import './src/app/scripts/notification.js';
 		const create = document.getElementById('create');
-		const devices = { retries: 0, reload: 10, timeout: null, controller: null, data: null, element: document.getElementById('devices') };
-		const columns = {
-			id: document.getElementById('id'),
-			name: document.getElementById('name'),
-			zone: document.getElementById('zone'),
-			createdAt: document.getElementById('created-at'),
-			updatedAt: document.getElementById('updated-at'),
-			receivedAt: document.getElementById('received-at'),
+		const devices = {
+			retries: 0,
+			reload: 10,
+			timeout: null,
+			controller: null,
+			data: null,
+			element: document.getElementById('devices'),
+			container: document.getElementById('device-container'),
 		};
-		const paintSorting = (column) => {
-			const element = columns[column];
+		const zones = {
+			retries: 0,
+			reload: 10,
+			timeout: null,
+			controller: null,
+			data: null,
+			element: document.getElementById('zones'),
+			container: document.getElementById('zone-container'),
+		};
+		const tabs = document.getElementById('tabs');
+		const inventoryTabs = () => {
+			tabs.children[0].classList.add('cursor-pointer');
+			tabs.children[0].onclick = () => {
+				fade(tabs.children[1]);
+				tabs.children[1].classList.add('text-black', 'dark:text-white');
+				fade(tabs.children[0]);
+				tabs.children[0].classList.add('text-blue-600', 'dark:text-blue-400');
+				devices.container.classList.remove('hidden');
+				zones.container.classList.add('hidden');
+				if (zones.controller) {
+					zones.controller.abort();
+				}
+				if (zones.timeout) {
+					clearTimeout(zones.timeout);
+				}
+				if (devices.timeout) {
+					clearTimeout(devices.timeout);
+				}
+				loadDevices();
+			};
+			tabs.children[1].classList.add('cursor-pointer');
+			tabs.children[1].onclick = () => {
+				fade(tabs.children[0]);
+				tabs.children[0].classList.add('text-black', 'dark:text-white');
+				fade(tabs.children[1]);
+				tabs.children[1].classList.add('text-blue-600', 'dark:text-blue-400');
+				zones.container.classList.remove('hidden');
+				devices.container.classList.add('hidden');
+				if (devices.controller) {
+					devices.controller.abort();
+				}
+				if (devices.timeout) {
+					clearTimeout(devices.timeout);
+				}
+				if (zones.timeout) {
+					clearTimeout(zones.timeout);
+				}
+				loadZones();
+			};
+		};
+		inventoryTabs();
+		const deviceColumns = {
+			id: document.getElementById('device-id'),
+			name: document.getElementById('device-name'),
+			zone: document.getElementById('device-zone'),
+			createdAt: document.getElementById('device-created-at'),
+			updatedAt: document.getElementById('device-updated-at'),
+			receivedAt: document.getElementById('device-received-at'),
+		};
+		const zoneColumns = {
+			id: document.getElementById('zone-id'),
+			name: document.getElementById('zone-name'),
+			createdAt: document.getElementById('zone-created-at'),
+			updatedAt: document.getElementById('zone-updated-at'),
+		};
+		const paintDeviceSorting = (column) => {
+			const element = deviceColumns[column];
 			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
-			Object.keys(columns).forEach((col) => {
-				columns[col].removeAttribute('sort');
-				columns[col].children[0].classList.add('hidden');
-				columns[col].children[1].classList.add('hidden');
+			Object.keys(deviceColumns).forEach((col) => {
+				deviceColumns[col].removeAttribute('sort');
+				deviceColumns[col].children[0].classList.add('hidden');
+				deviceColumns[col].children[1].classList.add('hidden');
+			});
+			element.setAttribute('sort', sort);
+			switch (true) {
+				case sort === 'asc':
+					element.children[0].classList.remove('hidden');
+					break;
+				case sort === 'desc':
+					element.children[1].classList.remove('hidden');
+					break;
+			}
+			setParam('order', column);
+			setParam('sort', sort);
+		};
+		const paintZoneSorting = (column) => {
+			const element = zoneColumns[column];
+			const sort = element.getAttribute('sort') === 'asc' ? 'desc' : 'asc';
+			Object.keys(zoneColumns).forEach((col) => {
+				zoneColumns[col].removeAttribute('sort');
+				zoneColumns[col].children[0].classList.add('hidden');
+				zoneColumns[col].children[1].classList.add('hidden');
 			});
 			element.setAttribute('sort', sort);
 			switch (true) {
@@ -352,6 +655,63 @@
 				element.children[ind].children[6].children[0].onclick = null;
 			});
 		};
+		const loadingZones = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				loading(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				loading(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
+				loading(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[4].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[4].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[4].children[0].onclick = null;
+			});
+		};
+		const paintZones = (element, data) => {
+			create.classList.remove('opacity-50', 'cursor-not-allowed');
+			create.classList.add('cursor-pointer');
+			create.onclick = () => openZoneCreateDialog();
+			resize(element, data.length > 0 ? data.length : 1);
+			array(element.children.length).forEach((ind) => {
+				if (data[ind]) {
+					paint(element.children[ind].children[0].children[0], [], ['w-40', 'h-4'], data[ind].id);
+					fade(element.children[ind].children[1].children[0]);
+					paint(element.children[ind].children[1].children[0], [], ['w-24', 'h-4'], data[ind].name);
+					colorZone(element.children[ind].children[1].children[0], data[ind].color);
+					paint(element.children[ind].children[2].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
+					fade(element.children[ind].children[3].children[0]);
+					if (data[ind].updatedAt !== null) {
+						paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
+					} else {
+						paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], 'null');
+						colorNull(element.children[ind].children[3].children[0]);
+					}
+					element.children[ind].children[4].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[4].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[4].children[0].onclick = () => openZoneDeleteDialog(data[ind]);
+				}
+			});
+		};
+		const errorZones = (element) => {
+			create.classList.remove('cursor-pointer');
+			create.classList.add('opacity-50', 'cursor-not-allowed');
+			create.onclick = null;
+			array(element.children.length).forEach((ind) => {
+				error(element.children[ind].children[0].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[1].children[0]);
+				error(element.children[ind].children[1].children[0], ['w-24', 'h-4'], [], '');
+				error(element.children[ind].children[2].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[4].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[4].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[4].children[0].onclick = null;
+			});
+		};
 		const parseDevices = async (response) => {
 			const buffer = await response.arrayBuffer();
 			const binary = new Binary(buffer);
@@ -378,6 +738,23 @@
 			}
 			return devices;
 		};
+		const parseZones = async (response) => {
+			const buffer = await response.arrayBuffer();
+			const binary = new Binary(buffer);
+			const zones = [];
+			while (binary.offset < buffer.byteLength) {
+				const zone = { id: null, name: null, color: null, createdAt: null, updatedAt: null };
+				zone.id = binary.uuid();
+				zone.name = binary.string();
+				zone.color = binary.hex(12);
+				zone.createdAt = binary.uint(64);
+				if (binary.byte() !== 0) {
+					zone.updatedAt = binary.uint(64);
+				}
+				zones.push(zone);
+			}
+			return zones;
+		};
 		const loadDevices = fetching(
 			devices,
 			(context) => window.requestAnimationFrame(() => loadingDevices(context.element)),
@@ -389,11 +766,56 @@
 			(context) => window.requestAnimationFrame(() => paintDevices(context.element, context.data)),
 			(context) => window.requestAnimationFrame(() => errorDevices(context.element)),
 		);
+		const loadZones = fetching(
+			zones,
+			(context) => window.requestAnimationFrame(() => loadingZones(context.element)),
+			(context) => {
+				const endpoint = `/api/inventory/zones?order=${getParam('order', 'id')}&sort=${getParam('sort', 'asc')}`;
+				return fetcher('get', endpoint, null, { controller: context.controller });
+			},
+			async (context, response) => (context.data = await parseZones(response)),
+			(context) => window.requestAnimationFrame(() => paintZones(context.element, context.data)),
+			(context) => window.requestAnimationFrame(() => errorZones(context.element)),
+		);
+		const highlightColor = (element, color) => {
+			array(element.children.length).forEach((ind) => {
+				fade(element.children[ind]);
+				element.children[ind].classList.add('text-black', 'dark:text-white', 'background-neutral-200', 'dark:background-neutral-800');
+			});
+			switch (color) {
+				case 'ea580cfb923cfff7ed431407':
+					fade(element.children[0]);
+					element.children[0].classList.add('text-orange-600', 'dark:text-orange-400', 'background-orange-100', 'dark:background-orange-900');
+					break;
+				case 'ca8a04facc15fefce8422006':
+					fade(element.children[1]);
+					element.children[1].classList.add('text-yellow-600', 'dark:text-yellow-400', 'background-yellow-100', 'dark:background-yellow-900');
+					break;
+				case '16a34a4ade80f0fdf4052e16':
+					fade(element.children[2]);
+					element.children[2].classList.add('text-green-600', 'dark:text-green-400', 'background-green-100', 'dark:background-green-900');
+					break;
+				case '0d94882dd4bff0fdfa042f2e':
+					fade(element.children[3]);
+					element.children[3].classList.add('text-teal-600', 'dark:text-teal-400', 'background-teal-100', 'dark:background-teal-900');
+					break;
+				case '0284c738bdf8f0f9ff082f49':
+					fade(element.children[4]);
+					element.children[4].classList.add('text-sky-600', 'dark:text-sky-400', 'background-sky-100', 'dark:background-sky-900');
+					break;
+				case '4f46e5818cf8eef2ff1e1b4b':
+					fade(element.children[5]);
+					element.children[5].classList.add('text-indigo-600', 'dark:text-indigo-400', 'background-indigo-100', 'dark:background-indigo-900');
+					break;
+			}
+		};
 		const deviceCreateDialog = document.getElementById('device-create-dialog');
 		const deviceDeleteDialog = document.getElementById('device-delete-dialog');
+		const zoneCreateDialog = document.getElementById('zone-create-dialog');
+		const zoneDeleteDialog = document.getElementById('zone-delete-dialog');
 		const openDeviceCreateDialog = () => {
-			document.getElementById('device-id').value = '';
-			document.getElementById('device-name').value = '';
+			document.getElementById('device-create-id').value = '';
+			document.getElementById('device-create-name').value = '';
 			deviceCreateDialog.showModal();
 		};
 		const closeDeviceCreateDialog = () => {
@@ -408,6 +830,25 @@
 		const closeDeviceDeleteDialog = () => {
 			deviceDeleteForm.reset();
 			deviceDeleteDialog.close();
+		};
+		const openZoneCreateDialog = () => {
+			document.getElementById('zone-create-id').value = '';
+			document.getElementById('zone-create-name').value = '';
+			highlightColor(document.getElementById('zone-create-colors'), null);
+			zoneCreateDialog.showModal();
+		};
+		const closeZoneCreateDialog = () => {
+			zoneCreateForm.reset();
+			zoneCreateDialog.close();
+		};
+		const openZoneDeleteDialog = (zone) => {
+			zoneDeleteForm.setValue('zoneId', zone.id);
+			zoneDeleteForm.setTouched('zoneId', true);
+			zoneDeleteDialog.showModal();
+		};
+		const closeZoneDeleteDialog = () => {
+			zoneDeleteForm.reset();
+			zoneDeleteDialog.close();
 		};
 		const deviceCreateForm = formik(
 			{
@@ -465,6 +906,74 @@
 					report(err);
 				}
 				closeDeviceDeleteDialog();
+			},
+		);
+		const zoneCreateForm = formik(
+			{
+				button: document.getElementById('zone-create-button'),
+				id: document.getElementById('zone-create-id-validation'),
+				name: document.getElementById('zone-create-name-validation'),
+				color: document.getElementById('zone-create-color-validation'),
+			},
+			{
+				id: (value) => {
+					if (!value) return 'id is required';
+					if (value.length !== 4) return 'id must be 4 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'id must be lowercase hexadecimal';
+				},
+				name: (value) => {
+					if (!value) return 'name is required';
+					if (value.length < 2) return 'name is too short';
+					if (value.length > 12) return 'name is too long';
+					if (!value.match(/^[a-z0-9 ]+$/)) return 'name must be lowercase letters or numbers';
+				},
+				color: (value) => {
+					if (!value) return 'color is required';
+					if (value.length !== 24) return 'color must be 24 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'color must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				const id = new Uint8Array(values.id.length / 2);
+				for (let ind = 0; ind < values.id.length / 2; ind++) {
+					id[ind] = parseInt(values.id.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const color = new Uint8Array(values.color.length / 2);
+				for (let ind = 0; ind < values.color.length / 2; ind++) {
+					color[ind] = parseInt(values.color.substring(ind * 2, ind * 2 + 2), 16);
+				}
+				const data = new Blob([id, values.name, '\0', color]);
+				try {
+					const endpoint = '/api/zone';
+					await fetcher('post', endpoint, data, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully created zone');
+					loadZones(true);
+				} catch (err) {
+					report(err);
+				}
+				closeZoneCreateDialog();
+			},
+		);
+		const zoneDeleteForm = formik(
+			{
+				button: document.getElementById('zone-delete-button'),
+			},
+			{
+				zoneId: (value) => {
+					if (!value) return 'zone id is required';
+					if (value.length !== 16) return 'zone id must be 16 characters';
+					if (!value.match(/^[0-9a-f]+$/)) return 'zone id must be lowercase hexadecimal';
+				},
+			},
+			async (values) => {
+				try {
+					await fetcher('delete', `/api/zone/${values.zoneId}`, null, { headers: { 'content-type': 'application/octet-stream' } });
+					notification('success', 'Successfully deleted zone');
+					loadZones(true);
+				} catch (err) {
+					report(err);
+				}
+				closeZoneDeleteDialog();
 			},
 		);
 	</script>
