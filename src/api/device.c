@@ -37,49 +37,49 @@ const device_row_t device_row = {
 		.name = 9,
 		.firmware_len = 25,
 		.firmware = 26,
-		.hardware_len = 38,
-		.hardware = 39,
-		.created_at = 51,
-		.updated_at_null = 59,
-		.updated_at = 60,
-		.airtime = 68,
-		.airtime_bucket = 84,
-		.packet_rx = 92,
-		.packet_lost = 124,
-		.packet_bucket = 156,
-		.zone_null = 164,
-		.zone_id = 165,
-		.zone_name_len = 173,
-		.zone_name = 174,
-		.zone_color = 186,
-		.reading_null = 198,
-		.reading_temperature = 199,
-		.reading_humidity = 201,
-		.reading_dewpoint = 203,
-		.reading_captured_at = 205,
-		.metric_null = 213,
-		.metric_photovoltaic = 214,
-		.metric_battery = 216,
-		.metric_captured_at = 218,
-		.buffer_null = 226,
-		.buffer_delay = 227,
-		.buffer_level = 231,
-		.buffer_captured_at = 233,
-		.uplink_null = 241,
-		.uplink_frame = 242,
-		.uplink_kind = 244,
-		.uplink_rssi = 245,
-		.uplink_snr = 247,
-		.uplink_sf = 248,
-		.uplink_received_at = 249,
-		.downlink_null = 257,
-		.downlink_frame = 258,
-		.downlink_kind = 260,
-		.downlink_sf = 261,
-		.downlink_cr = 262,
-		.downlink_tx_power = 263,
-		.downlink_sent_at = 264,
-		.size = 272,
+		.hardware_len = 42,
+		.hardware = 43,
+		.created_at = 59,
+		.updated_at_null = 67,
+		.updated_at = 68,
+		.airtime = 76,
+		.airtime_bucket = 92,
+		.packet_rx = 100,
+		.packet_lost = 132,
+		.packet_bucket = 164,
+		.zone_null = 172,
+		.zone_id = 173,
+		.zone_name_len = 181,
+		.zone_name = 182,
+		.zone_color = 194,
+		.reading_null = 206,
+		.reading_temperature = 207,
+		.reading_humidity = 209,
+		.reading_dewpoint = 211,
+		.reading_captured_at = 213,
+		.metric_null = 221,
+		.metric_photovoltaic = 222,
+		.metric_battery = 224,
+		.metric_captured_at = 226,
+		.buffer_null = 234,
+		.buffer_delay = 235,
+		.buffer_level = 239,
+		.buffer_captured_at = 241,
+		.uplink_null = 249,
+		.uplink_frame = 250,
+		.uplink_kind = 252,
+		.uplink_rssi = 253,
+		.uplink_snr = 255,
+		.uplink_sf = 256,
+		.uplink_received_at = 257,
+		.downlink_null = 265,
+		.downlink_frame = 266,
+		.downlink_kind = 268,
+		.downlink_sf = 269,
+		.downlink_cr = 270,
+		.downlink_tx_power = 271,
+		.downlink_sent_at = 272,
+		.size = 280,
 };
 
 int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
@@ -1014,17 +1014,17 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	}
 	if (device->firmware != NULL) {
 		octet_uint8_write(db->row, device_row.firmware_len, device->firmware_len);
-		octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 12);
+		octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 16);
 	} else {
 		octet_uint8_write(db->row, device_row.firmware_len, 0);
-		octet_textn_write(db->row, device_row.firmware, (char[]){0x00}, 0, 12);
+		octet_textn_write(db->row, device_row.firmware, (char[]){0x00}, 0, 16);
 	}
 	if (device->hardware != NULL) {
 		octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
-		octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 12);
+		octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 16);
 	} else {
 		octet_uint8_write(db->row, device_row.hardware_len, 0);
-		octet_textn_write(db->row, device_row.hardware, (char[]){0x00}, 0, 12);
+		octet_textn_write(db->row, device_row.hardware, (char[]){0x00}, 0, 16);
 	}
 	octet_uint64_write(db->row, device_row.created_at, (uint64_t)*device->created_at);
 	octet_uint8_write(db->row, device_row.updated_at_null, 0x00);
@@ -1123,11 +1123,11 @@ uint16_t device_update(octet_t *db, device_t *device) {
 			}
 			if (device->firmware != NULL) {
 				octet_uint8_write(db->row, device_row.firmware_len, device->firmware_len);
-				octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 12);
+				octet_textn_write(db->row, device_row.firmware, device->firmware, device->firmware_len, 16);
 			}
 			if (device->hardware != NULL) {
 				octet_uint8_write(db->row, device_row.hardware_len, device->hardware_len);
-				octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 12);
+				octet_textn_write(db->row, device_row.hardware, device->hardware, device->hardware_len, 16);
 			}
 			octet_uint8_write(db->row, device_row.updated_at_null, 0x01);
 			octet_uint64_write(db->row, device_row.updated_at, (uint64_t)*device->updated_at);
