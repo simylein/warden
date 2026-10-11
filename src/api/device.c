@@ -1435,6 +1435,98 @@ cleanup:
 	return status;
 }
 
+uint16_t device_delete(octet_t *db, device_t *device) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	char uuid[16];
+	if (base16_encode(uuid, sizeof(uuid), device->id, sizeof(*device->id)) == -1) {
+		error("failed to encode uuid to base 16\n");
+		return 500;
+	}
+
+	char directory[128];
+	if (sprintf(directory, "%s/%.*s", db->directory, (int)sizeof(uuid), uuid) == -1) {
+		error("failed to sprintf uuid to directory\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete device %02x%02x\n", (*device->id)[0], (*device->id)[1]);
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			warn("device %02x%02x not found\n", (*device->id)[0], (*device->id)[1]);
+			status = 404;
+			goto cleanup;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.id);
+		if (memcmp(id, device->id, sizeof(*device->id)) == 0) {
+			break;
+		}
+		offset += device_row.size;
+	}
+
+	off_t index = offset + device_row.size;
+	while (index < stmt.stat.st_size) {
+		if (octet_row_read(&stmt, file, index, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		if (octet_row_write(&stmt, file, index - device_row.size, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		index += device_row.size;
+	}
+
+	if (octet_trunc(&stmt, file, stmt.stat.st_size - device_row.size) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	const char *files[] = {uplink_file, downlink_file, reading_file, metric_file, buffer_file,
+												 config_file, radio_file,		 alert_file,	 rule_file};
+	for (uint8_t ind = 0; ind < sizeof(files) / sizeof(files[0]); ind++) {
+		if (sprintf(file, "%s/%.*s/%s.data", db->directory, (int)sizeof(uuid), uuid, files[ind]) == -1) {
+			error("failed to sprintf uuid to file\n");
+			status = 500;
+			goto cleanup;
+		}
+
+		if (octet_unlink(file) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+	}
+
+	if (octet_rmdir(directory) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
@@ -1643,5 +1735,37 @@ void device_modify(octet_t *db, request_t *request, response_t *response) {
 	}
 
 	info("updated device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
+	response->status = 200;
+}
+
+void device_remove(octet_t *db, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t uuid_len = 0;
+	const char *uuid = param_find(request, 12, &uuid_len);
+	if (uuid_len != sizeof(*((device_t *)0)->id) * 2) {
+		warn("uuid length %hhu does not match %zu\n", uuid_len, sizeof(*((device_t *)0)->id) * 2);
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	if (base16_decode(id, sizeof(id), uuid, uuid_len) != 0) {
+		warn("failed to decode uuid from base 16\n");
+		response->status = 400;
+		return;
+	}
+
+	device_t device = {.id = &id};
+	uint16_t status = device_delete(db, &device);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("deleted device %02x%02x\n", (*device.id)[0], (*device.id)[1]);
 	response->status = 200;
 }

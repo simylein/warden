@@ -429,6 +429,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "delete", "/api/device/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_device_delete, response) == true) {
+				device_remove(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/device/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
