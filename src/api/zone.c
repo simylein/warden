@@ -1082,8 +1082,7 @@ void zone_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	time_t now = time(NULL);
-	zone_t zone = {.id = &id, .updated_at = &now};
+	zone_t zone = {.id = &id, .updated_at = (time_t[]){time(NULL)}};
 	if (request->body.len == 0 || zone_parse(&zone, request) == -1 || zone_validate(&zone) == -1) {
 		response->status = 400;
 		return;

@@ -810,7 +810,7 @@ cleanup:
 	return status;
 }
 
-int device_parse(device_t *device, request_t *request) {
+int device_modify_parse(device_t *device, request_t *request) {
 	request->body.pos = 0;
 
 	uint8_t stage = 0;
@@ -1449,9 +1449,8 @@ void device_modify(octet_t *db, request_t *request, response_t *response) {
 		return;
 	}
 
-	time_t now = time(NULL);
-	device_t device = {.id = &id, .updated_at = &now};
-	if (request->body.len == 0 || device_parse(&device, request) == -1 || device_validate(&device) == -1) {
+	device_t device = {.id = &id, .updated_at = (time_t[]){time(NULL)}};
+	if (request->body.len == 0 || device_modify_parse(&device, request) == -1 || device_validate(&device) == -1) {
 		response->status = 400;
 		return;
 	}
