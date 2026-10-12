@@ -64,6 +64,7 @@ uint16_t zone_inventory_select(octet_t *db, zone_query_t *query, response_t *res
 uint16_t zone_insert(octet_t *db, zone_t *zone);
 uint16_t zone_update(octet_t *db, zone_t *zone);
 uint16_t zone_update_latest(octet_t *db, zone_t *zone);
+uint16_t zone_delete(octet_t *db, zone_t *zone);
 
 void zone_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
 void zone_find_one(octet_t *db, bwt_t *bwt, request_t *request, response_t *response);
@@ -71,3 +72,4 @@ void zone_find_by_user(octet_t *db, request_t *request, response_t *response);
 void zone_inventory_find(octet_t *db, request_t *request, response_t *response);
 void zone_create(octet_t *db, request_t *request, response_t *response);
 void zone_modify(octet_t *db, request_t *request, response_t *response);
+void zone_remove(octet_t *db, request_t *request, response_t *response);

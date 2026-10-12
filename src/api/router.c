@@ -583,6 +583,15 @@ void route(octet_t *db, request_t *request, response_t *response) {
 		}
 	}
 
+	if (endpoint(request, "delete", "/api/zone/:id", &method_found, &pathname_found) == true) {
+		bwt_t bwt;
+		if (authenticate(false, &bwt, request, response) == true) {
+			if (authorize(&bwt, permission_zone_delete, response) == true) {
+				zone_remove(db, request, response);
+			}
+		}
+	}
+
 	if (endpoint(request, "get", "/api/zone/:id/readings", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
