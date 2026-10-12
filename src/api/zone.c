@@ -628,6 +628,87 @@ cleanup:
 	return status;
 }
 
+uint16_t zone_inventory_select(octet_t *db, zone_query_t *query, response_t *response, uint8_t *zones_len) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDONLY, F_RDLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	if (stmt.stat.st_size > db->table_len) {
+		error("file length %zu exceeds buffer length %u\n", (size_t)stmt.stat.st_size, db->table_len);
+		status = 500;
+		goto cleanup;
+	}
+
+	debug("select inventory zones order by %.*s:%.*s\n", (int)query->order_len, query->order, (int)query->sort_len, query->sort);
+
+	off_t offset = 0;
+	uint32_t table_len = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			status = 0;
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, &db->table[table_len], zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		table_len += zone_row.size;
+		offset += zone_row.size;
+	}
+
+	if (table_len >= zone_row.size * 2) {
+		for (uint8_t index = 0; index < table_len / zone_row.size - 1; index++) {
+			for (uint8_t ind = index + 1; ind < table_len / zone_row.size; ind++) {
+				if (zone_rowcmp(&db->table[index * zone_row.size], &db->table[ind * zone_row.size], query) > 0) {
+					memcpy(db->row, &db->table[index * zone_row.size], zone_row.size);
+					memcpy(&db->table[index * zone_row.size], &db->table[ind * zone_row.size], zone_row.size);
+					memcpy(&db->table[ind * zone_row.size], db->row, zone_row.size);
+				}
+			}
+		}
+	}
+
+	uint32_t index = zone_row.size * query->offset;
+	while (true) {
+		if (index >= table_len || *zones_len >= query->limit) {
+			status = 0;
+			break;
+		}
+		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], zone_row.id);
+		uint8_t name_len = octet_uint8_read(&db->table[index], zone_row.name_len);
+		char *name = octet_text_read(&db->table[index], zone_row.name);
+		uint8_t (*color)[12] = (uint8_t (*)[12])octet_blob_read(&db->table[index], zone_row.color);
+		time_t created_at = (time_t)octet_uint64_read(&db->table[index], zone_row.created_at);
+		uint8_t updated_at_null = octet_uint8_read(&db->table[index], zone_row.updated_at_null);
+		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], zone_row.updated_at);
+		body_write(response, id, sizeof(*id));
+		body_write(response, name, name_len);
+		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, color, sizeof(*color));
+		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
+		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
+		if (updated_at_null != 0x00) {
+			body_write(response, (uint64_t[]){hton64((uint64_t)updated_at)}, sizeof(updated_at));
+		}
+		*zones_len += 1;
+		index += zone_row.size;
+	}
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 int zone_parse(zone_t *zone, request_t *request) {
 	request->body.pos = 0;
 
@@ -1050,6 +1131,31 @@ void zone_find_by_user(octet_t *db, request_t *request, response_t *response) {
 
 	uint8_t zones_len = 0;
 	status = zone_select_by_user(db, &user, &query, response, &zones_len);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	header_write(response, "content-type:application/octet-stream\r\n");
+	header_write(response, "content-length:%u\r\n", response->body.len);
+	info("found %hhu zones\n", zones_len);
+	response->status = 200;
+}
+
+void zone_inventory_find(octet_t *db, request_t *request, response_t *response) {
+	zone_query_t query = {.limit = 16, .offset = 0};
+	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	if (strnfind(request->search.ptr, request->search.len, "sort=", "", &query.sort, &query.sort_len, 8) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t zones_len = 0;
+	uint16_t status = zone_inventory_select(db, &query, response, &zones_len);
 	if (status != 0) {
 		response->status = status;
 		return;
