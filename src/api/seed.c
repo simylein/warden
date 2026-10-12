@@ -68,6 +68,11 @@ int seed_zone(octet_t *db) {
 			{0x02, 0x84, 0xc7, 0x38, 0xbd, 0xf8, 0xf0, 0xf9, 0xff, 0x08, 0x2f, 0x49},
 	};
 
+	for (uint8_t index = 0; index < zone_ids_len; index++) {
+		zone_ids[index][0] = (uint8_t)(rand() & 0xff);
+		zone_ids[index][1] = (uint8_t)(rand() & 0xff);
+	}
+
 	zone_ids_len = sizeof(names) / sizeof(*names);
 	zone_ids = malloc(zone_ids_len * sizeof(*zone_ids));
 	if (zone_ids == NULL) {

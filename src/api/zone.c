@@ -807,7 +807,7 @@ int zone_validate(zone_t *zone) {
 uint16_t zone_insert(octet_t *db, zone_t *zone) {
 	uint16_t status;
 
-	for (uint8_t index = 0; index < sizeof(*zone->id); index++) {
+	for (uint8_t index = sizeof(uint16_t); index < sizeof(*zone->id); index++) {
 		(*zone->id)[index] = (uint8_t)(rand() & 0xff);
 	}
 
