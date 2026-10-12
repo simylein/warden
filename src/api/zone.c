@@ -709,7 +709,49 @@ cleanup:
 	return status;
 }
 
-int zone_parse(zone_t *zone, request_t *request) {
+int zone_create_parse(zone_t *zone, request_t *request) {
+	request->body.pos = 0;
+
+	uint8_t stage = 0;
+
+	if (request->body.len < request->body.pos + sizeof(uint16_t)) {
+		debug("missing id on zone\n");
+		return -1;
+	}
+	memcpy(zone->id, body_read(request, sizeof(uint16_t)), sizeof(uint16_t));
+	stage = 1;
+
+	zone->name_len = 0;
+	const uint8_t name_index = (uint8_t)request->body.pos;
+	while (stage == 1 && zone->name_len < 12 && request->body.pos < request->body.len) {
+		const char *byte = body_read(request, sizeof(char));
+		if (*byte == '\0') {
+			stage = 2;
+		} else {
+			zone->name_len++;
+		}
+	}
+	if (zone->name_len != 0) {
+		zone->name = &request->body.ptr[name_index];
+	} else {
+		zone->name = NULL;
+	}
+	if (stage != 2) {
+		debug("found name with %hhu bytes\n", zone->name_len);
+		return -1;
+	}
+
+	if (request->body.len < request->body.pos + sizeof(*zone->color)) {
+		debug("missing color on zone\n");
+		return -1;
+	}
+	zone->color = (uint8_t (*)[12])body_read(request, sizeof(*zone->color));
+	stage = 3;
+
+	return 0;
+}
+
+int zone_modify_parse(zone_t *zone, request_t *request) {
 	request->body.pos = 0;
 
 	uint8_t stage = 0;
@@ -1167,6 +1209,29 @@ void zone_inventory_find(octet_t *db, request_t *request, response_t *response) 
 	response->status = 200;
 }
 
+void zone_create(octet_t *db, request_t *request, response_t *response) {
+	if (request->search.len != 0) {
+		response->status = 400;
+		return;
+	}
+
+	uint8_t id[8];
+	zone_t zone = {.id = &id, .created_at = (time_t[]){time(NULL)}};
+	if (request->body.len == 0 || zone_create_parse(&zone, request) == -1 || zone_validate(&zone) == -1) {
+		response->status = 400;
+		return;
+	}
+
+	uint16_t status = zone_insert(db, &zone);
+	if (status != 0) {
+		response->status = status;
+		return;
+	}
+
+	info("created zone %02x%02x\n", (*zone.id)[0], (*zone.id)[1]);
+	response->status = 201;
+}
+
 void zone_modify(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;
@@ -1189,7 +1254,7 @@ void zone_modify(octet_t *db, request_t *request, response_t *response) {
 	}
 
 	zone_t zone = {.id = &id, .updated_at = (time_t[]){time(NULL)}};
-	if (request->body.len == 0 || zone_parse(&zone, request) == -1 || zone_validate(&zone) == -1) {
+	if (request->body.len == 0 || zone_modify_parse(&zone, request) == -1 || zone_validate(&zone) == -1) {
 		response->status = 400;
 		return;
 	}
