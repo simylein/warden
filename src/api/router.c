@@ -579,7 +579,9 @@ void route(octet_t *db, request_t *request, response_t *response) {
 	if (endpoint(request, "patch", "/api/zone/:id", &method_found, &pathname_found) == true) {
 		bwt_t bwt;
 		if (authenticate(false, &bwt, request, response) == true) {
-			zone_modify(db, request, response);
+			if (authorize(&bwt, permission_zone_update, response) == true) {
+				zone_modify(db, request, response);
+			}
 		}
 	}
 
