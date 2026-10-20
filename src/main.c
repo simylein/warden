@@ -41,6 +41,7 @@ void stop(int sig) {
 int main(int argc, char *argv[]) {
 	srand((unsigned int)time(NULL));
 
+	signal(SIGHUP, &stop);
 	signal(SIGINT, &stop);
 	signal(SIGTERM, &stop);
 
