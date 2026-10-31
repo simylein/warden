@@ -458,6 +458,8 @@ void text(class_t *cls, char (*buffer)[8192], uint16_t *buffer_len) {
 			{.key = "text-nowrap", .key_len = 11, .val = "text-wrap:nowrap", .val_len = 16},
 			{.key = "text-balance", .key_len = 12, .val = "text-wrap:balance", .val_len = 17},
 			{.key = "text-pretty", .key_len = 11, .val = "text-wrap:pretty", .val_len = 16},
+			{.key = "text-clip", .key_len = 9, .val = "text-overflow:clip", .val_len = 18},
+			{.key = "text-ellipsis", .key_len = 13, .val = "text-overflow:ellipsis", .val_len = 22},
 			{.key = "leading-none", .key_len = 12, .val = "line-height:1", .val_len = 13},
 			{.key = "leading-slim", .key_len = 12, .val = "line-height:1.125", .val_len = 17},
 			{.key = "leading-tight", .key_len = 13, .val = "line-height:1.25", .val_len = 16},
