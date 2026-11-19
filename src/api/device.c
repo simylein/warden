@@ -1500,6 +1500,10 @@ uint16_t device_delete(octet_t *db, device_t *device) {
 		goto cleanup;
 	}
 
+	if ((status = user_device_delete_by_device(db, device)) != 0) {
+		goto cleanup;
+	}
+
 	const char *files[] = {uplink_file, downlink_file, reading_file, metric_file, buffer_file,
 												 config_file, radio_file,		 alert_file,	 rule_file};
 	for (uint8_t ind = 0; ind < sizeof(files) / sizeof(files[0]); ind++) {

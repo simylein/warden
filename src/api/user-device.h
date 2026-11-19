@@ -3,6 +3,7 @@
 #include "../lib/octet.h"
 #include "../lib/request.h"
 #include "../lib/response.h"
+#include "device.h"
 #include "user.h"
 #include <stdint.h>
 
@@ -25,6 +26,7 @@ uint16_t user_device_existing(octet_t *db, user_device_t *user_device);
 uint16_t user_device_select_by_user(octet_t *db, user_t *user, uint8_t *user_devices_len);
 uint16_t user_device_insert(octet_t *db, user_device_t *user_device);
 uint16_t user_device_delete(octet_t *db, user_device_t *user_device);
+uint16_t user_device_delete_by_device(octet_t *db, device_t *device);
 
 void user_device_create(octet_t *db, request_t *request, response_t *response);
 void user_device_remove(octet_t *db, request_t *request, response_t *response);
