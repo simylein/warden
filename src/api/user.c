@@ -9,6 +9,8 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "../lib/sha256.h"
+#include "user-device.h"
+#include "user-zone.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -548,6 +550,14 @@ uint16_t user_delete(octet_t *db, user_t *user) {
 
 	if (octet_trunc(&stmt, file, stmt.stat.st_size - user_row.size) == -1) {
 		status = octet_error();
+		goto cleanup;
+	}
+
+	if ((status = user_device_delete_by_user(db, user)) != 0) {
+		goto cleanup;
+	}
+
+	if ((status = user_zone_delete_by_user(db, user)) != 0) {
 		goto cleanup;
 	}
 
