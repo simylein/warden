@@ -1309,10 +1309,10 @@ uint16_t device_update_zones(octet_t *db, zone_t *zone) {
 			octet_uint8_write(db->row, device_row.zone_name_len, zone->name_len);
 			octet_textn_write(db->row, device_row.zone_name, zone->name, zone->name_len, 12);
 			octet_blob_write(db->row, device_row.zone_color, (uint8_t *)zone->color, sizeof(*zone->color));
-		}
-		if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
-			status = octet_error();
-			goto cleanup;
+			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
 		}
 		offset += device_row.size;
 	}
