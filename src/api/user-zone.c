@@ -244,6 +244,58 @@ cleanup:
 	return status;
 }
 
+uint16_t user_zone_delete_by_zone(octet_t *db, zone_t *zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, user_zone_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	debug("delete user zones by zone %02x%02x\n", (*zone->id)[0], (*zone->id)[1]);
+
+	off_t wrote = 0;
+	for (off_t read = 0; read < stmt.stat.st_size; read += user_zone_row.size) {
+		if (octet_row_read(&stmt, file, read, db->row, user_zone_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, user_zone_row.zone_id);
+		if (memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
+			continue;
+		}
+
+		if (wrote != read) {
+			if (octet_row_write(&stmt, file, wrote, db->row, user_zone_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+		}
+		wrote += user_zone_row.size;
+	}
+
+	if (wrote != stmt.stat.st_size) {
+		if (octet_trunc(&stmt, file, wrote) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void user_zone_create(octet_t *db, request_t *request, response_t *response) {
 	if (request->search.len != 0) {
 		response->status = 400;

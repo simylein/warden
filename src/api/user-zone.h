@@ -4,6 +4,7 @@
 #include "../lib/request.h"
 #include "../lib/response.h"
 #include "user.h"
+#include "zone.h"
 #include <stdint.h>
 
 typedef struct user_zone_t {
@@ -25,6 +26,7 @@ uint16_t user_zone_existing(octet_t *db, user_zone_t *user_zone);
 uint16_t user_zone_select_by_user(octet_t *db, user_t *user, uint8_t *user_zones_len);
 uint16_t user_zone_insert(octet_t *db, user_zone_t *user_zone);
 uint16_t user_zone_delete(octet_t *db, user_zone_t *user_zone);
+uint16_t user_zone_delete_by_zone(octet_t *db, zone_t *zone);
 
 void user_zone_create(octet_t *db, request_t *request, response_t *response);
 void user_zone_remove(octet_t *db, request_t *request, response_t *response);

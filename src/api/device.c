@@ -1531,6 +1531,48 @@ cleanup:
 	return status;
 }
 
+uint16_t device_delete_zones(octet_t *db, zone_t *zone) {
+	uint16_t status;
+
+	char file[128];
+	if (sprintf(file, "%s/%s.data", db->directory, device_file) == -1) {
+		error("failed to sprintf to file\n");
+		return 500;
+	}
+
+	octet_stmt_t stmt;
+	if (octet_open(&stmt, file, O_RDWR, F_WRLCK) == -1) {
+		status = octet_error();
+		goto cleanup;
+	}
+
+	off_t offset = 0;
+	while (true) {
+		if (offset >= stmt.stat.st_size) {
+			break;
+		}
+		if (octet_row_read(&stmt, file, offset, db->row, device_row.size) == -1) {
+			status = octet_error();
+			goto cleanup;
+		}
+		uint8_t (*zone_id)[8] = (uint8_t (*)[8])octet_blob_read(db->row, device_row.zone_id);
+		if (memcmp(zone_id, zone->id, sizeof(*zone->id)) == 0) {
+			octet_uint8_write(db->row, device_row.zone_null, 0x00);
+			if (octet_row_write(&stmt, file, offset, db->row, device_row.size) == -1) {
+				status = octet_error();
+				goto cleanup;
+			}
+		}
+		offset += device_row.size;
+	}
+
+	status = 0;
+
+cleanup:
+	octet_close(&stmt, file);
+	return status;
+}
+
 void device_find(octet_t *db, bwt_t *bwt, request_t *request, response_t *response) {
 	device_query_t query = {.limit = 16, .offset = 0};
 	if (strnfind(request->search.ptr, request->search.len, "order=", "&", &query.order, &query.order_len, 16) == -1) {

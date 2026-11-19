@@ -1121,6 +1121,14 @@ uint16_t zone_delete(octet_t *db, zone_t *zone) {
 		goto cleanup;
 	}
 
+	if ((status = user_zone_delete_by_zone(db, zone)) != 0) {
+		goto cleanup;
+	}
+
+	if ((status = device_delete_zones(db, zone)) != 0) {
+		goto cleanup;
+	}
+
 	status = 0;
 
 cleanup:
