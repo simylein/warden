@@ -1122,8 +1122,8 @@ uint16_t device_insert(octet_t *db, device_t *device) {
 	}
 
 	uint16_t airtime[8] = {0x00};
-	uint8_t packet_rx[8] = {0x00};
-	uint8_t packet_lost[8] = {0x00};
+	uint8_t packet_rx[32] = {0x00};
+	uint8_t packet_lost[32] = {0x00};
 	octet_blob_write(db->row, device_row.id, (uint8_t *)device->id, sizeof(*device->id));
 	octet_uint8_write(db->row, device_row.name_len, device->name_len);
 	octet_textn_write(db->row, device_row.name, (char *)device->name, device->name_len, 16);
