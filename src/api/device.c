@@ -105,6 +105,44 @@ int device_rowcmp(uint8_t *alpha, uint8_t *bravo, device_query_t *query) {
 		return result;
 	}
 
+	if (query->order_len == 8 && memcmp(query->order, "firmware", query->order_len) == 0) {
+		uint8_t firmware_len_alpha = octet_uint8_read(alpha, device_row.firmware_len);
+		char *firmware_alpha = octet_text_read(alpha, device_row.firmware);
+		uint8_t firmware_len_bravo = octet_uint8_read(bravo, device_row.firmware_len);
+		char *firmware_bravo = octet_text_read(bravo, device_row.firmware);
+		if ((firmware_len_alpha == 0) != (firmware_len_bravo == 0)) {
+			return firmware_len_alpha == 0 ? -1 : 1;
+		}
+		if (firmware_len_alpha == 0) {
+			return 0;
+		}
+		int result = memcmp(firmware_alpha, firmware_bravo,
+												firmware_len_alpha < firmware_len_bravo ? firmware_len_alpha : firmware_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
+	if (query->order_len == 8 && memcmp(query->order, "hardware", query->order_len) == 0) {
+		uint8_t hardware_len_alpha = octet_uint8_read(alpha, device_row.hardware_len);
+		char *hardware_alpha = octet_text_read(alpha, device_row.hardware);
+		uint8_t hardware_len_bravo = octet_uint8_read(bravo, device_row.hardware_len);
+		char *hardware_bravo = octet_text_read(bravo, device_row.hardware);
+		if ((hardware_len_alpha == 0) != (hardware_len_bravo == 0)) {
+			return hardware_len_alpha == 0 ? -1 : 1;
+		}
+		if (hardware_len_alpha == 0) {
+			return 0;
+		}
+		int result = memcmp(hardware_alpha, hardware_bravo,
+												hardware_len_alpha < hardware_len_bravo ? hardware_len_alpha : hardware_len_bravo);
+		if (query->sort_len == 4 && memcmp(query->sort, "desc", query->sort_len) == 0) {
+			result = -result;
+		}
+		return result;
+	}
+
 	if (query->order_len == 9 && memcmp(query->order, "createdAt", query->order_len) == 0) {
 		time_t created_at_alpha = (time_t)octet_uint64_read(alpha, device_row.created_at);
 		time_t created_at_bravo = (time_t)octet_uint64_read(bravo, device_row.created_at);
@@ -870,6 +908,10 @@ uint16_t device_inventory_select(octet_t *db, device_query_t *query, response_t 
 		uint8_t (*id)[8] = (uint8_t (*)[8])octet_blob_read(&db->table[index], device_row.id);
 		uint8_t name_len = octet_uint8_read(&db->table[index], device_row.name_len);
 		char *name = octet_text_read(&db->table[index], device_row.name);
+		uint8_t firmware_len = octet_uint8_read(&db->table[index], device_row.firmware_len);
+		char *firmware = octet_text_read(&db->table[index], device_row.firmware);
+		uint8_t hardware_len = octet_uint8_read(&db->table[index], device_row.hardware_len);
+		char *hardware = octet_text_read(&db->table[index], device_row.hardware);
 		time_t created_at = (time_t)octet_uint64_read(&db->table[index], device_row.created_at);
 		uint8_t updated_at_null = octet_uint8_read(&db->table[index], device_row.updated_at_null);
 		time_t updated_at = (time_t)octet_uint64_read(&db->table[index], device_row.updated_at);
@@ -883,6 +925,16 @@ uint16_t device_inventory_select(octet_t *db, device_query_t *query, response_t 
 		body_write(response, id, sizeof(*id));
 		body_write(response, name, name_len);
 		body_write(response, (char[]){0x00}, sizeof(char));
+		body_write(response, (uint8_t[]){firmware_len != 0}, sizeof(firmware_len));
+		if (firmware_len != 0) {
+			body_write(response, firmware, firmware_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+		}
+		body_write(response, (uint8_t[]){hardware_len != 0}, sizeof(hardware_len));
+		if (hardware_len != 0) {
+			body_write(response, hardware, hardware_len);
+			body_write(response, (char[]){0x00}, sizeof(char));
+		}
 		body_write(response, (uint64_t[]){hton64((uint64_t)created_at)}, sizeof(created_at));
 		body_write(response, (uint8_t[]){updated_at_null != 0x00}, sizeof(updated_at_null));
 		if (updated_at_null != 0x00) {

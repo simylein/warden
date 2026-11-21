@@ -95,6 +95,30 @@
 								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
 							</th>
 							<th
+								id="device-firmware"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintDeviceSorting('firmware');
+									loadDevices();
+								"
+							>
+								Firmware
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
+								id="device-hardware"
+								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
+								onclick="
+									paintDeviceSorting('hardware');
+									loadDevices();
+								"
+							>
+								Hardware
+								<icon-chevron-up ref="./src/app/components/icon-chevron-up.html" class="hidden h-3 w-3" />
+								<icon-chevron-down ref="./src/app/components/icon-chevron-down.html" class="hidden h-3 w-3" />
+							</th>
+							<th
 								id="device-created-at"
 								class="pt-2 sm:pt-3 lg:pt-4 pr-2 sm:pr-3 lg:pr-4 pb-2 sm:pb-3 lg:pb-4 text-start text-base font-normal cursor-pointer"
 								onclick="
@@ -639,6 +663,8 @@
 			id: document.getElementById('device-id'),
 			name: document.getElementById('device-name'),
 			zone: document.getElementById('device-zone'),
+			firmware: document.getElementById('device-firmware'),
+			hardware: document.getElementById('device-hardware'),
 			createdAt: document.getElementById('device-created-at'),
 			updatedAt: document.getElementById('device-updated-at'),
 			receivedAt: document.getElementById('device-received-at'),
@@ -698,14 +724,18 @@
 				loading(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
 				loading(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
-				loading(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				loading(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				loading(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
+				loading(element.children[ind].children[4].children[0], ['w-16', 'h-4'], [], '');
 				loading(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].onclick = null;
+				fade(element.children[ind].children[6].children[0]);
+				loading(element.children[ind].children[6].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				loading(element.children[ind].children[7].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[8].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[8].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[8].children[0].onclick = null;
 			});
 		};
 		const paintDevices = (element, data) => {
@@ -725,24 +755,38 @@
 						paint(element.children[ind].children[2].children[0], [], ['w-24', 'h-4'], 'null');
 						colorNull(element.children[ind].children[2].children[0]);
 					}
-					paint(element.children[ind].children[3].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
-					fade(element.children[ind].children[4].children[0]);
-					if (data[ind].updatedAt !== null) {
-						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
+					fade(element.children[ind].children[3].children[0]);
+					if (data[ind].firmware !== null) {
+						paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], data[ind].firmware);
 					} else {
-						paint(element.children[ind].children[4].children[0], [], ['w-40', 'h-4'], 'null');
+						paint(element.children[ind].children[3].children[0], [], ['w-16', 'h-4'], 'null');
+						colorNull(element.children[ind].children[3].children[0]);
+					}
+					fade(element.children[ind].children[4].children[0]);
+					if (data[ind].hardware !== null) {
+						paint(element.children[ind].children[4].children[0], [], ['w-16', 'h-4'], data[ind].hardware);
+					} else {
+						paint(element.children[ind].children[4].children[0], [], ['w-16', 'h-4'], 'null');
 						colorNull(element.children[ind].children[4].children[0]);
 					}
-					fade(element.children[ind].children[5].children[0]);
-					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
+					paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].createdAt));
+					fade(element.children[ind].children[6].children[0]);
+					if (data[ind].updatedAt !== null) {
+						paint(element.children[ind].children[6].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].updatedAt));
 					} else {
-						paint(element.children[ind].children[5].children[0], [], ['w-40', 'h-4'], 'null');
-						colorNull(element.children[ind].children[5].children[0]);
+						paint(element.children[ind].children[6].children[0], [], ['w-40', 'h-4'], 'null');
+						colorNull(element.children[ind].children[6].children[0]);
 					}
-					element.children[ind].children[6].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
-					element.children[ind].children[6].children[0].classList.add('cursor-pointer');
-					element.children[ind].children[6].children[0].onclick = () => openDeviceDeleteDialog(data[ind]);
+					fade(element.children[ind].children[7].children[0]);
+					if (data[ind].uplink !== null && data[ind].uplink.receivedAt !== null) {
+						paint(element.children[ind].children[7].children[0], [], ['w-40', 'h-4'], timestamp(data[ind].uplink.receivedAt));
+					} else {
+						paint(element.children[ind].children[7].children[0], [], ['w-40', 'h-4'], 'null');
+						colorNull(element.children[ind].children[7].children[0]);
+					}
+					element.children[ind].children[8].children[0].classList.remove('opacity-50', 'cursor-not-allowed');
+					element.children[ind].children[8].children[0].classList.add('cursor-pointer');
+					element.children[ind].children[8].children[0].onclick = () => openDeviceDeleteDialog(data[ind]);
 				}
 			});
 		};
@@ -755,14 +799,18 @@
 				error(element.children[ind].children[1].children[0], ['w-32', 'h-4'], [], '');
 				fade(element.children[ind].children[2].children[0]);
 				error(element.children[ind].children[2].children[0], ['w-24', 'h-4'], [], '');
-				error(element.children[ind].children[3].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[3].children[0]);
+				error(element.children[ind].children[3].children[0], ['w-16', 'h-4'], [], '');
 				fade(element.children[ind].children[4].children[0]);
-				error(element.children[ind].children[4].children[0], ['w-40', 'h-4'], [], '');
-				fade(element.children[ind].children[5].children[0]);
+				error(element.children[ind].children[4].children[0], ['w-16', 'h-4'], [], '');
 				error(element.children[ind].children[5].children[0], ['w-40', 'h-4'], [], '');
-				element.children[ind].children[6].children[0].classList.remove('cursor-pointer');
-				element.children[ind].children[6].children[0].classList.add('opacity-50', 'cursor-not-allowed');
-				element.children[ind].children[6].children[0].onclick = null;
+				fade(element.children[ind].children[6].children[0]);
+				error(element.children[ind].children[6].children[0], ['w-40', 'h-4'], [], '');
+				fade(element.children[ind].children[7].children[0]);
+				error(element.children[ind].children[7].children[0], ['w-40', 'h-4'], [], '');
+				element.children[ind].children[8].children[0].classList.remove('cursor-pointer');
+				element.children[ind].children[8].children[0].classList.add('opacity-50', 'cursor-not-allowed');
+				element.children[ind].children[8].children[0].onclick = null;
 			});
 		};
 		const loadingZones = (element) => {
@@ -827,9 +875,15 @@
 			const binary = new Binary(buffer);
 			const devices = [];
 			while (binary.offset < buffer.byteLength) {
-				const device = { id: null, name: null, createdAt: null, updatedAt: null, zone: null, uplink: null };
+				const device = { id: null, name: null, firmware: null, hardware: null, createdAt: null, updatedAt: null, zone: null, uplink: null };
 				device.id = binary.uuid();
 				device.name = binary.string();
+				if (binary.byte() !== 0) {
+					device.firmware = binary.string();
+				}
+				if (binary.byte() !== 0) {
+					device.hardware = binary.string();
+				}
 				device.createdAt = binary.uint(64);
 				if (binary.byte() !== 0) {
 					device.updatedAt = binary.uint(64);
